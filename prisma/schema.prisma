@@ -1,0 +1,255 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model MagicLinkToken {
+  id        String   @id @default(cuid())
+  email     String
+  token     String   @unique
+  expires   DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([email, createdAt])
+}
+
+model RateLimit {
+  id           String   @id @default(cuid())
+  key          String   @unique
+  count        Int      @default(1)
+  windowStart  DateTime
+  expires      DateTime
+
+  @@index([windowStart])
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts   Account[]
+  sessions  Session[]
+  membership Membership[]
+  comments  Comment[]
+}
+
+model Organization {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  members     Membership[]
+  reports     Report[]
+  subscription Subscription?
+}
+
+model Membership {
+  id     String           @id @default(cuid())
+  role   MembershipRole   @default(MEMBER)
+  userId String
+  orgId  String
+
+  user User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  org  Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, orgId])
+}
+
+enum MembershipRole {
+  OWNER
+  ADMIN
+  MEMBER
+}
+
+model Subscription {
+  id                   String             @id @default(cuid())
+  orgId                String             @unique
+  stripeCustomerId     String             @unique
+  stripeSubscriptionId String?            @unique
+  stripePriceId        String?
+  plan                 Plan               @default(FREE)
+  status               SubscriptionStatus @default(ACTIVE)
+  currentPeriodEnd     DateTime?
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+
+  org Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+}
+
+enum Plan {
+  FREE
+  PRO
+  TEAM
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  PAST_DUE
+  CANCELED
+  TRIALING
+}
+
+model Report {
+  id             String       @id @default(cuid())
+  title          String
+  sector         Sector
+  status         ReportStatus @default(PENDING)
+  orgId          String
+  slideCount     Int          @default(10)
+  language       String       @default("fr")
+  shareToken     String?      @unique @default(cuid())
+  isPublic       Boolean      @default(false)
+  allowComments  Boolean      @default(true)
+  allowEmbed     Boolean      @default(false)
+  shareExpiresAt DateTime?
+  sharePassword  String?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  org       Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  sourceFile SourceFile?
+  slides    Slide[]
+  exports   Export[]
+  comments  Comment[]
+}
+
+enum ReportStatus {
+  PENDING
+  PROCESSING
+  DONE
+  ERROR
+}
+
+enum Sector {
+  FINANCE
+  MARKETING
+  HR
+  SAAS
+  GENERIC
+}
+
+model SourceFile {
+  id        String   @id @default(cuid())
+  reportId  String   @unique
+  filename  String
+  fileType  FileType
+  r2Key     String
+  sizeBytes Int
+  createdAt DateTime @default(now())
+
+  report Report @relation(fields: [reportId], references: [id], onDelete: Cascade)
+}
+
+enum FileType {
+  XLSX
+  CSV
+  PDF
+  GSHEET
+}
+
+model Slide {
+  id           String     @id @default(cuid())
+  reportId     String
+  position     Int
+  title        String
+  layout       SlideLayout
+  contentJson  Json
+  speakerNotes String?
+  createdAt    DateTime   @default(now())
+
+  report   Report    @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  comments Comment[]
+}
+
+enum SlideLayout {
+  KPI_GRID
+  BAR_CHART
+  LINE_CHART
+  PIE_CHART
+  TEXT_SUMMARY
+  COMPARISON
+  TITLE_SLIDE
+}
+
+model Export {
+  id         String       @id @default(cuid())
+  reportId   String
+  format     ExportFormat
+  r2Key      String?
+  status     ExportStatus @default(PENDING)
+  createdAt  DateTime     @default(now())
+
+  report Report @relation(fields: [reportId], references: [id], onDelete: Cascade)
+}
+
+enum ExportFormat {
+  PPTX
+  PDF
+  DOCX
+}
+
+enum ExportStatus {
+  PENDING
+  DONE
+  ERROR
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  body      String   @db.Text
+  reportId  String
+  slideId   String?
+  authorId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  report Report  @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  slide  Slide?  @relation(fields: [slideId], references: [id], onDelete: SetNull)
+  author User    @relation(fields: [authorId], references: [id], onDelete: Cascade)
+}

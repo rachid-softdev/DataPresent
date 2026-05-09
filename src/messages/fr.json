@@ -1,0 +1,270 @@
+{
+  "common": {
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "create": "Créer",
+    "close": "Fermer",
+    "back": "Retour",
+    "next": "Suivant",
+    "previous": "Précédent",
+    "loading": "Chargement...",
+    "error": "Une erreur s'est produite",
+    "success": "Succès",
+    "confirm": "Confirmer",
+    "search": "Rechercher",
+    "filter": "Filtrer",
+    "download": "Télécharger",
+    "share": "Partager",
+    "generate": "Générer",
+    "upload": "Téléverser",
+    "yes": "Oui",
+    "no": "Non",
+    "or": "ou",
+    "seeAll": "Voir tout",
+    "showLess": "Réduire"
+  },
+  "nav": {
+    "dashboard": "Tableau de bord",
+    "reports": "Rapports",
+    "templates": "Modèles",
+    "settings": "Paramètres",
+    "billing": "Facturation",
+    "team": "Équipe",
+    "profile": "Profil",
+    "account": "Compte",
+    "organization": "Organisation",
+    "logout": "Déconnexion",
+    "login": "Connexion",
+    "signup": "Inscription"
+  },
+  "auth": {
+    "login": "Se connecter",
+    "signup": "S'inscrire",
+    "email": "Email",
+    "password": "Mot de passe",
+    "magicLink": "Envoyer le lien magiques",
+    "magicLinkSent": "Lien magique envoyé",
+    "signInWithEmail": "Se connecter avec email",
+    "createAccount": "Créer un compte",
+    "forgotPassword": "Mot de passe oublié ?",
+    "noAccount": "Pas de compte ?",
+    "hasAccount": "Déjà un compte ?",
+    "continueWithGoogle": "Continuer avec Google",
+    "verifyEmail": "Vérifiez votre email",
+    "checkInbox": "Consultez votre boîte mail pour le lien de vérification"
+  },
+  "landing": {
+    "hero": {
+      "title": "Transformez vos données en présentations stunning",
+      "subtitle": "Créez de belles présentations basées sur vos données en quelques secondes. Connectez vos données, choisissez un modèle et laissez l'IA faire le reste.",
+      "cta": "Commencer gratuitement"
+    },
+    "features": {
+      "title": "Fonctionnalités",
+      "ai": "Analyse par IA",
+      "aiDesc": "Notre IA analyse vos données et crée des insights automatiquement",
+      "templates": "Jolis modèles",
+      "templatesDesc": "Choisissezparmi des modèles professionnellement conçus",
+      "export": "Multiples formats",
+      "exportDesc": "Exportez en PowerPoint, PDF ou partagez en ligne"
+    },
+    "pricing": {
+      "title": "Tarification",
+      "free": "Gratuit",
+      "pro": "Pro",
+      "enterprise": "Entreprise",
+      "perMonth": "/mois",
+      "getStarted": "Commencer"
+    }
+  },
+  "dashboard": {
+    "welcome": "Bienvenue",
+    "recentReports": "Rapports récents",
+    "quickActions": "Actions rapides",
+    "newReport": "Nouveau rapport",
+    "noReports": "Aucun rapport",
+    "noReportsDesc": "Créez votre premier rapport pour commencer",
+    "viewAll": "Voir tous les rapports"
+  },
+  "reports": {
+    "title": "Rapports",
+    "new": "Nouveau rapport",
+    "create": "Créer un rapport",
+    "generate": "Générer la présentation",
+    "export": "Exporter",
+    "share": "Partager",
+    "delete": "Supprimer le rapport",
+    "deleteConfirm": "Êtes-vous sûr de vouloir supprimer ce rapport ?",
+    "status": {
+      "pending": "En attente",
+      "processing": "En cours...",
+      "done": "Prêt",
+      "error": "Erreur",
+      "ready": "Prêt",
+      "generating": "Génération...",
+      "failed": "Échoué"
+    },
+    "columns": {
+      "name": "Nom",
+      "date": "Date",
+      "status": "Statut",
+      "actions": "Actions"
+    },
+    "empty": "Aucun rapport trouvé",
+    "uploadData": "Téléchargez vos données pour créer un rapport"
+  },
+  "upload": {
+    "title": "Téléchargez vos données",
+    "dragDrop": "Glissez-déposez votre fichier ici",
+    "or": "ou",
+    "browse": "Parcourir les fichiers",
+    "supported": "Formats supportés : Excel, CSV, PDF, Google Sheets",
+    "sector": {
+      "title": "Sélectionnez le secteur de données",
+      "description": "Choisissez quelle partie de vos données analyser"
+    },
+    "slideCount": {
+      "title": "Nombre de diapositives",
+      "description": "Combien de diapositives voulons-nous générer ?"
+    },
+    "processing": "Traitement de votre fichier...",
+    "error": "Erreur lors du traitement du fichier"
+  },
+  "templates": {
+    "title": "Modèles",
+    "select": "Sélectionner un modèle",
+    "preview": "Aperçu"
+  },
+  "settings": {
+    "title": "Paramètres",
+    "profile": {
+      "title": "Profil",
+      "name": "Nom",
+      "email": "Email",
+      "avatar": "Avatar",
+      "update": "Mettre à jour le profil"
+    },
+    "account": {
+      "title": "Compte",
+      "delete": "Supprimer le compte",
+      "deleteDesc": "Supprimer définitivement votre compte et toutes vos données",
+      "confirmDelete": "Êtes-vous sûr ? Cette action est irréversible."
+    },
+    "organization": {
+      "title": "Organisation",
+      "name": "Nom de l'organisation",
+      "slug": "Slug",
+      "members": "Membres",
+      "invite": "Inviter un membre"
+    },
+    "billing": {
+      "title": "Facturation",
+      "plan": "Plan actuel",
+      "usage": "Utilisation",
+      "invoices": "Factures",
+      "upgrade": "Passer à un plan supérieur",
+      "manage": "Gérer l'abonnement"
+    },
+    "team": {
+      "title": "Équipe",
+      "members": "Membres",
+      "role": "Rôle",
+      "invite": "Inviter",
+      "remove": "Retirer",
+      "admin": "Admin",
+      "member": "Membre"
+    }
+  },
+  "share": {
+    "title": "Partager",
+    "copyLink": "Copier le lien",
+    "linkCopied": "Lien copié !",
+    "embed": "Intégrer",
+    "public": "Accès public",
+    "restricted": "Accès restreint"
+  },
+  "errors": {
+    "auth": {
+      "unauthorized": "Non autorisé",
+      "invalidToken": "Jeton invalide",
+      "tokenExpired": "Jeton expiré",
+      "tokenUsed": "Jeton déjà utilisé",
+      "failed": "Échec d'authentification"
+    },
+    "validation": {
+      "emailRequired": "Email requis",
+      "emailInvalid": "Format d'email invalide",
+      "required": "Ce champ est requis",
+      "slugRequired": "Le nom et le slug sont requis",
+      "slugTaken": "Slug déjà utilisé",
+      "rateLimit": "Trop de demandes. Veuillez réessayer plus tard.",
+      "commentRequired": "Le commentaire est requis",
+      "fileRequired": "Fichier ou secteur manquant",
+      "invalidPlan": "Plan invalide"
+    },
+    "resource": {
+      "notFound": "Non trouvé",
+      "forbidden": "Accès interdit",
+      "memberNotFound": "Utilisateur non trouvé",
+      "alreadyMember": "L'utilisateur est déjà membre",
+      "ownerDelete": "Seul le propriétaire peut supprimer l'organisation",
+      "noOrganization": "Aucune organisation trouvée",
+      "noSubscription": "Aucun abonnement trouvé",
+      "alreadyGenerating": "Le rapport est déjà en cours de génération",
+      "noSourceFile": "Fichier source introuvable",
+      "noSourceFileDesc": "Le fichier source de ce rapport n'existe plus",
+      "invalidSignature": "Signature webhook invalide"
+    },
+    "generic": "Une erreur s'est produite. Veuillez réessayer."
+  },
+  "messages": {
+    "auth": {
+      "magicSent": "Si un compte existe avec cet email, vous recevrez un lien de connexion.",
+      "signupSuccess": "Vérifiez votre email pour finaliser la création de votre compte.",
+      "signupSuccessDesc": "Nous vous avons envoyé un lien de vérification."
+    },
+    "reports": {
+      "generated": "Rapport généré avec succès",
+      "deleted": "Rapport supprimé",
+      "exported": "Rapport exporté"
+    },
+    "settings": {
+      "profileUpdated": "Profil mis à jour avec succès",
+      "organizationCreated": "Organisation créée",
+      "memberInvited": "Invitation envoyée",
+      "memberRemoved": "Membre retiré"
+    }
+  },
+  "billing": {
+    "plans": {
+      "free": {
+        "name": "Gratuit",
+        "description": "Pour les particuliers qui débutent"
+      },
+      "pro": {
+        "name": "Pro",
+        "description": "Pour les professionnels et petites équipes"
+      },
+      "enterprise": {
+        "name": "Entreprise",
+        "description": "Pour les grandes organisations"
+      }
+    },
+    "features": {
+      "reports": "Rapports",
+      "slides": "Diapositives par rapport",
+      "aiInsights": "Insights IA",
+      "templates": "Modèles",
+      "export": "Formats d'export",
+      "support": "Support"
+    },
+    "usage": {
+      "title": "Utilisation",
+      "reports": "Rapports",
+      "storage": "Stockage",
+      "thisMonth": "Ce mois"
+    }
+  }
+}

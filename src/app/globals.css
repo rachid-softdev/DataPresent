@@ -1,0 +1,72 @@
+@import "tailwindcss";
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-slideDown {
+  animation: slideDown 0.3s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    max-height: 0;
+  }
+  to {
+    opacity: 1;
+    max-height: 500px;
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+:root, [data-theme="light"] {
+  --text: #17250e;
+  --background: #f1f8ec;
+  --primary: #3a6a20;
+  --secondary: #9edb7b;
+  --accent: #68ca2f;
+  --muted: #e8f0dc;
+  --border: #c5d9b3;
+  --surface: #ffffff;
+}
+
+[data-theme="dark"] {
+  --text: #e3f1db;
+  --background: #0c1407;
+  --primary: #afdf95;
+  --secondary: #478524;
+  --accent: #6dcf35;
+  --muted: #1a2b11;
+  --border: #2d4a1f;
+  --surface: #1a2b11;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+html, body {
+  background-color: var(--background);
+  color: var(--text);
+  font-family: Arial, Helvetica, sans-serif;
+  min-height: 100vh;
+}
+
+body {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+* {
+  border-color: var(--border);
+}

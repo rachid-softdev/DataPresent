@@ -1,0 +1,270 @@
+{
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "close": "Close",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "success": "Success",
+    "confirm": "Confirm",
+    "search": "Search",
+    "filter": "Filter",
+    "download": "Download",
+    "share": "Share",
+    "generate": "Generate",
+    "upload": "Upload",
+    "yes": "Yes",
+    "no": "No",
+    "or": "or",
+    "seeAll": "See all",
+    "showLess": "Show less"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "reports": "Reports",
+    "templates": "Templates",
+    "settings": "Settings",
+    "billing": "Billing",
+    "team": "Team",
+    "profile": "Profile",
+    "account": "Account",
+    "organization": "Organization",
+    "logout": "Log out",
+    "login": "Log in",
+    "signup": "Sign up"
+  },
+  "auth": {
+    "login": "Log in",
+    "signup": "Sign up",
+    "email": "Email",
+    "password": "Password",
+    "magicLink": "Send magic link",
+    "magicLinkSent": "Magic link sent",
+    "signInWithEmail": "Sign in with email",
+    "createAccount": "Create account",
+    "forgotPassword": "Forgot password?",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?",
+    "continueWithGoogle": "Continue with Google",
+    "verifyEmail": "Verify your email",
+    "checkInbox": "Check your inbox for the verification link"
+  },
+  "landing": {
+    "hero": {
+      "title": "Transform your data into stunning presentations",
+      "subtitle": "Create beautiful, data-driven presentations in seconds. Connect your data, choose a template, and let AI do the rest.",
+      "cta": "Get started for free"
+    },
+    "features": {
+      "title": "Features",
+      "ai": "AI-Powered Analysis",
+      "aiDesc": "Our AI analyzes your data and creates meaningful insights automatically",
+      "templates": "Beautiful Templates",
+      "templatesDesc": "Choose from a variety of professionally designed templates",
+      "export": "Multiple Formats",
+      "exportDesc": "Export to PowerPoint, PDF, or share online"
+    },
+    "pricing": {
+      "title": "Pricing",
+      "free": "Free",
+      "pro": "Pro",
+      "enterprise": "Enterprise",
+      "perMonth": "/month",
+      "getStarted": "Get started"
+    }
+  },
+  "dashboard": {
+    "welcome": "Welcome",
+    "recentReports": "Recent reports",
+    "quickActions": "Quick actions",
+    "newReport": "New report",
+    "noReports": "No reports yet",
+    "noReportsDesc": "Create your first report to get started",
+    "viewAll": "View all reports"
+  },
+  "reports": {
+    "title": "Reports",
+    "new": "New report",
+    "create": "Create report",
+    "generate": "Generate presentation",
+    "export": "Export",
+    "share": "Share",
+    "delete": "Delete report",
+    "deleteConfirm": "Are you sure you want to delete this report?",
+    "status": {
+      "pending": "Pending",
+      "processing": "Processing...",
+      "done": "Ready",
+      "error": "Failed",
+      "ready": "Ready",
+      "generating": "Generating...",
+      "failed": "Failed"
+    },
+    "columns": {
+      "name": "Name",
+      "date": "Date",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "empty": "No reports found",
+    "uploadData": "Upload your data to create a report"
+  },
+  "upload": {
+    "title": "Upload your data",
+    "dragDrop": "Drag and drop your file here",
+    "or": "or",
+    "browse": "Browse files",
+    "supported": "Supported formats: Excel, CSV, PDF, Google Sheets",
+    "sector": {
+      "title": "Select data sector",
+      "description": "Choose which part of your data to analyze"
+    },
+    "slideCount": {
+      "title": "Number of slides",
+      "description": "How many slides should we generate?"
+    },
+    "processing": "Processing your file...",
+    "error": "Error processing file"
+  },
+  "templates": {
+    "title": "Templates",
+    "select": "Select a template",
+    "preview": "Preview"
+  },
+  "settings": {
+    "title": "Settings",
+    "profile": {
+      "title": "Profile",
+      "name": "Name",
+      "email": "Email",
+      "avatar": "Avatar",
+      "update": "Update profile"
+    },
+    "account": {
+      "title": "Account",
+      "delete": "Delete account",
+      "deleteDesc": "Permanently delete your account and all data",
+      "confirmDelete": "Are you sure? This action cannot be undone."
+    },
+    "organization": {
+      "title": "Organization",
+      "name": "Organization name",
+      "slug": "Slug",
+      "members": "Members",
+      "invite": "Invite member"
+    },
+    "billing": {
+      "title": "Billing",
+      "plan": "Current plan",
+      "usage": "Usage",
+      "invoices": "Invoices",
+      "upgrade": "Upgrade plan",
+      "manage": "Manage subscription"
+    },
+    "team": {
+      "title": "Team",
+      "members": "Members",
+      "role": "Role",
+      "invite": "Invite",
+      "remove": "Remove",
+      "admin": "Admin",
+      "member": "Member"
+    }
+  },
+  "share": {
+    "title": "Share",
+    "copyLink": "Copy link",
+    "linkCopied": "Link copied!",
+    "embed": "Embed",
+    "public": "Public access",
+    "restricted": "Restricted access"
+  },
+  "errors": {
+    "auth": {
+      "unauthorized": "Unauthorized",
+      "invalidToken": "Invalid token",
+      "tokenExpired": "Token expired",
+      "tokenUsed": "Token already used",
+      "failed": "Authentication failed"
+    },
+    "validation": {
+      "emailRequired": "Email is required",
+      "emailInvalid": "Invalid email format",
+      "required": "This field is required",
+      "slugRequired": "Name and slug are required",
+      "slugTaken": "Slug already taken",
+      "rateLimit": "Too many requests. Please try again later.",
+      "commentRequired": "Comment body is required",
+      "fileRequired": "Missing file or sector",
+      "invalidPlan": "Invalid plan"
+    },
+    "resource": {
+      "notFound": "Not found",
+      "forbidden": "Access forbidden",
+      "memberNotFound": "User not found",
+      "alreadyMember": "User is already a member",
+      "ownerDelete": "Only the owner can delete the organization",
+      "noOrganization": "No organization found",
+      "noSubscription": "No subscription found",
+      "alreadyGenerating": "Report is already being generated",
+      "noSourceFile": "No source file found",
+      "noSourceFileDesc": "The source file for this report no longer exists",
+      "invalidSignature": "Invalid webhook signature"
+    },
+    "generic": "An error occurred. Please try again."
+  },
+  "messages": {
+    "auth": {
+      "magicSent": "If an account exists with this email, you will receive a login link.",
+      "signupSuccess": "Check your email to complete account creation.",
+      "signupSuccessDesc": "We've sent you a verification link."
+    },
+    "reports": {
+      "generated": "Report generated successfully",
+      "deleted": "Report deleted",
+      "exported": "Report exported"
+    },
+    "settings": {
+      "profileUpdated": "Profile updated successfully",
+      "organizationCreated": "Organization created",
+      "memberInvited": "Invitation sent",
+      "memberRemoved": "Member removed"
+    }
+  },
+  "billing": {
+    "plans": {
+      "free": {
+        "name": "Free",
+        "description": "For individuals getting started"
+      },
+      "pro": {
+        "name": "Pro",
+        "description": "For professionals and small teams"
+      },
+      "enterprise": {
+        "name": "Enterprise",
+        "description": "For large organizations"
+      }
+    },
+    "features": {
+      "reports": "Reports",
+      "slides": "Slides per report",
+      "aiInsights": "AI insights",
+      "templates": "Templates",
+      "export": "Export formats",
+      "support": "Support"
+    },
+    "usage": {
+      "title": "Usage",
+      "reports": "Reports",
+      "storage": "Storage",
+      "thisMonth": "This month"
+    }
+  }
+}
