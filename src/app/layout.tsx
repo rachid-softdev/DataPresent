@@ -1,9 +1,5 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
-import { Toaster } from 'sonner'
-import { NextIntlClientProvider } from 'next-intl'
-import { getLocale, getMessages } from 'next-intl/server'
-import { ThemeProvider } from '@/components/theme-provider'
 import './globals.css'
 
 const inter = Inter({ subsets: ['latin'] })
@@ -45,23 +41,15 @@ export const metadata: Metadata = {
   }
 }
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  const locale = await getLocale()
-  const messages = await getMessages()
-
   return (
-    <html lang={locale} data-theme="light">
+    <html lang="fr" data-theme="light">
       <body className={inter.className}>
-        <NextIntlClientProvider messages={messages} locale={locale}>
-          <ThemeProvider>
-            {children}
-            <Toaster position="top-right" richColors />
-          </ThemeProvider>
-        </NextIntlClientProvider>
+        {children}
       </body>
     </html>
   )
