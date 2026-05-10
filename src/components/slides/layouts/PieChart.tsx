@@ -24,7 +24,7 @@ export function PieChartSlide({ content }: PieChartSlideProps) {
 
   if (data.length === 0) {
     return (
-      <div className="text-center text-gray-500 py-8">
+      <div className="text-center text-muted-foreground py-8">
         Aucune donnée de graphique disponible
       </div>
     )
@@ -35,7 +35,7 @@ export function PieChartSlide({ content }: PieChartSlideProps) {
   return (
     <div>
       {title && <h4 className="text-lg font-semibold mb-1">{title}</h4>}
-      {subtitle && <p className="text-sm text-gray-500 mb-4">{subtitle}</p>}
+      {subtitle && <p className="text-sm text-muted-foreground mb-4">{subtitle}</p>}
       <div className="h-72 flex items-center justify-center">
         <ResponsiveContainer width="100%" height="100%">
           <RechartsPieChart>

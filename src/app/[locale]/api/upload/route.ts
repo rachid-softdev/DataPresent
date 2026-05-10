@@ -14,8 +14,8 @@ export async function POST(req: NextRequest) {
   }
 
   // Rate limiting: 20 uploads per hour per user
-  const allowed = await checkRateLimit(`upload:${session.user.id}`, { limit: 20, windowMs: 60 * 60 * 1000 })
-  if (!allowed) {
+  const rateLimitAllowed = await checkRateLimit(`upload:${session.user.id}`, { limit: 20, windowMs: 60 * 60 * 1000 })
+  if (!rateLimitAllowed) {
     return NextResponse.json({ error: ERROR_CODES.ERR_VALIDATION_RATE_LIMIT }, { status: 429 })
   }
 

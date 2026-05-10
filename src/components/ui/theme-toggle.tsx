@@ -10,13 +10,13 @@ export function ThemeToggle({ className = '' }: { className?: string }) {
   return (
     <button
       onClick={toggleTheme}
-      className={`p-2 rounded-lg cursor-pointer ${isDark ? 'bg-green-900' : 'bg-green-100'} hover:${isDark ? 'bg-green-800' : 'bg-green-200'} transition-colors ${className}`}
-      aria-label="Toggle theme"
+      className={`p-2 rounded-lg bg-muted hover:bg-muted/80 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${className}`}
+      aria-label={`Basculer vers le thème ${isDark ? 'clair' : 'sombre'}`}
     >
       {isDark ? (
-        <Sun className="w-5 h-5 text-green-300" />
+        <Moon className="w-5 h-5 text-foreground" />
       ) : (
-        <Moon className="w-5 h-5 text-green-700" />
+        <Sun className="w-5 h-5 text-foreground" />
       )}
     </button>
   )

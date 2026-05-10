@@ -1,5 +1,3 @@
-'use client'
-
 import { cn } from '@/lib/utils'
 
 interface WatermarkProps {
@@ -18,14 +16,14 @@ export function Watermark({
   return (
     <div
       className={cn(
-        "text-xs text-muted-foreground opacity-40 font-medium",
+        "text-xs text-muted-foreground opacity-60 font-medium select-none pointer-events-none",
         position === 'bottom-right' && "absolute bottom-4 right-4",
         position === 'bottom-center' && "absolute bottom-4 left-1/2 -translate-x-1/2",
         position === 'footer' && "text-center py-4",
         className
       )}
     >
-      Généré avec DataPresent
+      Créé avec DataPresent — Passez à Pro pour retirer ce filigrane
     </div>
   )
 }

@@ -80,7 +80,7 @@ export default function ProfilePage() {
             <Avatar src={user?.image} fallback={user?.name || user?.email} className="w-20 h-20" />
             <div>
               <p className="font-medium">{user?.name || 'Sans nom'}</p>
-              <p className="text-sm text-gray-500">{user?.email}</p>
+              <p className="text-sm text-muted-foreground">{user?.email}</p>
             </div>
           </div>
 
@@ -96,7 +96,7 @@ export default function ProfilePage() {
           <div>
             <label className="text-sm font-medium mb-2 block">{t('profile.email')}</label>
             <Input value={user?.email || ''} disabled className="bg-gray-50" />
-            <p className="text-xs text-gray-500 mt-1">{t('profile.email')}</p>
+            <p className="text-xs text-muted-foreground mt-1">{t('profile.email')}</p>
           </div>
 
           <div className="flex justify-end">

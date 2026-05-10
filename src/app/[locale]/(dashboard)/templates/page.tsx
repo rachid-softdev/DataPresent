@@ -6,8 +6,10 @@ import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { EmptyState } from '@/components/ui/empty-state'
 import { TEMPLATES, getSectorLabel, Template } from '@/lib/templates'
 import { cn } from '@/lib/utils'
+import { Layout } from 'lucide-react'
 
 const SECTORS = ['ALL', 'FINANCE', 'MARKETING', 'HR', 'SAAS', 'GENERIC'] as const
 
@@ -57,7 +59,7 @@ export default function TemplatesPage() {
                   template.sector === 'MARKETING' && "bg-purple-100 text-purple-600 dark:bg-purple-900 dark:text-purple-300",
                   template.sector === 'HR' && "bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-300",
                   template.sector === 'SAAS' && "bg-cyan-100 text-cyan-600 dark:bg-cyan-900 dark:text-cyan-300",
-                  template.sector === 'GENERIC' && "bg-gray-100 text-gray-600 dark:bg-gray-900 dark:text-gray-300",
+                  template.sector === 'GENERIC' && "bg-muted text-muted-foreground",
                 )}>
                   {template.icon}
                 </div>
@@ -94,9 +96,10 @@ export default function TemplatesPage() {
       </div>
 
       {filteredTemplates.length === 0 && (
-        <div className="text-center py-12">
-          <p className="text-muted-foreground">{t('title')}</p>
-        </div>
+        <EmptyState
+          icon={Layout}
+          title={t('title')}
+        />
       )}
     </div>
   )

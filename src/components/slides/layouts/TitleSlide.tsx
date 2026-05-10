@@ -15,13 +15,13 @@ export function TitleSlide({ content }: TitleSlideProps) {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[300px] text-center">
-      <div className="w-16 h-16 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center mb-6">
-        <span className="text-2xl font-bold text-white">DP</span>
+      <div className="w-16 h-16 rounded-full bg-primary flex items-center justify-center mb-6">
+        <span className="text-2xl font-bold text-primary-foreground">DP</span>
       </div>
       {subtitle && (
-        <p className="text-lg text-gray-600 mb-4 max-w-lg">{subtitle}</p>
+        <p className="text-lg text-muted-foreground mb-4 max-w-lg">{subtitle}</p>
       )}
-      <div className="flex items-center gap-4 text-sm text-gray-500">
+      <div className="flex items-center gap-4 text-sm text-muted-foreground">
         {date && (
           <div className="flex items-center gap-1">
             <Calendar className="w-4 h-4" />

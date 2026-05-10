@@ -10,7 +10,7 @@ export default function DashboardLoading() {
 
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
         {[1, 2, 3].map((i) => (
-          <div key={i} className="bg-card rounded-lg border p-6">
+          <div key={i} className="bg-surface rounded-lg border border-border p-6">
             <Skeleton className="h-6 w-3/4 mb-4" />
             <Skeleton className="h-4 w-1/2" />
           </div>

@@ -37,7 +37,8 @@
     "organization": "Organization",
     "logout": "Log out",
     "login": "Log in",
-    "signup": "Sign up"
+    "signup": "Sign up",
+    "newReport": "New"
   },
   "auth": {
     "login": "Log in",

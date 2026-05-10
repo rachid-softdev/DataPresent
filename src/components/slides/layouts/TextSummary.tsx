@@ -31,7 +31,7 @@ export function TextSummary({ content }: TextSummaryProps) {
       case 'insight': return 'bg-amber-50 border-amber-200'
       case 'recommendation': return 'bg-green-50 border-green-200'
       case 'warning': return 'bg-red-50 border-red-200'
-      default: return 'bg-gray-50 border-gray-200'
+      default: return 'bg-muted/50 border-border'
     }
   }
 
@@ -53,17 +53,17 @@ export function TextSummary({ content }: TextSummaryProps) {
         <ul className="space-y-2">
           {bullets.map((bullet, i) => (
             <li key={i} className="flex items-start gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 mt-2 flex-shrink-0" />
-              <span className="text-sm text-gray-700">{bullet}</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-primary mt-2 flex-shrink-0" />
+              <span className="text-sm text-foreground">{bullet}</span>
             </li>
           ))}
         </ul>
       )}
 
       {conclusion && (
-        <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-4 mt-4">
-          <h5 className="font-medium text-indigo-900 mb-1">Conclusion</h5>
-          <p className="text-sm text-indigo-800">{conclusion}</p>
+        <div className="bg-primary/10 border border-primary/20 rounded-lg p-4 mt-4">
+          <h5 className="font-medium text-primary mb-1">Conclusion</h5>
+          <p className="text-sm text-foreground">{conclusion}</p>
         </div>
       )}
     </div>

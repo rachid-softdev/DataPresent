@@ -55,12 +55,12 @@ export function OrgSwitcher() {
   }
 
   const getRoleBadge = (role: string) => {
-    const colors = {
-      OWNER: 'bg-purple-100 text-purple-700',
-      ADMIN: 'bg-blue-100 text-blue-700',
-      MEMBER: 'bg-gray-100 text-gray-700'
+    const colors: Record<string, string> = {
+      OWNER: 'bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300',
+      ADMIN: 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300',
+      MEMBER: 'bg-muted text-muted-foreground'
     }
-    return colors[role as keyof typeof colors] || colors.MEMBER
+    return colors[role] || colors.MEMBER
   }
 
   return (
@@ -69,18 +69,18 @@ export function OrgSwitcher() {
         <Button variant="ghost" size="sm" className="flex items-center gap-2">
           <Building2 className="w-4 h-4" />
           <span className="max-w-[120px] truncate">{currentOrg?.name || 'Organisation'}</span>
-          <ChevronDown className="w-4 h-4 text-gray-400" />
+          <ChevronDown className="w-4 h-4 text-muted-foreground" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-64">
-        <div className="px-2 py-1.5 text-xs font-medium text-gray-500">
+        <div className="px-2 py-1.5 text-xs font-medium text-muted-foreground">
           Vos organisations
         </div>
         {organizations.map(org => (
           <DropdownMenuItem
             key={org.id}
             onClick={() => handleOrgChange(org.id)}
-            className={`cursor-pointer ${org.id === currentOrg?.id ? 'bg-gray-100' : ''}`}
+            className={`cursor-pointer ${org.id === currentOrg?.id ? 'bg-muted' : ''}`}
           >
             <div className="flex items-center justify-between w-full gap-2">
               <span className="truncate">{org.name}</span>

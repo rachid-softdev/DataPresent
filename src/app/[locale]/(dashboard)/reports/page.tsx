@@ -5,6 +5,8 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { EmptyState } from '@/components/ui/empty-state'
+import { FileSpreadsheet } from 'lucide-react'
 
 export default async function ReportsPage() {
   const t = await getTranslations()
@@ -28,35 +30,35 @@ export default async function ReportsPage() {
       </div>
 
       {reports.length === 0 ? (
-        <div className="text-center py-12">
-          <p className="text-gray-500 mb-4">{t('reports.empty')}</p>
-          <Link href="/new">
-            <Button>{t('reports.uploadData')}</Button>
-          </Link>
-        </div>
+        <EmptyState
+          icon={FileSpreadsheet}
+          title={t('reports.empty')}
+          description={t('reports.uploadData')}
+          action={{ label: t('reports.new'), href: '/new' }}
+        />
       ) : (
-        <div className="bg-white rounded-lg border overflow-hidden">
+        <div className="bg-surface rounded-lg border border-border overflow-hidden">
           <table className="w-full">
-            <thead className="bg-gray-50 border-b">
+            <thead className="bg-muted/50 border-b border-border">
               <tr>
-                <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">{t('reports.columns.name')}</th>
-                <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">Secteur</th>
-                <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">{t('reports.columns.status')}</th>
-                <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">{t('reports.columns.date')}</th>
+                <th className="px-6 py-3 text-left text-sm font-medium text-muted-foreground">{t('reports.columns.name')}</th>
+                <th className="px-6 py-3 text-left text-sm font-medium text-muted-foreground">Secteur</th>
+                <th className="px-6 py-3 text-left text-sm font-medium text-muted-foreground">{t('reports.columns.status')}</th>
+                <th className="px-6 py-3 text-left text-sm font-medium text-muted-foreground">{t('reports.columns.date')}</th>
                 <th className="px-6 py-3"></th>
               </tr>
             </thead>
-            <tbody className="divide-y">
+            <tbody className="divide-y divide-border">
               {reports.map((report) => (
-                <tr key={report.id}>
-                  <td className="px-6 py-4">{report.title}</td>
-                  <td className="px-6 py-4">{report.sector}</td>
+                <tr key={report.id} className="hover:bg-muted/30 transition-colors">
+                  <td className="px-6 py-4 font-medium">{report.title}</td>
+                  <td className="px-6 py-4 text-muted-foreground">{report.sector}</td>
                   <td className="px-6 py-4">
                     <Badge variant={report.status === 'DONE' ? 'success' : report.status === 'ERROR' ? 'error' : 'warning'}>
                       {t(`reports.status.${report.status.toLowerCase()}`)}
                     </Badge>
                   </td>
-                  <td className="px-6 py-4 text-sm text-gray-500">
+                  <td className="px-6 py-4 text-sm text-muted-foreground">
                     {new Date(report.createdAt).toLocaleDateString('fr-FR')}
                   </td>
                   <td className="px-6 py-4">

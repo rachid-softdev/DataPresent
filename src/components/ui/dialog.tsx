@@ -40,14 +40,14 @@ const DialogContent = React.forwardRef<
     <div
       ref={ref}
       className={cn(
-        'relative z-50 w-full max-w-lg bg-white rounded-lg shadow-lg p-6',
+        'relative z-50 w-full max-w-lg bg-surface border border-border rounded-lg shadow-lg p-6',
         className
       )}
       {...props}
     >
       {children}
       <button
-        className="absolute top-4 right-4 p-1 rounded hover:bg-gray-100"
+        className="absolute top-4 right-4 p-1 rounded hover:bg-muted transition-colors"
         onClick={(e) => {
           const closestDialog = e.currentTarget.closest('[role="dialog"]')
           if (closestDialog) {
@@ -55,6 +55,7 @@ const DialogContent = React.forwardRef<
             closeButton?.click()
           }
         }}
+        aria-label="Fermer"
       >
         <X className="w-5 h-5" />
       </button>
@@ -77,7 +78,7 @@ const DialogTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <h2
     ref={ref}
-    className={cn('text-lg font-semibold', className)}
+    className={cn('text-lg font-semibold text-foreground', className)}
     {...props}
   />
 ))
@@ -87,7 +88,7 @@ const DialogDescription = ({
   className,
   ...props
 }: React.HTMLAttributes<HTMLParagraphElement>) => (
-  <p className={cn('text-sm text-gray-500 mt-1', className)} {...props} />
+  <p className={cn('text-sm text-muted-foreground mt-1', className)} {...props} />
 )
 DialogDescription.displayName = 'DialogDescription'
 

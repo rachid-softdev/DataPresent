@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useTranslations } from 'next-intl'
+import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Spinner } from '@/components/ui/spinner'
@@ -39,7 +40,7 @@ export default function NewReportPage() {
     } else {
       setLoading(false)
       const data = await res.json()
-      alert(t(data.error) || t('errors.generic'))
+      toast.error(t(data.error) || t('errors.generic'))
     }
   }
 
@@ -62,12 +63,14 @@ export default function NewReportPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <DropZone
-                onFileSelect={setFile}
-                accept=".xlsx,.xls,.csv,.pdf"
-                maxSize={10 * 1024 * 1024}
-                disabled={loading}
-              />
+              <div data-onboarding="upload-zone">
+                <DropZone
+                  onFileSelect={setFile}
+                  accept=".xlsx,.xls,.csv,.pdf"
+                  maxSize={10 * 1024 * 1024}
+                  disabled={loading}
+                />
+              </div>
             </CardContent>
           </Card>
 
@@ -79,11 +82,13 @@ export default function NewReportPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <SectorSelector
-                value={sector}
-                onChange={setSector}
-                disabled={loading}
-              />
+              <div data-onboarding="sector-selector">
+                <SectorSelector
+                  value={sector}
+                  onChange={setSector}
+                  disabled={loading}
+                />
+              </div>
             </CardContent>
           </Card>
 
@@ -109,6 +114,7 @@ export default function NewReportPage() {
             type="submit"
             disabled={!file || loading}
             className="w-full text-lg py-6"
+            data-onboarding="generate-button"
           >
             {loading ? <Spinner className="mx-auto" /> : t('reports.generate')}
           </Button>

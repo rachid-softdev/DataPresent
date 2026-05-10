@@ -19,7 +19,7 @@ export default function Error({
     <div className="flex flex-col items-center justify-center min-h-[400px]">
       <AlertCircle className="w-12 h-12 text-red-500 mb-4" />
       <h2 className="text-2xl font-bold mb-2">Une erreur est survenue</h2>
-      <p className="text-gray-500 mb-6">Désolé, quelque chose s'est mal passé.</p>
+      <p className="text-muted-foreground mb-6">Désolé, quelque chose s&apos;est mal passé.</p>
       <Button onClick={reset}>Réessayer</Button>
     </div>
   )

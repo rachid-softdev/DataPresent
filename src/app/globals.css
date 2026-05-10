@@ -1,5 +1,110 @@
 @import "tailwindcss";
 
+/* ===== DESIGN TOKENS : LIGHT MODE ===== */
+:root,
+[data-theme="light"] {
+  --background: #f1f8ec;
+  --foreground: #17250e;
+  --primary: #3a6a20;
+  --primary-foreground: #ffffff;
+  --secondary: #9edb7b;
+  --secondary-foreground: #17250e;
+  --accent: #68ca2f;
+  --accent-foreground: #17250e;
+  --muted: #e8f0dc;
+  --muted-foreground: #51753a;
+  --border: #c5d9b3;
+  --surface: #ffffff;
+  --surface-foreground: #17250e;
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+  --ring: #3a6a20;
+  --input: #c5d9b3;
+  --radius: 0.625rem;
+
+  --chart-1: #3a6a20;
+  --chart-2: #68ca2f;
+  --chart-3: #9edb7b;
+  --chart-4: #478524;
+  --chart-5: #2d4a1f;
+}
+
+/* ===== DESIGN TOKENS : DARK MODE ===== */
+[data-theme="dark"] {
+  --background: #0c1407;
+  --foreground: #e3f1db;
+  --primary: #afdf95;
+  --primary-foreground: #0c1407;
+  --secondary: #478524;
+  --secondary-foreground: #e3f1db;
+  --accent: #6dcf35;
+  --accent-foreground: #0c1407;
+  --muted: #1a2b11;
+  --muted-foreground: #7a9d5f;
+  --border: #2d4a1f;
+  --surface: #1a2b11;
+  --surface-foreground: #e3f1db;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --ring: #afdf95;
+  --input: #2d4a1f;
+
+  --chart-1: #afdf95;
+  --chart-2: #6dcf35;
+  --chart-3: #478524;
+  --chart-4: #9edb7b;
+  --chart-5: #e3f1db;
+}
+
+/* ===== WIRE CSS VARIABLES INTO TAILWIND v4 ===== */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-surface: var(--surface);
+  --color-surface-foreground: var(--surface-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --radius: var(--radius);
+
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+}
+
+/* ===== BASE STYLES ===== */
+html {
+  scroll-behavior: smooth;
+}
+
+html,
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  min-height: 100vh;
+}
+
+body {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+* {
+  border-color: var(--border);
+}
+
+/* ===== KEYFRAME ANIMATIONS ===== */
 @keyframes slideDown {
   from {
     transform: translateY(-20px);
@@ -28,45 +133,4 @@
 
 .animate-fadeIn {
   animation: fadeIn 0.3s ease-out forwards;
-}
-
-:root, [data-theme="light"] {
-  --text: #17250e;
-  --background: #f1f8ec;
-  --primary: #3a6a20;
-  --secondary: #9edb7b;
-  --accent: #68ca2f;
-  --muted: #e8f0dc;
-  --border: #c5d9b3;
-  --surface: #ffffff;
-}
-
-[data-theme="dark"] {
-  --text: #e3f1db;
-  --background: #0c1407;
-  --primary: #afdf95;
-  --secondary: #478524;
-  --accent: #6dcf35;
-  --muted: #1a2b11;
-  --border: #2d4a1f;
-  --surface: #1a2b11;
-}
-
-html {
-  scroll-behavior: smooth;
-}
-
-html, body {
-  background-color: var(--background);
-  color: var(--text);
-  font-family: Arial, Helvetica, sans-serif;
-  min-height: 100vh;
-}
-
-body {
-  transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-* {
-  border-color: var(--border);
 }

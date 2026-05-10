@@ -67,6 +67,7 @@ export function SlideViewer({ slides, reportId }: SlideViewerProps) {
             size="icon"
             onClick={goToPrev}
             disabled={currentIndex === 0}
+            aria-label="Slide précédente"
           >
             <ChevronLeft className="w-5 h-5" />
           </Button>
@@ -78,6 +79,7 @@ export function SlideViewer({ slides, reportId }: SlideViewerProps) {
             size="icon"
             onClick={goToNext}
             disabled={currentIndex === slides.length - 1}
+            aria-label="Slide suivante"
           >
             <ChevronRight className="w-5 h-5" />
           </Button>
@@ -91,16 +93,19 @@ export function SlideViewer({ slides, reportId }: SlideViewerProps) {
                 <button
                   key={slide.id}
                   onClick={() => setCurrentIndex(i)}
-                  className={`h-2 rounded-full transition-all relative ${
+                  className="p-2 group"
+                  aria-label={`Slide ${i + 1} sur ${slides.length}${slideCommentCount > 0 ? `, ${slideCommentCount} commentaires` : ''}`}
+                  aria-current={i === currentIndex ? 'true' : undefined}
+                >
+                  <span className={`block h-2 rounded-full transition-all ${
                     i === currentIndex 
                       ? 'w-8 bg-primary' 
-                      : 'w-2 bg-muted hover:bg-muted-foreground/50'
-                  }`}
-                  title={`Slide ${i + 1}${slideCommentCount > 0 ? ` (${slideCommentCount} commentaires)` : ''}`}
-                >
-                  {slideCommentCount > 0 && i !== currentIndex && (
-                    <span className="absolute -top-1 -right-1 w-2 h-2 bg-primary rounded-full" />
-                  )}
+                      : 'w-2 bg-muted group-hover:bg-muted-foreground/50'
+                  }`}>
+                    {slideCommentCount > 0 && i !== currentIndex && (
+                      <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-primary rounded-full" />
+                    )}
+                  </span>
                 </button>
               )
             })}

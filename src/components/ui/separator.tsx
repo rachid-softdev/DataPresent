@@ -10,7 +10,7 @@ export const Separator = React.forwardRef<HTMLDivElement, SeparatorProps>(
     <div
       ref={ref}
       className={cn(
-        'bg-gray-200',
+        'bg-border',
         orientation === 'horizontal' ? 'h-px w-full' : 'h-full w-px',
         className
       )}

@@ -36,7 +36,7 @@ export function Comparison({ content }: ComparisonProps) {
   return (
     <div>
       <div className="grid grid-cols-3 gap-4 mb-4">
-        <div className="text-center font-medium text-gray-500">Critères</div>
+        <div className="text-center font-medium text-muted-foreground">Critères</div>
         <div className="text-center font-semibold text-gray-900">{leftTitle}</div>
         <div className="text-center font-semibold text-gray-900">{rightTitle}</div>
       </div>

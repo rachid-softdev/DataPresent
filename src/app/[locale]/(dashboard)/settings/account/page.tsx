@@ -1,26 +1,25 @@
 'use client'
 
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { signOut } from 'next-auth/react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
+import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { toast } from 'sonner'
 
 export default function AccountPage() {
   const router = useRouter()
   const t = useTranslations('settings')
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
 
   const handleSignOut = async () => {
     await signOut({ callbackUrl: '/' })
   }
 
   const handleDeleteAccount = async () => {
-    if (!confirm(t('account.confirmDelete'))) {
-      return
-    }
-
     const res = await fetch('/api/user', { method: 'DELETE' })
     
     if (res.ok) {
@@ -59,12 +58,23 @@ export default function AccountPage() {
                 {t('account.confirmDelete')}
               </AlertDescription>
             </Alert>
-            <Button variant="destructive" className="mt-4" onClick={handleDeleteAccount}>
+            <Button variant="destructive" className="mt-4" onClick={() => setShowDeleteConfirm(true)}>
               {t('account.delete')}
             </Button>
           </CardContent>
         </Card>
       </div>
+
+      <ConfirmDialog
+        open={showDeleteConfirm}
+        onOpenChange={setShowDeleteConfirm}
+        title={t('account.delete')}
+        description={t('account.confirmDelete')}
+        confirmLabel={t('account.delete')}
+        cancelLabel={t('common.cancel')}
+        variant="destructive"
+        onConfirm={handleDeleteAccount}
+      />
     </div>
   )
 }

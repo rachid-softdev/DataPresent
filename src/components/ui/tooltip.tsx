@@ -25,7 +25,7 @@ export function Tooltip({ content, children, side = 'top' }: TooltipProps) {
       {show && (
         <div
           className={cn(
-            'absolute z-50 px-2 py-1 text-xs text-white bg-gray-900 rounded whitespace-nowrap',
+            'absolute z-50 px-2 py-1 text-xs text-background bg-foreground rounded whitespace-nowrap',
             positions[side]
           )}
         >

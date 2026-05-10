@@ -72,30 +72,31 @@ export function ShareModal({ reportId }: ShareModalProps) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="fixed inset-0 bg-black/50" onClick={() => setIsOpen(false)} />
-      <div className="relative z-50 w-full max-w-lg bg-white rounded-lg shadow-lg p-6">
+      <div className="relative z-50 w-full max-w-lg bg-surface border border-border rounded-lg shadow-lg p-6">
         <button
-          className="absolute top-4 right-4 p-1 rounded hover:bg-gray-100"
+          className="absolute top-4 right-4 p-1 rounded hover:bg-muted transition-colors"
           onClick={() => setIsOpen(false)}
+          aria-label="Fermer"
         >
           <X className="w-5 h-5" />
         </button>
 
-        <h2 className="text-lg font-semibold mb-4">Partager le rapport</h2>
+        <h2 className="text-lg font-semibold text-foreground mb-4">Partager le rapport</h2>
 
         {initialLoading ? (
-          <div className="py-8 text-center text-gray-500">Chargement...</div>
+          <div className="py-8 text-center text-muted-foreground">Chargement...</div>
         ) : (
           <div className="space-y-6">
-            <div className="flex items-center justify-between p-4 border rounded-lg">
+            <div className="flex items-center justify-between p-4 border border-border rounded-lg">
               <div className="flex items-center gap-3">
                 {isPublic ? (
                   <Globe className="w-5 h-5 text-green-500" />
                 ) : (
-                  <Lock className="w-5 h-5 text-gray-400" />
+                  <Lock className="w-5 h-5 text-muted-foreground" />
                 )}
                 <div>
-                  <p className="font-medium">{isPublic ? 'Lien public activé' : 'Lien privé'}</p>
-                  <p className="text-sm text-gray-500">
+                  <p className="font-medium text-foreground">{isPublic ? 'Lien public activé' : 'Lien privé'}</p>
+                  <p className="text-sm text-muted-foreground">
                     {isPublic ? 'Toute personne avec le lien peut voir' : 'Réservé aux membres'}
                   </p>
                 </div>
@@ -109,22 +110,22 @@ export function ShareModal({ reportId }: ShareModalProps) {
 
             {isPublic && shareUrl && (
               <div>
-                <label className="text-sm font-medium mb-2 block">Lien de partage</label>
+                <label className="text-sm font-medium text-foreground mb-2 block">Lien de partage</label>
                 <div className="flex gap-2">
                   <input
                     readOnly
                     value={shareUrl}
-                    className="flex-1 px-3 py-2 border rounded-md bg-gray-50 text-sm"
+                    className="flex-1 px-3 py-2 border border-input bg-muted rounded-md text-sm"
                   />
-                  <Button onClick={copyLink} variant="outline" size="icon">
+                  <Button onClick={copyLink} variant="outline" size="icon" aria-label="Copier le lien">
                     {copied ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
                   </Button>
                 </div>
               </div>
             )}
 
-            <div className="p-4 bg-gray-50 rounded-lg">
-              <div className="flex items-center gap-2 text-sm text-gray-600">
+            <div className="p-4 bg-muted rounded-lg">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Users className="w-4 h-4" />
                 <span>Les commentaires sont automatiquement activés pour les liens publics</span>
               </div>

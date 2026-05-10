@@ -5,19 +5,21 @@ import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { OrgSwitcher } from './OrgSwitcher'
 import { LocaleSwitcher } from '@/components/i18n/LocaleSwitcher'
+import { useTranslations } from 'next-intl'
 
 export function DashboardNav() {
   const pathname = usePathname()
+  const t = useTranslations('nav')
 
   const links = [
-    { href: '/new', label: 'Nouveau' },
-    { href: '/reports', label: 'Rapports' },
-    { href: '/templates', label: 'Modèles' },
-    { href: '/settings/profile', label: 'Paramètres' },
+    { href: '/new', label: t('newReport') },
+    { href: '/reports', label: t('reports') },
+    { href: '/templates', label: t('templates') },
+    { href: '/settings/profile', label: t('settings') },
   ]
 
   return (
-    <header className="bg-background border-b">
+    <header className="bg-background border-b border-border">
       <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
         <div className="flex items-center gap-6">
           <Link href="/" className="text-xl font-bold text-primary">

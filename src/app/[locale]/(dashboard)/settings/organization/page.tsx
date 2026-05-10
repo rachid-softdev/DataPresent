@@ -154,7 +154,7 @@ export default function OrganizationSettingsPage() {
             {orgs.map(org => (
               <Card 
                 key={org.id} 
-                className={`cursor-pointer transition-all ${selectedOrg === org.id ? 'ring-2 ring-indigo-500' : ''}`}
+                className={`cursor-pointer transition-all ${selectedOrg === org.id ? 'ring-2 ring-primary' : ''}`}
                 onClick={() => setSelectedOrg(org.id)}
               >
                 <CardHeader>
@@ -196,7 +196,7 @@ export default function OrganizationSettingsPage() {
                     value={newOrgSlug}
                     onChange={(e) => setNewOrgSlug(generateSlug(e.target.value))}
                   />
-                  <p className="text-xs text-gray-500 mt-1">datapresent.com/{newOrgSlug || '...'}</p>
+                  <p className="text-xs text-muted-foreground mt-1">datapresent.com/{newOrgSlug || '...'}</p>
                 </div>
                 <Button onClick={handleCreateOrg} disabled={saving}>
                   {saving ? 'Création...' : 'Créer'}
@@ -232,7 +232,7 @@ export default function OrganizationSettingsPage() {
                         <Avatar src={member.image} fallback={member.name || member.email} />
                         <div>
                           <p className="font-medium">{member.name || 'Sans nom'}</p>
-                          <p className="text-sm text-gray-500">{member.email}</p>
+                          <p className="text-sm text-muted-foreground">{member.email}</p>
                         </div>
                       </div>
                       <div className="flex items-center gap-2">

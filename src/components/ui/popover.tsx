@@ -29,7 +29,7 @@ export function Popover({ open, onOpenChange, children, content }: PopoverProps)
     <div ref={ref} className="relative inline-block">
       {children}
       {open && (
-        <div className="absolute z-50 mt-1 w-56 bg-white rounded-md border shadow-lg p-2">
+        <div className="absolute z-50 mt-1 w-56 bg-surface border border-border rounded-md shadow-lg p-2">
           {content}
         </div>
       )}

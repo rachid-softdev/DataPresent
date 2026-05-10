@@ -8,7 +8,7 @@ interface PlanBadgeProps {
 const PLAN_CONFIG: Record<string, { label: string; className: string }> = {
   FREE: {
     label: 'Gratuit',
-    className: 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300',
+    className: 'bg-muted text-muted-foreground',
   },
   PRO: {
     label: 'Pro',

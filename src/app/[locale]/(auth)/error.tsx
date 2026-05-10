@@ -21,7 +21,7 @@ export default function Error({
       <div className="bg-white p-8 rounded-lg shadow-sm border w-full max-w-md text-center">
         <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
         <h2 className="text-2xl font-bold mb-2">Erreur d'authentification</h2>
-        <p className="text-gray-500 mb-6">Une erreur s'est produite lors de la connexion.</p>
+        <p className="text-muted-foreground mb-6">Une erreur s&apos;est produite lors de la connexion.</p>
         <div className="flex gap-4 justify-center">
           <Button onClick={reset}>Réessayer</Button>
           <Link href="/login">

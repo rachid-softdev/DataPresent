@@ -7,6 +7,8 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { EmptyState } from '@/components/ui/empty-state'
+import { PlusCircle } from 'lucide-react'
 
 export default async function DashboardPage() {
   const t = await getTranslations()
@@ -28,17 +30,17 @@ export default async function DashboardPage() {
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold">{t('dashboard.recentReports')}</h1>
         <Link href="/new">
-          <Button>{t('dashboard.newReport')}</Button>
+          <Button data-onboarding="new-report">{t('dashboard.newReport')}</Button>
         </Link>
       </div>
 
       {reports.length === 0 ? (
-        <div className="text-center py-12">
-          <p className="text-gray-500 mb-4">{t('dashboard.noReports')}</p>
-          <Link href="/new">
-            <Button>{t('dashboard.noReportsDesc')}</Button>
-          </Link>
-        </div>
+        <EmptyState
+          icon={PlusCircle}
+          title={t('dashboard.noReports')}
+          description={t('dashboard.noReportsDesc')}
+          action={{ label: t('dashboard.newReport'), href: '/new' }}
+        />
       ) : (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {reports.map((report) => (
@@ -52,7 +54,7 @@ export default async function DashboardPage() {
                     <Badge variant={report.status === 'DONE' ? 'success' : report.status === 'ERROR' ? 'error' : 'warning'}>
                       {t(`reports.status.${report.status.toLowerCase()}`)}
                     </Badge>
-                    <span className="text-sm text-gray-500">{report.sector}</span>
+                    <span className="text-sm text-muted-foreground">{report.sector}</span>
                   </div>
                 </CardContent>
               </Card>
