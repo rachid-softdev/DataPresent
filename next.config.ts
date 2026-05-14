@@ -72,7 +72,7 @@ const nextConfig: NextConfig = {
         headers: [
           {
             key: 'Access-Control-Allow-Origin',
-            value: '*',
+            value: process.env.ALLOWED_ORIGINS?.split(',').map(s => s.trim()).join(', ') || 'https://datapresent.com,https://app.datapresent.com',
           },
           {
             key: 'Access-Control-Allow-Methods',
@@ -80,7 +80,15 @@ const nextConfig: NextConfig = {
           },
           {
             key: 'Access-Control-Allow-Headers',
-            value: 'Content-Type, Authorization',
+            value: 'Content-Type, Authorization, X-CSRF-Token',
+          },
+          {
+            key: 'Access-Control-Allow-Credentials',
+            value: 'true',
+          },
+          {
+            key: 'Access-Control-Max-Age',
+            value: '86400',
           },
         ],
       },

@@ -3,8 +3,9 @@ import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { uploadToR2 } from '@/lib/r2'
 import { generateQueue } from '@/lib/queue'
-import { canCreateReport } from '@/lib/plan-utils'
+import { canCreateReport, canHaveSlideCount } from '@/lib/plan-utils'
 import { checkRateLimit } from '@/lib/rate-limit'
+import { signJobData } from '@/lib/queue/job-security'
 import { ERROR_CODES, unauthorized, badRequest } from '@/lib/errors'
 
 export async function POST(req: NextRequest) {
@@ -32,6 +33,16 @@ export async function POST(req: NextRequest) {
 
   if (!file || !sector) {
     return badRequest(ERROR_CODES.ERR_VALIDATION_FILE_REQUIRED)
+  }
+
+  // Validate slide count against plan
+  const { plan } = await import('@/lib/plan-utils').then(m => m.getUserPlan(session.user.id))
+  const { allowed: slideLimitOk, maxSlides } = canHaveSlideCount(plan, slideCount)
+  if (!slideLimitOk) {
+    return NextResponse.json(
+      { error: `Limite de ${maxSlides} slides atteinte pour ce rapport.` },
+      { status: 403 }
+    )
   }
 
   const user = await prisma.user.findUnique({
@@ -70,7 +81,14 @@ export async function POST(req: NextRequest) {
     },
   })
 
-  await generateQueue.add('generate', { reportId: report.id, slideCount, language })
+  // SECURITY: Sign job data with userId for worker authorization
+  const signedJob = signJobData({
+    reportId: report.id,
+    slideCount,
+    language,
+    userId: session.user.id,
+  })
+  await generateQueue.add('generate', signedJob)
 
   return NextResponse.json({ reportId: report.id })
 }

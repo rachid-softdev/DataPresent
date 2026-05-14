@@ -19,7 +19,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       async authorize(credentials) {
         if (!credentials?.token) return null
         const token = credentials.token as string
-        
+
         const magicLinkToken = await prisma.magicLinkToken.findUnique({
           where: { token }
         })
@@ -44,16 +44,39 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     })
   ],
   callbacks: {
-    session({ session, token }) {
+    async session({ session, token }) {
       if (session.user && token.sub) {
         session.user.id = token.sub
+
+        // Get user verification status
+        const user = await prisma.user.findUnique({
+          where: { id: token.sub },
+          select: { isVerified: true, emailVerified: true }
+        })
+
+        if (user) {
+          (session.user as any).isVerified = user.isVerified || !!user.emailVerified
+        }
       }
       return session
     },
-    jwt({ token, user }) {
+    async jwt({ token, user, trigger, session }) {
       if (user) {
         token.sub = user.id
+        token.iat = Math.floor(Date.now() / 1000)
       }
+
+      // Handle session updates
+      if (trigger === 'update' && session?.expires) {
+        token.expires = session.expires
+      }
+
+      // Check token age for rotation (24 hours)
+      const now = Math.floor(Date.now() / 1000)
+      if (token.iat && (now - token.iat) > 24 * 60 * 60) {
+        token.needsRefresh = true
+      }
+
       return token
     },
   },
@@ -62,6 +85,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     error: "/login",
   },
   session: {
-    strategy: "jwt"
-  }
+    strategy: "jwt",
+    maxAge: 24 * 60 * 60, // 24 hours
+    updateAge: 60 * 60, // Update session every hour
+  },
+  jwt: {
+    maxAge: 24 * 60 * 60, // 24 hours
+  },
 })

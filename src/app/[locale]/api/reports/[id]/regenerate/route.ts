@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { generateQueue } from '@/lib/queue'
+import { signJobData } from '@/lib/queue/job-security'
 import { ERROR_CODES, unauthorized, forbidden, notFound, badRequest } from '@/lib/errors'
 
 export async function POST(
@@ -60,10 +61,13 @@ export async function POST(
     where: { reportId }
   })
 
-  await generateQueue.add('generate', { 
+  // SECURITY: Sign job data with userId
+  const signedJob = signJobData({
     reportId,
-    ...(slideCount && { slideCount })
+    userId: session.user.id,
+    ...(slideCount && { slideCount }),
   })
+  await generateQueue.add('generate', signedJob)
 
   return NextResponse.json({
     reportId,

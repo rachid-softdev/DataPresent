@@ -3,8 +3,10 @@ import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { exportQueue } from '@/lib/queue'
 import { checkRateLimit } from '@/lib/rate-limit'
+import { signJobData } from '@/lib/queue/job-security'
+import { canUseFormat } from '@/lib/plan-utils'
 import { ExportFormat } from '@prisma/client'
-import { ERROR_CODES, unauthorized, notFound, forbidden } from '@/lib/errors'
+import { ERROR_CODES, unauthorized, notFound, forbidden, badRequest } from '@/lib/errors'
 
 export async function POST(
   req: NextRequest,
@@ -26,7 +28,7 @@ export async function POST(
 
   const report = await prisma.report.findUnique({
     where: { id },
-    include: { org: { include: { members: true } } },
+    include: { org: { include: { members: true, subscription: true } } },
   })
 
   if (!report) {
@@ -38,6 +40,12 @@ export async function POST(
     return forbidden()
   }
 
+  // SECURITY: Check format permissions based on plan
+  const plan = report.org.subscription?.plan || 'FREE'
+  if (!canUseFormat(plan as any, format)) {
+    return badRequest(ERROR_CODES.ERR_VALIDATION_FORMAT_NOT_ALLOWED)
+  }
+
   const exp = await prisma.export.create({
     data: {
       reportId: id,
@@ -45,7 +53,13 @@ export async function POST(
     },
   })
 
-  await exportQueue.add('export', { exportId: exp.id, format })
+  // SECURITY: Sign job data with userId
+  const signedJob = signJobData({
+    exportId: exp.id,
+    format,
+    userId: session.user.id,
+  })
+  await exportQueue.add('export', signedJob)
 
   return NextResponse.json({ exportId: exp.id })
 }
