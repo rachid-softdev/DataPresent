@@ -25,6 +25,21 @@
     "seeAll": "See all",
     "showLess": "Show less"
   },
+  "blog": {
+    "title": "Blog",
+    "subtitle": "Latest news, tips and insights about data presentation",
+    "readMore": "Read more",
+    "minRead": "min read",
+    "noArticles": "No articles yet",
+    "noArticlesDesc": "Check back soon for new content",
+    "relatedArticles": "Related articles",
+    "share": "Share",
+    "copyLink": "Copy link",
+    "linkCopied": "Link copied!",
+    "publishedOn": "Published on",
+    "updatedOn": "Updated on",
+    "back": "Back to blog"
+  },
   "nav": {
     "dashboard": "Dashboard",
     "reports": "Reports",
@@ -38,153 +53,8 @@
     "logout": "Log out",
     "login": "Log in",
     "signup": "Sign up",
-    "newReport": "New"
-  },
-  "auth": {
-    "login": "Log in",
-    "signup": "Sign up",
-    "email": "Email",
-    "password": "Password",
-    "magicLink": "Send magic link",
-    "magicLinkSent": "Magic link sent",
-    "signInWithEmail": "Sign in with email",
-    "createAccount": "Create account",
-    "forgotPassword": "Forgot password?",
-    "noAccount": "Don't have an account?",
-    "hasAccount": "Already have an account?",
-    "continueWithGoogle": "Continue with Google",
-    "verifyEmail": "Verify your email",
-    "checkInbox": "Check your inbox for the verification link"
-  },
-  "landing": {
-    "hero": {
-      "title": "Transform your data into stunning presentations",
-      "subtitle": "Create beautiful, data-driven presentations in seconds. Connect your data, choose a template, and let AI do the rest.",
-      "cta": "Get started for free"
-    },
-    "features": {
-      "title": "Features",
-      "ai": "AI-Powered Analysis",
-      "aiDesc": "Our AI analyzes your data and creates meaningful insights automatically",
-      "templates": "Beautiful Templates",
-      "templatesDesc": "Choose from a variety of professionally designed templates",
-      "export": "Multiple Formats",
-      "exportDesc": "Export to PowerPoint, PDF, or share online"
-    },
-    "pricing": {
-      "title": "Pricing",
-      "free": "Free",
-      "pro": "Pro",
-      "enterprise": "Enterprise",
-      "perMonth": "/month",
-      "getStarted": "Get started"
-    }
-  },
-  "dashboard": {
-    "welcome": "Welcome",
-    "recentReports": "Recent reports",
-    "quickActions": "Quick actions",
-    "newReport": "New report",
-    "noReports": "No reports yet",
-    "noReportsDesc": "Create your first report to get started",
-    "viewAll": "View all reports"
-  },
-  "reports": {
-    "title": "Reports",
-    "new": "New report",
-    "create": "Create report",
-    "generate": "Generate presentation",
-    "export": "Export",
-    "share": "Share",
-    "delete": "Delete report",
-    "deleteConfirm": "Are you sure you want to delete this report?",
-    "status": {
-      "pending": "Pending",
-      "processing": "Processing...",
-      "done": "Ready",
-      "error": "Failed",
-      "ready": "Ready",
-      "generating": "Generating...",
-      "failed": "Failed"
-    },
-    "columns": {
-      "name": "Name",
-      "date": "Date",
-      "status": "Status",
-      "actions": "Actions"
-    },
-    "empty": "No reports found",
-    "uploadData": "Upload your data to create a report"
-  },
-  "upload": {
-    "title": "Upload your data",
-    "dragDrop": "Drag and drop your file here",
-    "or": "or",
-    "browse": "Browse files",
-    "supported": "Supported formats: Excel, CSV, PDF, Google Sheets",
-    "sector": {
-      "title": "Select data sector",
-      "description": "Choose which part of your data to analyze"
-    },
-    "slideCount": {
-      "title": "Number of slides",
-      "description": "How many slides should we generate?"
-    },
-    "processing": "Processing your file...",
-    "error": "Error processing file"
-  },
-  "templates": {
-    "title": "Templates",
-    "select": "Select a template",
-    "preview": "Preview"
-  },
-  "settings": {
-    "title": "Settings",
-    "profile": {
-      "title": "Profile",
-      "name": "Name",
-      "email": "Email",
-      "avatar": "Avatar",
-      "update": "Update profile"
-    },
-    "account": {
-      "title": "Account",
-      "delete": "Delete account",
-      "deleteDesc": "Permanently delete your account and all data",
-      "confirmDelete": "Are you sure? This action cannot be undone."
-    },
-    "organization": {
-      "title": "Organization",
-      "name": "Organization name",
-      "slug": "Slug",
-      "members": "Members",
-      "invite": "Invite member"
-    },
-    "billing": {
-      "title": "Billing",
-      "plan": "Current plan",
-      "usage": "Usage",
-      "invoices": "Invoices",
-      "upgrade": "Upgrade plan",
-      "manage": "Manage subscription"
-    },
-    "team": {
-      "title": "Team",
-      "members": "Members",
-      "role": "Role",
-      "invite": "Invite",
-      "remove": "Remove",
-      "admin": "Admin",
-      "member": "Member"
-    }
-  },
-  "share": {
-    "title": "Share",
-    "copyLink": "Copy link",
-    "linkCopied": "Link copied!",
-    "embed": "Embed",
-    "public": "Public access",
-    "restricted": "Restricted access"
+    "newReport": "New",
+    "blog": "Blog"
   },
   "errors": {
     "auth": {

@@ -1,0 +1,302 @@
+[
+  {
+    "slug": "generer-rapports-ia-en-5-minutes",
+    "locale": "fr",
+    "title": "Comment générer des rapports IA en 5 minutes",
+    "description": "Découvrez comment créer des rapports professionnels et percutants en seulement 5 minutes grâce à l'intelligence artificielle. Guide complet avec DataPresent.",
+    "publishedAt": "2026-05-01",
+    "updatedAt": "2026-05-01",
+    "readingTime": 5,
+    "tags": ["IA", "Rapports", "Automatisation", "DataPresent"],
+    "coverImage": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&h=630&fit=crop",
+    "content": {
+      "sections": [
+        {
+          "type": "paragraph",
+          "text": "La génération de rapports est souvent perçue comme une tâche fastidieuse, chronophage et répétitive. Pourtant, avec les bons outils et l'intelligence artificielle, il est désormais possible de transformer des données brutes en rapports visuels percutants en à peine 5 minutes."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Pourquoi l'IA change la donne"
+        },
+        {
+          "type": "paragraph",
+          "text": "L'intelligence artificielle permet d'automatiser l'analyse des données et la génération de contenu. Au lieu de passer des heures à structurer et mettre en forme vos données, l'IA peut analyser vos fichiers et générer automatiquement des slides professionnels avec des graphiques pertinents et des insights clés."
+        },
+        {
+          "type": "callout",
+          "variant": "tip",
+          "title": "Gain de temps",
+          "text": "En moyenne, nos utilisateurs réduisent leur temps de création de rapports de 2 heures à 5 minutes."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Les étapes clés"
+        },
+        {
+          "type": "list",
+          "ordered": true,
+          "items": [
+            "Importez vos données (CSV, Excel, Google Sheets)",
+            "Laissez l'IA analyser et structurer le contenu",
+            "Personnalisez les templates et visualisations",
+            "Exportez votre rapport en un clic"
+          ]
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Les avantages de DataPresent"
+        },
+        {
+          "type": "paragraph",
+          "text": "DataPresent intègre les dernières avancées en intelligence artificielle pour vous offrir une expérience de création de rapports sans pareille. Notre IA comprend le contexte de vos données et propose des visualisations adaptées à votre secteur d'activité."
+        },
+        {
+          "type": "quote",
+          "text": "Grâce à DataPresent, j'ai réduit le temps de création de mes rapports mensuels de 3 jours à quelques minutes.",
+          "author": "Marie Dubois, Directrice Marketing"
+        },
+        {
+          "type": "callout",
+          "variant": "info",
+          "title": "Formats supportés",
+          "text": "DataPresent accepte les fichiers CSV, Excel (.xlsx), PDF et Google Sheets. L'import se fait en glisser-déposer."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Conclusion"
+        },
+        {
+          "type": "paragraph",
+          "text": "L'intelligence artificielle démocratise l'accès à des rapports professionnels de qualité. Que vous soyez analyste, marketer ou chef d'entreprise, DataPresent vous permet de communiquer vos données de manière efficace et impactante. Inscrivez-vous gratuitement et découvrez comment générer vos premiers rapports en 5 minutes."
+        }
+      ]
+    },
+    "seo": {
+      "metaTitle": "Générez des rapports IA en 5 minutes | DataPresent",
+      "metaDescription": "Découvrez comment créer des rapports professionnels et percutants en seulement 5 minutes grâce à l'IA. Guide complet avec DataPresent.",
+      "ogImage": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&h=630&fit=crop"
+    }
+  },
+  {
+    "slug": "generate-ai-reports-in-5-minutes",
+    "locale": "en",
+    "title": "How to generate AI reports in 5 minutes",
+    "description": "Discover how to create professional and impactful reports in just 5 minutes using artificial intelligence. Complete guide with DataPresent.",
+    "publishedAt": "2026-05-01",
+    "updatedAt": "2026-05-01",
+    "readingTime": 5,
+    "tags": ["AI", "Reports", "Automation", "DataPresent"],
+    "coverImage": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&h=630&fit=crop",
+    "content": {
+      "sections": [
+        {
+          "type": "paragraph",
+          "text": "Report generation is often perceived as a tedious, time-consuming, and repetitive task. However, with the right tools and artificial intelligence, it's now possible to transform raw data into impactful visual reports in just 5 minutes."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Why AI is a game changer"
+        },
+        {
+          "type": "paragraph",
+          "text": "Artificial intelligence automates data analysis and content generation. Instead of spending hours structuring and formatting your data, AI can analyze your files and automatically generate professional slides with relevant charts and key insights."
+        },
+        {
+          "type": "callout",
+          "variant": "tip",
+          "title": "Time savings",
+          "text": "On average, our users reduce their report creation time from 2 hours to 5 minutes."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Key steps"
+        },
+        {
+          "type": "list",
+          "ordered": true,
+          "items": [
+            "Import your data (CSV, Excel, Google Sheets)",
+            "Let AI analyze and structure the content",
+            "Customize templates and visualizations",
+            "Export your report with one click"
+          ]
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "DataPresent advantages"
+        },
+        {
+          "type": "paragraph",
+          "text": "DataPresent integrates the latest advances in artificial intelligence to offer you an unparalleled report creation experience. Our AI understands the context of your data and suggests visualizations tailored to your industry."
+        },
+        {
+          "type": "quote",
+          "text": "Thanks to DataPresent, I reduced the time to create my monthly reports from 3 days to a few minutes.",
+          "author": "Sarah Johnson, Marketing Director"
+        },
+        {
+          "type": "callout",
+          "variant": "info",
+          "title": "Supported formats",
+          "text": "DataPresent accepts CSV, Excel (.xlsx), PDF, and Google Sheets files. Import is done via drag and drop."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Conclusion"
+        },
+        {
+          "type": "paragraph",
+          "text": "Artificial intelligence democratizes access to quality professional reports. Whether you're an analyst, marketer, or business leader, DataPresent lets you communicate your data effectively and impactfully. Sign up for free and discover how to generate your first reports in 5 minutes."
+        }
+      ]
+    },
+    "seo": {
+      "metaTitle": "Generate AI reports in 5 minutes | DataPresent",
+      "metaDescription": "Discover how to create professional and impactful reports in just 5 minutes using AI. Complete guide with DataPresent.",
+      "ogImage": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&h=630&fit=crop"
+    }
+  },
+  {
+    "slug": "automatiser rapports-ventes-avec-ia",
+    "locale": "fr",
+    "title": "Automatisez vos rapports de ventes avec l'IA",
+    "description": "Apprenez à automatiser la génération de vos rapports de ventes hebdomadaires et mensuels grâce à l'intelligence artificielle et DataPresent.",
+    "publishedAt": "2026-05-08",
+    "updatedAt": "2026-05-08",
+    "readingTime": 7,
+    "tags": ["Ventes", "Automatisation", "IA", "Rapports"],
+    "coverImage": "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&h=630&fit=crop",
+    "content": {
+      "sections": [
+        {
+          "type": "paragraph",
+          "text": "Pour les équipes commerciales, la création de rapports de ventes réguliers représente une charge de travail significative. Voici comment automatiser ce processus avec l'intelligence artificielle."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Les défis traditionnels"
+        },
+        {
+          "type": "paragraph",
+          "text": "Rassembler les données de ventes, les analyser et les présenter sous forme de rapports prend souvent plusieurs heures chaque semaine. Les erreurs de saisie, les formats incohérents et le manque de temps pour l'analyse sont autant de problèmes récurrents."
+        },
+        {
+          "type": "callout",
+          "variant": "warning",
+          "title": "Attention",
+          "text": "Une étude montre que les commerciaux passent en moyenne 8 heures par semaine à créer des rapports au lieu de vendre."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "La solution DataPresent"
+        },
+        {
+          "type": "paragraph",
+          "text": "DataPresent permet d'importer automatiquement vos données de ventes depuis votre CRM ou vos fichiers Excel. L'IA analyse ces données et génère un rapport complet avec les KPIs essentiels : chiffre d'affaires, nombre de transactions, panier moyen, taux de conversion, etc."
+        },
+        {
+          "type": "list",
+          "ordered": false,
+          "items": [
+            "Connexion directe à Salesforce, HubSpot ou Pipedrive",
+            "Import de fichiers Excel/CSV depuis votre ERP",
+            "Génération automatique des graphiques de tendances",
+            "Alertes sur les variations significatives"
+          ]
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Résultat"
+        },
+        {
+          "type": "paragraph",
+          "text": "En automatisant vos rapports de ventes, vous récupérez un temps précieux pour vous concentrer sur votre cœur de métier : vendre. De plus, la cohérence visuelle et la qualité analytique de vos rapports seront nettement améliorées."
+        }
+      ]
+    },
+    "seo": {
+      "metaTitle": "Automatisez vos rapports de ventes avec l'IA | DataPresent",
+      "metaDescription": "Apprenez à automatiser la génération de vos rapports de ventes hebdomadaires et mensuels grâce à l'IA.",
+      "ogImage": "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&h=630&fit=crop"
+    }
+  },
+  {
+    "slug": "automate-sales-reports-with-ai",
+    "locale": "en",
+    "title": "Automate your sales reports with AI",
+    "description": "Learn how to automate the generation of your weekly and monthly sales reports using artificial intelligence and DataPresent.",
+    "publishedAt": "2026-05-08",
+    "updatedAt": "2026-05-08",
+    "readingTime": 7,
+    "tags": ["Sales", "Automation", "AI", "Reports"],
+    "coverImage": "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&h=630&fit=crop",
+    "content": {
+      "sections": [
+        {
+          "type": "paragraph",
+          "text": "For sales teams, creating regular sales reports represents a significant workload. Here's how to automate this process with artificial intelligence."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Traditional challenges"
+        },
+        {
+          "type": "paragraph",
+          "text": "Gathering sales data, analyzing it, and presenting it as reports often takes several hours each week. Data entry errors, inconsistent formats, and lack of time for analysis are all recurring problems."
+        },
+        {
+          "type": "callout",
+          "variant": "warning",
+          "title": "Warning",
+          "text": "A study shows that sales reps spend an average of 8 hours per week creating reports instead of selling."
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "The DataPresent solution"
+        },
+        {
+          "type": "paragraph",
+          "text": "DataPresent allows you to automatically import your sales data from your CRM or Excel files. AI analyzes this data and generates a complete report with essential KPIs: revenue, number of transactions, average basket, conversion rate, etc."
+        },
+        {
+          "type": "list",
+          "ordered": false,
+          "items": [
+            "Direct connection to Salesforce, HubSpot or Pipedrive",
+            "Import Excel/CSV files from your ERP",
+            "Automatic generation of trend charts",
+            "Alerts on significant variations"
+          ]
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Result"
+        },
+        {
+          "type": "paragraph",
+          "text": "By automating your sales reports, you recover valuable time to focus on your core business: selling. Moreover, the visual consistency and analytical quality of your reports will be significantly improved."
+        }
+      ]
+    },
+    "seo": {
+      "metaTitle": "Automate your sales reports with AI | DataPresent",
+      "metaDescription": "Learn how to automate the generation of your weekly and monthly sales reports using AI.",
+      "ogImage": "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&h=630&fit=crop"
+    }
+  }
+]

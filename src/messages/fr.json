@@ -25,6 +25,21 @@
     "seeAll": "Voir tout",
     "showLess": "Réduire"
   },
+  "blog": {
+    "title": "Blog",
+    "subtitle": "Dernières actualités, astuces et conseils sur la présentation de données",
+    "readMore": "Lire la suite",
+    "minRead": "min de lecture",
+    "noArticles": "Aucun article",
+    "noArticlesDesc": "Revenez bientôt pour découvrir de nouveaux contenus",
+    "relatedArticles": "Articles connexes",
+    "share": "Partager",
+    "copyLink": "Copier le lien",
+    "linkCopied": "Lien copié !",
+    "publishedOn": "Publié le",
+    "updatedOn": "Mis à jour le",
+    "back": "Retour au blog"
+  },
   "nav": {
     "dashboard": "Tableau de bord",
     "reports": "Rapports",
@@ -38,153 +53,8 @@
     "logout": "Déconnexion",
     "login": "Connexion",
     "signup": "Inscription",
-    "newReport": "Nouveau"
-  },
-  "auth": {
-    "login": "Se connecter",
-    "signup": "S'inscrire",
-    "email": "Email",
-    "password": "Mot de passe",
-    "magicLink": "Envoyer le lien magiques",
-    "magicLinkSent": "Lien magique envoyé",
-    "signInWithEmail": "Se connecter avec email",
-    "createAccount": "Créer un compte",
-    "forgotPassword": "Mot de passe oublié ?",
-    "noAccount": "Pas de compte ?",
-    "hasAccount": "Déjà un compte ?",
-    "continueWithGoogle": "Continuer avec Google",
-    "verifyEmail": "Vérifiez votre email",
-    "checkInbox": "Consultez votre boîte mail pour le lien de vérification"
-  },
-  "landing": {
-    "hero": {
-      "title": "Transformez vos données en présentations stunning",
-      "subtitle": "Créez de belles présentations basées sur vos données en quelques secondes. Connectez vos données, choisissez un modèle et laissez l'IA faire le reste.",
-      "cta": "Commencer gratuitement"
-    },
-    "features": {
-      "title": "Fonctionnalités",
-      "ai": "Analyse par IA",
-      "aiDesc": "Notre IA analyse vos données et crée des insights automatiquement",
-      "templates": "Jolis modèles",
-      "templatesDesc": "Choisissezparmi des modèles professionnellement conçus",
-      "export": "Multiples formats",
-      "exportDesc": "Exportez en PowerPoint, PDF ou partagez en ligne"
-    },
-    "pricing": {
-      "title": "Tarification",
-      "free": "Gratuit",
-      "pro": "Pro",
-      "enterprise": "Entreprise",
-      "perMonth": "/mois",
-      "getStarted": "Commencer"
-    }
-  },
-  "dashboard": {
-    "welcome": "Bienvenue",
-    "recentReports": "Rapports récents",
-    "quickActions": "Actions rapides",
-    "newReport": "Nouveau rapport",
-    "noReports": "Aucun rapport",
-    "noReportsDesc": "Créez votre premier rapport pour commencer",
-    "viewAll": "Voir tous les rapports"
-  },
-  "reports": {
-    "title": "Rapports",
-    "new": "Nouveau rapport",
-    "create": "Créer un rapport",
-    "generate": "Générer la présentation",
-    "export": "Exporter",
-    "share": "Partager",
-    "delete": "Supprimer le rapport",
-    "deleteConfirm": "Êtes-vous sûr de vouloir supprimer ce rapport ?",
-    "status": {
-      "pending": "En attente",
-      "processing": "En cours...",
-      "done": "Prêt",
-      "error": "Erreur",
-      "ready": "Prêt",
-      "generating": "Génération...",
-      "failed": "Échoué"
-    },
-    "columns": {
-      "name": "Nom",
-      "date": "Date",
-      "status": "Statut",
-      "actions": "Actions"
-    },
-    "empty": "Aucun rapport trouvé",
-    "uploadData": "Téléchargez vos données pour créer un rapport"
-  },
-  "upload": {
-    "title": "Téléchargez vos données",
-    "dragDrop": "Glissez-déposez votre fichier ici",
-    "or": "ou",
-    "browse": "Parcourir les fichiers",
-    "supported": "Formats supportés : Excel, CSV, PDF, Google Sheets",
-    "sector": {
-      "title": "Sélectionnez le secteur de données",
-      "description": "Choisissez quelle partie de vos données analyser"
-    },
-    "slideCount": {
-      "title": "Nombre de diapositives",
-      "description": "Combien de diapositives voulons-nous générer ?"
-    },
-    "processing": "Traitement de votre fichier...",
-    "error": "Erreur lors du traitement du fichier"
-  },
-  "templates": {
-    "title": "Modèles",
-    "select": "Sélectionner un modèle",
-    "preview": "Aperçu"
-  },
-  "settings": {
-    "title": "Paramètres",
-    "profile": {
-      "title": "Profil",
-      "name": "Nom",
-      "email": "Email",
-      "avatar": "Avatar",
-      "update": "Mettre à jour le profil"
-    },
-    "account": {
-      "title": "Compte",
-      "delete": "Supprimer le compte",
-      "deleteDesc": "Supprimer définitivement votre compte et toutes vos données",
-      "confirmDelete": "Êtes-vous sûr ? Cette action est irréversible."
-    },
-    "organization": {
-      "title": "Organisation",
-      "name": "Nom de l'organisation",
-      "slug": "Slug",
-      "members": "Membres",
-      "invite": "Inviter un membre"
-    },
-    "billing": {
-      "title": "Facturation",
-      "plan": "Plan actuel",
-      "usage": "Utilisation",
-      "invoices": "Factures",
-      "upgrade": "Passer à un plan supérieur",
-      "manage": "Gérer l'abonnement"
-    },
-    "team": {
-      "title": "Équipe",
-      "members": "Membres",
-      "role": "Rôle",
-      "invite": "Inviter",
-      "remove": "Retirer",
-      "admin": "Admin",
-      "member": "Membre"
-    }
-  },
-  "share": {
-    "title": "Partager",
-    "copyLink": "Copier le lien",
-    "linkCopied": "Lien copié !",
-    "embed": "Intégrer",
-    "public": "Accès public",
-    "restricted": "Accès restreint"
+    "newReport": "Nouveau",
+    "blog": "Blog"
   },
   "errors": {
     "auth": {
