@@ -4,11 +4,23 @@ import { parseFile } from '@/lib/parsers'
 import { analyzeWithClaude } from '@/lib/ai/analyze'
 import { getSignedDownloadUrl } from '@/lib/r2'
 import { connection } from '../client'
+import { extractSignedJobData } from '../job-security'
 
 export const generateWorker = new Worker(
   'generate',
   async (job) => {
-    const { reportId, slideCount, language } = job.data
+    // SECURITY: Validate job signature
+    const { valid, cleanData } = extractSignedJobData(job.data as any)
+    if (!valid) {
+      throw new Error('Invalid job signature: unauthorized job submission')
+    }
+
+    const { reportId, slideCount, language, userId } = cleanData as any
+
+    // SECURITY: Validate required fields
+    if (!reportId || !userId) {
+      throw new Error('Invalid job data: missing reportId or userId')
+    }
 
     await prisma.report.update({
       where: { id: reportId },
@@ -18,8 +30,13 @@ export const generateWorker = new Worker(
     try {
       const report = await prisma.report.findUniqueOrThrow({
         where: { id: reportId },
-        include: { sourceFile: true },
+        include: { sourceFile: true, org: { include: { members: { where: { userId } } } } },
       })
+
+      // SECURITY: Verify user is member of organization
+      if (!report.org.members.length) {
+        throw new Error(`User ${userId} is not authorized to access report ${reportId}`)
+      }
 
       // Download the actual file from R2 instead of using an empty buffer
       let parsedData
@@ -42,7 +59,31 @@ export const generateWorker = new Worker(
         language: language || 'fr',
       })
 
+      // Create a version before regenerating
+      const latestVersion = await prisma.reportVersion.findFirst({
+        where: { reportId },
+        orderBy: { version: 'desc' },
+      })
+
       await prisma.$transaction([
+        prisma.reportVersion.create({
+          data: {
+            reportId,
+            version: (latestVersion?.version || 0) + 1,
+            title: report.title,
+            slideData: {
+              slides: report.slides.map(s => ({
+                id: s.id,
+                position: s.position,
+                title: s.title,
+                layout: s.layout,
+                content: s.contentJson,
+                speakerNotes: s.speakerNotes,
+              })),
+            },
+            createdById: userId,
+          },
+        }),
         prisma.slide.deleteMany({ where: { reportId } }),
         prisma.slide.createMany({
           data: result.slides.map((s) => ({
@@ -68,5 +109,5 @@ export const generateWorker = new Worker(
       throw error
     }
   },
-  { connection }
+  { connection, removeOnComplete: { count: 100, age: 3600 }, removeOnFail: { count: 50, age: 86400 } }
 )

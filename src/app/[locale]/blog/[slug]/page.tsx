@@ -71,8 +71,34 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
     .filter((p) => p.locale === locale && p.slug !== slug)
     .slice(0, 3)
 
+  // JSON-LD Structured Data for SEO
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: post.title,
+    description: post.description,
+    image: post.coverImage,
+    datePublished: post.publishedAt,
+    dateModified: post.updatedAt,
+    author: { '@type': 'Organization', name: 'DataPresent' },
+    publisher: {
+      '@type': 'Organization',
+      name: 'DataPresent',
+      logo: { '@type': 'ImageObject', url: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://datapresent.com'}/logo.png` }
+    },
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': `${process.env.NEXT_PUBLIC_BASE_URL || 'https://datapresent.com'}/${locale}/blog/${slug}`
+    }
+  }
+
   return (
     <div className="min-h-screen flex flex-col bg-background">
+      {/* JSON-LD Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <BlogHeader />
 
       <main className="flex-1">

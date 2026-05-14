@@ -3,6 +3,7 @@ import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { generateQueue } from '@/lib/queue'
 import { checkRateLimit } from '@/lib/rate-limit'
+import { signJobData } from '@/lib/queue/job-security'
 import { ERROR_CODES, unauthorized, notFound, forbidden } from '@/lib/errors'
 
 export async function POST(
@@ -40,7 +41,12 @@ export async function POST(
     data: { status: 'PENDING' },
   })
 
-  await generateQueue.add('generate', { reportId: id })
+  // SECURITY: Sign job data with userId
+  const signedJob = signJobData({
+    reportId: id,
+    userId: session.user.id,
+  })
+  await generateQueue.add('generate', signedJob)
 
   return NextResponse.json({ success: true })
 }

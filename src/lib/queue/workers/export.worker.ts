@@ -4,16 +4,33 @@ import { generatePptx, generatePdf, generateDocx } from '@/lib/exporters'
 import { uploadToR2 } from '@/lib/r2'
 import { PLANS } from '@/lib/plans'
 import { connection } from '../client'
+import { extractSignedJobData } from '../job-security'
 
 export const exportWorker = new Worker(
   'export',
   async (job) => {
-    const { exportId, format } = job.data
+    // SECURITY: Validate job signature
+    const { valid, cleanData } = extractSignedJobData(job.data as any)
+    if (!valid) {
+      throw new Error('Invalid job signature: unauthorized job submission')
+    }
+
+    const { exportId, format, userId } = cleanData as any
+
+    // SECURITY: Validate required fields
+    if (!exportId || !userId) {
+      throw new Error('Invalid job data: missing exportId or userId')
+    }
 
     const exp = await prisma.export.findUniqueOrThrow({
       where: { id: exportId },
-      include: { report: { include: { slides: true, org: { include: { subscription: true } } } } },
+      include: { report: { include: { slides: true, org: { include: { subscription: true, members: { where: { userId } } } } } } },
     })
+
+    // SECURITY: Verify user is member of organization
+    if (!exp.report.org.members.length) {
+      throw new Error(`User ${userId} is not authorized to export report ${exp.reportId}`)
+    }
 
     try {
       const plan = exp.report.org.subscription?.plan || 'FREE'
@@ -59,5 +76,5 @@ export const exportWorker = new Worker(
       throw error
     }
   },
-  { connection }
+  { connection, removeOnComplete: { count: 200, age: 3600 }, removeOnFail: { count: 100, age: 86400 } }
 )
