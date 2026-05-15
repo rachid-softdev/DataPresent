@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Spinner } from '@/components/ui/spinner'
 import { DropZone } from '@/components/upload/DropZone'
+import { DataPreview } from '@/components/upload/DataPreview'
 import { SectorSelector } from '@/components/upload/SectorSelector'
 import { SlideCountSlider } from '@/components/upload/SlideCountSlider'
 
@@ -70,6 +71,11 @@ export default function NewReportPage() {
                   maxSize={10 * 1024 * 1024}
                   disabled={loading}
                 />
+                {file && (
+                  <div className="mt-4">
+                    <DataPreview file={file} />
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>

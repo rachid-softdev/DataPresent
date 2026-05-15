@@ -73,7 +73,8 @@
       "rateLimit": "Trop de demandes. Veuillez réessayer plus tard.",
       "commentRequired": "Le commentaire est requis",
       "fileRequired": "Fichier ou secteur manquant",
-      "invalidPlan": "Plan invalide"
+      "invalidPlan": "Plan invalide",
+      "invalidPassword": "Le mot de passe doit contenir au moins 8 caractères avec au moins une lettre"
     },
     "resource": {
       "notFound": "Non trouvé",
@@ -86,7 +87,8 @@
       "alreadyGenerating": "Le rapport est déjà en cours de génération",
       "noSourceFile": "Fichier source introuvable",
       "noSourceFileDesc": "Le fichier source de ce rapport n'existe plus",
-      "invalidSignature": "Signature webhook invalide"
+      "invalidSignature": "Signature webhook invalide",
+      "expired": "Ce lien a expiré"
     },
     "generic": "Une erreur s'est produite. Veuillez réessayer."
   },
@@ -133,9 +135,43 @@
     },
     "usage": {
       "title": "Utilisation",
+      "plan": "Plan",
       "reports": "Rapports",
+      "slides": "Diapositives",
       "storage": "Stockage",
-      "thisMonth": "Ce mois"
+      "thisMonth": "Ce mois",
+      "unlimited": "Illimité",
+      "warning": "Vous avez utilisé {{percent}}% de votre quota de rapports"
+    }
+  },
+  "reports": {
+    "title": "Rapports",
+    "new": "Nouveau rapport",
+    "empty": "Aucun rapport",
+    "uploadData": "Importez vos données pour créer votre premier rapport",
+    "generate": "Générer le rapport",
+    "noResults": "Aucun résultat",
+    "noResultsDesc": "Essayez de modifier vos filtres",
+    "columns": {
+      "name": "Nom",
+      "status": "Statut",
+      "date": "Date"
+    },
+    "status": {
+      "pending": "En attente",
+      "processing": "En cours",
+      "done": "Terminé",
+      "error": "Erreur",
+      "generating": "Génération en cours..."
+    },
+    "filters": {
+      "status": "Statut",
+      "sector": "Secteur",
+      "sortBy": "Trier par",
+      "date": "Date",
+      "name": "Nom",
+      "all": "Tous",
+      "clear": "Effacer les filtres"
     }
   }
 }

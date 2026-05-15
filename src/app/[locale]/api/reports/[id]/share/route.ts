@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
-import { ERROR_CODES, unauthorized, forbidden, notFound } from '@/lib/errors'
+import { ERROR_CODES, unauthorized, forbidden, notFound, badRequest } from '@/lib/errors'
+import { hashPassword, isPasswordValid } from '@/lib/password'
 
 export async function GET(
   req: NextRequest,
@@ -139,6 +140,14 @@ export async function PATCH(
 
   const { allowComments, allowEmbed, expiresAt, password } = await req.json()
 
+  // Validate password if provided
+  if (password && !isPasswordValid(password)) {
+    return badRequest(ERROR_CODES.ERR_VALIDATION_INVALID_PASSWORD)
+  }
+
+  // Hash the password if provided
+  const hashedPassword = password ? await hashPassword(password) : null
+
   let shareExpiresAt: Date | null = null
   if (expiresAt === '7d') {
     shareExpiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
@@ -148,13 +157,16 @@ export async function PATCH(
     shareExpiresAt = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000)
   }
 
+  // If password is being removed, set to null; otherwise use hashed password
+  const passwordUpdate = password === '' ? null : hashedPassword
+
   const updated = await prisma.report.update({
     where: { id },
     data: {
       allowComments: allowComments ?? true,
       allowEmbed: allowEmbed ?? false,
       shareExpiresAt,
-      sharePassword: password || null,
+      sharePassword: passwordUpdate,
     },
     select: {
       allowComments: true,

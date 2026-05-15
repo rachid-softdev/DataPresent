@@ -16,6 +16,8 @@ export const ERROR_CODES = {
   ERR_VALIDATION_COMMENT_REQUIRED: 'errors.validation.commentRequired',
   ERR_VALIDATION_FILE_REQUIRED: 'errors.validation.fileRequired',
   ERR_VALIDATION_INVALID_PLAN: 'errors.validation.invalidPlan',
+  ERR_VALIDATION_INVALID_PASSWORD: 'errors.validation.invalidPassword',
+  ERR_VALIDATION_FORMAT_NOT_ALLOWED: 'errors.validation.formatNotAllowed',
   
   ERR_RESOURCE_NOT_FOUND: 'errors.resource.notFound',
   ERR_RESOURCE_FORBIDDEN: 'errors.resource.forbidden',
@@ -27,6 +29,7 @@ export const ERROR_CODES = {
   ERR_RESOURCE_ALREADY_GENERATING: 'errors.resource.alreadyGenerating',
   ERR_RESOURCE_NO_SOURCE_FILE: 'errors.resource.noSourceFile',
   ERR_RESOURCE_INVALID_SIGNATURE: 'errors.resource.invalidSignature',
+  ERR_RESOURCE_EXPIRED: 'errors.resource.expired',
 } as const
 
 export const SUCCESS_CODES = {

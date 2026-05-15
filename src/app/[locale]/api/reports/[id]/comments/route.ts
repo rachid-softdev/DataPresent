@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
-import { checkRateLimit } from '@/lib/rate-limit'
 import { ERROR_CODES, unauthorized, forbidden, notFound, badRequest } from '@/lib/errors'
+import { sanitizeComment } from '@/lib/sanitize'
+import { checkRateLimit } from '@/lib/rate-limit'
 
 export async function GET(
   req: NextRequest,
@@ -92,9 +93,12 @@ export async function POST(
     return forbidden()
   }
 
+  // Sanitize the comment body to prevent XSS
+  const sanitizedBody = sanitizeComment(body)
+
   const comment = await prisma.comment.create({
     data: {
-      body: body.trim(),
+      body: sanitizedBody,
       reportId,
       slideId: slideId || null,
       authorId: session.user.id

@@ -125,6 +125,7 @@ model User {
   membership Membership[]
   comments  Comment[]
   invites   InviteToken[]
+  reportVersions ReportVersion[]
 }
 
 model Organization {
@@ -137,6 +138,7 @@ model Organization {
   members     Membership[]
   reports     Report[]
   subscription Subscription?
+  invites    InviteToken[]
 }
 
 model Membership {

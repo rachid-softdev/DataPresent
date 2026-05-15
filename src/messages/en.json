@@ -73,7 +73,8 @@
       "rateLimit": "Too many requests. Please try again later.",
       "commentRequired": "Comment body is required",
       "fileRequired": "Missing file or sector",
-      "invalidPlan": "Invalid plan"
+      "invalidPlan": "Invalid plan",
+      "invalidPassword": "Password must be at least 8 characters with at least one letter"
     },
     "resource": {
       "notFound": "Not found",
@@ -86,7 +87,8 @@
       "alreadyGenerating": "Report is already being generated",
       "noSourceFile": "No source file found",
       "noSourceFileDesc": "The source file for this report no longer exists",
-      "invalidSignature": "Invalid webhook signature"
+      "invalidSignature": "Invalid webhook signature",
+      "expired": "This link has expired"
     },
     "generic": "An error occurred. Please try again."
   },
@@ -133,9 +135,43 @@
     },
     "usage": {
       "title": "Usage",
+      "plan": "Plan",
       "reports": "Reports",
+      "slides": "Slides",
       "storage": "Storage",
-      "thisMonth": "This month"
+      "thisMonth": "This month",
+      "unlimited": "Unlimited",
+      "warning": "You have used {{percent}}% of your report quota"
+    }
+  },
+  "reports": {
+    "title": "Reports",
+    "new": "New report",
+    "empty": "No reports",
+    "uploadData": "Import your data to create your first report",
+    "generate": "Generate report",
+    "noResults": "No results",
+    "noResultsDesc": "Try changing your filters",
+    "columns": {
+      "name": "Name",
+      "status": "Status",
+      "date": "Date"
+    },
+    "status": {
+      "pending": "Pending",
+      "processing": "Processing",
+      "done": "Done",
+      "error": "Error",
+      "generating": "Generating..."
+    },
+    "filters": {
+      "status": "Status",
+      "sector": "Sector",
+      "sortBy": "Sort by",
+      "date": "Date",
+      "name": "Name",
+      "all": "All",
+      "clear": "Clear filters"
     }
   }
 }

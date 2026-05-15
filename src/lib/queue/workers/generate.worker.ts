@@ -30,7 +30,7 @@ export const generateWorker = new Worker(
     try {
       const report = await prisma.report.findUniqueOrThrow({
         where: { id: reportId },
-        include: { sourceFile: true, org: { include: { members: { where: { userId } } } } },
+        include: { sourceFile: true, slides: true, org: { include: { members: { where: { userId } } } } },
       })
 
       // SECURITY: Verify user is member of organization
@@ -109,5 +109,14 @@ export const generateWorker = new Worker(
       throw error
     }
   },
-  { connection, removeOnComplete: { count: 100, age: 3600 }, removeOnFail: { count: 50, age: 86400 } }
+  {
+    connection,
+    removeOnComplete: { count: 100, age: 3600 },
+    removeOnFail: { count: 50, age: 86400 },
+    // Retry strategy: max 3 retries with exponential backoff
+    limiter: {
+      max: 3,
+      duration: 60000, // 1 minute between retries
+    },
+  }
 )

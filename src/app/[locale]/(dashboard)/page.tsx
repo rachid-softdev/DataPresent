@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { EmptyState } from '@/components/ui/empty-state'
+import { UsageCard } from '@/components/usage/UsageCard'
 import { PlusCircle } from 'lucide-react'
 
 export default async function DashboardPage() {
@@ -34,34 +35,41 @@ export default async function DashboardPage() {
         </Link>
       </div>
 
-      {reports.length === 0 ? (
-        <EmptyState
-          icon={PlusCircle}
-          title={t('dashboard.noReports')}
-          description={t('dashboard.noReportsDesc')}
-          action={{ label: t('dashboard.newReport'), href: '/new' }}
-        />
-      ) : (
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {reports.map((report) => (
-            <Link key={report.id} href={`/reports/${report.id}`}>
-              <Card className="hover:shadow-md transition-shadow cursor-pointer">
-                <CardHeader>
-                  <CardTitle className="text-lg">{report.title}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center gap-2">
-                    <Badge variant={report.status === 'DONE' ? 'success' : report.status === 'ERROR' ? 'error' : 'warning'}>
-                      {t(`reports.status.${report.status.toLowerCase()}`)}
-                    </Badge>
-                    <span className="text-sm text-muted-foreground">{report.sector}</span>
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
-          ))}
+      <div className="grid lg:grid-cols-4 gap-6 mb-8">
+        <div className="lg:col-span-3">
+          {reports.length === 0 ? (
+            <EmptyState
+              icon={PlusCircle}
+              title={t('dashboard.noReports')}
+              description={t('dashboard.noReportsDesc')}
+              action={{ label: t('dashboard.newReport'), href: '/new' }}
+            />
+          ) : (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {reports.map((report) => (
+                <Link key={report.id} href={`/reports/${report.id}`}>
+                  <Card className="hover:shadow-md transition-shadow cursor-pointer">
+                    <CardHeader>
+                      <CardTitle className="text-lg">{report.title}</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="flex items-center gap-2">
+                        <Badge variant={report.status === 'DONE' ? 'success' : report.status === 'ERROR' ? 'error' : 'warning'}>
+                          {t(`reports.status.${report.status.toLowerCase()}`)}
+                        </Badge>
+                        <span className="text-sm text-muted-foreground">{report.sector}</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
-      )}
+        <div>
+          <UsageCard />
+        </div>
+      </div>
     </div>
   )
 }
