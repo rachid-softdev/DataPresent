@@ -1,14 +1,19 @@
-import { Worker } from 'bullmq'
+import { Worker, Job } from 'bullmq'
 import { prisma } from '@/lib/prisma'
 import { parseFile } from '@/lib/parsers'
 import { analyzeWithClaude } from '@/lib/ai/analyze'
 import { getSignedDownloadUrl } from '@/lib/r2'
 import { connection } from '../client'
 import { extractSignedJobData } from '../job-security'
+import { captureException, captureMessage } from '@/lib/sentry'
+
+// Retry configuration
+const MAX_RETRIES = 3
+const RETRY_BACKOFF = [2000, 4000, 8000] // 2s, 4s, 8s exponential backoff
 
 export const generateWorker = new Worker(
   'generate',
-  async (job) => {
+  async (job: Job) => {
     // SECURITY: Validate job signature
     const { valid, cleanData } = extractSignedJobData(job.data as any)
     if (!valid) {
@@ -100,23 +105,89 @@ export const generateWorker = new Worker(
           data: { title: result.title, status: 'DONE' },
         }),
       ])
+
+      captureMessage(`Report ${reportId} generated successfully`, 'info', {
+        slideCount: result.slides.length,
+        jobId: job.id,
+      })
     } catch (error) {
-      console.error('Generate worker error:', error instanceof Error ? error.message : String(error))
+      const errorMessage = error instanceof Error ? error.message : String(error)
+      console.error('Generate worker error:', errorMessage)
+      
       await prisma.report.update({
         where: { id: reportId },
         data: { status: 'ERROR' },
       })
+
+      captureException(error instanceof Error ? error : new Error(errorMessage), {
+        reportId,
+        jobId: job.id,
+        attempts: job.attemptsMade,
+      })
+      
       throw error
     }
   },
   {
     connection,
+    // Remove completed jobs after 1 hour, keep 100
     removeOnComplete: { count: 100, age: 3600 },
-    removeOnFail: { count: 50, age: 86400 },
-    // Retry strategy: max 3 retries with exponential backoff
+    // Remove failed jobs after 1 day, keep 500 for debugging
+    removeOnFail: { count: 500, age: 86400 },
+    // Rate limiting: max 3 jobs per minute
     limiter: {
       max: 3,
-      duration: 60000, // 1 minute between retries
+      duration: 60000,
+    },
+    // Retry strategy: exponential backoff with max 3 retries
+    retryStrategy: (job: Job) => {
+      if (job.attemptsMade >= MAX_RETRIES) {
+        captureMessage(`Job ${job.id} failed after ${MAX_RETRIES} retries`, 'error', {
+          jobId: job.id,
+          reportId: job.data.reportId,
+        })
+        return null // No more retries
+      }
+      const delay = RETRY_BACKOFF[job.attemptsMade - 1] || RETRY_BACKOFF[RETRY_BACKOFF.length - 1]
+      return delay
     },
   }
 )
+
+// Dead letter queue handler - called when job fails after all retries
+generateWorker.on('failed', async (job: Job | undefined) => {
+  if (!job) return
+
+  const reportId = job.data?.reportId
+
+  if (reportId) {
+    // Update report status to ERROR
+    await prisma.report.update({
+      where: { id: reportId },
+      data: { status: 'ERROR' },
+    }).catch(() => {
+      // Ignore if report doesn't exist anymore
+    })
+
+    captureMessage(
+      `Report generation failed permanently: ${reportId}`,
+      'error',
+      {
+        jobId: job.id,
+        reportId,
+        failedReason: job.failedReason,
+        attempts: job.attemptsMade,
+      }
+    )
+  }
+})
+
+// Progress event handler for frontend polling
+generateWorker.on('progress', (job: Job | undefined) => {
+  if (!job) return
+
+  captureMessage(`Job ${job.id} progress: ${job.progress}`, 'debug', {
+    jobId: job.id,
+    reportId: job.data?.reportId,
+  })
+})

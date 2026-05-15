@@ -319,3 +319,18 @@ model Comment {
   @@index([reportId])
   @@index([slideId])
 }
+
+model ApiKey {
+  id          String    @id @default(cuid())
+  keyHash     String    @unique
+  orgId       String
+  name        String
+  createdAt   DateTime  @default(now())
+  expiresAt   DateTime?
+  lastUsedAt  DateTime?
+
+  org Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@index([orgId])
+  @@index([expiresAt])
+}
