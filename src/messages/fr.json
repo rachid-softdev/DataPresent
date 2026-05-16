@@ -54,7 +54,10 @@
     "login": "Connexion",
     "signup": "Inscription",
     "newReport": "Nouveau",
-    "blog": "Blog"
+    "blog": "Blog",
+    "help": "Aide",
+    "privacy": "Confidentialité",
+    "terms": "Conditions"
   },
   "errors": {
     "auth": {
@@ -107,7 +110,15 @@
       "profileUpdated": "Profil mis à jour avec succès",
       "organizationCreated": "Organisation créée",
       "memberInvited": "Invitation envoyée",
-      "memberRemoved": "Membre retiré"
+      "memberRemoved": "Membre retiré",
+      "usage": {
+        "title": "Utilisation",
+        "plan": "Plan",
+        "reports": "Rapports",
+        "slides": "Diapositives",
+        "unlimited": "Illimité",
+        "warning": "Vous avez utilisé {{percent}}% de votre quota de rapports"
+      }
     }
   },
   "billing": {

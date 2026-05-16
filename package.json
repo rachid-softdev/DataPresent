@@ -43,6 +43,7 @@
     "@hookform/resolvers": "^5.2.2",
     "@node-rs/argon2": "^2.0.2",
     "@prisma/client": "^5.22.0",
+    "@sentry/nextjs": "^10.53.1",
     "@sparticuz/chromium": "^123.0.0",
     "@stripe/stripe-js": "^9.4.0",
     "bullmq": "^5.76.5",

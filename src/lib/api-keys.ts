@@ -1,6 +1,6 @@
 import { prisma } from '@/lib/prisma'
 import { captureException, captureMessage } from '@/lib/sentry'
-import { hash, verify } from './password'
+import { hashPassword, verifyPassword } from './password'
 
 /**
  * Generate a new API key for an organization
@@ -16,7 +16,7 @@ export async function createApiKey(params: {
   const key = generateSecureKey()
   
   // Hash the key for storage
-  const keyHash = await hash(key)
+  const keyHash = await hashPassword(key)
 
   const expiresAt = new Date(Date.now() + expiresInDays * 24 * 60 * 60 * 1000)
 
@@ -50,7 +50,7 @@ export async function validateApiKey(key: string): Promise<{ valid: boolean; org
   })
 
   for (const apiKey of apiKeys) {
-    const isValid = await verify(key, apiKey.keyHash)
+    const isValid = await verifyPassword(key, apiKey.keyHash)
     if (isValid) {
       // Update last used timestamp
       await prisma.apiKey.update({

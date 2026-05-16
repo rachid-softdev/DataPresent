@@ -8,11 +8,24 @@ import { Badge } from '@/components/ui/badge'
 import { Loader2, FileText, Layers, Zap } from 'lucide-react'
 
 interface UsageData {
-  reportsUsed: number
-  reportsLimit: number
-  slidesUsed: number
-  slidesLimit: number
   plan: string
+  reports: {
+    used: number
+    limit: number
+    remaining: number
+  }
+  slides?: {
+    used: number
+    limit: number
+  }
+  members: number
+  exports: {
+    thisMonth: {
+      PPTX: number
+      PDF: number
+      DOCX: number
+    }
+  }
 }
 
 export function UsageCard() {
@@ -52,15 +65,30 @@ export function UsageCard() {
     return null
   }
 
-  const reportsPercentage = usage.reportsLimit > 0
-    ? Math.min((usage.reportsUsed / usage.reportsLimit) * 100, 100)
+  const reportsLimit = usage.reports?.limit ?? 0
+  const reportsUsed = usage.reports?.used ?? 0
+  const reportsPercentage = reportsLimit > 0 && reportsLimit !== -1
+    ? Math.min((reportsUsed / reportsLimit) * 100, 100)
     : 0
 
-  const slidesPercentage = usage.slidesLimit > 0
-    ? Math.min((usage.slidesUsed / usage.slidesLimit) * 100, 100)
+  const slidesUsed = usage.slides?.used ?? 0
+  const slidesLimit = usage.slides?.limit ?? 20
+  const slidesPercentage = slidesLimit > 0 && slidesLimit !== -1
+    ? Math.min((slidesUsed / slidesLimit) * 100, 100)
     : 0
 
-  const isUnlimited = usage.reportsLimit === -1
+  const isUnlimited = reportsLimit === -1
+
+  // Determine plan badge variant
+  const getPlanVariant = (plan: string) => {
+    switch (plan) {
+      case 'FREE': return 'outline'
+      case 'PRO': return 'default'
+      case 'TEAM': return 'secondary'
+      case 'AGENCY': return 'secondary'
+      default: return 'outline'
+    }
+  }
 
   return (
     <Card>
@@ -74,7 +102,7 @@ export function UsageCard() {
         {/* Plan Badge */}
         <div className="flex items-center justify-between">
           <span className="text-sm text-muted-foreground">{t('settings.usage.plan')}</span>
-          <Badge variant={usage.plan === 'FREE' ? 'outline' : usage.plan === 'PRO' ? 'default' : 'secondary'}>
+          <Badge variant={getPlanVariant(usage.plan)}>
             {usage.plan}
           </Badge>
         </div>
@@ -90,7 +118,7 @@ export function UsageCard() {
               {isUnlimited ? (
                 <span className="text-green-500">{t('settings.usage.unlimited')}</span>
               ) : (
-                <>{usage.reportsUsed} / {usage.reportsLimit}</>
+                <>{reportsUsed} / {reportsLimit}</>
               )}
             </span>
           </div>
@@ -107,11 +135,24 @@ export function UsageCard() {
               {t('settings.usage.slides')}
             </span>
             <span className="text-muted-foreground">
-              {usage.slidesUsed} / {usage.slidesLimit}
+              {slidesLimit === -1 ? (
+                <span className="text-green-500">{t('settings.usage.unlimited')}</span>
+              ) : (
+                <>{slidesUsed} / {slidesLimit}</>
+              )}
             </span>
           </div>
-          <Progress value={slidesPercentage} className="h-2" />
+          {slidesLimit !== -1 && (
+            <Progress value={slidesPercentage} className="h-2" />
+          )}
         </div>
+
+        {/* Members count */}
+        {usage.members > 1 && (
+          <div className="text-sm text-muted-foreground pt-2 border-t">
+            {usage.members} membres dans l&apos;organisation
+          </div>
+        )}
 
         {/* Warning when close to limit */}
         {!isUnlimited && reportsPercentage >= 80 && (

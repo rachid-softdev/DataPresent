@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
-import { User, Building2, Users, CreditCard, Shield } from 'lucide-react'
+import { User, Building2, Users, CreditCard, Shield, Key } from 'lucide-react'
 
 const settingsNav = [
   {
@@ -26,6 +26,11 @@ const settingsNav = [
     title: 'Abonnement',
     href: '/settings/billing',
     icon: CreditCard,
+  },
+  {
+    title: 'API Keys',
+    href: '/settings/api-keys',
+    icon: Key,
   },
   {
     title: 'Sécurité',

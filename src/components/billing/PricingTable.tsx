@@ -64,8 +64,10 @@ function PricingCard({ plan, onSelect, isLoading }: PricingCardProps) {
 
       <CardContent className="flex-1">
         <div className="mb-6">
-          <span className="text-4xl font-bold">{plan.price}</span>
-          {plan.period && (
+          <span className="text-4xl font-bold">
+            {plan.price === -1 ? 'Sur mesure' : plan.price === 0 ? 'Gratuit' : plan.price}
+          </span>
+          {plan.price > 0 && plan.period && (
             <span className="text-muted-foreground">/{plan.period}</span>
           )}
         </div>

@@ -135,10 +135,16 @@ model Organization {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  members     Membership[]
-  reports     Report[]
-  subscription Subscription?
-  invites    InviteToken[]
+  // White-label / Custom domain
+  customDomain       String?   @unique
+  domainVerifiedAt   DateTime?
+  logoUrl           String?
+  primaryColor      String?   @default("#2563eb") // Default blue
+  
+  members           Membership[]
+  reports           Report[]
+  subscription      Subscription?
+  invites           InviteToken[]
 }
 
 model Membership {
@@ -178,6 +184,7 @@ enum Plan {
   FREE
   PRO
   TEAM
+  AGENCY
 }
 
 enum SubscriptionStatus {

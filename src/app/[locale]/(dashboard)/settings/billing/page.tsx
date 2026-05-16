@@ -16,22 +16,30 @@ export default async function BillingPage() {
 
   const subscription = user?.membership[0]?.org?.subscription
 
-  const plans: PricingPlan[] = (['FREE', 'PRO', 'TEAM'] as const).map((plan) => ({
+  const plans: PricingPlan[] = (['FREE', 'PRO', 'TEAM', 'AGENCY'] as const).map((plan) => ({
     id: plan,
-    name: t(`plans.${plan.toLowerCase()}.name`),
+    name: PLANS[plan].name,
     price: PLANS[plan].price,
-    period: t('perMonth'),
-    description: t(`plans.${plan.toLowerCase()}.description`),
+    period: PLANS[plan].price === -1 ? undefined : t('perMonth'),
+    description: plan === 'AGENCY' 
+      ? 'Pour les agences et grandes organisations nécessitant des solutions personnalisées'
+      : t(`plans.${plan.toLowerCase()}.description`),
     features: [
       PLANS[plan].reportsPerMonth === -1 
-        ? t('features.reports')
-        : `${PLANS[plan].reportsPerMonth} ${t('features.reports')}`,
-      `${PLANS[plan].maxSlides} ${t('features.slides')}`,
-      ...PLANS[plan].formats.map(f => `${t('features.export')} ${f}`),
-      ...(PLANS[plan].collaboration ? [t('features.reports'), t('features.reports')] : []),
+        ? 'Rapports illimités'
+        : `${PLANS[plan].reportsPerMonth} rapports/mois`,
+      PLANS[plan].maxSlides === -1 
+        ? 'Diapositives illimitées'
+        : `${PLANS[plan].maxSlides} diapositives`,
+      ...PLANS[plan].formats.map(f => `Export ${f}`),
+      ...(PLANS[plan].collaboration ? ['Collaboration équipe'] : []),
+      ...(PLANS[plan].whiteLabel ? ['White-label complet'] : []),
+      ...(PLANS[plan].apiAccess ? ['Accès API'] : []),
+      ...(PLANS[plan].customDomain ? ['Domaine personnalisé'] : []),
+      ...(PLANS[plan].prioritySupport ? ['Support dédié'] : []),
     ],
     popular: plan === 'PRO',
-    cta: plan === 'FREE' ? t('plans.free.name') : t('getStarted'),
+    cta: plan === 'FREE' ? 'Plan actuel' : plan === 'AGENCY' ? 'Contacter les ventes' : 'Souscrire',
     currentPlan: subscription?.plan === plan,
     stripePriceId: PLANS[plan].stripePriceId || undefined,
   }))

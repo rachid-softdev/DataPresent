@@ -1,12 +1,50 @@
 import { getTranslations } from 'next-intl/server'
 import { readFileSync } from 'fs'
 import { join } from 'path'
+import { Metadata } from 'next'
 import { BlogCard } from '@/components/blog/blog-card'
 import { BlogHeader } from '@/components/blog/blog-header'
 import type { BlogPost } from '@/lib/blog/types'
 
 interface BlogPageProps {
   params: Promise<{ locale: string }>
+}
+
+export async function generateMetadata({ params }: BlogPageProps): Promise<Metadata> {
+  const { locale } = await params
+  
+  const titles = {
+    fr: 'Blog - DataPresent : Actualités et conseils sur la présentation de données',
+    en: 'Blog - DataPresent: News and tips on data presentation',
+  }
+  
+  const descriptions = {
+    fr: 'Découvrez les dernières actualités, astuces et conseils sur la création de rapports et la présentation de données avec l\'IA.',
+    en: 'Discover the latest news, tips, and advice on creating reports and presenting data with AI.',
+  }
+
+  return {
+    title: titles[locale as keyof typeof titles] || titles.fr,
+    description: descriptions[locale as keyof typeof descriptions] || descriptions.fr,
+    openGraph: {
+      title: titles[locale as keyof typeof titles] || titles.fr,
+      description: descriptions[locale as keyof typeof descriptions] || descriptions.fr,
+      type: 'website',
+      locale: locale === 'fr' ? 'fr_FR' : 'en_US',
+      alternateLocale: locale === 'fr' ? 'en_US' : 'fr_FR',
+      url: `/${locale}/blog`,
+      siteName: 'DataPresent',
+    },
+    twitter: {
+      card: 'summary',
+    },
+    alternates: {
+      languages: {
+        fr: '/fr/blog',
+        en: '/en/blog',
+      },
+    },
+  }
 }
 
 export default async function BlogPage({ params }: BlogPageProps) {
