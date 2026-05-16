@@ -1,4 +1,5 @@
 import * as React from 'react'
+import Image from 'next/image'
 import { cn } from '@/lib/utils'
 
 interface AvatarProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -7,10 +8,10 @@ interface AvatarProps extends React.HTMLAttributes<HTMLDivElement> {
   fallback?: string
 }
 
-export const Avatar = React.forwardRef<HTMLDivElement, AvatarProps>(
+export const Avatar = React.memo(React.forwardRef<HTMLDivElement, AvatarProps>(
   ({ className, src, alt, fallback, ...props }, ref) => {
     const [error, setError] = React.useState(false)
-    
+
     return (
       <div
         ref={ref}
@@ -21,11 +22,13 @@ export const Avatar = React.forwardRef<HTMLDivElement, AvatarProps>(
         {...props}
       >
         {!error && src ? (
-          <img
+          <Image
             src={src}
-            alt={alt}
+            alt={alt || 'Avatar'}
+            fill
+            sizes="(max-width: 40px) 100vw, 40px"
+            className="object-cover"
             onError={() => setError(true)}
-            className="h-full w-full object-cover"
           />
         ) : (
           <span className="text-sm font-medium text-primary">
@@ -35,14 +38,24 @@ export const Avatar = React.forwardRef<HTMLDivElement, AvatarProps>(
       </div>
     )
   }
-)
+))
 Avatar.displayName = 'Avatar'
 
-export const AvatarImage = ({ src, alt }: { src?: string; alt?: string }) => {
+export const AvatarImage = React.memo(({ src, alt }: { src?: string; alt?: string }) => {
   const [error, setError] = React.useState(false)
   if (error || !src) return null
-  return <img src={src} alt={alt} onError={() => setError(true)} className="h-full w-full object-cover" />
-}
+  return (
+    <Image
+      src={src}
+      alt={alt || 'Avatar'}
+      fill
+      sizes="(max-width: 40px) 100vw, 40px"
+      className="object-cover"
+      onError={() => setError(true)}
+    />
+  )
+})
+AvatarImage.displayName = 'AvatarImage'
 
 export const AvatarFallback = ({ children }: { children?: React.ReactNode }) => (
   <span className="text-sm font-medium text-primary">{children}</span>
