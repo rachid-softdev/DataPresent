@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo, memo } from 'react'
 import { useRouter } from 'next/navigation'
 import { CommentInput } from '@/components/comments/CommentInput'
 import { CommentItem } from './CommentItem'
@@ -28,7 +28,7 @@ interface CommentThreadProps {
   onClose?: () => void
 }
 
-export function CommentThread({
+export const CommentThread = memo(function CommentThread({
   reportId,
   currentSlideId,
   embedded = false,
@@ -39,29 +39,39 @@ export function CommentThread({
   const [loading, setLoading] = useState(true)
   const [currentUserId, setCurrentUserId] = useState<string | undefined>()
 
-  const fetchComments = useCallback(async () => {
-    try {
-      const res = await fetch(`/api/reports/${reportId}/comments`)
-      if (res.ok) {
-        const data = await res.json()
-        setComments(data)
-        
-        const userRes = await fetch('/api/user')
+  useEffect(() => {
+    const controller = new AbortController()
+
+    const fetchData = async () => {
+      try {
+        // Parallel fetches for better performance
+        const [commentsRes, userRes] = await Promise.all([
+          fetch(`/api/reports/${reportId}/comments`, { signal: controller.signal }),
+          fetch('/api/user', { signal: controller.signal })
+        ])
+
+        if (commentsRes.ok) {
+          const data = await commentsRes.json()
+          setComments(data)
+        }
+
         if (userRes.ok) {
           const userData = await userRes.json()
           setCurrentUserId(userData.id)
         }
+      } catch (error) {
+        // Ignore abort errors - component unmounted
+        if (error instanceof Error && error.name !== 'AbortError') {
+          console.error('Failed to fetch comments:', error)
+        }
+      } finally {
+        setLoading(false)
       }
-    } catch (error) {
-      console.error('Failed to fetch comments:', error)
-    } finally {
-      setLoading(false)
     }
-  }, [reportId])
 
-  useEffect(() => {
-    fetchComments()
-  }, [fetchComments])
+    fetchData()
+    return () => controller.abort()
+  }, [reportId])
 
   const handleSubmit = async (body: string) => {
     const res = await fetch(`/api/reports/${reportId}/comments`, {
@@ -99,24 +109,36 @@ export function CommentThread({
     }
   }
 
-  const slideComments = comments.filter(c => c.slideId === currentSlideId)
-  const generalComments = comments.filter(c => !c.slideId)
-
-  const CommentList = ({ list, emptyMessage }: { list: Comment[], emptyMessage: string }) => (
-    list.length === 0 ? (
-      <p className="text-sm text-muted-foreground text-center py-4">{emptyMessage}</p>
-    ) : (
-      list.map(comment => (
-        <CommentItem
-          key={comment.id}
-          comment={comment}
-          currentUserId={currentUserId}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-        />
-      ))
-    )
+  const slideComments = useMemo(
+    () => comments.filter(c => c.slideId === currentSlideId),
+    [comments, currentSlideId]
   )
+  const generalComments = useMemo(
+    () => comments.filter(c => !c.slideId),
+    [comments]
+  )
+
+  const CommentList = useMemo(() => memo(function CommentList({
+    list,
+    emptyMessage
+  }: { list: Comment[], emptyMessage: string }) {
+    if (list.length === 0) {
+      return <p className="text-sm text-muted-foreground text-center py-4">{emptyMessage}</p>
+    }
+    return (
+      <>
+        {list.map(comment => (
+          <CommentItem
+            key={comment.id}
+            comment={comment}
+            currentUserId={currentUserId}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+          />
+        ))}
+      </>
+    )
+  }), [currentUserId, handleEdit, handleDelete])
 
   return (
     <div className={embedded ? "h-full flex flex-col" : "fixed right-0 top-0 h-full w-96 bg-background border-l shadow-lg flex flex-col z-50"}>
@@ -177,4 +199,4 @@ export function CommentThread({
       </div>
     </div>
   )
-}
+})

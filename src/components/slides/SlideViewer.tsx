@@ -27,9 +27,13 @@ export function SlideViewer({ slides: initialSlides, reportId }: SlideViewerProp
   const [commentCounts, setCommentCounts] = useState<SlideCommentCount>({})
 
   useEffect(() => {
+    const controller = new AbortController()
+
     async function fetchCommentCounts() {
       try {
-        const res = await fetch(`/api/reports/${reportId}/comments`)
+        const res = await fetch(`/api/reports/${reportId}/comments`, {
+          signal: controller.signal
+        })
         if (res.ok) {
           const comments = await res.json()
           const counts: SlideCommentCount = {}
@@ -41,10 +45,15 @@ export function SlideViewer({ slides: initialSlides, reportId }: SlideViewerProp
           setCommentCounts(counts)
         }
       } catch (error) {
-        console.error('Failed to fetch comment counts:', error)
+        // Ignore abort errors - component unmounted
+        if (error instanceof Error && error.name !== 'AbortError') {
+          console.error('Failed to fetch comment counts:', error)
+        }
       }
     }
+
     fetchCommentCounts()
+    return () => controller.abort()
   }, [reportId])
 
   const goToPrev = () => setCurrentIndex(i => Math.max(0, i - 1))

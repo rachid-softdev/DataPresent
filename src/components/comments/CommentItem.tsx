@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, memo } from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
@@ -37,7 +37,7 @@ function getInitials(name: string | null, email: string | null): string {
   return '?'
 }
 
-export function CommentItem({
+export const CommentItem = memo(function CommentItem({
   comment,
   currentUserId,
   onEdit,
@@ -128,4 +128,4 @@ export function CommentItem({
       )}
     </div>
   )
-}
+})

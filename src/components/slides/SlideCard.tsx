@@ -1,13 +1,29 @@
 'use client'
 
+import { memo } from 'react'
+import dynamic from 'next/dynamic'
 import type { Slide, SlideLayout } from '@prisma/client'
 import { TitleSlide } from './layouts/TitleSlide'
 import { KpiGrid } from './layouts/KpiGrid'
-import { BarChartSlide } from './layouts/BarChart'
-import { LineChartSlide } from './layouts/LineChart'
-import { PieChartSlide } from './layouts/PieChart'
 import { TextSummary } from './layouts/TextSummary'
 import { Comparison } from './layouts/Comparison'
+import { Skeleton } from '@/components/ui/skeleton'
+
+// Lazy load heavy chart components (recharts is ~30KB)
+const BarChartSlide = dynamic(() => import('./layouts/BarChart').then(mod => ({ default: mod.BarChartSlide })), {
+  ssr: true,
+  loading: () => <Skeleton className="h-64 w-full" />
+})
+
+const LineChartSlide = dynamic(() => import('./layouts/LineChart').then(mod => ({ default: mod.LineChartSlide })), {
+  ssr: true,
+  loading: () => <Skeleton className="h-64 w-full" />
+})
+
+const PieChartSlide = dynamic(() => import('./layouts/PieChart').then(mod => ({ default: mod.PieChartSlide })), {
+  ssr: true,
+  loading: () => <Skeleton className="h-64 w-full" />
+})
 
 interface SlideCardProps {
   slide: Slide
@@ -23,7 +39,7 @@ const layoutComponents: Record<SlideLayout, React.FC<{ content: any }>> = {
   COMPARISON: Comparison,
 }
 
-export function SlideCard({ slide }: SlideCardProps) {
+export const SlideCard = memo(function SlideCard({ slide }: SlideCardProps) {
   const LayoutComponent = layoutComponents[slide.layout]
 
   if (!LayoutComponent) {
@@ -56,4 +72,4 @@ export function SlideCard({ slide }: SlideCardProps) {
       )}
     </div>
   )
-}
+})

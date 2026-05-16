@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -77,6 +78,19 @@ const plans = [
 
 export default function LandingPage() {
   const { theme, toggleTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  // Prevent hydration mismatch - show nothing until mounted
+  if (!mounted) {
+    return (
+      <div className="min-h-screen bg-[#f1f8ec]" />
+    )
+  }
+
   const isDark = theme === 'dark'
 
   const bg = isDark ? 'bg-[#0c1407]' : 'bg-[#f1f8ec]'
