@@ -11,7 +11,24 @@ export async function GET(req: NextRequest) {
 
   const user = await prisma.user.findUnique({
     where: { id: session.user.id },
-    select: { id: true, name: true, email: true, image: true }
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      image: true,
+      membership: {
+        select: {
+          orgId: true,
+          role: true,
+          org: {
+            select: {
+              name: true,
+              slug: true,
+            },
+          },
+        },
+      },
+    },
   })
 
   return NextResponse.json(user)
@@ -24,7 +41,7 @@ export async function DELETE(req: NextRequest) {
   }
 
   await prisma.user.delete({
-    where: { id: session.user.id }
+    where: { id: session.user.id },
   })
 
   return NextResponse.json({ success: true })

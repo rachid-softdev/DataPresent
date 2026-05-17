@@ -32,7 +32,12 @@ const ROLE_COLORS = {
 
 function getInitials(name: string | null, email: string | null): string {
   if (name) {
-    return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+    return name
+      .split(' ')
+      .map((n) => n[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2)
   }
   if (email) {
     return email[0].toUpperCase()
@@ -47,7 +52,7 @@ export default function TeamPage() {
   const [members, setMembers] = useState<TeamMember[]>([])
   const [loading, setLoading] = useState(true)
   const [orgId, setOrgId] = useState<string | null>(null)
-  
+
   const [showInviteForm, setShowInviteForm] = useState(false)
   const [inviteEmail, setInviteEmail] = useState('')
   const [inviteRole, setInviteRole] = useState<'ADMIN' | 'MEMBER'>('MEMBER')
@@ -61,6 +66,11 @@ export default function TeamPage() {
         if (sessionRes.ok) {
           const userData = await sessionRes.json()
           setCurrentUserId(userData.id)
+
+          // Extract orgId from user's first membership
+          if (userData.membership && userData.membership.length > 0) {
+            setOrgId(userData.membership[0].orgId)
+          }
         }
       } catch (error) {
         console.error('Failed to fetch session:', error)
@@ -78,7 +88,7 @@ export default function TeamPage() {
         if (res.ok) {
           const data = await res.json()
           setMembers(data.members)
-          
+
           const currentMember = data.members.find((m: TeamMember) => m.id === currentUserId)
           if (currentMember) {
             setCurrentUserRole(currentMember.role)
@@ -117,10 +127,10 @@ export default function TeamPage() {
         setShowInviteForm(false)
       } else {
         const error = await res.json()
-        setInviteError(error.error || 'Erreur lors de l\'invitation')
+        setInviteError(error.error || "Erreur lors de l'invitation")
       }
     } catch (error) {
-      setInviteError('Erreur lors de l\'invitation')
+      setInviteError("Erreur lors de l'invitation")
     } finally {
       setInviting(false)
     }
@@ -137,7 +147,7 @@ export default function TeamPage() {
       })
 
       if (res.ok) {
-        setMembers(prev => prev.filter(m => m.id !== memberId))
+        setMembers((prev) => prev.filter((m) => m.id !== memberId))
       }
     } catch (error) {
       console.error('Failed to remove member:', error)
@@ -159,9 +169,7 @@ export default function TeamPage() {
       <div className="flex justify-between items-center mb-8">
         <div>
           <h1 className="text-3xl font-bold">Équipe</h1>
-          <p className="text-muted-foreground mt-2">
-            Gérez les membres de votre organisation
-          </p>
+          <p className="text-muted-foreground mt-2">Gérez les membres de votre organisation</p>
         </div>
 
         {canManageTeam && !showInviteForm && (
@@ -180,9 +188,7 @@ export default function TeamPage() {
           <CardContent>
             <div className="space-y-4">
               <div>
-                <label className="text-sm font-medium mb-2 block">
-                  Adresse email
-                </label>
+                <label className="text-sm font-medium mb-2 block">Adresse email</label>
                 <Input
                   type="email"
                   placeholder="collegue@entreprise.com"
@@ -192,11 +198,9 @@ export default function TeamPage() {
               </div>
 
               <div>
-                <label className="text-sm font-medium mb-2 block">
-                  Rôle
-                </label>
-                <Select 
-                  value={inviteRole} 
+                <label className="text-sm font-medium mb-2 block">Rôle</label>
+                <Select
+                  value={inviteRole}
                   onValueChange={(v: string) => setInviteRole(v as 'ADMIN' | 'MEMBER')}
                 >
                   <option value="MEMBER">Membre</option>
@@ -204,9 +208,7 @@ export default function TeamPage() {
                 </Select>
               </div>
 
-              {inviteError && (
-                <p className="text-sm text-red-500">{inviteError}</p>
-              )}
+              {inviteError && <p className="text-sm text-red-500">{inviteError}</p>}
 
               <div className="flex gap-2">
                 <Button onClick={handleInvite} disabled={inviting || !inviteEmail.trim()}>
@@ -225,15 +227,11 @@ export default function TeamPage() {
       <Card>
         <CardHeader>
           <CardTitle>Membres ({members.length})</CardTitle>
-          <CardDescription>
-            Les personnes ayant accès à votre organisation
-          </CardDescription>
+          <CardDescription>Les personnes ayant accès à votre organisation</CardDescription>
         </CardHeader>
         <CardContent>
           {members.length === 0 ? (
-            <p className="text-center py-8 text-muted-foreground">
-              Aucun membre pour le moment
-            </p>
+            <p className="text-center py-8 text-muted-foreground">Aucun membre pour le moment</p>
           ) : (
             <div className="space-y-4">
               {members.map((member) => (
@@ -244,17 +242,15 @@ export default function TeamPage() {
                   <div className="flex items-center gap-4">
                     <Avatar src={member.image} fallback={getInitials(member.name, member.email)} />
                     <div>
-                      <p className="font-medium">
-                        {member.name || member.email || 'Utilisateur'}
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        {member.email}
-                      </p>
+                      <p className="font-medium">{member.name || member.email || 'Utilisateur'}</p>
+                      <p className="text-sm text-muted-foreground">{member.email}</p>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-4">
-                    <span className={`px-2 py-1 rounded text-xs font-medium ${ROLE_COLORS[member.role]}`}>
+                    <span
+                      className={`px-2 py-1 rounded text-xs font-medium ${ROLE_COLORS[member.role]}`}
+                    >
                       {ROLE_LABELS[member.role]}
                     </span>
 

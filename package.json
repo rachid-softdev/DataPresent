@@ -30,7 +30,8 @@
     "test:unit:watch": "vitest",
     "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json,css}\"",
     "format:check": "prettier --check \"src/**/*.{ts,tsx,js,jsx,json,css}\"",
-    "blog:generate": "npx tsx scripts/generate-blog-posts.ts"
+    "blog:generate": "npx tsx scripts/generate-blog-posts.ts",
+    "prepare": "husky"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.92.0",
@@ -88,11 +89,18 @@
     "eslint": "^9",
     "eslint-config-next": "16.2.4",
     "eslint-config-prettier": "^10.1.8",
+    "husky": "^9.1.7",
     "jsdom": "^29.1.1",
+    "lint-staged": "^17.0.5",
     "prettier": "^3.8.3",
     "tailwindcss": "^4",
     "ts-node": "^10.9.2",
     "typescript": "^5",
     "vitest": "^4.1.6"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx,json,css}": [
+      "prettier --write"
+    ]
   }
 }
