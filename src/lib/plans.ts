@@ -1,11 +1,37 @@
+export const PLAN_FEATURES = {
+  reports: [
+    { name: 'Rapports/mois', key: 'reportsPerMonth' },
+    { name: 'Diapositives max', key: 'maxSlides' },
+    { name: 'Organisations', key: 'maxOrganizations' },
+  ],
+  exports: [
+    { name: 'PPTX', key: 'formatPPTX' },
+    { name: 'PDF', key: 'formatPDF' },
+    { name: 'DOCX', key: 'formatDOCX' },
+  ],
+  collaboration: [{ name: 'Collaboration équipe', key: 'collaboration' }],
+  professional: [
+    { name: 'Watermark', key: 'watermark', inverse: true },
+    { name: 'White-label', key: 'whiteLabel' },
+    { name: 'Domaine personnalisé', key: 'customDomain' },
+    { name: 'Accès API', key: 'apiAccess' },
+  ],
+  support: [{ name: 'Support prioritaire', key: 'prioritySupport' }],
+} as const
+
+type FeatureKey = keyof typeof PLAN_FEATURES
+
 export const PLANS = {
   FREE: {
-    name: "Free",
+    name: 'Free',
     price: 0,
     reportsPerMonth: 3,
     maxSlides: 8,
     maxOrganizations: 1,
-    formats: ["PPTX"] as const,
+    formatPPTX: true,
+    formatPDF: false,
+    formatDOCX: false,
+    formats: ['PPTX'] as const,
     collaboration: false,
     watermark: true,
     whiteLabel: false,
@@ -15,12 +41,15 @@ export const PLANS = {
     stripePriceId: null,
   },
   PRO: {
-    name: "Pro",
+    name: 'Pro',
     price: 19,
     reportsPerMonth: 30,
     maxSlides: 20,
     maxOrganizations: 1,
-    formats: ["PPTX", "PDF", "DOCX"] as const,
+    formatPPTX: true,
+    formatPDF: true,
+    formatDOCX: true,
+    formats: ['PPTX', 'PDF', 'DOCX'] as const,
     collaboration: false,
     watermark: false,
     whiteLabel: false,
@@ -30,12 +59,15 @@ export const PLANS = {
     stripePriceId: process.env.STRIPE_PRO_PRICE_ID!,
   },
   TEAM: {
-    name: "Team",
+    name: 'Team',
     price: 49,
     reportsPerMonth: -1,
     maxSlides: 30,
-    maxOrganizations: -1, // unlimited
-    formats: ["PPTX", "PDF", "DOCX"] as const,
+    maxOrganizations: -1,
+    formatPPTX: true,
+    formatPDF: true,
+    formatDOCX: true,
+    formats: ['PPTX', 'PDF', 'DOCX'] as const,
     collaboration: true,
     watermark: false,
     whiteLabel: false,
@@ -45,19 +77,22 @@ export const PLANS = {
     stripePriceId: process.env.STRIPE_TEAM_PRICE_ID!,
   },
   AGENCY: {
-    name: "Agency",
-    price: -1, // Custom pricing - contact sales
-    reportsPerMonth: -1, // unlimited
-    maxSlides: -1, // unlimited
-    maxOrganizations: -1, // unlimited
-    formats: ["PPTX", "PDF", "DOCX"] as const,
+    name: 'Agency',
+    price: -1,
+    reportsPerMonth: -1,
+    maxSlides: -1,
+    maxOrganizations: -1,
+    formatPPTX: true,
+    formatPDF: true,
+    formatDOCX: true,
+    formats: ['PPTX', 'PDF', 'DOCX'] as const,
     collaboration: true,
     watermark: false,
-    whiteLabel: true, // Full white-label
-    apiAccess: true, // API keys for programmatic access
-    prioritySupport: true, // Dedicated support
-    customDomain: true, // Custom domain support
-    stripePriceId: null, // Custom billing
+    whiteLabel: true,
+    apiAccess: true,
+    prioritySupport: true,
+    customDomain: true,
+    stripePriceId: null,
   },
 } as const
 
