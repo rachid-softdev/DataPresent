@@ -23,6 +23,7 @@
     "worker:dev": "npx tsx scripts/start-workers.ts",
     "worker:start": "node scripts/start-workers.ts",
     "check:env": "npx tsx scripts/check-env.ts",
+    "push:env": "npx tsx scripts/push-env.ts",
     "test": "playwright test",
     "test:ui": "playwright test --ui",
     "test:headed": "playwright test --headed",
@@ -77,6 +78,7 @@
     "zustand": "^5.0.12"
   },
   "devDependencies": {
+    "dotenv": "^17.0.0",
     "@playwright/test": "^1.59.1",
     "@tailwindcss/postcss": "^4",
     "@testing-library/jest-dom": "^6.9.1",
