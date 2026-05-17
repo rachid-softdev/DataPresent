@@ -81,7 +81,7 @@ npm run dev:complete
 |---|---|---|
 | `DATABASE_URL` | Connection string PostgreSQL | `postgresql://user:pass@host:5432` |
 | `DATABASE_URL_LOCAL` | Connection dev locale | `postgresql://dev:azerty123@localhost:5432/dev` |
-| `REDIS_URL` | Connection Redis Cloud | `redis://user:pass@host:port` |
+| `REDIS_URL` | Connection Redis Cloud | `redis://username:password@hostname:port` |
 | `REDIS_URL_LOCAL` | Connection dev locale | `redis://localhost:6379` |
 | `NEXTAUTH_URL` | URL de l'app (prod) | `https://datapresent.com` |
 | `NEXTAUTH_SECRET` | Secret JWT (générer: `openssl rand -base64 32`) | `xxx...` |
