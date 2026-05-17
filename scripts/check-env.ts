@@ -1,56 +1,38 @@
-const requiredVars = [
-  'DATABASE_URL',
-  'NEXTAUTH_SECRET',
-  'ANTHROPIC_API_KEY',
-  'STRIPE_SECRET_KEY',
-  'R2_ACCOUNT_ID',
-  'R2_ACCESS_KEY_ID',
-  'R2_SECRET_ACCESS_KEY',
-  'R2_BUCKET_NAME',
-  'REDIS_URL',
-];
+/**
+ * Validate environment variables by importing env.ts
+ * Run: npm run check:env
+ *
+ * Loading order (Next.js standard):
+ * 1. .env (base - always loaded)
+ * 2. .env.development or .env.production (environment-specific)
+ * 3. .env.local or .env.production.local (secrets - highest priority)
+ */
 
-const optionalVars = [
-  'GOOGLE_CLIENT_ID',
-  'GOOGLE_CLIENT_SECRET',
-  'GITHUB_ID',
-  'GITHUB_SECRET',
-  'RESEND_API_KEY',
-  'GOOGLE_SHEETS_CLIENT_EMAIL',
-  'GOOGLE_SHEETS_PRIVATE_KEY',
-  'STRIPE_PRO_PRICE_ID',
-  'STRIPE_TEAM_PRICE_ID',
-  'STRIPE_WEBHOOK_SECRET',
-  'NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY',
-];
+import dotenv from 'dotenv'
+import path from 'path'
 
-console.log('🔍 Checking environment variables...\n');
+const cwd = process.cwd()
 
-let missingRequired = [];
+// Determine environment from NODE_ENV or default to development
+const nodeEnv = process.env.NODE_ENV || 'development'
+console.log(`📋 Environment: ${nodeEnv}`)
 
-for (const varName of requiredVars) {
-  if (process.env[varName]) {
-    console.log(`✅ ${varName}`);
-  } else {
-    console.log(`❌ ${varName} - REQUIRED`);
-    missingRequired.push(varName);
-  }
-}
+// Load .env first (base configuration - shared non-sensitive values)
+console.log('  Loading .env (base config)...')
+dotenv.config({ path: path.resolve(cwd, '.env') })
 
-console.log('\n📋 Optional variables:');
-for (const varName of optionalVars) {
-  if (process.env[varName]) {
-    console.log(`✅ ${varName}`);
-  } else {
-    console.log(`⚪ ${varName} - not set`);
-  }
-}
+// Load environment-specific non-sensitive values
+const envFile = nodeEnv === 'production' ? '.env.production' : '.env.development'
+console.log(`  Loading ${envFile} (environment-specific)...`)
+dotenv.config({ path: path.resolve(cwd, envFile) })
 
-if (missingRequired.length > 0) {
-  console.log('\n❌ Missing required variables!');
-  console.log('Please add these to your .env.local:');
-  missingRequired.forEach(v => console.log(`  ${v}=...`));
-  process.exit(1);
-} else {
-  console.log('\n✅ All required variables are set!');
-}
+// Load secrets (highest priority - ignored by git)
+const localEnvFile = nodeEnv === 'production' ? '.env.production.local' : '.env.local'
+console.log(`  Loading ${localEnvFile} (secrets)...`)
+dotenv.config({ path: path.resolve(cwd, localEnvFile) })
+
+// Import env.ts to trigger Zod validation
+// This will throw if validation fails
+const { env: _env } = await import('../env.ts')
+
+console.log('✅ Environment variables are valid')
