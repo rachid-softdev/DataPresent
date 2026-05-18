@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "pnpm --filter datapresent-web dev",
+    "start-dev-complete": "pnpm --filter datapresent-web dev:complete",
     "build": "pnpm --filter datapresent-web build",
     "start": "pnpm --filter datapresent-web start",
     "lint": "pnpm --filter datapresent-web lint",
