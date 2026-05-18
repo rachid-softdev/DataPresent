@@ -1,0 +1,26 @@
+{
+  "name": "datapresent",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm --filter datapresent-web dev",
+    "build": "pnpm --filter datapresent-web build",
+    "start": "pnpm --filter datapresent-web start",
+    "lint": "pnpm --filter datapresent-web lint",
+    "test": "pnpm --filter datapresent-web test",
+    "test:unit": "pnpm --filter datapresent-web test:unit",
+    "db:generate": "pnpm --filter datapresent-web db:generate",
+    "db:push": "pnpm --filter datapresent-web db:push",
+    "format": "prettier --write \"packages/**/*.{ts,tsx,js,jsx,json,css}\" \"datapresent-web/**/*.{ts,tsx,js,jsx,json,css}\""
+  },
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^17.0.5",
+    "prettier": "^3.8.3"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx,json,css}": [
+      "prettier --write"
+    ]
+  }
+}

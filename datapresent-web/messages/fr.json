@@ -1,0 +1,212 @@
+{
+  "common": {
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "create": "Créer",
+    "close": "Fermer",
+    "back": "Retour",
+    "next": "Suivant",
+    "previous": "Précédent",
+    "loading": "Chargement...",
+    "error": "Une erreur s'est produite",
+    "success": "Succès",
+    "confirm": "Confirmer",
+    "search": "Rechercher",
+    "filter": "Filtrer",
+    "download": "Télécharger",
+    "share": "Partager",
+    "generate": "Générer",
+    "upload": "Téléverser",
+    "yes": "Oui",
+    "no": "Non",
+    "or": "ou",
+    "seeAll": "Voir tout",
+    "showLess": "Réduire"
+  },
+  "blog": {
+    "title": "Blog",
+    "subtitle": "Dernières actualités, astuces et conseils sur la présentation de données",
+    "readMore": "Lire la suite",
+    "minRead": "min de lecture",
+    "noArticles": "Aucun article",
+    "noArticlesDesc": "Revenez bientôt pour découvrir de nouveaux contenus",
+    "relatedArticles": "Articles connexes",
+    "share": "Partager",
+    "copyLink": "Copier le lien",
+    "linkCopied": "Lien copié !",
+    "publishedOn": "Publié le",
+    "updatedOn": "Mis à jour le",
+    "back": "Retour au blog"
+  },
+  "nav": {
+    "dashboard": "Tableau de bord",
+    "reports": "Rapports",
+    "templates": "Modèles",
+    "settings": "Paramètres",
+    "billing": "Facturation",
+    "team": "Équipe",
+    "profile": "Profil",
+    "account": "Compte",
+    "organization": "Organisation",
+    "logout": "Déconnexion",
+    "login": "Connexion",
+    "signup": "Inscription",
+    "newReport": "Nouveau",
+    "blog": "Blog",
+    "help": "Aide",
+    "privacy": "Confidentialité",
+    "terms": "Conditions"
+  },
+  "errors": {
+    "auth": {
+      "unauthorized": "Non autorisé",
+      "invalidToken": "Jeton invalide",
+      "tokenExpired": "Jeton expiré",
+      "tokenUsed": "Jeton déjà utilisé",
+      "failed": "Échec d'authentification"
+    },
+    "validation": {
+      "emailRequired": "Email requis",
+      "emailInvalid": "Format d'email invalide",
+      "required": "Ce champ est requis",
+      "slugRequired": "Le nom et le slug sont requis",
+      "slugTaken": "Slug déjà utilisé",
+      "rateLimit": "Trop de demandes. Veuillez réessayer plus tard.",
+      "commentRequired": "Le commentaire est requis",
+      "fileRequired": "Fichier ou secteur manquant",
+      "invalidPlan": "Plan invalide",
+      "invalidPassword": "Le mot de passe doit contenir au moins 8 caractères avec au moins une lettre"
+    },
+    "resource": {
+      "notFound": "Non trouvé",
+      "forbidden": "Accès interdit",
+      "memberNotFound": "Utilisateur non trouvé",
+      "alreadyMember": "L'utilisateur est déjà membre",
+      "ownerDelete": "Seul le propriétaire peut supprimer l'organisation",
+      "noOrganization": "Aucune organisation trouvée",
+      "noSubscription": "Aucun abonnement trouvé",
+      "alreadyGenerating": "Le rapport est déjà en cours de génération",
+      "noSourceFile": "Fichier source introuvable",
+      "noSourceFileDesc": "Le fichier source de ce rapport n'existe plus",
+      "invalidSignature": "Signature webhook invalide",
+      "expired": "Ce lien a expiré"
+    },
+    "generic": "Une erreur s'est produite. Veuillez réessayer."
+  },
+  "messages": {
+    "auth": {
+      "magicSent": "Si un compte existe avec cet email, vous recevrez un lien de connexion.",
+      "signupSuccess": "Vérifiez votre email pour finaliser la création de votre compte.",
+      "signupSuccessDesc": "Nous vous avons envoyé un lien de vérification."
+    },
+    "reports": {
+      "generated": "Rapport généré avec succès",
+      "deleted": "Rapport supprimé",
+      "exported": "Rapport exporté"
+    },
+    "settings": {
+      "profileUpdated": "Profil mis à jour avec succès",
+      "organizationCreated": "Organisation créée",
+      "memberInvited": "Invitation envoyée",
+      "memberRemoved": "Membre retiré",
+      "usage": {
+        "title": "Utilisation",
+        "plan": "Plan",
+        "reports": "Rapports",
+        "slides": "Diapositives",
+        "unlimited": "Illimité",
+        "warning": "Vous avez utilisé {{percent}}% de votre quota de rapports"
+      }
+    }
+  },
+  "billing": {
+    "plans": {
+      "free": {
+        "name": "Gratuit",
+        "description": "Pour les particuliers qui débutent"
+      },
+      "pro": {
+        "name": "Pro",
+        "description": "Pour les professionnels et petites équipes"
+      },
+      "enterprise": {
+        "name": "Entreprise",
+        "description": "Pour les grandes organisations"
+      }
+    },
+    "features": {
+      "reports": "Rapports",
+      "slides": "Diapositives par rapport",
+      "aiInsights": "Insights IA",
+      "templates": "Modèles",
+      "export": "Formats d'export",
+      "support": "Support"
+    },
+    "usage": {
+      "title": "Utilisation",
+      "plan": "Plan",
+      "reports": "Rapports",
+      "slides": "Diapositives",
+      "storage": "Stockage",
+      "thisMonth": "Ce mois",
+      "unlimited": "Illimité",
+      "warning": "Vous avez utilisé {{percent}}% de votre quota de rapports"
+    }
+  },
+  "reports": {
+    "title": "Rapports",
+    "new": "Nouveau rapport",
+    "empty": "Aucun rapport",
+    "uploadData": "Importez vos données pour créer votre premier rapport",
+    "generate": "Générer le rapport",
+    "noResults": "Aucun résultat",
+    "noResultsDesc": "Essayez de modifier vos filtres",
+    "columns": {
+      "name": "Nom",
+      "status": "Statut",
+      "date": "Date"
+    },
+    "status": {
+      "pending": "En attente",
+      "processing": "En cours",
+      "done": "Terminé",
+      "error": "Erreur",
+      "generating": "Génération en cours..."
+    },
+    "filters": {
+      "status": "Statut",
+      "sector": "Secteur",
+      "sortBy": "Trier par",
+      "date": "Date",
+      "name": "Nom",
+      "all": "Tous",
+      "clear": "Effacer les filtres"
+    }
+  },
+  "landing": {
+    "hero": {
+      "title": "Transformez Vos Données en Présentations Éblouissantes",
+      "subtitle": "Créez des présentations professionnelles alimentées par l'IA en quelques minutes. Simply upload your data and let our AI generate beautiful slides automatically.",
+      "cta": "Commencer Gratuitement"
+    },
+    "features": {
+      "title": "Pourquoi Choisir DataPresent",
+      "ai": "Insights IA",
+      "aiDesc": "Notre IA analyse vos données et crée automatiquement des insights et des visualisations significatives.",
+      "templates": "Modèles Professionnels",
+      "templatesDesc": "Choisissez parmi une large gamme de modèles magnifiquement conçus qui s'adaptent à tout style de présentation.",
+      "export": "Export Facile",
+      "exportDesc": "Exportez vos présentations dans plusieurs formats, notamment PowerPoint, PDF et plus encore."
+    },
+    "pricing": {
+      "title": "Tarification Simple et Transparente",
+      "free": "Gratuit",
+      "pro": "Pro",
+      "enterprise": "Entreprise",
+      "perMonth": "/mois",
+      "getStarted": "Commencer"
+    }
+  }
+}

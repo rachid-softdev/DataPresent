@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connexion à DataPresent</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #17250e;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f1f8ec;
+        }
+
+        .container {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 40px;
+            margin: 20px 0;
+            border: 1px solid #c5d9b3;
+            box-shadow: 0 4px 6px -1px rgba(58, 106, 32, 0.1);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 30px;
+        }
+
+        .logo-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #3a6a20 0%, #68ca2f 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .logo-text {
+            font-size: 24px;
+            font-weight: 700;
+            color: #3a6a20;
+        }
+
+        .title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #17250e;
+            text-align: center;
+            margin: 0 0 10px 0;
+        }
+
+        .subtitle {
+            color: #17250e;
+            opacity: 0.7;
+            font-size: 16px;
+            text-align: center;
+            margin: 0 0 30px 0;
+        }
+
+        .button {
+            display: inline-block;
+            background: linear-gradient(135deg, #3a6a20 0%, #478524 100%);
+            color: #ffffff;
+            text-decoration: none;
+            padding: 16px 32px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 16px;
+            box-shadow: 0 4px 14px 0 rgba(58, 106, 32, 0.3);
+            transition: all 0.2s ease;
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px 0 rgba(58, 106, 32, 0.4);
+        }
+
+        .fallback-link {
+            color: #3a6a20;
+            text-decoration: none;
+            word-break: break-all;
+            font-size: 14px;
+            margin-top: 15px;
+            display: inline-block;
+        }
+
+        .fallback-link:hover {
+            text-decoration: underline;
+        }
+
+        .link-text {
+            color: #17250e;
+            opacity: 0.6;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #c5d9b3;
+            color: #17250e;
+            opacity: 0.6;
+            font-size: 14px;
+        }
+
+        .security-note {
+            background: #f1f8ec;
+            border-left: 4px solid #68ca2f;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+            color: #17250e;
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        .expiry {
+            color: #17250e;
+            font-size: 14px;
+            text-align: center;
+            margin-top: 20px;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+
+<body>
+    <table class="container" width="100%" border="0" cellpadding="0" cellspacing="0">
+        <tr>
+            <td align="center">
+                <table class="logo" border="0" cellpadding="0" cellspacing="0">
+                    <tr>
+                        <td class="logo-icon" align="center" valign="middle">
+                            📊
+                        </td>
+                        <td class="logo-text" valign="middle">DataPresent</td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td class="title" align="center">{{title}}</td>
+        </tr>
+        <tr>
+            <td class="subtitle" align="center">{{subtitle}}</td>
+        </tr>
+        <tr>
+            <td align="center" style="padding: 30px 0;">
+                <a href="{{actionUrl}}" class="button">{{actionLabel}}</a>
+                <div class="link-text">{{linkText}}</div>
+                <a href="{{actionUrl}}" class="fallback-link">{{actionUrl}}</a>
+            </td>
+        </tr>
+        <tr>
+            <td class="expiry" align="center">
+                ⏱️ Ce lien expire dans <strong>{{expiryMinutes}} minutes</strong>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <table class="security-note" border="0" cellpadding="15" cellspacing="0">
+                    <tr>
+                        <td>
+                            <strong>💡 {{infoLabel}}:</strong> {{securityNote}}
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td class="footer" align="center">
+                <p>© {{year}} DataPresent. Tous droits réservés.</p>
+                <p style="margin-top: 10px; font-size: 12px;">{{footerText}}</p>
+            </td>
+        </tr>
+    </table>
+</body>
+
+</html>

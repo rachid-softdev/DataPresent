@@ -1,0 +1,201 @@
+{
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "close": "Close",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "success": "Success",
+    "confirm": "Confirm",
+    "search": "Search",
+    "filter": "Filter",
+    "download": "Download",
+    "share": "Share",
+    "generate": "Generate",
+    "upload": "Upload",
+    "yes": "Yes",
+    "no": "No",
+    "or": "or",
+    "seeAll": "See all",
+    "showLess": "Show less"
+  },
+  "blog": {
+    "title": "Blog",
+    "subtitle": "Latest news, tips and insights about data presentation",
+    "readMore": "Read more",
+    "minRead": "min read",
+    "noArticles": "No articles yet",
+    "noArticlesDesc": "Check back soon for new content",
+    "relatedArticles": "Related articles",
+    "share": "Share",
+    "copyLink": "Copy link",
+    "linkCopied": "Link copied!",
+    "publishedOn": "Published on",
+    "updatedOn": "Updated on",
+    "back": "Back to blog"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "reports": "Reports",
+    "templates": "Templates",
+    "settings": "Settings",
+    "billing": "Billing",
+    "team": "Team",
+    "profile": "Profile",
+    "account": "Account",
+    "organization": "Organization",
+    "logout": "Log out",
+    "login": "Log in",
+    "signup": "Sign up",
+    "newReport": "New",
+    "blog": "Blog"
+  },
+  "errors": {
+    "auth": {
+      "unauthorized": "Unauthorized",
+      "invalidToken": "Invalid token",
+      "tokenExpired": "Token expired",
+      "tokenUsed": "Token already used",
+      "failed": "Authentication failed"
+    },
+    "validation": {
+      "emailRequired": "Email is required",
+      "emailInvalid": "Invalid email format",
+      "required": "This field is required",
+      "slugRequired": "Name and slug are required",
+      "slugTaken": "Slug already taken",
+      "rateLimit": "Too many requests. Please try again later.",
+      "commentRequired": "Comment body is required",
+      "fileRequired": "Missing file or sector",
+      "invalidPlan": "Invalid plan",
+      "invalidPassword": "Password must be at least 8 characters with at least one letter"
+    },
+    "resource": {
+      "notFound": "Not found",
+      "forbidden": "Access forbidden",
+      "memberNotFound": "User not found",
+      "alreadyMember": "User is already a member",
+      "ownerDelete": "Only the owner can delete the organization",
+      "noOrganization": "No organization found",
+      "noSubscription": "No subscription found",
+      "alreadyGenerating": "Report is already being generated",
+      "noSourceFile": "No source file found",
+      "noSourceFileDesc": "The source file for this report no longer exists",
+      "invalidSignature": "Invalid webhook signature",
+      "expired": "This link has expired"
+    },
+    "generic": "An error occurred. Please try again."
+  },
+  "messages": {
+    "auth": {
+      "magicSent": "If an account exists with this email, you will receive a login link.",
+      "signupSuccess": "Check your email to complete account creation.",
+      "signupSuccessDesc": "We've sent you a verification link."
+    },
+    "reports": {
+      "generated": "Report generated successfully",
+      "deleted": "Report deleted",
+      "exported": "Report exported"
+    },
+    "settings": {
+      "profileUpdated": "Profile updated successfully",
+      "organizationCreated": "Organization created",
+      "memberInvited": "Invitation sent",
+      "memberRemoved": "Member removed"
+    }
+  },
+  "billing": {
+    "plans": {
+      "free": {
+        "name": "Free",
+        "description": "For individuals getting started"
+      },
+      "pro": {
+        "name": "Pro",
+        "description": "For professionals and small teams"
+      },
+      "enterprise": {
+        "name": "Enterprise",
+        "description": "For large organizations"
+      }
+    },
+    "features": {
+      "reports": "Reports",
+      "slides": "Slides per report",
+      "aiInsights": "AI insights",
+      "templates": "Templates",
+      "export": "Export formats",
+      "support": "Support"
+    },
+    "usage": {
+      "title": "Usage",
+      "plan": "Plan",
+      "reports": "Reports",
+      "slides": "Slides",
+      "storage": "Storage",
+      "thisMonth": "This month",
+      "unlimited": "Unlimited",
+      "warning": "You have used {{percent}}% of your report quota"
+    }
+  },
+  "reports": {
+    "title": "Reports",
+    "new": "New report",
+    "empty": "No reports",
+    "uploadData": "Import your data to create your first report",
+    "generate": "Generate report",
+    "noResults": "No results",
+    "noResultsDesc": "Try changing your filters",
+    "columns": {
+      "name": "Name",
+      "status": "Status",
+      "date": "Date"
+    },
+    "status": {
+      "pending": "Pending",
+      "processing": "Processing",
+      "done": "Done",
+      "error": "Error",
+      "generating": "Generating..."
+    },
+    "filters": {
+      "status": "Status",
+      "sector": "Sector",
+      "sortBy": "Sort by",
+      "date": "Date",
+      "name": "Name",
+      "all": "All",
+      "clear": "Clear filters"
+    }
+  },
+  "landing": {
+    "hero": {
+      "title": "Transform Your Data into Stunning Presentations",
+      "subtitle": "Create professional, AI-powered presentations in minutes. Simply upload your data and let our AI generate beautiful slides automatically.",
+      "cta": "Get Started for Free"
+    },
+    "features": {
+      "title": "Why Choose DataPresent",
+      "ai": "AI-Powered Insights",
+      "aiDesc": "Our AI analyzes your data and creates meaningful insights and visualizations automatically.",
+      "templates": "Professional Templates",
+      "templatesDesc": "Choose from a wide range of beautifully designed templates that fit any presentation style.",
+      "export": "Easy Export",
+      "exportDesc": "Export your presentations in multiple formats including PowerPoint, PDF, and more."
+    },
+    "pricing": {
+      "title": "Simple, Transparent Pricing",
+      "free": "Free",
+      "pro": "Pro",
+      "enterprise": "Enterprise",
+      "perMonth": "/month",
+      "getStarted": "Get Started"
+    }
+  }
+}
