@@ -1,0 +1,10 @@
+{
+  "name": "datapresent-mobile",
+  "version": "1.0.0",
+  "description": "DataPresent Mobile Application",
+  "main": "index.js",
+  "scripts": {
+    "dev": "echo 'Mobile dev not configured'",
+    "build": "echo 'Mobile build not configured'"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "name": "datapresent-extension",
+  "version": "1.0.0",
+  "description": "DataPresent Browser Extension",
+  "main": "index.js",
+  "scripts": {
+    "dev": "echo 'Extension dev not configured'",
+    "build": "echo 'Extension build not configured'"
+  }
+}

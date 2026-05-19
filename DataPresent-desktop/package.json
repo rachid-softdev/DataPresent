@@ -1,0 +1,10 @@
+{
+  "name": "datapresent-desktop",
+  "version": "1.0.0",
+  "description": "DataPresent Desktop Application",
+  "main": "index.js",
+  "scripts": {
+    "dev": "echo 'Desktop dev not configured'",
+    "build": "echo 'Desktop build not configured'"
+  }
+}
