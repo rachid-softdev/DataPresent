@@ -12,7 +12,10 @@
     "test:unit": "pnpm --filter datapresent-web test:unit",
     "db:generate": "pnpm --filter datapresent-web db:generate",
     "db:push": "pnpm --filter datapresent-web db:push",
-    "format": "prettier --write \"packages/**/*.{ts,tsx,js,jsx,json,css}\" \"datapresent-web/**/*.{ts,tsx,js,jsx,json,css}\"",
+    "format": "biome format --write .",
+    "format:check": "biome format .",
+    "check": "pnpm run format:check && pnpm run lint",
+    "prepare": "husky",
     "web:dev": "pnpm --filter datapresent-web dev",
     "web:build": "pnpm --filter datapresent-web build",
     "web:start": "pnpm --filter datapresent-web start",
@@ -23,13 +26,18 @@
     "push-env": "pnpm --filter datapresent-web push-env"
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.4.15",
+    "@commitlint/cli": "^21.0.0",
+    "@commitlint/config-conventional": "^21.0.0",
     "husky": "^9.1.7",
-    "lint-staged": "^17.0.5",
-    "prettier": "^3.8.3"
+    "lint-staged": "^17.0.5"
   },
   "lint-staged": {
-    "*.{ts,tsx,js,jsx,json,css}": [
-      "prettier --write"
+    "*": [
+      "biome format --write --no-errors-on-unmatched --files-ignore-unknown=true"
+    ],
+    "*.{ts,tsx}": [
+      "pnpm --filter datapresent-web lint"
     ]
   }
 }
