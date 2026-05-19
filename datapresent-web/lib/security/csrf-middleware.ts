@@ -55,7 +55,10 @@ export function validateJobSignature<T extends Record<string, unknown>>(
 
 function verifyJobSignature(data: Record<string, unknown>, signature: string): boolean {
   const crypto = require('crypto')
-  const secret = process.env.CSRF_SECRET || process.env.NEXTAUTH_SECRET || 'default-secret-change-me'
+  const secret = process.env.CSRF_SECRET || process.env.NEXTAUTH_SECRET
+  if (!secret) {
+    throw new Error('CRITICAL: CSRF_SECRET or NEXTAUTH_SECRET environment variable is required')
+  }
   const expected = crypto
     .createHmac('sha256', secret)
     .update(JSON.stringify(data))

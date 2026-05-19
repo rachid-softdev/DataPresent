@@ -1,7 +1,11 @@
 import { cookies } from 'next/headers'
 import crypto from 'crypto'
 
-const CSRF_SECRET = process.env.CSRF_SECRET || process.env.NEXTAUTH_SECRET || 'default-secret-change-me'
+// CSRF secret must be set in environment - fail fast if missing
+const CSRF_SECRET = process.env.CSRF_SECRET || process.env.NEXTAUTH_SECRET
+if (!CSRF_SECRET) {
+  throw new Error('CRITICAL: CSRF_SECRET or NEXTAUTH_SECRET environment variable is required. Set one to secure the application.')
+}
 
 const ALGORITHM = 'aes-256-gcm'
 const IV_LENGTH = 16

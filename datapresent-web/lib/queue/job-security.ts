@@ -1,6 +1,10 @@
 import crypto from 'crypto'
 
-const SECRET = process.env.CSRF_SECRET || process.env.NEXTAUTH_SECRET || 'default-secret-change-me'
+// Job security secret must be set in environment - fail fast if missing
+const SECRET = process.env.CSRF_SECRET || process.env.NEXTAUTH_SECRET
+if (!SECRET) {
+  throw new Error('CRITICAL: CSRF_SECRET or NEXTAUTH_SECRET environment variable is required for job signing.')
+}
 
 /**
  * Sign job data for BullMQ workers
