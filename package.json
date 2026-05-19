@@ -18,7 +18,9 @@
     "web:start": "pnpm --filter datapresent-web start",
     "web:test": "pnpm --filter datapresent-web test",
     "web:lint": "pnpm --filter datapresent-web lint",
-    "web:typecheck": "pnpm --filter datapresent-web typecheck"
+    "web:typecheck": "pnpm --filter datapresent-web typecheck",
+    "check-env": "pnpm --filter datapresent-web check-env",
+    "push-env": "pnpm --filter datapresent-web push-env"
   },
   "devDependencies": {
     "husky": "^9.1.7",
