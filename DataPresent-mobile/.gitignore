@@ -1,7 +1,17 @@
+# Dependencies
 node_modules/
+
+# Build outputs
 dist/
 build/
-.env
-.env.local
+
+# env files (can opt-in for commiting if needed)
+.env*.local
+
+# Logs
 *.log
+*.npm
+*.yarn
+
+# macOS
 .DS_Store
