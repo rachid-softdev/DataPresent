@@ -178,7 +178,12 @@
     "hero": {
       "title": "Transform Your Data into Stunning Presentations",
       "subtitle": "Create professional, AI-powered presentations in minutes. Simply upload your data and let our AI generate beautiful slides automatically.",
-      "cta": "Get Started for Free"
+      "cta": "Get Started for Free",
+      "badge": "AI-Powered · New",
+      "titleLine1": "Your data becomes",
+      "titleLine2": "impactful slides",
+      "body": "Import Excel, CSV, PDF or Google Sheets. Our AI analyzes, structures and automatically generates professional presentations — in seconds.",
+      "note": "No credit card required · 3 free reports per month"
     },
     "features": {
       "title": "Why Choose DataPresent",
@@ -187,7 +192,8 @@
       "templates": "Professional Templates",
       "templatesDesc": "Choose from a wide range of beautifully designed templates that fit any presentation style.",
       "export": "Easy Export",
-      "exportDesc": "Export your presentations in multiple formats including PowerPoint, PDF, and more."
+      "exportDesc": "Export your presentations in multiple formats including PowerPoint, PDF, and more.",
+      "label": "Features"
     },
     "pricing": {
       "title": "Simple, Transparent Pricing",
@@ -195,7 +201,28 @@
       "pro": "Pro",
       "enterprise": "Enterprise",
       "perMonth": "/month",
-      "getStarted": "Get Started"
+      "getStarted": "Get Started",
+      "label": "Pricing",
+      "subtitle": "Choose the plan that fits your needs. No hidden fees."
+    },
+    "formats": {
+      "label": "Compatibility",
+      "title": "Import from any source"
+    },
+    "howItWorks": {
+      "label": "Process",
+      "title": "Three steps, zero friction",
+      "subtitle": "From raw data to an impeccable presentation, faster than you can imagine."
+    },
+    "cta": {
+      "title": "Ready to transform",
+      "titleEm": "your data?",
+      "body": "Join the teams that automate their presentations and save hours every week.",
+      "button": "Create a free account"
+    },
+    "footer": {
+      "description": "Transform your data into professional presentations with artificial intelligence.",
+      "copyright": "© 2025 DataPresent · All rights reserved"
     }
   }
 }

@@ -189,7 +189,12 @@
     "hero": {
       "title": "Transformez Vos Données en Présentations Éblouissantes",
       "subtitle": "Créez des présentations professionnelles alimentées par l'IA en quelques minutes. Simply upload your data and let our AI generate beautiful slides automatically.",
-      "cta": "Commencer Gratuitement"
+      "cta": "Commencer Gratuitement",
+      "badge": "Propulsé par l'IA · Nouveau",
+      "titleLine1": "Vos données deviennent",
+      "titleLine2": "des slides percutantes",
+      "body": "Importez Excel, CSV, PDF ou Google Sheets. Notre IA analyse, structure et génère automatiquement des présentations professionnelles — en quelques secondes.",
+      "note": "Sans carte bancaire · 3 rapports gratuits / mois"
     },
     "features": {
       "title": "Pourquoi Choisir DataPresent",
@@ -198,7 +203,8 @@
       "templates": "Modèles Professionnels",
       "templatesDesc": "Choisissez parmi une large gamme de modèles magnifiquement conçus qui s'adaptent à tout style de présentation.",
       "export": "Export Facile",
-      "exportDesc": "Exportez vos présentations dans plusieurs formats, notamment PowerPoint, PDF et plus encore."
+      "exportDesc": "Exportez vos présentations dans plusieurs formats, notamment PowerPoint, PDF et plus encore.",
+      "label": "Fonctionnalités"
     },
     "pricing": {
       "title": "Tarification Simple et Transparente",
@@ -206,7 +212,28 @@
       "pro": "Pro",
       "enterprise": "Entreprise",
       "perMonth": "/mois",
-      "getStarted": "Commencer"
+      "getStarted": "Commencer",
+      "label": "Tarifs",
+      "subtitle": "Choisissez le plan qui correspond à vos besoins. Pas de frais cachés."
+    },
+    "formats": {
+      "label": "Compatibilité",
+      "title": "Importez depuis n'importe quelle source"
+    },
+    "howItWorks": {
+      "label": "Processus",
+      "title": "Trois étapes, zéro friction",
+      "subtitle": "De vos données brutes à une présentation impeccable, plus vite que vous ne l'imaginez."
+    },
+    "cta": {
+      "title": "Prêt à transformer",
+      "titleEm": "vos données ?",
+      "body": "Rejoignez les équipes qui automatisent leurs présentations et gagnent des heures chaque semaine.",
+      "button": "Créer un compte gratuit"
+    },
+    "footer": {
+      "description": "Transformez vos données en présentations professionnelles grâce à l'intelligence artificielle.",
+      "copyright": "© 2025 DataPresent · Tous droits réservés"
     }
   }
 }
