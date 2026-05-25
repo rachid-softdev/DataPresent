@@ -73,9 +73,9 @@ export default async function HelpPage({ params }: HelpPageProps) {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="border-b">
+      <div className="border-b border-border">
         <div className="max-w-6xl mx-auto px-6 py-16">
-          <h1 className="text-4xl font-bold mb-4">{locale === 'fr' ? 'Centre d\'aide' : 'Help Center'}</h1>
+          <h1 className="app-heading app-heading-xl mb-4">{locale === 'fr' ? 'Centre d\'aide' : 'Help Center'}</h1>
           <p className="text-xl text-muted-foreground">
             {locale === 'fr' 
               ? 'Trouvez des réponses à vos questions' 
@@ -126,9 +126,11 @@ export default async function HelpPage({ params }: HelpPageProps) {
             
             <div className="space-y-4">
               {faqs.map((faq, index) => (
-                <div key={index} className="border rounded-lg p-4">
-                  <h3 className="font-medium mb-2">{faq.question}</h3>
-                  <p className="text-muted-foreground text-sm">{faq.answer}</p>
+                <div key={index} className="app-card">
+                  <div className="app-card-body">
+                    <h3 className="app-heading app-heading-md mb-2">{faq.question}</h3>
+                    <p className="text-muted-foreground text-sm">{faq.answer}</p>
+                  </div>
                 </div>
               ))}
             </div>

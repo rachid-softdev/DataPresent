@@ -195,15 +195,23 @@ function SharePageContent() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b py-4">
-        <div className="max-w-7xl mx-auto px-4">
-          <h1 className="text-xl font-bold text-primary">DataPresent</h1>
+      <header className="app-nav">
+        <div className="max-w-7xl mx-auto px-4 app-nav-inner">
+          <div className="app-logo">
+            <div className="app-logo-mark">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5">
+                <path d="M3 3v18h18" />
+                <path d="M7 16l4-8 4 4 4-6" />
+              </svg>
+            </div>
+            <span className="app-logo-text">DataPresent</span>
+          </div>
         </div>
       </header>
 
       <main className="max-w-7xl mx-auto px-4 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold">{report.title}</h1>
+          <h1 className="app-heading app-heading-xl">{report.title}</h1>
           <div className="flex items-center gap-2 mt-2">
             <Badge variant="outline">{report.sector}</Badge>
           </div>

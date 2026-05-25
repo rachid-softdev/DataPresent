@@ -28,8 +28,10 @@ export default async function DashboardPage() {
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold">{t('dashboard.recentReports')}</h1>
+      <div className="app-page-header">
+        <div>
+          <h1 className="app-heading app-heading-xl">{t('dashboard.recentReports')}</h1>
+        </div>
         <Link href="/new">
           <Button data-onboarding="new-report">{t('dashboard.newReport')}</Button>
         </Link>
@@ -48,7 +50,7 @@ export default async function DashboardPage() {
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {reports.map((report) => (
                 <Link key={report.id} href={`/reports/${report.id}`}>
-                  <Card className="hover:shadow-md transition-shadow cursor-pointer">
+                  <Card className="hover:shadow-md transition-shadow cursor-pointer h-full">
                     <CardHeader>
                       <CardTitle className="text-lg">{report.title}</CardTitle>
                     </CardHeader>
