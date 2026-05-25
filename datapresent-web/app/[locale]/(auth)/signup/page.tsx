@@ -4,9 +4,6 @@ import { useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { signIn } from 'next-auth/react'
 import Link from 'next/link'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { useTheme } from '@/components/theme-provider'
 import { ThemeToggle } from '@/components/ui/theme-toggle'
 import { GoogleIcon } from '@/components/ui/icons'
 import { useTranslations } from 'next-intl'
@@ -14,14 +11,12 @@ import { Loader2 } from 'lucide-react'
 
 export default function SignupPage() {
   const searchParams = useSearchParams()
-  const { theme } = useTheme()
   const t = useTranslations()
-  const isDark = theme === 'dark'
-  
+
   const error = searchParams.get('error')
   const [email, setEmail] = useState('')
   const [loading, setLoading] = useState(false)
-  const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
+  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -61,109 +56,108 @@ export default function SignupPage() {
   const errorMessage = getErrorMessage()
 
   return (
-    <div className={`min-h-screen flex items-center justify-center ${isDark ? 'bg-[#0c1407]' : 'bg-[#f1f8ec]'}`}>
-      <header className={`fixed top-0 left-0 right-0 z-50 backdrop-blur-md border-b ${isDark ? 'bg-[#0c1407]/90 border-[#2d4a1f]' : 'bg-[#f1f8ec]/90 border-[#c5d9b3]'}`}>
-        <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-          <Link href="/" className={`text-2xl font-bold ${isDark ? 'text-[#afdf95]' : 'text-[#3a6a20]'}`}>
-            DataPresent
+    <>
+      {/* Auth header */}
+      <header className="app-auth-header">
+        <div className="app-auth-header-inner">
+          <Link href="/" className="app-logo">
+            <div className="app-logo-mark">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5">
+                <path d="M3 3v18h18" />
+                <path d="M7 16l4-8 4 4 4-6" />
+              </svg>
+            </div>
+            <span className="app-logo-text">DataPresent</span>
           </Link>
-          <div className="flex items-center gap-3">
-            <ThemeToggle />
-          </div>
+          <ThemeToggle />
         </div>
       </header>
 
-      <main className="pt-32 pb-20 px-6">
-        <div className="max-w-md mx-auto">
-          <div className={`rounded-2xl p-8 shadow-lg border ${isDark ? 'bg-[#0c1407] border-[#2d4a1f]' : 'bg-white border-[#c5d9b3]'}`}>
-            <h1 className={`text-2xl font-bold text-center mb-2 ${isDark ? 'text-[#e3f1db]' : 'text-[#17250e]'}`}>
-              Créer un compte
-            </h1>
-            <p className={`text-center mb-8 ${isDark ? 'text-[#e3f1db] opacity-70' : 'text-[#17250e] opacity-70'}`}>
-              Commencez gratuitement avec DataPresent
-            </p>
+      <main className="app-auth-page pt-20">
+        <div className="app-auth-card">
+          <h1 className="app-heading app-heading-xl text-center mb-2">
+            Créer un compte
+          </h1>
+          <p className="text-center text-muted-foreground text-sm mb-8">
+            Commencez gratuitement avec DataPresent
+          </p>
 
-            {errorMessage && (
-              <div className={`mb-6 p-4 rounded-lg text-sm ${isDark ? 'bg-red-900/20 text-red-400 border border-red-900/30' : 'bg-red-50 text-red-600 border border-red-200'}`}>
-                {errorMessage}
-              </div>
-            )}
-
-            <div className="space-y-4">
-              <Button
-                onClick={() => signIn('google', { callbackUrl: '/' })}
-                className={`w-full flex items-center justify-center gap-3 py-3 cursor-pointer ${isDark ? 'bg-[#e3f1db] text-[#0c1407] hover:bg-[#afdf95]' : 'bg-white border-2 border-[#c5d9b3] text-[#17250e] hover:bg-[#e8f0dc]'}`}
-              >
-                <GoogleIcon className="w-5 h-5" />
-                S'inscrire avec Google
-              </Button>
+          {errorMessage && (
+            <div className="app-alert app-alert-error mb-6">
+              {errorMessage}
             </div>
+          )}
 
-            <div className={`relative my-8 ${isDark ? 'text-[#e3f1db]' : 'text-[#17250e]'}`}>
-              <div className={`absolute inset-0 flex items-center ${isDark ? 'text-[#2d4a1f]' : 'text-[#c5d9b3]'}`}>
-                <div className="w-full border-t"></div>
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className={`px-4 ${isDark ? 'bg-[#0c1407] text-[#e3f1db] opacity-50' : 'bg-white text-[#17250e] opacity-50'}`}>ou</span>
-              </div>
-            </div>
-
-            <form onSubmit={handleSignup}>
-              <div className="space-y-4">
-                <div>
-                  <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-[#e3f1db]' : 'text-[#17250e]'}`}>
-                    Adresse email
-                  </label>
-                  <Input
-                    type="email"
-                    placeholder="vous@exemple.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className={`w-full py-3 cursor-pointer ${isDark ? 'bg-[#1a2b11] border-[#2d4a1f] text-[#e3f1db] placeholder:text-[#e3f1db]/40' : 'bg-white border-[#c5d9b3] text-[#17250e] placeholder:text-[#17250e]/40'}`}
-                    required
-                  />
-                </div>
-                
-                {message && (
-                  <div className={`p-4 rounded-lg text-sm ${
-                    message.type === 'success' 
-                      ? isDark ? 'bg-green-900/20 text-green-400 border border-green-900/30' : 'bg-green-50 text-green-600 border border-green-200'
-                      : isDark ? 'bg-red-900/20 text-red-400 border border-red-900/30' : 'bg-red-50 text-red-600 border border-red-200'
-                  }`}>
-                    {message.text}
-                  </div>
-                )}
-
-                <Button
-                  type="submit"
-                  disabled={loading || !email}
-                  className={`w-full py-3 cursor-pointer ${isDark ? 'bg-[#afdf95] text-[#0c1407] hover:bg-[#478524]' : 'bg-[#3a6a20] text-white hover:bg-[#478524]'}`}
-                >
-                  {loading ? (
-                    <span className="flex items-center gap-2">
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      Envoi en cours...
-                    </span>
-                  ) : (
-                    "S'inscrire par email"
-                  )}
-                </Button>
-              </div>
-            </form>
-
-            <p className={`text-center text-sm mt-8 ${isDark ? 'text-[#e3f1db] opacity-70' : 'text-[#17250e] opacity-70'}`}>
-              Déjà un compte ?{' '}
-              <Link href="/login" className={isDark ? 'text-[#afdf95] hover:underline' : 'text-[#3a6a20] hover:underline'}>
-                Se connecter
-              </Link>
-            </p>
+          <div className="space-y-4">
+            <button
+              onClick={() => signIn('google', { callbackUrl: '/' })}
+              className="app-btn app-btn-outline w-full justify-center"
+            >
+              <GoogleIcon className="w-5 h-5" />
+              S'inscrire avec Google
+            </button>
           </div>
 
-          <p className={`text-center text-xs mt-6 ${isDark ? 'text-[#e3f1db] opacity-40' : 'text-[#17250e] opacity-40'}`}>
-            En vous inscrivant, vous acceptez nos Conditions d'utilisation et notre Politique de confidentialité
+          <div className="relative my-8">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-border"></div>
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-4 bg-surface text-muted-foreground">ou</span>
+            </div>
+          </div>
+
+          <form onSubmit={handleSignup}>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-2">
+                  Adresse email
+                </label>
+                <input
+                  type="email"
+                  placeholder="vous@exemple.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="app-input"
+                  required
+                />
+              </div>
+
+              {message && (
+                <div className={`app-alert ${message.type === 'success' ? 'app-alert-success' : 'app-alert-error'}`}>
+                  {message.text}
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={loading || !email}
+                className="app-btn app-btn-primary w-full justify-center app-btn-lg"
+              >
+                {loading ? (
+                  <span className="flex items-center gap-2">
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Envoi en cours...
+                  </span>
+                ) : (
+                  "S'inscrire par email"
+                )}
+              </button>
+            </div>
+          </form>
+
+          <p className="text-center text-sm mt-8 text-muted-foreground">
+            Déjà un compte ?{' '}
+            <Link href="/login" className="text-primary hover:underline font-medium">
+              Se connecter
+            </Link>
           </p>
         </div>
+
+        <p className="text-center text-xs mt-6 text-muted-foreground/60 max-w-sm mx-auto">
+          En vous inscrivant, vous acceptez nos Conditions d'utilisation et notre Politique de confidentialité
+        </p>
       </main>
-    </div>
+    </>
   )
 }

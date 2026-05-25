@@ -33,9 +33,9 @@ export default async function ReportPage({ params }: { params: Promise<{ id: str
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-8">
+      <div className="app-page-header">
         <div>
-          <h1 className="text-3xl font-bold">{report.title}</h1>
+          <h1 className="app-heading app-heading-xl">{report.title}</h1>
           <div className="flex items-center gap-3 mt-2">
             <Badge variant={report.status === 'DONE' ? 'success' : report.status === 'ERROR' ? 'error' : 'warning'}>
               {t(`reports.status.${report.status.toLowerCase()}`)}

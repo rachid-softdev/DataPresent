@@ -158,8 +158,8 @@ export default function SharePage({ params }: { params: { id: string } }) {
   return (
     <div className="max-w-2xl mx-auto">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold">Paramètres de partage</h1>
-        <p className="text-muted-foreground mt-2">
+        <h1 className="app-heading app-heading-xl">Paramètres de partage</h1>
+        <p className="app-page-desc mt-1">
           Gérez l'accès public à votre rapport
         </p>
       </div>

@@ -29,22 +29,21 @@ export default function TemplatesPage() {
   return (
     <div>
       <div className="mb-8">
-        <h1 className="text-3xl font-bold">{t('title')}</h1>
-        <p className="text-muted-foreground mt-2">
+        <h1 className="app-heading app-heading-xl">{t('title')}</h1>
+        <p className="app-page-desc mt-1">
           {t('select')}
         </p>
       </div>
 
       <div className="flex gap-2 mb-8 overflow-x-auto pb-2">
         {SECTORS.map(sector => (
-          <Button
+          <button
             key={sector}
-            variant={selectedSector === sector ? 'default' : 'outline'}
-            size="sm"
+            className={`app-filter-pill ${selectedSector === sector ? 'active' : ''}`}
             onClick={() => setSelectedSector(sector)}
           >
             {sector === 'ALL' ? 'Tous' : getSectorLabel(sector)}
-          </Button>
+          </button>
         ))}
       </div>
 

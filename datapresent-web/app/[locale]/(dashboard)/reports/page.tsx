@@ -58,8 +58,10 @@ export default async function ReportsPage({ searchParams }: ReportsPageProps) {
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold">{t('reports.title')}</h1>
+      <div className="app-page-header">
+        <div>
+          <h1 className="app-heading app-heading-xl">{t('reports.title')}</h1>
+        </div>
         <Link href="/new">
           <Button>{t('reports.new')}</Button>
         </Link>
@@ -74,31 +76,23 @@ export default async function ReportsPage({ searchParams }: ReportsPageProps) {
         />
       ) : (
         <>
-          <div className="bg-surface rounded-lg border border-border overflow-hidden">
-            <table className="w-full">
-              <thead className="bg-muted/50 border-b border-border">
+          <div className="app-table-wrap">
+            <table className="app-table">
+              <thead>
                 <tr>
-                  <th className="px-6 py-3 text-left text-sm font-medium text-muted-foreground">
-                    {t('reports.columns.name')}
-                  </th>
-                  <th className="px-6 py-3 text-left text-sm font-medium text-muted-foreground">
-                    Secteur
-                  </th>
-                  <th className="px-6 py-3 text-left text-sm font-medium text-muted-foreground">
-                    {t('reports.columns.status')}
-                  </th>
-                  <th className="px-6 py-3 text-left text-sm font-medium text-muted-foreground">
-                    {t('reports.columns.date')}
-                  </th>
-                  <th className="px-6 py-3"></th>
+                  <th>{t('reports.columns.name')}</th>
+                  <th>Secteur</th>
+                  <th>{t('reports.columns.status')}</th>
+                  <th>{t('reports.columns.date')}</th>
+                  <th></th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
                 {reports.map((report) => (
                   <tr key={report.id} className="hover:bg-muted/30 transition-colors">
-                    <td className="px-6 py-4 font-medium">{report.title}</td>
-                    <td className="px-6 py-4 text-muted-foreground">{report.sector}</td>
-                    <td className="px-6 py-4">
+                    <td className="font-medium">{report.title}</td>
+                    <td className="text-muted-foreground">{report.sector}</td>
+                    <td>
                       <Badge
                         variant={
                           report.status === 'DONE'
@@ -111,10 +105,10 @@ export default async function ReportsPage({ searchParams }: ReportsPageProps) {
                         {t(`reports.status.${report.status.toLowerCase()}`)}
                       </Badge>
                     </td>
-                    <td className="px-6 py-4 text-sm text-muted-foreground">
+                    <td className="text-sm text-muted-foreground">
                       {new Date(report.createdAt).toLocaleDateString('fr-FR')}
                     </td>
-                    <td className="px-6 py-4">
+                    <td>
                       <Link href={`/reports/${report.id}`}>
                         <Button size="sm">{t('common.seeAll')}</Button>
                       </Link>
@@ -127,12 +121,12 @@ export default async function ReportsPage({ searchParams }: ReportsPageProps) {
 
           {/* Pagination */}
           {totalPages > 1 && (
-            <div className="flex items-center justify-between mt-6">
-              <div className="text-sm text-muted-foreground">
+            <div className="app-pagination">
+              <div className="app-pagination-info">
                 Affichage de {(page - 1) * PAGE_SIZE + 1} à{' '}
                 {Math.min(page * PAGE_SIZE, totalReports)} sur {totalReports} rapports
               </div>
-              <div className="flex items-center gap-2">
+              <div className="app-pagination-actions">
                 <Link href={hasPrevPage ? `?page=${page - 1}` : '#'}>
                   <Button variant="outline" size="sm" disabled={!hasPrevPage}>
                     <ChevronLeft className="w-4 h-4 mr-1" />

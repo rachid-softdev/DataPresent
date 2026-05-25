@@ -48,8 +48,8 @@ export default function NewReportPage() {
   return (
     <div className="max-w-3xl mx-auto">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold">{t('reports.new')}</h1>
-        <p className="text-muted-foreground mt-2">
+        <h1 className="app-heading app-heading-xl">{t('reports.new')}</h1>
+        <p className="app-page-desc mt-1">
           {t('upload.title')}
         </p>
       </div>
