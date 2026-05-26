@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { ERROR_CODES, unauthorized, forbidden, notFound, badRequest } from '@/lib/errors'
+import { sanitizeComment } from '@/lib/sanitize'
 
 export async function PATCH(
   req: NextRequest,
@@ -19,6 +20,12 @@ export async function PATCH(
     return badRequest(ERROR_CODES.ERR_VALIDATION_COMMENT_REQUIRED)
   }
 
+  if (typeof body !== 'string' || body.length > 5000) {
+    return badRequest(ERROR_CODES.ERR_VALIDATION_COMMENT_REQUIRED)
+  }
+
+  const sanitizedBody = sanitizeComment(body.trim())
+
   const comment = await prisma.comment.findUnique({
     where: { id: commentId }
   })
@@ -33,7 +40,7 @@ export async function PATCH(
 
   const updated = await prisma.comment.update({
     where: { id: commentId },
-    data: { body: body.trim() },
+    data: { body: sanitizedBody },
     include: {
       author: {
         select: { id: true, name: true, image: true, email: true }

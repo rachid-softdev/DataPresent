@@ -6,7 +6,7 @@ import { describe, it, expect } from 'vitest'
 
 describe('plans', () => {
   it('should export PLANS object', async () => {
-    const { PLANS } = await import('@/lib/plans')
+    const { PLANS } = await import('@/lib/entitlements/compat')
     expect(PLANS).toBeDefined()
     expect(PLANS.FREE).toBeDefined()
     expect(PLANS.PRO).toBeDefined()
@@ -15,7 +15,7 @@ describe('plans', () => {
   })
 
   it('should have correct FREE plan features', async () => {
-    const { PLANS } = await import('@/lib/plans')
+    const { PLANS } = await import('@/lib/entitlements/compat')
 
     expect(PLANS.FREE.name).toBe('Free')
     expect(PLANS.FREE.price).toBe(0)
@@ -29,7 +29,7 @@ describe('plans', () => {
   })
 
   it('should have correct PRO plan features', async () => {
-    const { PLANS } = await import('@/lib/plans')
+    const { PLANS } = await import('@/lib/entitlements/compat')
 
     expect(PLANS.PRO.name).toBe('Pro')
     expect(PLANS.PRO.price).toBe(19)
@@ -41,7 +41,7 @@ describe('plans', () => {
   })
 
   it('should have correct TEAM plan features', async () => {
-    const { PLANS } = await import('@/lib/plans')
+    const { PLANS } = await import('@/lib/entitlements/compat')
 
     expect(PLANS.TEAM.name).toBe('Team')
     expect(PLANS.TEAM.price).toBe(49)
@@ -51,7 +51,7 @@ describe('plans', () => {
   })
 
   it('should have correct AGENCY plan features', async () => {
-    const { PLANS } = await import('@/lib/plans')
+    const { PLANS } = await import('@/lib/entitlements/compat')
 
     expect(PLANS.AGENCY.name).toBe('Agency')
     expect(PLANS.AGENCY.price).toBe(-1) // custom
@@ -62,12 +62,12 @@ describe('plans', () => {
   })
 
   it('should export planHasFeature function', async () => {
-    const { planHasFeature } = await import('@/lib/plans')
+    const { planHasFeature } = await import('@/lib/entitlements/compat')
     expect(planHasFeature).toBeDefined()
   })
 
   it('should check plan features correctly', async () => {
-    const { planHasFeature } = await import('@/lib/plans')
+    const { planHasFeature } = await import('@/lib/entitlements/compat')
 
     expect(planHasFeature('FREE', 'formatPPTX')).toBe(true)
     expect(planHasFeature('FREE', 'formatPDF')).toBe(false)
@@ -76,12 +76,12 @@ describe('plans', () => {
   })
 
   it('should export getPlanPrice function', async () => {
-    const { getPlanPrice } = await import('@/lib/plans')
+    const { getPlanPrice } = await import('@/lib/entitlements/compat')
     expect(getPlanPrice).toBeDefined()
   })
 
   it('should return correct price strings', async () => {
-    const { getPlanPrice } = await import('@/lib/plans')
+    const { getPlanPrice } = await import('@/lib/entitlements/compat')
 
     expect(getPlanPrice('FREE')).toBe('€0/mo')
     expect(getPlanPrice('PRO')).toBe('€19/mo')
@@ -90,12 +90,12 @@ describe('plans', () => {
   })
 
   it('should export planSupportsFormat function', async () => {
-    const { planSupportsFormat } = await import('@/lib/plans')
+    const { planSupportsFormat } = await import('@/lib/entitlements/compat')
     expect(planSupportsFormat).toBeDefined()
   })
 
   it('should check format support correctly', async () => {
-    const { planSupportsFormat } = await import('@/lib/plans')
+    const { planSupportsFormat } = await import('@/lib/entitlements/compat')
 
     expect(planSupportsFormat('FREE', 'PPTX')).toBe(true)
     expect(planSupportsFormat('FREE', 'PDF')).toBe(false)
@@ -105,7 +105,7 @@ describe('plans', () => {
   })
 
   it('should export PLAN_FEATURES', async () => {
-    const { PLAN_FEATURES } = await import('@/lib/plans')
+    const { PLAN_FEATURES } = await import('@/lib/entitlements/compat')
     expect(PLAN_FEATURES).toBeDefined()
     expect(PLAN_FEATURES.reports).toBeDefined()
     expect(PLAN_FEATURES.exports).toBeDefined()

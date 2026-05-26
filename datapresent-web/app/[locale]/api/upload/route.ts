@@ -3,7 +3,7 @@ import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { uploadToR2 } from '@/lib/r2'
 import { generateQueue } from '@/lib/queue'
-import { canCreateReport, canHaveSlideCount } from '@/lib/plan-utils'
+import { canCreateReport, canHaveSlideCount, getUserPlan } from '@/lib/entitlements/compat'
 import { checkRateLimit } from '@/lib/rate-limit'
 import { signJobData } from '@/lib/queue/job-security'
 import { ERROR_CODES, unauthorized, badRequest } from '@/lib/errors'
@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
   }
 
   // Validate slide count against plan
-  const { plan } = await import('@/lib/plan-utils').then(m => m.getUserPlan(session.user.id))
+  const { plan } = await getUserPlan(session.user.id)
   const { allowed: slideLimitOk, maxSlides } = canHaveSlideCount(plan, slideCount)
   if (!slideLimitOk) {
     return NextResponse.json(

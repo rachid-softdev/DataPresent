@@ -3,9 +3,24 @@
 import { Component, ReactNode } from 'react'
 import { Button } from '@/components/ui/button'
 
+interface ErrorBoundaryMessages {
+  title: string
+  description: string
+  retry: string
+  home: string
+}
+
+const defaultMessages: ErrorBoundaryMessages = {
+  title: 'Oups ! Quelque chose s\'est mal passé',
+  description: 'Une erreur inattendue s\'est produite. Veuillez rafraîchir la page ou retourner à l\'accueil.',
+  retry: 'Réessayer',
+  home: 'Accueil',
+}
+
 interface ErrorBoundaryProps {
   children: ReactNode
   fallback?: ReactNode
+  messages?: ErrorBoundaryMessages
 }
 
 interface ErrorBoundaryState {
@@ -37,6 +52,8 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
         return this.props.fallback
       }
 
+      const m = this.props.messages ?? defaultMessages
+
       return (
         <div className="min-h-screen flex items-center justify-center bg-[#f1f8ec] dark:bg-[#0c1407] p-4">
           <div className="max-w-md w-full bg-surface border border-border rounded-2xl p-8 shadow-lg text-center">
@@ -46,24 +63,24 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
               </svg>
             </div>
             <h2 className="text-2xl font-bold text-[#17250e] dark:text-[#e3f1db] mb-2">
-              Oups ! Quelque chose s'est mal passé
+              {m.title}
             </h2>
             <p className="text-[#17250e]/70 dark:text-[#e3f1db]/70 mb-6">
-              Une erreur inattendue s'est produite. Veuillez rafraîchir la page ou retourner à l'accueil.
+              {m.description}
             </p>
             <div className="flex gap-4 justify-center">
               <Button
                 onClick={this.handleReset}
                 className="bg-[#3a6a20] text-white hover:bg-[#478524]"
               >
-                Réessayer
+                {m.retry}
               </Button>
               <Button
                 onClick={() => window.location.href = '/'}
                 variant="outline"
                 className="border-[#c5d9b3] text-[#17250e] dark:text-[#e3f1db]"
               >
-                Accueil
+                {m.home}
               </Button>
             </div>
           </div>

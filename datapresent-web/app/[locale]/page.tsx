@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { ThemeToggle } from '@/components/ui/theme-toggle'
-import { useTheme } from '@/components/theme-provider'
 import {
   LandingHero,
   LandingFormats,
@@ -18,7 +17,6 @@ import {
 export default function RootPage() {
   const t = useTranslations('landing')
   const nav = useTranslations('nav')
-  useTheme()
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {

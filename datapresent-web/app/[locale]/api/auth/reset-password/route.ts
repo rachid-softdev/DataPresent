@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { logApiError } from '@/lib/security'
-import crypto from 'crypto'
+import { verifyToken } from '@/lib/crypto'
 
 export async function POST(req: NextRequest) {
   try {
@@ -15,21 +15,21 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Password must be at least 8 characters' }, { status: 400 })
     }
 
-    // Find the reset token
-    const resetToken = await prisma.passwordResetToken.findUnique({
-      where: { token }
+    // Find the reset token by iterating candidates and verifying
+    const candidates = await prisma.passwordResetToken.findMany({
+      where: { used: false, expires: { gt: new Date() } },
     })
+
+    let resetToken = null
+    for (const candidate of candidates) {
+      if (await verifyToken(token, candidate.token)) {
+        resetToken = candidate
+        break
+      }
+    }
 
     if (!resetToken) {
       return NextResponse.json({ error: 'Invalid reset token' }, { status: 400 })
-    }
-
-    if (resetToken.used) {
-      return NextResponse.json({ error: 'This token has already been used' }, { status: 400 })
-    }
-
-    if (resetToken.expires < new Date()) {
-      return NextResponse.json({ error: 'This token has expired' }, { status: 400 })
     }
 
     // Note: Since we're using Next-Auth without password field in User model,

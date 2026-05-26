@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma'
+import crypto from 'node:crypto'
 
 export async function ensureUserHasOrganization(userId: string, email: string) {
   const membership = await prisma.membership.findFirst({
@@ -11,28 +12,32 @@ export async function ensureUserHasOrganization(userId: string, email: string) {
 
   const nameFromEmail = email.split('@')[0]
   const baseSlug = nameFromEmail.toLowerCase().replace(/[^a-z0-9]+/g, '-')
-  
-  let slug = baseSlug
-  let counter = 0
-  while (await prisma.organization.findUnique({ where: { slug } })) {
-    counter++
-    slug = `${baseSlug}-${counter}`
-  }
 
-  const org = await prisma.organization.create({
-    data: {
-      name: nameFromEmail.charAt(0).toUpperCase() + nameFromEmail.slice(1),
-      slug,
-      members: {
-        create: {
-          userId,
-          role: 'OWNER'
+  // Atomic create with retry on unique constraint violation
+  const MAX_RETRIES = 5
+  for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+    const suffix = crypto.randomBytes(4).toString('base64url')
+    const slug = attempt === 0 ? baseSlug.substring(0, 50) : `${baseSlug.substring(0, 40)}-${suffix}`
+    try {
+      const org = await prisma.organization.create({
+        data: {
+          name: nameFromEmail.charAt(0).toUpperCase() + nameFromEmail.slice(1),
+          slug,
+          members: {
+            create: { userId, role: 'OWNER' }
+          }
         }
+      })
+      return org.id
+    } catch (error: unknown) {
+      if (error && typeof error === 'object' && 'code' in error && (error as {code: string}).code === 'P2002') {
+        if (attempt === MAX_RETRIES - 1) throw error
+        continue
       }
+      throw error
     }
-  })
-
-  return org.id
+  }
+  throw new Error('Failed to create organization after multiple attempts')
 }
 
 export async function getUserOrganizations(userId: string) {

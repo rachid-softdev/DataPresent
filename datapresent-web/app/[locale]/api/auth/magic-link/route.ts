@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { sendMagicLinkEmail } from '@/lib/email'
 import { checkRateLimit } from '@/lib/rate-limit'
-import { randomBytes } from 'crypto'
+import { generateToken, hashToken } from '@/lib/crypto'
 import { ERROR_CODES, SUCCESS_CODES, badRequest, apiSuccess } from '@/lib/errors'
 
 const TOKEN_EXPIRY = 10 * 60 * 1000 // 10 minutes
@@ -44,19 +44,20 @@ export async function POST(req: NextRequest) {
     })
     
     // Create new token and send email (even if user doesn't exist, for security)
-    const token = randomBytes(32).toString('hex')
+    const rawToken = generateToken()
+    const hashedToken = await hashToken(rawToken)
     const expires = new Date(Date.now() + TOKEN_EXPIRY)
-    
+
     await prisma.magicLinkToken.create({
       data: {
         email: normalizedEmail,
-        token,
+        token: hashedToken,
         expires,
         used: false
       }
     })
-    
-    const magicLink = `${process.env.NEXTAUTH_URL}/api/auth/callback/email?token=${token}&email=${encodeURIComponent(normalizedEmail)}`
+
+    const magicLink = `${process.env.NEXTAUTH_URL}/api/auth/callback/email?token=${rawToken}&email=${encodeURIComponent(normalizedEmail)}`
     
     try {
       await sendMagicLinkEmail(normalizedEmail, magicLink)

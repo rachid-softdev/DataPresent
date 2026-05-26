@@ -90,7 +90,13 @@
       "invalidSignature": "Invalid webhook signature",
       "expired": "This link has expired"
     },
-    "generic": "An error occurred. Please try again."
+    "generic": "An error occurred. Please try again.",
+    "boundary": {
+      "title": "Oops! Something went wrong",
+      "description": "An unexpected error occurred. Please refresh the page or return to home.",
+      "retry": "Try again",
+      "home": "Home"
+    }
   },
   "messages": {
     "auth": {
@@ -109,6 +115,15 @@
       "memberInvited": "Invitation sent",
       "memberRemoved": "Member removed"
     }
+  },
+  "preview": {
+    "notAvailable": "Preview not available for PDF files",
+    "loading": "Loading preview...",
+    "emptyFile": "Empty file",
+    "cannotRead": "Cannot read file",
+    "rows": "{count} {count, plural, one {row} other {rows}}",
+    "columns": "{count} {count, plural, one {column} other {columns}}",
+    "andMore": "... and {count} more"
   },
   "billing": {
     "plans": {

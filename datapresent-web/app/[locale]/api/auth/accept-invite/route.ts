@@ -3,6 +3,7 @@ import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { checkRateLimit } from '@/lib/rate-limit'
 import { logApiError } from '@/lib/security'
+import { verifyToken } from '@/lib/crypto'
 
 export async function POST(req: NextRequest) {
   try {
@@ -23,21 +24,21 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Too many attempts. Please try again later.' }, { status: 429 })
     }
 
-    // Find the invite token
-    const inviteToken = await prisma.inviteToken.findUnique({
-      where: { token }
+    // Find the invite token by iterating candidates and verifying
+    const candidates = await prisma.inviteToken.findMany({
+      where: { used: false, expires: { gt: new Date() } },
     })
+
+    let inviteToken = null
+    for (const candidate of candidates) {
+      if (await verifyToken(token, candidate.token)) {
+        inviteToken = candidate
+        break
+      }
+    }
 
     if (!inviteToken) {
       return NextResponse.json({ error: 'Invalid invitation token' }, { status: 400 })
-    }
-
-    if (inviteToken.used) {
-      return NextResponse.json({ error: 'This invitation has already been used' }, { status: 400 })
-    }
-
-    if (inviteToken.expires < new Date()) {
-      return NextResponse.json({ error: 'This invitation has expired' }, { status: 400 })
     }
 
     // Check if the user's email matches the invite

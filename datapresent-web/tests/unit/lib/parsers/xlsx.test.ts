@@ -3,23 +3,51 @@
 // ==========================================
 
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import * as XLSX from 'xlsx'
 
-// Mock xlsx module
-vi.mock('xlsx', async () => {
-  const actual = await vi.importActual('xlsx')
+// Mock helpers for ExcelJS worksheet/row/cell objects
+function createCell(value: unknown) {
+  return { value }
+}
+
+function createRow(values: unknown[]) {
   return {
-    ...actual,
-    read: vi.fn(),
-    utils: {
-      sheet_to_json: vi.fn(),
-    },
+    eachCell: vi.fn((callback: (cell: { value: unknown }, colNumber?: number) => void) => {
+      values.forEach((val, idx) => callback(createCell(val), idx + 1))
+    }),
   }
-})
+}
+
+function createWorksheet(name: string, headers: string[], ...dataRows: unknown[][]) {
+  const headerRow = createRow(headers)
+  const rows = [headerRow, ...dataRows.map((r) => createRow(r))]
+
+  return {
+    name,
+    getRow: vi.fn((n: number) => (n === 1 ? headerRow : rows[n - 1])),
+    eachRow: vi.fn((callback: (row: ReturnType<typeof createRow>, rowNumber: number) => void) => {
+      rows.forEach((row, idx) => callback(row, idx + 1))
+    }),
+  }
+}
+
+let mockWorksheets: any[] = []
+
+// Mock exceljs module
+vi.mock('exceljs', () => ({
+  Workbook: vi.fn().mockImplementation(() => ({
+    xlsx: {
+      load: vi.fn().mockResolvedValue(undefined),
+    },
+    get worksheets() {
+      return mockWorksheets
+    },
+  })),
+}))
 
 describe('xlsx parser', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    mockWorksheets = []
   })
 
   it('should export parseXlsx function', async () => {
@@ -30,18 +58,9 @@ describe('xlsx parser', () => {
   it('should parse xlsx file with single sheet', async () => {
     const { parseXlsx } = await import('@/lib/parsers/xlsx')
 
-    const mockData = [
-      { Name: 'John', Age: 30 },
-      { Name: 'Jane', Age: 25 },
+    mockWorksheets = [
+      createWorksheet('Sheet1', ['Name', 'Age'], ['John', 30], ['Jane', 25]),
     ]
-
-    ;(XLSX.read as ReturnType<typeof vi.fn>).mockReturnValue({
-      SheetNames: ['Sheet1'],
-      Sheets: {
-        Sheet1: {},
-      },
-    })
-    ;(XLSX.utils.sheet_to_json as ReturnType<typeof vi.fn>).mockReturnValue(mockData)
 
     const buffer = Buffer.from('test')
     const result = await parseXlsx(buffer, 'test.xlsx')
@@ -57,13 +76,13 @@ describe('xlsx parser', () => {
   it('should handle empty sheet', async () => {
     const { parseXlsx } = await import('@/lib/parsers/xlsx')
 
-    ;(XLSX.read as ReturnType<typeof vi.fn>).mockReturnValue({
-      SheetNames: ['Sheet1'],
-      Sheets: {
-        Sheet1: {},
+    mockWorksheets = [
+      {
+        name: 'Sheet1',
+        getRow: vi.fn().mockReturnValue({ eachCell: vi.fn() }),
+        eachRow: vi.fn(),
       },
-    })
-    ;(XLSX.utils.sheet_to_json as ReturnType<typeof vi.fn>).mockReturnValue([])
+    ]
 
     const buffer = Buffer.from('test')
     const result = await parseXlsx(buffer, 'empty.xlsx')
@@ -75,16 +94,10 @@ describe('xlsx parser', () => {
   it('should parse multiple sheets', async () => {
     const { parseXlsx } = await import('@/lib/parsers/xlsx')
 
-    ;(XLSX.read as ReturnType<typeof vi.fn>).mockReturnValue({
-      SheetNames: ['Sheet1', 'Sheet2'],
-      Sheets: {
-        Sheet1: {},
-        Sheet2: {},
-      },
-    })
-    ;(XLSX.utils.sheet_to_json as ReturnType<typeof vi.fn>)
-      .mockReturnValueOnce([{ col: 'a' }])
-      .mockReturnValueOnce([{ col: 'b' }, { col: 'c' }])
+    mockWorksheets = [
+      createWorksheet('Sheet1', ['col'], ['a']),
+      createWorksheet('Sheet2', ['col'], ['b'], ['c']),
+    ]
 
     const buffer = Buffer.from('test')
     const result = await parseXlsx(buffer, 'multi.xlsx')

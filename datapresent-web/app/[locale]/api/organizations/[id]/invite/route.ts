@@ -3,7 +3,7 @@ import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { checkRateLimit } from '@/lib/rate-limit'
 import { logApiError, logSecurityEvent } from '@/lib/security'
-import crypto from 'crypto'
+import { generateToken, hashToken } from '@/lib/crypto'
 
 export async function POST(
   req: NextRequest,
@@ -64,7 +64,8 @@ export async function POST(
     })
 
     // Generate invite token
-    const inviteToken = crypto.randomBytes(32).toString('hex')
+    const rawToken = generateToken()
+    const hashedToken = await hashToken(rawToken)
     const expires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days
 
     await prisma.inviteToken.create({
@@ -72,14 +73,14 @@ export async function POST(
         email,
         orgId,
         role: role || 'MEMBER',
-        token: inviteToken,
+        token: hashedToken,
         expires,
         createdById: session.user.id,
       }
     })
 
     // Generate invite URL
-    const inviteUrl = `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/accept-invite?token=${inviteToken}`
+    const inviteUrl = `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/accept-invite?token=${rawToken}`
     console.log(`[Team Invite] Email: ${email}, Invite URL: ${inviteUrl}`)
 
     // TODO: Send invitation email
