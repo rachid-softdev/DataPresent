@@ -10,22 +10,14 @@ const { mockCookies } = vi.hoisted(() => ({
   },
 }))
 
-// Mock environment variables - need at least 32 chars for AES-256
-vi.stubEnv('CSRF_SECRET', 'test-secret-key-for-testing-12345678')
-vi.stubEnv('NEXTAUTH_SECRET', 'nextauth-secret-key-for-testing')
-
 vi.mock('next/headers', () => ({
   cookies: vi.fn().mockResolvedValue(mockCookies),
 }))
 
-import {
-  generateCsrfToken,
-  validateCsrfToken,
-  signJobData,
-  verifyJobSignature,
-} from '@/lib/security/csrf'
+import { generateCsrfToken, validateCsrfToken } from '@/lib/security/csrf'
+import { signJobData, verifyJobSignature } from '@/lib/crypto'
 
-describe.skip('CSRF Security', () => {
+describe('CSRF Security', () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })
@@ -84,6 +76,25 @@ describe.skip('CSRF Security', () => {
 
       const result = await validateCsrfToken(tamperedToken)
       expect(result).toBe(false)
+    })
+
+    it('should validate token with matching userId', async () => {
+      const userId = 'user-123'
+      const token = generateCsrfToken(userId)
+      const result = await validateCsrfToken(token, userId)
+      expect(result).toBe(true)
+    })
+
+    it('should reject token with non-matching userId', async () => {
+      const token = generateCsrfToken('user-123')
+      const result = await validateCsrfToken(token, 'user-456')
+      expect(result).toBe(false)
+    })
+
+    it('should accept token without userId when no userId provided', async () => {
+      const token = generateCsrfToken()
+      const result = await validateCsrfToken(token)
+      expect(result).toBe(true)
     })
   })
 

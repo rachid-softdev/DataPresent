@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { validateCsrfToken, verifyJobSignature } from './csrf'
+import { validateCsrfToken } from './csrf'
+import { verifyJobSignature } from '@/lib/crypto'
+import { auth } from '@/lib/auth'
 
 /**
  * CSRF protection middleware for API routes
@@ -26,7 +28,11 @@ export async function withCsrfProtection(req: NextRequest): Promise<NextResponse
     )
   }
 
-  const isValid = await validateCsrfToken(csrfToken)
+  // Get userId from session to bind token to user
+  const session = await auth()
+  const userId = session?.user?.id
+
+  const isValid = await validateCsrfToken(csrfToken, userId)
   if (!isValid) {
     return NextResponse.json(
       { error: 'Invalid or expired CSRF token' },

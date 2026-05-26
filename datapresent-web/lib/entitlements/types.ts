@@ -85,7 +85,7 @@ export type ConsumeResult = ConsumeSuccess | ConsumeFailure
 export interface EntitlementsAPIResponse {
   plan: Plan
   features: Record<FeatureKey, boolean>
-  limits: Record<FeatureKey, number>
+  limits: Record<FeatureKey, number | null>
   usage: Record<FeatureKey, number>
   resetAt: Record<FeatureKey, string>
 }

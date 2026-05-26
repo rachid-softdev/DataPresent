@@ -17,12 +17,14 @@ export async function createApiKey(params: {
   
   // Hash the key for storage
   const keyHash = await hashPassword(key)
+  const keyPrefix = key.slice(0, 12) // First 12 chars for indexed lookup
 
   const expiresAt = new Date(Date.now() + expiresInDays * 24 * 60 * 60 * 1000)
 
   const apiKey = await prisma.apiKey.create({
     data: {
       keyHash,
+      keyPrefix,
       orgId,
       name,
       expiresAt,
@@ -39,9 +41,12 @@ export async function createApiKey(params: {
  * Validate an API key
  */
 export async function validateApiKey(key: string): Promise<{ valid: boolean; orgId?: string; keyId?: string }> {
-  // Find all non-expired API keys (in production, use a more efficient approach)
-  const apiKeys = await prisma.apiKey.findMany({
+  const keyPrefix = key.slice(0, 12)
+
+  // Find candidate keys by prefix (indexed lookup)
+  const apiKey = await prisma.apiKey.findFirst({
     where: {
+      keyPrefix,
       OR: [
         { expiresAt: null },
         { expiresAt: { gt: new Date() } },
@@ -49,19 +54,19 @@ export async function validateApiKey(key: string): Promise<{ valid: boolean; org
     },
   })
 
-  for (const apiKey of apiKeys) {
-    const isValid = await verifyPassword(key, apiKey.keyHash)
-    if (isValid) {
-      // Update last used timestamp
-      await prisma.apiKey.update({
-        where: { id: apiKey.id },
-        data: { lastUsedAt: new Date() },
-      })
+  if (!apiKey) return { valid: false }
 
-      captureMessage('API key validated', 'debug', { keyId: apiKey.id, orgId: apiKey.orgId })
+  // Single Argon2 verification instead of scanning all keys
+  const isValid = await verifyPassword(key, apiKey.keyHash)
+  if (isValid) {
+    await prisma.apiKey.update({
+      where: { id: apiKey.id },
+      data: { lastUsedAt: new Date() },
+    })
 
-      return { valid: true, orgId: apiKey.orgId, keyId: apiKey.id }
-    }
+    captureMessage('API key validated', 'debug', { keyId: apiKey.id, orgId: apiKey.orgId })
+
+    return { valid: true, orgId: apiKey.orgId, keyId: apiKey.id }
   }
 
   return { valid: false }

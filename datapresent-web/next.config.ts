@@ -5,8 +5,8 @@ const withNextIntl = createNextIntlPlugin();
 
 const isDev = process.env.NODE_ENV === 'development'
 const scriptSrc = isDev
-  ? "'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com"
-  : "'self' 'unsafe-inline' https://js.stripe.com"
+  ? "'self' 'unsafe-eval' https://js.stripe.com"
+  : "'self' https://js.stripe.com"
 
 const nextConfig: NextConfig = {
   images: {

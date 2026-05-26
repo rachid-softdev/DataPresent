@@ -78,8 +78,13 @@ const envSchema = z.object({
   // =========================
   // SECURITY
   // =========================
-  CSRF_SECRET: z.string().optional(),
+  CSRF_SECRET: z.string().min(32, 'CSRF_SECRET must be at least 32 characters'),
   ALLOWED_ORIGINS: z.string().optional(),
+
+  // =========================
+  // RATE LIMITING
+  // =========================
+  RATE_LIMIT_STRATEGY: z.enum(['strict', 'relaxed']).optional().default('strict'),
 
   // =========================
   // GOOGLE SHEETS (optional)
@@ -129,15 +134,4 @@ export function isFeatureEnabled(feature: 'stripe' | 'sentry' | 'r2' | 'redis' |
     default:
       return false
   }
-}
-
-/**
- * Required in production - helper to check critical variables
- */
-export function requireEnv(key: keyof z.infer<typeof envSchema>): string {
-  const value = env[key]
-  if (!value) {
-    throw new Error(`Required environment variable ${key} is not set`)
-  }
-  return value
 }

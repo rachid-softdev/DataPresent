@@ -27,13 +27,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    const { searchParams } = new URL(request.url)
-    const page = parseInt(searchParams.get('page') ?? '1')
-    const limit = parseInt(searchParams.get('limit') ?? '20')
-    const sort = searchParams.get('sort') ?? 'plan:asc'
-
     const plans: Plan[] = ['FREE', 'PRO', 'TEAM', 'AGENCY']
-    const offset = (page - 1) * limit
 
     // Get all features
     const allFeatures = await prisma.feature.findMany({
@@ -43,7 +37,7 @@ export async function GET(request: NextRequest) {
 
     // Build plan features map
     const result = await Promise.all(
-      plans.slice(offset, offset + limit).map(async (plan) => {
+      plans.map(async (plan) => {
         const planFeatures = await entitlementRepository.getPlanFeatures(plan)
 
         return {
@@ -62,15 +56,7 @@ export async function GET(request: NextRequest) {
       })
     )
 
-    return NextResponse.json({
-      data: result,
-      pagination: {
-        page,
-        limit,
-        total: plans.length,
-        totalPages: Math.ceil(plans.length / limit),
-      },
-    })
+    return NextResponse.json({ data: result })
   } catch (error) {
     console.error('[admin/plans] Error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })

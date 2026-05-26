@@ -1,3 +1,4 @@
-export { generateCsrfToken, validateCsrfToken, getCsrfTokenFromCookies, signJobData, verifyJobSignature } from './csrf'
+export { generateCsrfToken, validateCsrfToken, getCsrfTokenFromCookies } from './csrf'
+export { signJobData, verifyJobSignature, extractSignedJobData } from '@/lib/crypto'
 export { withCsrfProtection, validateJobSignature } from './csrf-middleware'
 export { logApiError, logSecurityEvent } from './error-logger'

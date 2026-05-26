@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
+import { cookies } from 'next/headers'
 import { Fraunces, DM_Sans } from 'next/font/google'
-import Script from 'next/script'
 import { Providers } from '@/components/providers'
 import './globals.css'
 
@@ -64,25 +64,13 @@ export const metadata: Metadata = {
   },
 }
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  // Read theme from cookie (set by client-side toggle) — server-side
+  const cookieStore = await cookies()
+  const themeCookie = cookieStore.get('theme')?.value ?? 'light'
+
   return (
-    <html lang="fr" suppressHydrationWarning>
-      <head>
-        <Script
-          id="theme-script"
-          strategy="beforeInteractive"
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                try {
-                  var t = localStorage.getItem('theme') || 'light';
-                  document.documentElement.setAttribute('data-theme', t);
-                } catch(e) {}
-              })()
-            `,
-          }}
-        />
-      </head>
+    <html lang="fr" suppressHydrationWarning data-theme={themeCookie}>
       <body className={`${fraunces.variable} ${dmSans.variable} antialiased`}>
         <Providers>{children}</Providers>
       </body>

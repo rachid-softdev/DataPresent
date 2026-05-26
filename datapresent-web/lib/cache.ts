@@ -1,13 +1,14 @@
 import { unstable_cache } from 'next/cache'
+import { revalidateTag } from 'next/cache'
 import { prisma } from './prisma'
 import { PLANS } from './plans'
 
 // Cache tags for manual invalidation
 export const CACHE_TAGS = {
-  ORG: 'org',
+  ORG: (id: string) => `org-${id}`,
   PLANS: 'plans',
-  USER: 'user',
-  REPORT: 'report',
+  USER: (id: string) => `user-${id}`,
+  REPORT: (id: string) => `report-${id}`,
 } as const
 
 /**
@@ -123,24 +124,21 @@ export const getCachedReport = unstable_cache(
  * Invalidate organization cache (call after updates)
  */
 export async function invalidateOrgCache(orgId: string): Promise<void> {
-  // Next.js cache invalidation happens automatically with unstable_cache
-  // This function is here for documentation purposes
-  // In production, you might use: revalidateTag(`org-${orgId}`)
-  console.log(`[Cache] Org ${orgId} cache invalidated`)
+  revalidateTag(CACHE_TAGS.ORG(orgId), { expire: 0 })
 }
 
 /**
  * Invalidate user cache (call after profile updates)
  */
 export async function invalidateUserCache(userId: string): Promise<void> {
-  console.log(`[Cache] User ${userId} cache invalidated`)
+  revalidateTag(CACHE_TAGS.USER(userId), { expire: 0 })
 }
 
 /**
  * Invalidate report cache (call after report updates)
  */
 export async function invalidateReportCache(reportId: string): Promise<void> {
-  console.log(`[Cache] Report ${reportId} cache invalidated`)
+  revalidateTag(CACHE_TAGS.REPORT(reportId), { expire: 0 })
 }
 
 /**

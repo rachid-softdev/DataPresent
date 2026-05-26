@@ -5,7 +5,7 @@
 
 'use client'
 
-import { useState, useEffect, useCallback, createContext, useContext, type ReactNode } from 'react'
+import { useState, useEffect, useCallback, createContext, type ReactNode } from 'react'
 
 // ==========================================
 // Types
@@ -14,7 +14,7 @@ import { useState, useEffect, useCallback, createContext, useContext, type React
 export interface EntitlementsData {
   plan: string
   features: Record<string, boolean>
-  limits: Record<string, number>
+  limits: Record<string, number | null>
   usage: Record<string, number>
   resetAt: Record<string, string | null>
 }
@@ -32,9 +32,9 @@ interface UseFeatureReturn {
 }
 
 interface UseLimitReturn {
-  limit: number
+  limit: number | null
   used: number
-  remaining: number
+  remaining: number | null
   resetAt: string | null
   isLoading: boolean
 }
@@ -121,16 +121,16 @@ export function useFeature(featureKey: string): UseFeatureReturn {
 export function useLimit(limitKey: string): UseLimitReturn {
   const { entitlements, isLoading } = useEntitlements()
 
-  const limit = entitlements?.limits?.[limitKey] ?? 0
+  const limit = entitlements?.limits?.[limitKey] ?? null
   const used = entitlements?.usage?.[limitKey] ?? 0
   const resetAt = entitlements?.resetAt?.[limitKey] ?? null
 
-  // -1 means unlimited
-  const isUnlimited = limit === -1
-  const remaining = isUnlimited ? -1 : Math.max(0, limit - used)
+  // null means unlimited
+  const isUnlimited = limit === null
+  const remaining = isUnlimited ? null : Math.max(0, limit - used)
 
   return {
-    limit: isUnlimited ? -1 : limit,
+    limit: isUnlimited ? null : limit,
     used,
     remaining,
     resetAt,
@@ -145,11 +145,11 @@ export function useLimit(limitKey: string): UseLimitReturn {
 export function useCanConsume(featureKey: string, amount: number = 1): boolean {
   const { entitlements } = useEntitlements()
 
-  const limit = entitlements?.limits?.[featureKey] ?? 0
+  const limit = entitlements?.limits?.[featureKey] ?? null
   const used = entitlements?.usage?.[featureKey] ?? 0
 
-  // -1 means unlimited
-  if (limit === -1) return true
+  // null means unlimited
+  if (limit === null) return true
 
   return used + amount <= limit
 }
@@ -159,19 +159,19 @@ export function useCanConsume(featureKey: string, amount: number = 1): boolean {
 // ==========================================
 
 export function useRemainingUsage(featureKey: string): {
-  remaining: number
+  remaining: number | null
   percentUsed: number
   isUnlimited: boolean
 } {
   const { entitlements } = useEntitlements()
 
-  const limit = entitlements?.limits?.[featureKey] ?? 0
+  const limit = entitlements?.limits?.[featureKey] ?? null
   const used = entitlements?.usage?.[featureKey] ?? 0
 
-  const isUnlimited = limit === -1
+  const isUnlimited = limit === null
 
   return {
-    remaining: isUnlimited ? -1 : Math.max(0, limit - used),
+    remaining: isUnlimited ? null : Math.max(0, limit - used),
     percentUsed: isUnlimited ? 0 : (used / limit) * 100,
     isUnlimited,
   }
@@ -271,18 +271,23 @@ function UpgradePrompt({ feature }: { feature: string }) {
 }
 
 function LimitReachedPrompt({ feature }: { feature: string }) {
-  const { limits, usage, resetAt } = useEntitlements() ?? {}
+  const { entitlements } = useEntitlements()
+  const limits = entitlements?.limits
+  const usage = entitlements?.usage
+  const resetAt = entitlements?.resetAt
 
   const limit = limits?.[feature] ?? 0
   const used = usage?.[feature] ?? 0
+  const featureResetAt = resetAt?.[feature] ?? null
+  // Keep 0 as fallback for display purposes in the prompt
 
   return (
     <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
       <p className="text-sm text-red-800">
         Vous avez atteint la limite de <strong>{limit}</strong> utilisations pour{' '}
         <strong>{feature}</strong> ({used}/{limit}).
-        {resetAt && (
-          <span> Réinitialisation le {new Date(resetAt).toLocaleDateString('fr-FR')}.</span>
+        {featureResetAt && (
+          <span> Réinitialisation le {new Date(featureResetAt).toLocaleDateString('fr-FR')}.</span>
         )}
       </p>
       <a

@@ -1,11 +1,8 @@
 import { cookies } from 'next/headers'
 import crypto from 'crypto'
+import { env } from '@/env'
 
-// CSRF secret must be set in environment - fail fast if missing
-const CSRF_SECRET = process.env.CSRF_SECRET || process.env.NEXTAUTH_SECRET
-if (!CSRF_SECRET) {
-  throw new Error('CRITICAL: CSRF_SECRET or NEXTAUTH_SECRET environment variable is required. Set one to secure the application.')
-}
+const CSRF_SECRET = env.CSRF_SECRET
 
 const ALGORITHM = 'aes-256-gcm'
 const IV_LENGTH = 16
@@ -14,14 +11,14 @@ const TAG_LENGTH = 16
 /**
  * Generate a CSRF token for the current user session
  */
-export function generateCsrfToken(): string {
+export function generateCsrfToken(userId?: string): string {
   const timestamp = Date.now().toString()
   const randomBytes = crypto.randomBytes(16).toString('hex')
 
   const iv = crypto.randomBytes(IV_LENGTH)
   const cipher = crypto.createCipheriv(ALGORITHM, Buffer.from(CSRF_SECRET.slice(0, 32), 'utf8'), iv)
 
-  const data = `${timestamp}:${randomBytes}`
+  const data = userId ? `${userId}:${timestamp}:${randomBytes}` : `${timestamp}:${randomBytes}`
   let encrypted = cipher.update(data, 'utf8', 'hex')
   encrypted += cipher.final('hex')
   const tag = cipher.getAuthTag()
@@ -32,12 +29,12 @@ export function generateCsrfToken(): string {
 /**
  * Validate a CSRF token
  */
-export async function validateCsrfToken(token: string): Promise<boolean> {
+export async function validateCsrfToken(token: string, userId?: string): Promise<boolean> {
   if (!token) return false
 
   try {
     const parts = token.split(':')
-    if (parts.length !== 3) return false
+    if (parts.length < 3) return false
 
     const [ivHex, tagHex, encrypted] = parts
     if (!ivHex || !tagHex || !encrypted) return false
@@ -59,8 +56,19 @@ export async function validateCsrfToken(token: string): Promise<boolean> {
     let decrypted = decipher.update(encrypted, 'hex', 'utf8')
     decrypted += decipher.final('utf8')
 
-    // Token is valid for 1 hour
-    const [timestamp] = decrypted.split(':')
+    const tokenParts = decrypted.split(':')
+    let tokenUserId: string | undefined
+    let timestamp: string
+    if (tokenParts.length === 3) {
+      tokenUserId = tokenParts[0]
+      timestamp = tokenParts[1]
+    } else {
+      timestamp = tokenParts[0]
+    }
+
+    // If userId is provided, verify token belongs to that user
+    if (userId && tokenUserId && tokenUserId !== userId) return false
+
     const tokenAge = Date.now() - parseInt(timestamp)
 
     return tokenAge < 3600000 // 1 hour in milliseconds
@@ -77,26 +85,3 @@ export async function getCsrfTokenFromCookies(): Promise<string | null> {
   return cookieStore.get('csrf-token')?.value || null
 }
 
-/**
- * Create a signed job token for BullMQ workers
- */
-export function signJobData(data: Record<string, unknown>): { data: Record<string, unknown>; signature: string } {
-  const signature = crypto
-    .createHmac('sha256', CSRF_SECRET)
-    .update(JSON.stringify(data))
-    .digest('hex')
-
-  return { data, signature }
-}
-
-/**
- * Verify a signed job token from BullMQ workers
- */
-export function verifyJobSignature(data: Record<string, unknown>, signature: string): boolean {
-  const expected = crypto
-    .createHmac('sha256', CSRF_SECRET)
-    .update(JSON.stringify(data))
-    .digest('hex')
-
-  return crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expected))
-}

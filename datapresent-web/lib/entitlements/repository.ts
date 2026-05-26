@@ -248,7 +248,7 @@ export class PrismaEntitlementRepository implements IEntitlementRepository {
     }
 
     // If no row was updated, create new tracking or limit was reached
-    if (!result || result.length === 0) {
+    if (!result || (Array.isArray(result) && result.length === 0)) {
       // Check if there's existing tracking to determine if limit was reached
       const existing = await this.getUsage(orgId, featureKey)
 
@@ -267,18 +267,88 @@ export class PrismaEntitlementRepository implements IEntitlementRepository {
             resetAt: existing.periodEnd,
           }
         }
+        
+        // Period expired but limit not reached — this shouldn't happen normally
+        // Update the existing record for the new period
+        await prisma.usageTracking.update({
+          where: { id: existing.id },
+          data: {
+            usageCount: existing.usageCount + amount,
+            periodStart,
+            periodEnd,
+          },
+        })
+        
+        return {
+          success: true,
+          featureKey,
+          previousUsage: existing.usageCount,
+          newUsage: existing.usageCount + amount,
+          limit,
+          remaining: limit !== null ? limit - (existing.usageCount + amount) : null,
+        }
+      }
+
+      // No existing tracking — check limit BEFORE creating
+      if (limit !== null && amount > limit) {
+        return {
+          success: false,
+          error: 'LIMIT_REACHED',
+          featureKey,
+          limit,
+          used: 0,
+          resetAt: periodEnd,
+        }
       }
 
       // Create new usage tracking for new period
-      await prisma.usageTracking.create({
-        data: {
-          orgId,
-          featureKey,
-          usageCount: amount,
-          periodStart,
-          periodEnd,
-        },
-      })
+      try {
+        await prisma.usageTracking.create({
+          data: {
+            orgId,
+            featureKey,
+            usageCount: amount,
+            periodStart,
+            periodEnd,
+          },
+        })
+      } catch (err: any) {
+        // Handle unique constraint violation (race condition — another request created the row)
+        if (err?.code === 'P2002') {
+          // Retry the UPDATE
+          const updateResult = await prisma.$queryRaw`
+            UPDATE "UsageTracking"
+            SET "usageCount" = "usageCount" + ${amount},
+                "updatedAt" = NOW()
+            WHERE "orgId" = ${orgId}
+              AND "featureKey" = ${featureKey}
+              AND "periodEnd" > NOW()
+            RETURNING "usageCount"
+          ` as unknown as { usageCount: number }[]
+          
+          if (updateResult && updateResult.length > 0) {
+            const newUsage = updateResult[0].usageCount
+            return {
+              success: true,
+              featureKey,
+              previousUsage: newUsage - amount,
+              newUsage,
+              limit,
+              remaining: limit !== null ? limit - newUsage : null,
+            }
+          }
+          
+          return {
+            success: false,
+            error: 'LIMIT_REACHED',
+            featureKey,
+            limit,
+            used: 0,
+            resetAt: periodEnd,
+          }
+        }
+        throw err
+      }
 
       return {
         success: true,
@@ -290,7 +360,8 @@ export class PrismaEntitlementRepository implements IEntitlementRepository {
       }
     }
 
-    const newUsage = result[0]?.usageCount ?? amount
+    const resultArray = Array.isArray(result) ? result : [result]
+    const newUsage = resultArray[0]?.usageCount ?? amount
 
     return {
       success: true,

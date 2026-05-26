@@ -74,12 +74,12 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    // Extract key from URL path
-    const url = new URL(request.url)
-    const key = url.pathname.split('/').slice(-2, -1)[0]
-
     const body = await request.json()
-    const { description, type, defaultConfig, isActive } = body
+    const { key, description, type, defaultConfig, isActive } = body
+
+    if (!key) {
+      return NextResponse.json({ error: 'Missing required field: key' }, { status: 400 })
+    }
 
     const feature = await prisma.feature.update({
       where: { key },

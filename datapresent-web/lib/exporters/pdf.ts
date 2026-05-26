@@ -1,3 +1,26 @@
+let browserPromise: Promise<import('puppeteer-core').Browser> | null = null
+
+async function getBrowser(): Promise<import('puppeteer-core').Browser> {
+  if (!browserPromise) {
+    const puppeteer = await import('puppeteer-core')
+    const isVercel = process.env.VERCEL === '1'
+    let executablePath: string | undefined
+    if (isVercel) {
+      const chromium = await import('@sparticuz/chromium').catch(() => null)
+      if (chromium) {
+        executablePath = await chromium.default.executablePath()
+      }
+    }
+    browserPromise = puppeteer.launch({
+      headless: true,
+      executablePath,
+      args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--disable-gpu'],
+      protocolTimeout: 60000,
+    })
+  }
+  return browserPromise
+}
+
 export async function generatePdf(params: {
   title: string
   slides: Array<{
@@ -8,40 +31,22 @@ export async function generatePdf(params: {
 }): Promise<Buffer> {
   const html = generateHtmlFromSlides(params)
   
-  let puppeteer
+  // Verify puppeteer-core is available before proceeding
   try {
-    puppeteer = await import('puppeteer-core')
+    await import('puppeteer-core')
   } catch {
-    // Fallback: generate a basic PDF via simple HTML
-    // This is not a real PDF but avoids returning HTML as binary
-    const simpleHtml = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${params.title}</title></head><body><h1>${params.title}</h1><p>PDF generation requires puppeteer. Please install puppeteer-core.</p></body></html>`
-    return Buffer.from(simpleHtml, 'utf-8')
+    throw new Error(
+      'PDF generation requires puppeteer-core. ' +
+      'Install it with: npm install puppeteer-core\n' +
+      'For Vercel deployments, @sparticuz/chromium is also needed.'
+    )
   }
 
-  const isVercel = process.env.VERCEL === '1'
-  
-  let executablePath: string | undefined
-  if (isVercel) {
-    const chromium = await import('@sparticuz/chromium').catch(() => null)
-    if (chromium) {
-      executablePath = await chromium.default.executablePath()
-    }
-  }
-
-  const browser = await puppeteer.launch({
-    headless: true,
-    executablePath,
-    args: [
-      '--no-sandbox',
-      '--disable-setuid-sandbox',
-      '--disable-dev-shm-usage',
-      '--disable-gpu',
-    ],
-    protocolTimeout: 60000,
-  })
+  const browser = await getBrowser()
+  let page: import('puppeteer-core').Page | null = null
 
   try {
-    const page = await browser.newPage()
+    page = await browser.newPage()
     await page.setContent(html, { waitUntil: 'networkidle0' })
     
     const pdfBuffer = await page.pdf({
@@ -57,7 +62,7 @@ export async function generatePdf(params: {
     
     return Buffer.from(pdfBuffer)
   } finally {
-    await browser.close()
+    if (page) await page.close()
   }
 }
 

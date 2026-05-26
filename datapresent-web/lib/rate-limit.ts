@@ -1,8 +1,14 @@
 import { prisma } from '@/lib/prisma'
+import { env } from '@/env'
 
-const isDev = process.env.NODE_ENV === 'development'
-export const DEFAULT_LIMIT = isDev ? 100 : 30
-export const DEFAULT_WINDOW = isDev ? 60 * 1000 : 60 * 60 * 1000 // dev: 1 min, prod: 1 hour
+const rateLimitMap = {
+  relaxed: { limit: 100, windowMs: 60 * 1000 },    // 100/minute for dev
+  strict:  { limit: 30,  windowMs: 60 * 60 * 1000 }, // 30/hour for prod
+}
+
+const strategy = env.RATE_LIMIT_STRATEGY
+export const DEFAULT_LIMIT = rateLimitMap[strategy].limit
+export const DEFAULT_WINDOW = rateLimitMap[strategy].windowMs
 
 export interface RateLimitOptions {
   limit?: number

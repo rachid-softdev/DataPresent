@@ -5,6 +5,7 @@
 
 // @ts-expect-error - jsdom has no built-in types
 import { JSDOM } from 'jsdom'
+import { env } from '@/env'
 
 // Create a DOM environment for sanitization
 const dom = new JSDOM('')
@@ -40,7 +41,7 @@ export function sanitizeHtml(html: string): string {
   ]
 
   // List of allowed attributes
-  const allowedAttrs = ['href', 'class', 'id', 'style']
+  const allowedAttrs = ['href', 'class', 'id']
 
   // Tags to completely remove (including content)
   const removedTags = ['script', 'style', 'iframe', 'object', 'embed', 'form', 'input']
@@ -102,14 +103,9 @@ export function sanitizeJs(input: string): string {
 export function sanitizeComment(body: string): string {
   if (!body) return ''
 
-  // Strip HTML tags but preserve line breaks
-  let sanitized = body
-    .replace(/<[^>]*>/g, '')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&amp;/g, '&')
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
+  // Use JSDOM to safely decode entities AND strip HTML in one step
+  const doc = new JSDOM(body).window.document
+  let sanitized = doc.body.textContent || ''
 
   // Limit length to prevent DoS
   const MAX_LENGTH = 5000
@@ -146,7 +142,10 @@ export function isUrlSafe(url: string): boolean {
     if (!parsedUrl.origin) return true
 
     // Allow same origin
-    const allowedOrigin = typeof window !== 'undefined' ? window.location.origin : 'https://datapresent.com'
+    const appUrl = typeof window !== 'undefined'
+      ? window.location.origin
+      : (env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000')
+    const allowedOrigin = appUrl
     if (parsedUrl.origin === allowedOrigin) {
       return true
     }
