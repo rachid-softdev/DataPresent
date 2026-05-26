@@ -28,6 +28,17 @@ import { isInExperiment, getExperimentConfig } from './experiments'
 // ==========================================
 
 export class FeatureGateService {
+  private invalidationTimers: Map<string, NodeJS.Timeout> = new Map()
+
+  private debouncedInvalidate(orgId: string): void {
+    const existing = this.invalidationTimers.get(orgId)
+    if (existing) clearTimeout(existing)
+    this.invalidationTimers.set(orgId, setTimeout(() => {
+      this.invalidateCache(orgId)
+      this.invalidationTimers.delete(orgId)
+    }, 500))
+  }
+
   /**
    * Check if a feature is enabled for an organization
    * Resolution order: user_override → org_override → plan → fallback
@@ -112,9 +123,9 @@ export class FeatureGateService {
     // Perform atomic consume
     const result = await entitlementRepository.consumeUsage(orgId, featureKey, amount, limit)
 
-    // Invalidate cache after consumption
+    // Invalidate cache after consumption (debounced)
     if (result.success) {
-      await this.invalidateCache(orgId)
+      this.debouncedInvalidate(orgId)
     }
 
     return result
@@ -160,7 +171,8 @@ export class FeatureGateService {
         featureKey,
         userId,
         overrides,
-        plan
+        plan,
+        features
       )
 
       featuresMap[featureKey] = resolved.value as boolean
@@ -256,7 +268,8 @@ export class FeatureGateService {
     featureKey: string,
     userId: string | undefined,
     overrides: EntitlementOverride[] | undefined,
-    plan: Plan | undefined
+    plan: Plan | undefined,
+    preloadedFeatures?: PlanFeature[]
   ): Promise<{
     value: boolean | number | null
     resolvedVia: ResolutionSource
@@ -297,7 +310,7 @@ export class FeatureGateService {
     }
 
     // 3. Check plan features
-    const planFeatures = await entitlementRepository.getPlanFeatures(plan ?? 'FREE')
+    const planFeatures = preloadedFeatures ?? await entitlementRepository.getPlanFeatures(plan ?? 'FREE')
     const planFeature = planFeatures.find((pf) => pf.feature.key === featureKey)
 
     if (planFeature && planFeature.enabled) {

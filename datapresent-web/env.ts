@@ -5,8 +5,8 @@ const envSchema = z.object({
   // REQUIRED (crash if missing)
   // =========================
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
-  NEXTAUTH_SECRET: z.string().min(1),
-  NEXTAUTH_URL: z.string().url(),
+  NEXTAUTH_SECRET: z.string().min(32, 'NEXTAUTH_SECRET must be at least 32 characters'),
+  NEXTAUTH_URL: z.string().optional().default('http://localhost:3000'),
   NEXT_PUBLIC_APP_URL: z.string().url(),
   NEXT_PUBLIC_BASE_URL: z.string().url().optional(),
   DATABASE_URL: z.string().url(),
@@ -22,16 +22,17 @@ const envSchema = z.object({
   // =========================
   // STRIPE
   // =========================
-  STRIPE_SECRET_KEY: z.string().optional(),
-  NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: z.string().optional(),
-  STRIPE_WEBHOOK_SECRET: z.string().optional(),
-  STRIPE_PRICE_STARTER_MONTHLY: z.string().optional(),
-  STRIPE_PRICE_PRO_MONTHLY: z.string().optional(),
+  STRIPE_SECRET_KEY: z.string().startsWith('sk_').optional(),
+  NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: z.string().startsWith('pk_').optional(),
+  STRIPE_WEBHOOK_SECRET: z.string().startsWith('whsec_').optional(),
+  STRIPE_PRICE_STARTER_MONTHLY: z.string().startsWith('price_').optional(),
+  STRIPE_PRICE_PRO_MONTHLY: z.string().startsWith('price_').optional(),
+  STRIPE_PRICE_TEAM_MONTHLY: z.string().startsWith('price_').optional(),
 
   // =========================
   // AI
   // =========================
-  ANTHROPIC_API_KEY: z.string().optional(),
+  ANTHROPIC_API_KEY: z.string().min(40, 'ANTHROPIC_API_KEY must be at least 40 characters'),
 
   // =========================
   // EMAIL (SMTP - dev)
@@ -44,7 +45,7 @@ const envSchema = z.object({
   // =========================
   // EMAIL (Resend - prod)
   // =========================
-  RESEND_API_KEY: z.string().optional(),
+  RESEND_API_KEY: z.string().startsWith('re_').optional(),
   EMAIL_FROM: z.string().optional(),
   RESEND_FROM_EMAIL: z.string().optional(),
 
@@ -109,3 +110,34 @@ if (!parsed.success) {
 }
 
 export const env = parsed.data
+
+/**
+ * Check if a specific feature is configured
+ */
+export function isFeatureEnabled(feature: 'stripe' | 'sentry' | 'r2' | 'redis' | 'googleSheets'): boolean {
+  switch (feature) {
+    case 'stripe':
+      return Boolean(env.STRIPE_SECRET_KEY)
+    case 'sentry':
+      return Boolean(env.SENTRY_DSN)
+    case 'r2':
+      return Boolean(env.R2_ACCOUNT_ID && env.R2_ACCESS_KEY_ID && env.R2_SECRET_ACCESS_KEY)
+    case 'redis':
+      return Boolean(env.REDIS_URL)
+    case 'googleSheets':
+      return Boolean(env.GOOGLE_SHEETS_CLIENT_EMAIL && env.GOOGLE_SHEETS_PRIVATE_KEY)
+    default:
+      return false
+  }
+}
+
+/**
+ * Required in production - helper to check critical variables
+ */
+export function requireEnv(key: keyof z.infer<typeof envSchema>): string {
+  const value = env[key]
+  if (!value) {
+    throw new Error(`Required environment variable ${key} is not set`)
+  }
+  return value
+}

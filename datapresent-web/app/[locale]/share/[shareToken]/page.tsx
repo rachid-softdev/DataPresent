@@ -2,6 +2,7 @@
 
 import { useState, useEffect, Suspense } from 'react'
 import { notFound, useParams } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { Badge } from '@/components/ui/badge'
 import { Watermark } from '@/components/watermark/Watermark'
 import { SlideCard } from '@/components/slides/SlideCard'
@@ -37,6 +38,7 @@ interface ShareMeta {
 function SharePageContent() {
   const params = useParams()
   const shareToken = params.shareToken as string
+  const t = useTranslations('share')
 
   const [report, setReport] = useState<ReportData | null>(null)
   const [meta, setMeta] = useState<ShareMeta | null>(null)
@@ -56,7 +58,7 @@ function SharePageContent() {
               notFound()
             }
             if (res.status === 410) {
-              setError('Ce lien a expiré')
+              setError(t('linkExpired'))
             }
             throw new Error('Failed to get meta')
           }
@@ -98,7 +100,7 @@ function SharePageContent() {
       }
 
       if (res.status === 410) {
-        setError('Ce lien a expiré')
+        setError(t('linkExpired'))
         setLoading(false)
         return
       }
@@ -110,7 +112,7 @@ function SharePageContent() {
         notFound()
       }
     } catch (err) {
-      setError('Erreur de chargement')
+      setError(t('loadingError'))
     } finally {
       setLoading(false)
     }
@@ -138,7 +140,7 @@ function SharePageContent() {
       <div className="min-h-screen flex items-center justify-center bg-background p-4">
         <div className="text-center">
           <AlertCircle className="w-12 h-12 text-destructive mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-destructive mb-2">Erreur</h1>
+          <h1 className="text-2xl font-bold text-destructive mb-2">{t('errorTitle')}</h1>
           <p className="text-muted-foreground">{error}</p>
         </div>
       </div>
@@ -154,9 +156,9 @@ function SharePageContent() {
             <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
               <Lock className="w-8 h-8 text-primary" />
             </div>
-            <h1 className="text-2xl font-bold">Rapport protégé</h1>
+            <h1 className="text-2xl font-bold">{t('protectedReport')}</h1>
             <p className="text-muted-foreground mt-2">
-              Ce rapport est protégé par un mot de passe.
+              {t('passwordRequired')}
             </p>
           </div>
 
@@ -164,7 +166,7 @@ function SharePageContent() {
             <div>
               <Input
                 type="password"
-                placeholder="Mot de passe"
+                placeholder={t('passwordPlaceholder')}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="text-center"
@@ -175,10 +177,10 @@ function SharePageContent() {
               {verifying ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Vérification...
+                  {t('verifying')}
                 </>
               ) : (
-                'Accéder au rapport'
+                t('accessReport')
               )}
             </Button>
           </form>

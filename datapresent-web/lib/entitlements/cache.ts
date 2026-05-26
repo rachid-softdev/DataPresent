@@ -36,6 +36,8 @@ function getRedisClient(): IORedis | null {
   })
 }
 
+let subscriberInstance: IORedis | null = null
+
 const redisClient = getRedisClient()
 
 // ==========================================
@@ -64,6 +66,9 @@ function getInvalidationChannel(): string {
 // ==========================================
 
 export class EntitlementsCacheService {
+  /** Track whether Redis Pub/Sub channel has been subscribed to */
+  private subscribedToChannel: boolean = false
+
   /**
    * Get entitlements from cache (Redis first, then memory)
    */
@@ -158,19 +163,23 @@ export class EntitlementsCacheService {
       return () => {}
     }
 
-    const subscriber = new IORedis(redisClient.options)
-
-    await subscriber.subscribe(getInvalidationChannel())
-
-    subscriber.on('message', (_channel, message) => {
-      callback(message)
-    })
-
-    // Return unsubscribe function
-    return () => {
-      subscriber.unsubscribe(getInvalidationChannel())
-      subscriber.quit()
+    if (!subscriberInstance) {
+      subscriberInstance = new IORedis(redisClient.options)
     }
+    const subscriber = subscriberInstance
+
+    // Only subscribe to the Redis channel and register listener once
+    if (!this.subscribedToChannel) {
+      await subscriber.subscribe(getInvalidationChannel())
+      this.subscribedToChannel = true
+
+      subscriber.on('message', (_channel, message) => {
+        callback(message)
+      })
+    }
+
+    // Return a no-op unsubscribe (subscriber is managed globally for the app lifecycle)
+    return () => {}
   }
 
   /**

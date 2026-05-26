@@ -3,7 +3,7 @@ import path from 'path'
 
 type TemplateData = Record<string, string>
 
-const TEMPLATE_DIR = path.join(process.cwd(), 'src', 'lib', 'email-templates')
+const TEMPLATE_DIR = path.join(process.cwd(), 'lib', 'email-templates')
 
 function loadTemplate(templateName: string): string {
   const templatePath = path.join(TEMPLATE_DIR, `${templateName}.html`)

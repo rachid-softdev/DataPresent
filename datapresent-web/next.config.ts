@@ -3,10 +3,12 @@ import createNextIntlPlugin from 'next-intl/plugin';
 
 const withNextIntl = createNextIntlPlugin();
 
+const isDev = process.env.NODE_ENV === 'development'
+const scriptSrc = isDev
+  ? "'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com"
+  : "'self' 'unsafe-inline' https://js.stripe.com"
+
 const nextConfig: NextConfig = {
-  typescript: {
-    ignoreBuildErrors: true,
-  },
   images: {
     remotePatterns: [
       {
@@ -56,7 +58,7 @@ const nextConfig: NextConfig = {
             key: 'Content-Security-Policy',
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com",
+              `script-src ${scriptSrc}`,
               "style-src 'self' 'unsafe-inline'",
               "img-src 'self' data: https: blob:",
               "font-src 'self' data:",
@@ -73,8 +75,8 @@ const nextConfig: NextConfig = {
         source: '/embed/(.*)',
         headers: [
           {
-            key: 'X-Frame-Options',
-            value: 'ALLOWALL',
+            key: 'Content-Security-Policy',
+            value: "frame-ancestors *",
           },
         ],
       },

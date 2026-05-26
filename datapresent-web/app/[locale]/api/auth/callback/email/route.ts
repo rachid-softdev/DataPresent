@@ -30,11 +30,6 @@ export async function GET(req: NextRequest) {
       return NextResponse.redirect(new URL('/login?error=errors.auth.tokenExpired', req.url))
     }
 
-    await prisma.magicLinkToken.update({
-      where: { id: magicLinkToken.id },
-      data: { used: true }
-    })
-
     const existingUser = await prisma.user.findUnique({
       where: { email: magicLinkToken.email }
     })

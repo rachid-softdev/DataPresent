@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { Badge } from '@/components/ui/badge'
 import { Watermark } from '@/components/watermark/Watermark'
 import { SlideCard } from '@/components/slides/SlideCard'
@@ -31,6 +32,7 @@ interface ReportData {
 }
 
 export function SharePageClient({ initialData }: { initialData: Omit<ReportData, 'error'> }) {
+  const t = useTranslations('share')
   const [report, setReport] = useState<ReportData | null>(null)
   const [loading, setLoading] = useState(true)
   const [password, setPassword] = useState('')
@@ -65,13 +67,13 @@ export function SharePageClient({ initialData }: { initialData: Omit<ReportData,
       if (res.ok) {
         const data = await res.json()
         setReport(data.report)
-        toast.success('Accès autorisé')
+        toast.success(t('accessGranted'))
       } else {
         const data = await res.json()
-        toast.error(data.error || 'Mot de passe incorrect')
+        toast.error(data.error || t('wrongPassword'))
       }
     } catch {
-      toast.error('Erreur lors de la vérification')
+      toast.error(t('verificationError'))
     } finally {
       setVerifying(false)
     }
@@ -102,9 +104,9 @@ export function SharePageClient({ initialData }: { initialData: Omit<ReportData,
               <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
                 <Lock className="w-6 h-6 text-muted-foreground" />
               </div>
-              <h1 className="text-2xl font-bold">Rapport protégé</h1>
+              <h1 className="text-2xl font-bold">{t('protectedReport')}</h1>
               <p className="text-muted-foreground mt-2">
-                Entrez le mot de passe pour accéder à ce rapport
+                {t('passwordRequired')}
               </p>
             </div>
 
@@ -112,7 +114,7 @@ export function SharePageClient({ initialData }: { initialData: Omit<ReportData,
               <div>
                 <Input
                   type="password"
-                  placeholder="Mot de passe"
+                  placeholder={t('passwordPlaceholder')}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   disabled={verifying}
@@ -121,7 +123,7 @@ export function SharePageClient({ initialData }: { initialData: Omit<ReportData,
               </div>
               <Button type="submit" className="w-full" disabled={verifying || !password.trim()}>
                 {verifying && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-                Vérifier
+                {t('verify')}
               </Button>
             </form>
           </div>
@@ -140,9 +142,9 @@ export function SharePageClient({ initialData }: { initialData: Omit<ReportData,
           </div>
         </header>
         <main className="max-w-7xl mx-auto px-4 py-20 text-center">
-          <h1 className="text-2xl font-bold">Lien expiré ou invalide</h1>
+          <h1 className="text-2xl font-bold">{t('linkInvalid')}</h1>
           <p className="text-muted-foreground mt-2">
-            Ce lien de partage n'est plus valide ou a expiré.
+            {t('linkInvalidDesc')}
           </p>
         </main>
       </div>
