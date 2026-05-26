@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useTranslations } from 'next-intl'
 import { Loader2, Table, FileSpreadsheet, FileText } from 'lucide-react'
 
 interface DataPreviewProps {
@@ -15,6 +16,7 @@ interface PreviewData {
 }
 
 export function DataPreview({ file }: DataPreviewProps) {
+  const t = useTranslations('preview')
   const [data, setData] = useState<PreviewData | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -39,17 +41,29 @@ export function DataPreview({ file }: DataPreviewProps) {
 
     const parseFile = async () => {
       try {
-        const XLSX = await import('xlsx')
+        const ExcelJS = await import('exceljs')
         const buffer = await file.arrayBuffer()
-        const workbook = XLSX.read(buffer, { type: 'array' })
-        const sheetName = workbook.SheetNames[0]
-        const sheet = workbook.Sheets[sheetName]
-        const jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1 }) as unknown[][]
+        const workbook = new ExcelJS.Workbook()
+        await workbook.xlsx.load(buffer)
+        const worksheet = workbook.worksheets[0]
+        const sheetName = worksheet.name
+        // Convert ExcelJS rows to array format like sheet_to_json with header:1
+        const jsonData: unknown[][] = []
+        const row1 = worksheet.getRow(1)
+        const headers: unknown[] = []
+        row1.eachCell((cell) => { headers.push(cell.value) })
+        if (headers.length > 0) jsonData.push(headers)
+        worksheet.eachRow((row, rowNumber) => {
+          if (rowNumber === 1) return
+          const rowArr: unknown[] = []
+          row.eachCell((cell) => { rowArr.push(cell.value) })
+          jsonData.push(rowArr)
+        })
 
         if (cancelled) return
 
         if (jsonData.length === 0) {
-          setError('Fichier vide')
+          setError(t('emptyFile'))
           setLoading(false)
           return
         }
@@ -71,7 +85,7 @@ export function DataPreview({ file }: DataPreviewProps) {
           sheetName,
         })
       } catch {
-        if (!cancelled) setError('Impossible de lire le fichier')
+        if (!cancelled) setError(t('cannotRead'))
       } finally {
         if (!cancelled) setLoading(false)
       }
@@ -88,7 +102,7 @@ export function DataPreview({ file }: DataPreviewProps) {
     return (
       <div className="flex items-center gap-2 text-sm text-muted-foreground p-4 bg-muted/30 rounded-lg">
         <FileText className="w-4 h-4" />
-        <span>Apercu non disponible pour les fichiers PDF</span>
+        <span>{t('notAvailable')}</span>
       </div>
     )
   }
@@ -97,7 +111,7 @@ export function DataPreview({ file }: DataPreviewProps) {
     return (
       <div className="flex items-center gap-2 text-sm text-muted-foreground p-4">
         <Loader2 className="w-4 h-4 animate-spin" />
-        <span>Chargement de l&apos;apercu...</span>
+        <span>{t('loading')}</span>
       </div>
     )
   }
@@ -118,7 +132,7 @@ export function DataPreview({ file }: DataPreviewProps) {
         <FileSpreadsheet className="w-4 h-4" />
         <span>
           {data.sheetName && `${data.sheetName} — `}
-          {data.totalRows} ligne{data.totalRows > 1 ? 's' : ''}, {data.headers.length} colonne{data.headers.length > 1 ? 's' : ''}
+          {t('rows', { count: data.totalRows })}, {t('columns', { count: data.headers.length })}
         </span>
       </div>
 
@@ -149,7 +163,7 @@ export function DataPreview({ file }: DataPreviewProps) {
 
       {data.totalRows > 5 && (
         <p className="text-xs text-muted-foreground text-center">
-          ... et {data.totalRows - 5} autre{data.totalRows - 5 > 1 ? 's' : ''} ligne{data.totalRows - 5 > 1 ? 's' : ''}
+          {t('andMore', { count: data.totalRows - 5 })}
         </p>
       )}
     </div>

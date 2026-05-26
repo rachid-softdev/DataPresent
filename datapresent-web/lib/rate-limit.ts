@@ -18,52 +18,35 @@ export interface RateLimitOptions {
 /**
  * Check if a key has exceeded its rate limit.
  * Returns true if the request is allowed, false if rate limited.
+ * Uses an atomic UPSERT to eliminate TOCTOU race conditions.
  */
 export async function checkRateLimit(key: string, options?: RateLimitOptions): Promise<boolean> {
   const limit = options?.limit ?? DEFAULT_LIMIT
   const windowMs = options?.windowMs ?? DEFAULT_WINDOW
-  const windowStart = new Date(Date.now() - windowMs)
 
-  const rateLimit = await prisma.rateLimit.findUnique({
-    where: { key },
-  })
+  // Use COALESCE for defaults (PostgreSQL || is string concat, not null-coalescing)
+  const intervalMs = windowMs * 2 > 0 ? windowMs * 2 : 120000
+  const windowIntervalMs = windowMs > 0 ? windowMs : 60000
 
-  if (!rateLimit) {
-    await prisma.rateLimit.create({
-      data: {
-        key,
-        count: 1,
-        windowStart: new Date(),
-        expires: new Date(Date.now() + windowMs * 2),
-      },
-    })
-    return true
-  }
+  const result = await prisma.$queryRaw<Array<{ allowed: boolean }>>`
+    INSERT INTO "RateLimit" ("key", "count", "windowStart", "expires")
+    VALUES (${key}, 1, NOW(), NOW() + (${intervalMs} || ' milliseconds')::interval)
+    ON CONFLICT ("key") DO UPDATE SET
+      "count" = CASE
+        WHEN "RateLimit"."windowStart" < NOW() - (${windowIntervalMs} || ' milliseconds')::interval THEN 1
+        ELSE "RateLimit"."count" + 1
+      END,
+      "windowStart" = CASE
+        WHEN "RateLimit"."windowStart" < NOW() - (${windowIntervalMs} || ' milliseconds')::interval THEN NOW()
+        ELSE "RateLimit"."windowStart"
+      END,
+      "expires" = NOW() + (${intervalMs} || ' milliseconds')::interval
+    RETURNING
+      CASE
+        WHEN "count" <= ${limit} THEN true
+        ELSE false
+      END as allowed
+  `
 
-  // Window expired, reset
-  if (rateLimit.windowStart.getTime() < windowStart.getTime()) {
-    await prisma.rateLimit.update({
-      where: { key },
-      data: {
-        count: 1,
-        windowStart: new Date(),
-        expires: new Date(Date.now() + windowMs * 2),
-      },
-    })
-    return true
-  }
-
-  if (rateLimit.count >= limit) {
-    return false
-  }
-
-  await prisma.rateLimit.update({
-    where: { key },
-    data: {
-      count: rateLimit.count + 1,
-      windowStart: rateLimit.windowStart,
-      expires: new Date(rateLimit.windowStart.getTime() + windowMs * 2),
-    },
-  })
-  return true
+  return result[0]?.allowed ?? true
 }

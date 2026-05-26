@@ -93,7 +93,13 @@
       "invalidSignature": "Signature webhook invalide",
       "expired": "Ce lien a expiré"
     },
-    "generic": "Une erreur s'est produite. Veuillez réessayer."
+    "generic": "Une erreur s'est produite. Veuillez réessayer.",
+    "boundary": {
+      "title": "Oups ! Quelque chose s'est mal passé",
+      "description": "Une erreur inattendue s'est produite. Veuillez rafraîchir la page ou retourner à l'accueil.",
+      "retry": "Réessayer",
+      "home": "Accueil"
+    }
   },
   "messages": {
     "auth": {
@@ -120,6 +126,15 @@
         "warning": "Vous avez utilisé {{percent}}% de votre quota de rapports"
       }
     }
+  },
+  "preview": {
+    "notAvailable": "Aperçu non disponible pour les fichiers PDF",
+    "loading": "Chargement de l'aperçu...",
+    "emptyFile": "Fichier vide",
+    "cannotRead": "Impossible de lire le fichier",
+    "rows": "{count} {count, plural, one {ligne} other {lignes}}",
+    "columns": "{count} {count, plural, one {colonne} other {colonnes}}",
+    "andMore": "... et {count} {count, plural, one {autre} other {autres}}"
   },
   "billing": {
     "plans": {

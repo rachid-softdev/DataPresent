@@ -2,7 +2,7 @@ import { Worker } from 'bullmq'
 import { prisma } from '@/lib/prisma'
 import { generatePptx, generatePdf, generateDocx } from '@/lib/exporters'
 import { uploadToR2 } from '@/lib/r2'
-import { PLANS } from '@/lib/plans'
+import { PLANS } from '@/lib/entitlements/compat'
 import { connection } from '../client'
 import { extractSignedJobData } from '../job-security'
 

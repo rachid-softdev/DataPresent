@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { getStripe } from '@/lib/stripe'
 import { prisma } from '@/lib/prisma'
-import { PLANS } from '@/lib/plans'
+import { PLANS } from '@/lib/entitlements/compat'
 import { ERROR_CODES, unauthorized, badRequest } from '@/lib/errors'
 
 export async function POST(req: NextRequest) {

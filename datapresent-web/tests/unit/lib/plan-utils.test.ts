@@ -20,12 +20,12 @@ vi.mock('@/lib/prisma', () => ({
 
 describe('plan-utils', () => {
   it('should export canUseFormat function', async () => {
-    const { canUseFormat } = await import('@/lib/plan-utils')
+    const { canUseFormat } = await import('@/lib/entitlements/compat')
     expect(canUseFormat).toBeDefined()
   })
 
   it('should check format permissions correctly', async () => {
-    const { canUseFormat } = await import('@/lib/plan-utils')
+    const { canUseFormat } = await import('@/lib/entitlements/compat')
 
     expect(canUseFormat('FREE', 'PPTX')).toBe(true)
     expect(canUseFormat('FREE', 'PDF')).toBe(false)
@@ -36,12 +36,12 @@ describe('plan-utils', () => {
   })
 
   it('should export canHaveSlideCount function', async () => {
-    const { canHaveSlideCount } = await import('@/lib/plan-utils')
+    const { canHaveSlideCount } = await import('@/lib/entitlements/compat')
     expect(canHaveSlideCount).toBeDefined()
   })
 
   it('should check slide count limits', async () => {
-    const { canHaveSlideCount } = await import('@/lib/plan-utils')
+    const { canHaveSlideCount } = await import('@/lib/entitlements/compat')
 
     // FREE: maxSlides = 8
     expect(canHaveSlideCount('FREE', 5).allowed).toBe(true)
@@ -63,12 +63,12 @@ describe('plan-utils', () => {
   })
 
   it('should export getUserPlan function', async () => {
-    const { getUserPlan } = await import('@/lib/plan-utils')
+    const { getUserPlan } = await import('@/lib/entitlements/compat')
     expect(getUserPlan).toBeDefined()
   })
 
   it('should return FREE plan when user has no membership', async () => {
-    const { getUserPlan } = await import('@/lib/plan-utils')
+    const { getUserPlan } = await import('@/lib/entitlements/compat')
 
     mockPrisma.user.findUnique.mockResolvedValue(null)
 
@@ -79,7 +79,7 @@ describe('plan-utils', () => {
   })
 
   it('should return plan from subscription', async () => {
-    const { getUserPlan } = await import('@/lib/plan-utils')
+    const { getUserPlan } = await import('@/lib/entitlements/compat')
 
     mockPrisma.user.findUnique.mockResolvedValue({
       membership: [
@@ -99,12 +99,12 @@ describe('plan-utils', () => {
   })
 
   it('should export canCreateReport function', async () => {
-    const { canCreateReport } = await import('@/lib/plan-utils')
+    const { canCreateReport } = await import('@/lib/entitlements/compat')
     expect(canCreateReport).toBeDefined()
   })
 
   it('should allow report creation when under limit', async () => {
-    const { canCreateReport } = await import('@/lib/plan-utils')
+    const { canCreateReport } = await import('@/lib/entitlements/compat')
 
     mockPrisma.user.findUnique.mockResolvedValue({
       membership: [
@@ -124,7 +124,7 @@ describe('plan-utils', () => {
   })
 
   it('should deny report creation when at limit', async () => {
-    const { canCreateReport } = await import('@/lib/plan-utils')
+    const { canCreateReport } = await import('@/lib/entitlements/compat')
 
     mockPrisma.user.findUnique.mockResolvedValue({
       membership: [
@@ -146,7 +146,7 @@ describe('plan-utils', () => {
   })
 
   it('should allow unlimited reports for -1 limit plans', async () => {
-    const { canCreateReport } = await import('@/lib/plan-utils')
+    const { canCreateReport } = await import('@/lib/entitlements/compat')
 
     mockPrisma.user.findUnique.mockResolvedValue({
       membership: [
@@ -165,12 +165,12 @@ describe('plan-utils', () => {
   })
 
   it('should export getRemainingReports function', async () => {
-    const { getRemainingReports } = await import('@/lib/plan-utils')
+    const { getRemainingReports } = await import('@/lib/entitlements/compat')
     expect(getRemainingReports).toBeDefined()
   })
 
   it('should return -1 for unlimited plans', async () => {
-    const { getRemainingReports } = await import('@/lib/plan-utils')
+    const { getRemainingReports } = await import('@/lib/entitlements/compat')
 
     mockPrisma.user.findUnique.mockResolvedValue({
       membership: [

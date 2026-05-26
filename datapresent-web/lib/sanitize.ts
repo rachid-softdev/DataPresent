@@ -3,14 +3,19 @@
  * Prevents cross-site scripting attacks by sanitizing user input
  */
 
-// @ts-expect-error - jsdom has no built-in types
 import { JSDOM } from 'jsdom'
+import DOMPurify from 'dompurify'
 import { env } from '@/env'
 
-// Create a DOM environment for sanitization
-const dom = new JSDOM('')
-const window = dom.window
-const Document = window.Document
+// Singleton DOMPurify instance (caching JSDOM creation for performance)
+let purify: ReturnType<typeof DOMPurify>
+function getPurify() {
+  if (!purify) {
+    const window = new JSDOM('').window
+    purify = DOMPurify(window as any)
+  }
+  return purify
+}
 
 /**
  * Strip all HTML tags and return plain text
@@ -32,38 +37,16 @@ export function stripHtml(html: string): string {
 export function sanitizeHtml(html: string): string {
   if (!html) return ''
 
-  // List of allowed tags
-  const allowedTags = [
-    'p', 'br', 'strong', 'b', 'em', 'i', 'u', 's', 'strike',
-    'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
-    'ul', 'ol', 'li', 'blockquote', 'pre', 'code',
-    'a', 'span', 'div', 'table', 'tr', 'td', 'th', 'thead', 'tbody',
-  ]
-
-  // List of allowed attributes
-  const allowedAttrs = ['href', 'class', 'id']
-
-  // Tags to completely remove (including content)
-  const removedTags = ['script', 'style', 'iframe', 'object', 'embed', 'form', 'input']
-
-  let sanitized = html
-
-  // Remove dangerous tags completely
-  removedTags.forEach(tag => {
-    const regex = new RegExp(`<${tag}[^>]*>.*?</${tag}>`, 'gi')
-    sanitized = sanitized.replace(regex, '')
+  return getPurify().sanitize(html, {
+    ALLOWED_TAGS: [
+      'p', 'br', 'strong', 'b', 'em', 'i', 'u', 's', 'strike',
+      'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+      'ul', 'ol', 'li', 'blockquote', 'pre', 'code',
+      'a', 'span', 'div', 'table', 'tr', 'td', 'th', 'thead', 'tbody',
+    ],
+    ALLOWED_ATTR: ['href', 'class', 'id'],
+    ALLOW_DATA_ATTR: false,
   })
-
-  // Remove event handlers
-  sanitized = sanitized.replace(/on\w+\s*=\s*["'][^"']*["']/gi, '')
-
-  // Remove javascript: URLs
-  sanitized = sanitized.replace(/javascript:/gi, '')
-
-  // Remove data: URLs (potential XSS)
-  sanitized = sanitized.replace(/data:/gi, '')
-
-  return sanitized
 }
 
 /**

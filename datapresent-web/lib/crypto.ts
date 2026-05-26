@@ -1,5 +1,6 @@
 import crypto from 'crypto'
 import { env } from '@/env'
+import { hashPassword, verifyPassword } from './password'
 
 const SECRET = env.CSRF_SECRET
 
@@ -30,4 +31,25 @@ export function extractSignedJobData<T extends Record<string, unknown>>(
   if (!signature) return { valid: false, cleanData: cleanData as T }
   const valid = verifyJobSignature(cleanData as Record<string, unknown>, signature)
   return { valid, cleanData: cleanData as T }
+}
+
+/**
+ * Generate a cryptographically secure random token
+ */
+export function generateToken(bytes = 32): string {
+  return crypto.randomBytes(bytes).toString('hex')
+}
+
+/**
+ * Hash a token for secure storage (uses Argon2id, same as API keys)
+ */
+export async function hashToken(token: string): Promise<string> {
+  return hashPassword(token)
+}
+
+/**
+ * Verify a token against its stored hash
+ */
+export async function verifyToken(token: string, hash: string): Promise<boolean> {
+  return verifyPassword(token, hash)
 }

@@ -1,7 +1,7 @@
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { getTranslations } from 'next-intl/server'
-import { PLANS, PLAN_FEATURES } from '@/lib/plans'
+import { PLANS, PLAN_FEATURES } from '@/lib/entitlements/compat'
 import { PricingTable, PricingPlanFeature } from '@/components/billing/PricingTable'
 
 function formatValue(key: string, value: number | boolean): string | boolean {

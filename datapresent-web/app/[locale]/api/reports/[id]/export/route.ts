@@ -4,7 +4,7 @@ import { prisma } from '@/lib/prisma'
 import { exportQueue } from '@/lib/queue'
 import { checkRateLimit } from '@/lib/rate-limit'
 import { signJobData } from '@/lib/queue/job-security'
-import { canUseFormat } from '@/lib/plan-utils'
+import { canUseFormat } from '@/lib/entitlements/compat'
 import { ExportFormat } from '@prisma/client'
 import { ERROR_CODES, unauthorized, notFound, forbidden, badRequest } from '@/lib/errors'
 

@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { signIn } from '@/lib/auth'
 import { cookies } from 'next/headers'
 import { randomUUID } from 'crypto'
+import { verifyToken } from '@/lib/crypto'
 
 export async function GET(req: NextRequest) {
   const searchParams = req.nextUrl.searchParams
@@ -14,20 +15,25 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const magicLinkToken = await prisma.magicLinkToken.findUnique({
-      where: { token }
+    // Find candidate tokens by email and verify
+    const candidates = await prisma.magicLinkToken.findMany({
+      where: {
+        email,
+        used: false,
+        expires: { gt: new Date() },
+      },
     })
+
+    let magicLinkToken = null
+    for (const candidate of candidates) {
+      if (await verifyToken(token, candidate.token)) {
+        magicLinkToken = candidate
+        break
+      }
+    }
 
     if (!magicLinkToken) {
       return NextResponse.redirect(new URL('/login?error=errors.auth.invalidToken', req.url))
-    }
-
-    if (magicLinkToken.used) {
-      return NextResponse.redirect(new URL('/login?error=errors.auth.tokenUsed', req.url))
-    }
-
-    if (magicLinkToken.expires < new Date()) {
-      return NextResponse.redirect(new URL('/login?error=errors.auth.tokenExpired', req.url))
     }
 
     const existingUser = await prisma.user.findUnique({

@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { listApiKeys, createApiKey, revokeApiKey } from '@/lib/api-keys'
-import { getUserPlan } from '@/lib/plan-utils'
-import { PLANS } from '@/lib/plans'
+import { getUserPlan, PLANS } from '@/lib/entitlements/compat'
 
 export async function GET(req: NextRequest) {
   try {

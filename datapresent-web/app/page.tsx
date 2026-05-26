@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { ThemeToggle } from '@/components/ui/theme-toggle'
-import { useTheme } from '@/components/theme-provider'
 import {
   LandingHero,
   LandingFormats,
@@ -15,7 +14,6 @@ import {
 } from '@/components/landing'
 
 export default function LandingPage() {
-  useTheme()
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {

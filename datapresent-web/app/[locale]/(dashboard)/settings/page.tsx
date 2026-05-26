@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { PLANS } from '@/lib/plans'
+import { PLANS } from '@/lib/entitlements/compat'
 import { MapPin, TrendingUp, FileText, ArrowRight } from 'lucide-react'
 
 interface UsageStats {

@@ -3,7 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { checkRateLimit } from '@/lib/rate-limit'
 import { logApiError } from '@/lib/security'
 import { ERROR_CODES } from '@/lib/errors'
-import crypto from 'crypto'
+import { generateToken, hashToken } from '@/lib/crypto'
 
 export async function POST(req: NextRequest) {
   try {
@@ -38,20 +38,21 @@ export async function POST(req: NextRequest) {
     })
 
     // Generate reset token
-    const resetToken = crypto.randomBytes(32).toString('hex')
+    const rawToken = generateToken()
+    const hashedToken = await hashToken(rawToken)
     const expires = new Date(Date.now() + 60 * 60 * 1000) // 1 hour
 
     await prisma.passwordResetToken.create({
       data: {
         email,
-        token: resetToken,
+        token: hashedToken,
         expires,
       }
     })
 
     // TODO: Send email with reset link
     // For now, we'll log it (in production, send actual email)
-    const resetUrl = `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/reset-password?token=${resetToken}`
+    const resetUrl = `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/reset-password?token=${rawToken}`
     console.log(`[Password Reset] Email: ${email}, Reset URL: ${resetUrl}`)
 
     // In production, you would send an email here using Resend or similar:

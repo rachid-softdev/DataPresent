@@ -3,6 +3,7 @@ import { PrismaAdapter } from "@auth/prisma-adapter"
 import GoogleProvider from "next-auth/providers/google"
 import CredentialsProvider from "next-auth/providers/credentials"
 import { prisma } from "@/lib/prisma"
+import { verifyToken } from "@/lib/crypto"
 
 const googleConfigured = !!(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET)
 
@@ -21,12 +22,26 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       async authorize(credentials) {
         if (!credentials?.token) return null
         const token = credentials.token as string
+        const email = credentials.email as string | undefined
 
-        const magicLinkToken = await prisma.magicLinkToken.findUnique({
-          where: { token }
+        // Find candidate tokens by email (available from the signIn call) and verify
+        const candidates = await prisma.magicLinkToken.findMany({
+          where: {
+            email: email ?? undefined,
+            used: false,
+            expires: { gt: new Date() },
+          },
         })
 
-        if (!magicLinkToken || magicLinkToken.used || magicLinkToken.expires < new Date()) {
+        let magicLinkToken = null
+        for (const candidate of candidates) {
+          if (await verifyToken(token, candidate.token)) {
+            magicLinkToken = candidate
+            break
+          }
+        }
+
+        if (!magicLinkToken) {
           return null
         }
 
