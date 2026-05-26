@@ -7,14 +7,10 @@ export interface ParsedData {
   }
 }
 
-export async function parsePdf(buffer: Buffer, fileName: string): Promise<ParsedData> {
-  // PDF parsing placeholder - requires additional setup
-  return {
-    sheets: { 'Sheet1': [] },
-    metadata: {
-      fileName,
-      rowCount: 0,
-      columnCount: 0,
-    },
-  }
+export async function parsePdf(_buffer: Buffer, _fileName: string): Promise<ParsedData> {
+  throw new Error(
+    'PDF parsing is not yet implemented. ' +
+    'Please convert your PDF to Excel (.xlsx) or CSV format. ' +
+    'Install pdf-parse (npm install pdf-parse) and update this function to enable PDF support.'
+  )
 }

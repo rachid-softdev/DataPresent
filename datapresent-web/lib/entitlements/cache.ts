@@ -4,6 +4,7 @@
 
 import IORedis from 'ioredis'
 import { LRUCache } from 'lru-cache'
+import { getRedisConnection, createSubscriberConnection } from '@/lib/redis'
 import type { EntitlementMap } from './types'
 
 // ==========================================
@@ -18,25 +19,16 @@ const MAX_MEMORY_CACHE_SIZE = 100 // Max orgs in memory cache
 // Redis Client (re-use existing connection)
 // ==========================================
 
+let subscriberInstance: IORedis | null = null
+
 function getRedisClient(): IORedis | null {
-  const redisUrl = process.env.REDIS_URL
-  if (!redisUrl) {
+  try {
+    return getRedisConnection()
+  } catch {
     console.warn('[EntitlementsCache] REDIS_URL not defined, falling back to memory cache')
     return null
   }
-
-  // Re-use the same connection pattern as queue/client.ts
-  return new IORedis(redisUrl, {
-    maxRetriesPerRequest: null,
-    retryStrategy(times) {
-      if (times > 3) return null
-      return Math.min(times * 200, 2000)
-    },
-    lazyConnect: true,
-  })
 }
-
-let subscriberInstance: IORedis | null = null
 
 const redisClient = getRedisClient()
 
@@ -164,7 +156,7 @@ export class EntitlementsCacheService {
     }
 
     if (!subscriberInstance) {
-      subscriberInstance = new IORedis(redisClient.options)
+      subscriberInstance = createSubscriberConnection()
     }
     const subscriber = subscriberInstance
 

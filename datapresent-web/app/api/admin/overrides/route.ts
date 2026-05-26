@@ -10,7 +10,7 @@ import { auth } from '@/lib/auth'
 import { entitlementRepository } from '@/lib/entitlements/repository'
 import { invalidateCache } from '@/lib/entitlements/feature-gate'
 import { prisma } from '@/lib/prisma'
-import type { OverrideScope } from '@prisma/client'
+import type { OverrideScope, Prisma } from '@prisma/client'
 
 // GET all overrides
 export async function GET(request: NextRequest) {
@@ -37,9 +37,21 @@ export async function GET(request: NextRequest) {
 
     const skip = (page - 1) * limit
 
-    const where: any = {}
-    if (scope) where.scope = scope
-    if (scopeId) where.scopeId = scopeId
+    const where: Prisma.EntitlementOverrideWhereInput = {}
+
+    if (scope) {
+      if (!['USER', 'ORG'].includes(scope)) {
+        return NextResponse.json({ error: 'Invalid scope filter' }, { status: 400 })
+      }
+      where.scope = scope as OverrideScope
+    }
+
+    if (scopeId) {
+      if (typeof scopeId !== 'string' || scopeId.length > 255) {
+        return NextResponse.json({ error: 'Invalid scopeId' }, { status: 400 })
+      }
+      where.scopeId = scopeId
+    }
 
     const [overrides, total] = await Promise.all([
       prisma.entitlementOverride.findMany({

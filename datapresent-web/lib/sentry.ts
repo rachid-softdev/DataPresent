@@ -71,7 +71,15 @@ export function captureMessage(
       extra: context,
     })
   } else {
-    console.log(`[Sentry] ${level}:`, message, context)
+    const consoleMethod = {
+      fatal: console.error,
+      error: console.error,
+      warning: console.warn,
+      info: console.info,
+      debug: console.debug,
+    }[level] ?? console.log
+
+    consoleMethod(`[Sentry] ${level}:`, message, context)
   }
 }
 

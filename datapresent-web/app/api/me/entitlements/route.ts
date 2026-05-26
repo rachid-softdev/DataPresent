@@ -38,9 +38,7 @@ export async function GET(request: NextRequest) {
     const response = {
       plan: entitlements.plan,
       features: entitlements.features,
-      limits: Object.fromEntries(
-        Object.entries(entitlements.limits).map(([k, v]) => [k, v ?? -1]) // -1 for unlimited
-      ),
+      limits: entitlements.limits,
       usage: entitlements.usage,
       resetAt: Object.fromEntries(
         Object.entries(entitlements.resetAt).map(([k, v]) => [k, v?.toISOString() ?? null])

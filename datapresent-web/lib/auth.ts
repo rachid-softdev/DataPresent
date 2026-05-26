@@ -35,11 +35,20 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           data: { used: true }
         })
 
-        const user = await prisma.user.findUnique({
+        let user = await prisma.user.findUnique({
           where: { email: magicLinkToken.email }
         })
 
-        if (!user) return null
+        if (!user) {
+          user = await prisma.user.create({
+            data: {
+              email: magicLinkToken.email,
+              name: magicLinkToken.email.split('@')[0],
+              isVerified: true,
+              emailVerified: new Date(),
+            }
+          })
+        }
 
         return { id: user.id, email: user.email, name: user.name }
       }

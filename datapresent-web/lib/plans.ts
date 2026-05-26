@@ -1,3 +1,9 @@
+// Feature keys that can be checked with planHasFeature
+export type PlanFeatureKey = 'reportsPerMonth' | 'maxSlides' | 'maxOrganizations' 
+  | 'formatPPTX' | 'formatPDF' | 'formatDOCX'
+  | 'collaboration' | 'watermark' | 'whiteLabel' 
+  | 'apiAccess' | 'prioritySupport' | 'customDomain'
+
 export const PLAN_FEATURES = {
   reports: [
     { name: 'Rapports/mois', key: 'reportsPerMonth' },
@@ -101,9 +107,10 @@ export type PlanType = keyof typeof PLANS
 /**
  * Check if a plan has access to a specific feature
  */
-export function planHasFeature(plan: PlanType, feature: keyof typeof PLANS.FREE): boolean {
+export function planHasFeature(plan: PlanType, feature: PlanFeatureKey): boolean {
   const planConfig = PLANS[plan]
-  return Boolean(planConfig[feature])
+  if (!(feature in planConfig)) return false
+  return Boolean(planConfig[feature as keyof typeof planConfig])
 }
 
 /**
