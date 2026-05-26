@@ -185,6 +185,22 @@
       "clear": "Effacer les filtres"
     }
   },
+  "share": {
+    "linkExpired": "Ce lien a expiré",
+    "loadingError": "Erreur de chargement",
+    "errorTitle": "Erreur",
+    "protectedReport": "Rapport protégé",
+    "passwordRequired": "Ce rapport est protégé par un mot de passe.",
+    "passwordPlaceholder": "Mot de passe",
+    "verifying": "Vérification...",
+    "accessReport": "Accéder au rapport",
+    "accessGranted": "Accès autorisé",
+    "wrongPassword": "Mot de passe incorrect",
+    "verificationError": "Erreur lors de la vérification",
+    "verify": "Vérifier",
+    "linkInvalid": "Lien expiré ou invalide",
+    "linkInvalidDesc": "Ce lien de partage n'est plus valide ou a expiré."
+  },
   "landing": {
     "hero": {
       "title": "Transformez Vos Données en Présentations Éblouissantes",

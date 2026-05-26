@@ -73,7 +73,7 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     console.error('Magic link error:', error instanceof Error ? error.message : String(error))
     return NextResponse.json(
-      { error: ERROR_CODES.ERR_RESOURCE_NOT_FOUND },
+      { error: ERROR_CODES.ERR_AUTH_FAILED },
       { status: 500 }
     )
   }

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { checkRateLimit } from '@/lib/rate-limit'
 import { logApiError } from '@/lib/security'
+import { ERROR_CODES } from '@/lib/errors'
 import crypto from 'crypto'
 
 export async function POST(req: NextRequest) {
@@ -15,7 +16,7 @@ export async function POST(req: NextRequest) {
     // Rate limiting: 5 requests per hour per email
     const rateLimitAllowed = await checkRateLimit(`forgot-password:${email}`, { limit: 5, windowMs: 60 * 60 * 1000 })
     if (!rateLimitAllowed) {
-      return NextResponse.json({ error: 'Too many requests. Please try again later.' }, { status: 429 })
+      return NextResponse.json({ error: ERROR_CODES.ERR_VALIDATION_RATE_LIMIT }, { status: 429 })
     }
 
     // Find user by email

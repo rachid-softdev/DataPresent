@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
     })
     
     if (existingUser) {
-      return badRequest(ERROR_CODES.ERR_VALIDATION_EMAIL_INVALID)
+      return badRequest(ERROR_CODES.ERR_AUTH_FAILED)
     }
     
     const token = randomBytes(32).toString('hex')
@@ -67,7 +67,7 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     console.error('Signup error:', error instanceof Error ? error.message : String(error))
     return NextResponse.json(
-      { error: ERROR_CODES.ERR_RESOURCE_NOT_FOUND },
+      { error: ERROR_CODES.ERR_AUTH_FAILED },
       { status: 500 }
     )
   }
