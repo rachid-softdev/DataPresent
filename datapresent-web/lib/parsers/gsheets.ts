@@ -9,6 +9,18 @@ const auth = new google.auth.GoogleAuth({
   scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'],
 })
 
+/**
+ * Determine if a string value should be converted to a number.
+ * Returns true only if the full string represents a finite number
+ * and the stringified number matches the original (no leading zeros).
+ */
+export function shouldConvertToNumber(v: string): boolean {
+  if (v === '' || v === null) return false
+  const num = Number(v)
+  if (!Number.isFinite(num)) return false
+  return String(num) === v.trim()
+}
+
 export async function parseGoogleSheet(spreadsheetId: string): Promise<ParsedData> {
   const sheets = google.sheets({ version: 'v4', auth: await auth.getClient() as any })
   
@@ -35,8 +47,7 @@ export async function parseGoogleSheet(spreadsheetId: string): Promise<ParsedDat
       const row: Record<string, unknown> = {}
       headers.forEach((header, idx) => {
         const value = values[idx]?.formattedValue || ''
-        const num = parseFloat(value)
-        row[header] = isNaN(num) ? value : num
+        row[header] = shouldConvertToNumber(value) ? Number(value) : value
       })
       rows.push(row)
     }

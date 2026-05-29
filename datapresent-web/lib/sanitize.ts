@@ -90,6 +90,14 @@ export function sanitizeComment(body: string): string {
   const doc = new JSDOM(body).window.document
   let sanitized = doc.body.textContent || ''
 
+  // HTML-entity-encode to prevent XSS via text content
+  sanitized = sanitized
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;')
+
   // Limit length to prevent DoS
   const MAX_LENGTH = 5000
   if (sanitized.length > MAX_LENGTH) {

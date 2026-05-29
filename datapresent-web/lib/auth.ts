@@ -3,7 +3,7 @@ import { PrismaAdapter } from "@auth/prisma-adapter"
 import GoogleProvider from "next-auth/providers/google"
 import CredentialsProvider from "next-auth/providers/credentials"
 import { prisma } from "@/lib/prisma"
-import { verifyToken } from "@/lib/crypto"
+import { verifyToken, extractTokenPrefix } from "@/lib/crypto"
 
 const googleConfigured = !!(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET)
 
@@ -22,12 +22,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       async authorize(credentials) {
         if (!credentials?.token) return null
         const token = credentials.token as string
-        const email = credentials.email as string | undefined
 
-        // Find candidate tokens by email (available from the signIn call) and verify
+        // Find candidate tokens by token prefix for O(1) indexed lookup
+        const tokenPrefix = extractTokenPrefix(token)
         const candidates = await prisma.magicLinkToken.findMany({
           where: {
-            email: email ?? undefined,
+            tokenPrefix,
             used: false,
             expires: { gt: new Date() },
           },

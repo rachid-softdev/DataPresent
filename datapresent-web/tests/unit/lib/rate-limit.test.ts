@@ -65,5 +65,22 @@ describe('rate-limit', () => {
       // Verify $queryRaw was called (SQL template)
       expect(mockQueryRaw).toHaveBeenCalledOnce()
     })
+
+    it('should use SQL interval multiplication (not string concat) for intervalMs', async () => {
+      // Regression test for M5: ensure SQL uses ::double precision * interval
+      // instead of string concatenation which was vulnerable to SQL injection
+      mockQueryRaw.mockResolvedValue([{ allowed: true }])
+
+      await checkRateLimit('sql-injection-test')
+
+      // Extract the SQL query from the first argument of the raw query
+      const callArgs = mockQueryRaw.mock.calls[0]
+      const sqlQuery = String(callArgs[0])
+
+      // The query should use ::double precision * interval '1 millisecond'
+      // This proves the fix replaced string concatenation with proper SQL
+      expect(sqlQuery).toContain('::double precision * interval')
+      expect(sqlQuery).not.toContain("' milliseconds'")  // old concat pattern
+    })
   })
 })

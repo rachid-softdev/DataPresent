@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { listApiKeys, createApiKey, revokeApiKey } from '@/lib/api-keys'
 import { getUserPlan, PLANS } from '@/lib/entitlements/compat'
+import { checkRateLimit } from '@/lib/rate-limit'
 
 export async function GET(req: NextRequest) {
   try {
@@ -37,10 +38,16 @@ export async function POST(req: NextRequest) {
     }
 
     const { orgId, planConfig } = await getUserPlan(session.user.id)
-    
+
     // Only Agency plan has API access
     if (!planConfig.apiAccess) {
       return NextResponse.json({ error: 'API access not available on your plan' }, { status: 403 })
+    }
+
+    // Rate limit: 10 API key creations per hour per org
+    const rateLimitAllowed = await checkRateLimit(`api-key-create:${orgId}`, { limit: 10, windowMs: 60 * 60 * 1000 })
+    if (!rateLimitAllowed) {
+      return NextResponse.json({ error: 'Trop de requêtes. Réessayez plus tard.' }, { status: 429 })
     }
 
     const body = await req.json()

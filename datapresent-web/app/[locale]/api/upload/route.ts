@@ -7,8 +7,13 @@ import { canCreateReport, canHaveSlideCount, getUserPlan } from '@/lib/entitleme
 import { checkRateLimit } from '@/lib/rate-limit'
 import { signJobData } from '@/lib/queue/job-security'
 import { ERROR_CODES, unauthorized, badRequest } from '@/lib/errors'
+import { withCsrfProtection } from '@/lib/security/csrf-middleware'
+import { validateMagicBytes } from '@/lib/upload-validation'
 
 export async function POST(req: NextRequest) {
+  const csrfResponse = await withCsrfProtection(req)
+  if (csrfResponse) return csrfResponse
+
   const session = await auth()
   if (!session?.user?.id) {
     return unauthorized()
@@ -35,6 +40,29 @@ export async function POST(req: NextRequest) {
     return badRequest(ERROR_CODES.ERR_VALIDATION_FILE_REQUIRED)
   }
 
+  // Validate file MIME type
+  const allowedMimeTypes = [
+    'text/csv',
+    'application/pdf',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    'application/vnd.ms-excel',
+  ]
+  if (!allowedMimeTypes.includes(file.type)) {
+    return NextResponse.json(
+      { error: ERROR_CODES.ERR_VALIDATION_FILE_REQUIRED },
+      { status: 400 }
+    )
+  }
+
+  // Validate file size (max 50 MB)
+  const MAX_FILE_SIZE = 50 * 1024 * 1024 // 50 MB
+  if (file.size > MAX_FILE_SIZE) {
+    return NextResponse.json(
+      { error: 'Fichier trop volumineux (max 50 MB)' },
+      { status: 400 }
+    )
+  }
+
   // Validate slide count against plan
   const { plan } = await getUserPlan(session.user.id)
   const { allowed: slideLimitOk, maxSlides } = canHaveSlideCount(plan, slideCount)
@@ -57,6 +85,15 @@ export async function POST(req: NextRequest) {
 
   const buffer = Buffer.from(await file.arrayBuffer())
   const ext = file.name.split('.').pop()?.toLowerCase()
+
+  // Validate file content matches extension (magic bytes)
+  if (!validateMagicBytes(buffer, ext || '')) {
+    return NextResponse.json(
+      { error: 'Le fichier ne correspond pas au format attendu' },
+      { status: 400 }
+    )
+  }
+
   const fileTypeMap: Record<string, string> = { csv: 'CSV', pdf: 'PDF', xlsx: 'XLSX', xls: 'XLSX', gsheet: 'GSHEET' }
   const fileType = fileTypeMap[ext || ''] || 'XLSX'
 

@@ -14,12 +14,48 @@ vi.mock('next/headers', () => ({
   cookies: vi.fn().mockResolvedValue(mockCookies),
 }))
 
-import { generateCsrfToken, validateCsrfToken } from '@/lib/security/csrf'
+import { generateCsrfToken, validateCsrfToken, deriveKey } from '@/lib/security/csrf'
 import { signJobData, verifyJobSignature } from '@/lib/crypto'
 
 describe('CSRF Security', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+  })
+
+  describe('deriveKey', () => {
+    it('should return a 32-byte buffer', () => {
+      const key = deriveKey('test-secret')
+      expect(Buffer.isBuffer(key)).toBe(true)
+      expect(key.length).toBe(32)
+    })
+
+    it('should produce the same key for the same secret (deterministic)', () => {
+      const secret = 'my-secret-key-12345'
+      const key1 = deriveKey(secret)
+      const key2 = deriveKey(secret)
+      expect(key1.equals(key2)).toBe(true)
+    })
+
+    it('should produce different keys for different secrets', () => {
+      const key1 = deriveKey('secret-one')
+      const key2 = deriveKey('secret-two')
+      expect(key1.equals(key2)).toBe(false)
+    })
+
+    it('should produce a valid 32-byte key from a short input secret', () => {
+      const key = deriveKey('hi')
+      expect(key.length).toBe(32)
+    })
+
+    it('should produce a valid 32-byte key from a long input secret', () => {
+      const key = deriveKey('a'.repeat(100))
+      expect(key.length).toBe(32)
+    })
+
+    it('should produce a valid 32-byte key from an empty string', () => {
+      const key = deriveKey('')
+      expect(key.length).toBe(32)
+    })
   })
 
   describe('generateCsrfToken', () => {
