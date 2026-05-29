@@ -60,7 +60,7 @@ const nextConfig: NextConfig = {
               "default-src 'self'",
               `script-src ${scriptSrc}`,
               "style-src 'self' 'unsafe-inline'",
-              "img-src 'self' data: https: blob:",
+              "img-src 'self' data: blob: https://*.r2.cloudflarestorage.com https://lh3.googleusercontent.com https://avatars.githubusercontent.com",
               "font-src 'self' data:",
               "connect-src 'self' https://api.anthropic.com https://*.r2.cloudflarestorage.com https://api.stripe.com https://sheets.googleapis.com",
               "frame-src 'self' https://js.stripe.com",
@@ -76,7 +76,7 @@ const nextConfig: NextConfig = {
         headers: [
           {
             key: 'Content-Security-Policy',
-            value: "frame-ancestors *",
+            value: "frame-ancestors 'self'",
           },
         ],
       },

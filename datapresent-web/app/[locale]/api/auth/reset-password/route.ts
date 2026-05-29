@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { logApiError } from '@/lib/security'
-import { verifyToken } from '@/lib/crypto'
+import { verifyToken, extractTokenPrefix } from '@/lib/crypto'
+import { isPasswordValid } from '@/lib/password'
 
 export async function POST(req: NextRequest) {
   try {
@@ -11,13 +12,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Token and password are required' }, { status: 400 })
     }
 
-    if (password.length < 8) {
-      return NextResponse.json({ error: 'Password must be at least 8 characters' }, { status: 400 })
+    if (!isPasswordValid(password)) {
+      return NextResponse.json({ error: 'Password must be at least 12 characters with uppercase, lowercase, number, and special character' }, { status: 400 })
     }
 
-    // Find the reset token by iterating candidates and verifying
+    // Find the reset token by prefix for O(1) indexed lookup
+    const tokenPrefix = extractTokenPrefix(token)
     const candidates = await prisma.passwordResetToken.findMany({
-      where: { used: false, expires: { gt: new Date() } },
+      where: { tokenPrefix, used: false, expires: { gt: new Date() } },
     })
 
     let resetToken = null

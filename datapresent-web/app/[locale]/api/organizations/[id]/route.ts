@@ -69,9 +69,18 @@ export async function PATCH(
 
   const { name } = await req.json()
 
+  if (!name || typeof name !== 'string') {
+    return badRequest(ERROR_CODES.ERR_VALIDATION_REQUIRED)
+  }
+
+  const trimmedName = name.trim()
+  if (trimmedName.length === 0 || trimmedName.length > 100) {
+    return badRequest(ERROR_CODES.ERR_VALIDATION_REQUIRED)
+  }
+
   const org = await prisma.organization.update({
     where: { id },
-    data: { name }
+    data: { name: trimmedName }
   })
 
   return NextResponse.json({ 

@@ -2,9 +2,9 @@ import { NextRequest } from 'next/server'
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url)
-  const title = searchParams.get('title') || 'DataPresent Blog'
-  const description = searchParams.get('description') || 'Latest news, tips and insights about data presentation'
-  const slug = searchParams.get('slug') || ''
+  const title = (searchParams.get('title') || 'DataPresent Blog').slice(0, 100)
+  const description = (searchParams.get('description') || 'Latest news, tips and insights about data presentation').slice(0, 300)
+  const slug = (searchParams.get('slug') || '').slice(0, 100)
   const locale = searchParams.get('locale') || 'en'
 
   // HTML template for OG image
