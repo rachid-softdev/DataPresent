@@ -4,6 +4,12 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
+// Mock @prisma/client to prevent missing module error
+vi.mock('@prisma/client', () => ({}))
+vi.mock('@/lib/prisma', () => ({
+  prisma: {},
+}))
+
 describe('entitlements repository', () => {
   beforeEach(() => {
     vi.clearAllMocks()

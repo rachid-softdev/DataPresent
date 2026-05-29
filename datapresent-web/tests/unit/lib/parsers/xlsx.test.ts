@@ -32,17 +32,21 @@ function createWorksheet(name: string, headers: string[], ...dataRows: unknown[]
 
 let mockWorksheets: any[] = []
 
-// Mock exceljs module
-vi.mock('exceljs', () => ({
-  Workbook: vi.fn().mockImplementation(() => ({
-    xlsx: {
-      load: vi.fn().mockResolvedValue(undefined),
-    },
-    get worksheets() {
-      return mockWorksheets
-    },
-  })),
-}))
+// Mock exceljs module for Vitest v4 (ESM-compatible)
+// ExcelJS is imported as: import ExcelJS from 'exceljs' → ExcelJS.Workbook
+vi.mock('exceljs', () => {
+  function MockWorkbook() {
+    this.xlsx = { load: vi.fn().mockResolvedValue(undefined) }
+    Object.defineProperty(this, 'worksheets', {
+      get: () => mockWorksheets,
+      configurable: true,
+    })
+  }
+  return {
+    default: { Workbook: MockWorkbook },
+    Workbook: MockWorkbook,
+  }
+})
 
 describe('xlsx parser', () => {
   beforeEach(() => {

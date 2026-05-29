@@ -4,24 +4,41 @@
 
 import { describe, it, expect, vi } from 'vitest'
 
-// Mock the unstable_cache
+// Mock modules that cache.ts depends on
+vi.mock('@/lib/prisma', () => ({
+  prisma: {},
+}))
+
+vi.mock('@/lib/entitlements/feature-gate', () => ({
+  featureGateService: {
+    hasFeature: vi.fn(),
+    canConsume: vi.fn(),
+    getAllEntitlements: vi.fn(),
+  },
+}))
+
+// Mock the unstable_cache and revalidateTag
+const mockRevalidateTag = vi.fn()
 vi.mock('next/cache', () => ({
   unstable_cache: vi.fn((fn, key, options) => fn),
+  revalidateTag: mockRevalidateTag,
 }))
 
 describe('cache', () => {
   it('should export CACHE_TAGS', async () => {
     const { CACHE_TAGS } = await import('@/lib/cache')
     expect(CACHE_TAGS).toBeDefined()
-    expect(CACHE_TAGS.ORG).toBe('org')
+    expect(typeof CACHE_TAGS.ORG).toBe('function')
+    expect(CACHE_TAGS.ORG('123')).toBe('org-123')
     expect(CACHE_TAGS.PLANS).toBe('plans')
-    expect(CACHE_TAGS.USER).toBe('user')
-    expect(CACHE_TAGS.REPORT).toBe('report')
+    expect(typeof CACHE_TAGS.USER).toBe('function')
+    expect(CACHE_TAGS.USER('123')).toBe('user-123')
+    expect(typeof CACHE_TAGS.REPORT).toBe('function')
+    expect(CACHE_TAGS.REPORT('123')).toBe('report-123')
   })
 
   it('should export cache config', async () => {
     const module = await import('@/lib/cache')
-    // Should have configuration constants
     expect(module).toBeDefined()
   })
 
@@ -30,14 +47,12 @@ describe('cache', () => {
     expect(invalidateOrgCache).toBeDefined()
   })
 
-  it('should log cache invalidation for org', async () => {
-    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+  it('should call revalidateTag for org invalidation', async () => {
     const { invalidateOrgCache } = await import('@/lib/cache')
 
     await invalidateOrgCache('org-123')
 
-    expect(consoleSpy).toHaveBeenCalledWith('[Cache] Org org-123 cache invalidated')
-    consoleSpy.mockRestore()
+    expect(mockRevalidateTag).toHaveBeenCalled()
   })
 
   it('should export invalidateUserCache function', async () => {
@@ -45,14 +60,12 @@ describe('cache', () => {
     expect(invalidateUserCache).toBeDefined()
   })
 
-  it('should log cache invalidation for user', async () => {
-    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+  it('should call revalidateTag for user invalidation', async () => {
     const { invalidateUserCache } = await import('@/lib/cache')
 
     await invalidateUserCache('user-123')
 
-    expect(consoleSpy).toHaveBeenCalledWith('[Cache] User user-123 cache invalidated')
-    consoleSpy.mockRestore()
+    expect(mockRevalidateTag).toHaveBeenCalled()
   })
 
   it('should export invalidateReportCache function', async () => {
@@ -60,14 +73,12 @@ describe('cache', () => {
     expect(invalidateReportCache).toBeDefined()
   })
 
-  it('should log cache invalidation for report', async () => {
-    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+  it('should call revalidateTag for report invalidation', async () => {
     const { invalidateReportCache } = await import('@/lib/cache')
 
     await invalidateReportCache('report-123')
 
-    expect(consoleSpy).toHaveBeenCalledWith('[Cache] Report report-123 cache invalidated')
-    consoleSpy.mockRestore()
+    expect(mockRevalidateTag).toHaveBeenCalled()
   })
 
   it('should export shouldCache function', async () => {

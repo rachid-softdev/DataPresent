@@ -4,6 +4,18 @@
 
 import { describe, it, expect, vi } from 'vitest'
 
+// Mock env to prevent module-level schema validation at import time
+vi.mock('@/env', () => ({
+  env: {
+    NODE_ENV: 'test',
+    STRIPE_SECRET_KEY: undefined,
+    STRIPE_PRICE_PRO_MONTHLY: undefined,
+    STRIPE_PRICE_TEAM_MONTHLY: undefined,
+    STRIPE_PRICE_STARTER_MONTHLY: undefined,
+  },
+  isFeatureEnabled: vi.fn().mockReturnValue(false),
+}))
+
 // Mock prisma
 const mockPrisma = {
   user: {
@@ -12,6 +24,21 @@ const mockPrisma = {
   report: {
     count: vi.fn(),
   },
+  subscription: {
+    findUnique: vi.fn(),
+  },
+  entitlementOverride: {
+    findMany: vi.fn().mockResolvedValue([]),
+  },
+  usageTracking: {
+    findUnique: vi.fn(),
+    findFirst: vi.fn(),
+    findMany: vi.fn().mockResolvedValue([]),
+    upsert: vi.fn(),
+  },
+  planFeature: {
+    findMany: vi.fn().mockResolvedValue([]),
+  },
 }
 
 vi.mock('@/lib/prisma', () => ({
@@ -19,6 +46,37 @@ vi.mock('@/lib/prisma', () => ({
 }))
 
 describe('plan-utils', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    // Default mocks for feature-gate dependencies
+    mockPrisma.subscription.findUnique.mockResolvedValue({
+      plan: 'PRO',
+      status: 'ACTIVE',
+      stripeSubscriptionId: null,
+      stripePriceId: null,
+      currentPeriodEnd: null,
+    })
+    mockPrisma.entitlementOverride.findMany.mockResolvedValue([])
+    mockPrisma.usageTracking.findMany.mockResolvedValue([])
+    mockPrisma.usageTracking.findUnique.mockResolvedValue(null)
+    // Return plan features for reportsPerMonth (LIMIT type)
+    mockPrisma.planFeature.findMany.mockImplementation((args: { where: { plan?: string } }) => {
+      const plan = args?.where?.plan ?? 'FREE'
+      const limits: Record<string, number | null> = {
+        FREE: 3,
+        PRO: 30,
+        TEAM: 30,
+        AGENCY: null,
+      }
+      return Promise.resolve([
+        {
+          feature: { key: 'reportsPerMonth', type: 'LIMIT' },
+          limitValue: limits[plan] !== undefined ? limits[plan] : 0,
+          enabled: true,
+        },
+      ])
+    })
+  })
   it('should export canUseFormat function', async () => {
     const { canUseFormat } = await import('@/lib/entitlements/compat')
     expect(canUseFormat).toBeDefined()
@@ -116,7 +174,10 @@ describe('plan-utils', () => {
         },
       ],
     })
-    mockPrisma.report.count.mockResolvedValue(5)
+    mockPrisma.usageTracking.findFirst.mockResolvedValue({
+      usageCount: 5,
+      periodEnd: new Date('2099-12-31'),
+    })
 
     const result = await canCreateReport('user-123')
 
@@ -136,7 +197,14 @@ describe('plan-utils', () => {
         },
       ],
     })
-    mockPrisma.report.count.mockResolvedValue(3) // FREE has 3 limit
+    mockPrisma.subscription.findUnique.mockResolvedValue({
+      plan: 'FREE',
+      status: 'ACTIVE',
+    })
+    mockPrisma.usageTracking.findFirst.mockResolvedValue({
+      usageCount: 3,
+      periodEnd: new Date('2099-12-31'),
+    })
 
     const result = await canCreateReport('user-123')
 
@@ -157,6 +225,10 @@ describe('plan-utils', () => {
           },
         },
       ],
+    })
+    mockPrisma.subscription.findUnique.mockResolvedValue({
+      plan: 'AGENCY',
+      status: 'ACTIVE',
     })
 
     const result = await canCreateReport('user-123')
@@ -181,6 +253,10 @@ describe('plan-utils', () => {
           },
         },
       ],
+    })
+    mockPrisma.subscription.findUnique.mockResolvedValue({
+      plan: 'AGENCY',
+      status: 'ACTIVE',
     })
 
     const result = await getRemainingReports('user-123')

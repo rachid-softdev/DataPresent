@@ -2,7 +2,20 @@
 // Plans Tests
 // ==========================================
 
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
+
+// Mock prisma and feature-gate to avoid Prisma client dependency
+vi.mock('@/lib/prisma', () => ({
+  prisma: {},
+}))
+
+vi.mock('@/lib/entitlements/feature-gate', () => ({
+  featureGateService: {
+    hasFeature: vi.fn(),
+    canConsume: vi.fn(),
+    getAllEntitlements: vi.fn(),
+  },
+}))
 
 describe('plans', () => {
   it('should export PLANS object', async () => {

@@ -78,6 +78,7 @@ const service = new FeatureGateService()
 describe('FeatureGateService', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    vi.useRealTimers()
   })
 
   describe('hasFeature', () => {
@@ -345,6 +346,7 @@ describe('FeatureGateService', () => {
 
   describe('consume', () => {
     it('should consume and return success', async () => {
+      vi.useFakeTimers()
       mockRepository.consumeUsage.mockResolvedValue({
         success: true,
         featureKey: 'EXPORT_PDF',
@@ -373,7 +375,11 @@ describe('FeatureGateService', () => {
 
       expect(result.success).toBe(true)
       expect(result.newUsage).toBe(6)
+
+      // Advance timers to trigger debounced cache invalidation
+      vi.advanceTimersByTime(500)
       expect(mockCache.invalidate).toHaveBeenCalledWith('org-1')
+      vi.useRealTimers()
     })
 
     it('should return failure when limit reached', async () => {
