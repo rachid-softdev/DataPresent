@@ -4,9 +4,9 @@ import { hashPassword, verifyPassword, isPasswordValid } from '@/lib/password'
 describe('password', () => {
   describe('isPasswordValid', () => {
     it('should accept valid passwords', () => {
-      expect(isPasswordValid('password123')).toBe(true)
-      expect(isPasswordValid('abcdefgh')).toBe(true)
-      expect(isPasswordValid('MyStr0ng!Pass')).toBe(true)
+      expect(isPasswordValid('Str0ng!PassOK')).toBe(true)     // 12 chars, upper+lower+num+special
+      expect(isPasswordValid('MyStr0ng!Pass')).toBe(true)      // 14 chars, upper+lower+num+special
+      expect(isPasswordValid('Abcd1234!xyz')).toBe(true)       // 12 chars, upper+lower+num+special
     })
 
     it('should reject passwords that are too short', () => {

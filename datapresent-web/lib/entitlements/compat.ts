@@ -7,6 +7,7 @@
 // Once all consumers have been migrated, this file can be removed.
 
 import { prisma } from '@/lib/prisma'
+import { env } from '@/env'
 import { featureGateService } from './feature-gate'
 
 // ==========================================
@@ -83,7 +84,7 @@ export const PLANS = {
     apiAccess: false,
     prioritySupport: false,
     customDomain: false,
-    stripePriceId: process.env.STRIPE_PRO_PRICE_ID!,
+    stripePriceId: env.STRIPE_PRICE_PRO_MONTHLY ?? null,
   },
   TEAM: {
     name: 'Team',
@@ -101,7 +102,7 @@ export const PLANS = {
     apiAccess: false,
     prioritySupport: false,
     customDomain: false,
-    stripePriceId: process.env.STRIPE_TEAM_PRICE_ID!,
+    stripePriceId: env.STRIPE_PRICE_TEAM_MONTHLY ?? null,
   },
   AGENCY: {
     name: 'Agency',

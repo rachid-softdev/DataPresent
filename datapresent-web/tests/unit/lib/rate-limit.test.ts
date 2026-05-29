@@ -1,21 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { checkRateLimit, DEFAULT_LIMIT, DEFAULT_WINDOW } from '@/lib/rate-limit'
 
-const { mockFindUnique, mockCreate, mockUpdate } = vi.hoisted(() => ({
-  mockFindUnique: vi.fn(),
-  mockCreate: vi.fn(),
-  mockUpdate: vi.fn(),
-}))
+const mockQueryRaw = vi.hoisted(() => vi.fn())
 
 vi.mock('@/lib/prisma', () => ({
-  prisma: {
-    rateLimit: {
-      findUnique: mockFindUnique,
-      create: mockCreate,
-      update: mockUpdate,
-    },
-  },
+  prisma: { $queryRaw: mockQueryRaw },
 }))
+
+import { checkRateLimit, DEFAULT_LIMIT, DEFAULT_WINDOW } from '@/lib/rate-limit'
 
 describe('rate-limit', () => {
   beforeEach(() => {
@@ -32,91 +23,47 @@ describe('rate-limit', () => {
 
   describe('checkRateLimit', () => {
     it('should allow first request when no record exists', async () => {
-      mockFindUnique.mockResolvedValue(null)
-      mockCreate.mockResolvedValue({})
+      // First INSERT succeeds → allowed = true
+      mockQueryRaw.mockResolvedValue([{ allowed: true }])
 
       const result = await checkRateLimit('test-key')
 
       expect(result).toBe(true)
-      expect(mockCreate).toHaveBeenCalledWith({
-        data: expect.objectContaining({
-          key: 'test-key',
-          count: 1,
-        }),
-      })
+      expect(mockQueryRaw).toHaveBeenCalledOnce()
     })
 
     it('should allow request when under limit', async () => {
-      mockFindUnique.mockResolvedValue({
-        key: 'test-key',
-        count: 5,
-        windowStart: new Date(),
-        expires: new Date(Date.now() + 60000),
-      })
-      mockUpdate.mockResolvedValue({})
+      mockQueryRaw.mockResolvedValue([{ allowed: true }])
 
       const result = await checkRateLimit('test-key', { limit: 10 })
 
       expect(result).toBe(true)
-      expect(mockUpdate).toHaveBeenCalledWith({
-        where: { key: 'test-key' },
-        data: expect.objectContaining({
-          count: 6,
-        }),
-      })
     })
 
     it('should deny request when at limit', async () => {
-      mockFindUnique.mockResolvedValue({
-        key: 'test-key',
-        count: 10,
-        windowStart: new Date(),
-        expires: new Date(Date.now() + 60000),
-      })
+      mockQueryRaw.mockResolvedValue([{ allowed: false }])
 
       const result = await checkRateLimit('test-key', { limit: 10 })
 
       expect(result).toBe(false)
-      expect(mockUpdate).not.toHaveBeenCalled()
     })
 
-    it('should reset window when expired', async () => {
-      const oldWindowStart = new Date(Date.now() - 120000) // 2 minutes ago
+    it('should default to allowed=true when result set is empty', async () => {
+      // Edge case: empty result from query
+      mockQueryRaw.mockResolvedValue([])
 
-      mockFindUnique.mockResolvedValue({
-        key: 'test-key',
-        count: 10,
-        windowStart: oldWindowStart,
-        expires: oldWindowStart,
-      })
-      mockUpdate.mockResolvedValue({})
-
-      const result = await checkRateLimit('test-key', { limit: 10, windowMs: 60000 })
+      const result = await checkRateLimit('test-key')
 
       expect(result).toBe(true)
-      expect(mockUpdate).toHaveBeenCalledWith(
-        expect.objectContaining({
-          where: { key: 'test-key' },
-          data: expect.objectContaining({
-            count: 1, // Reset to 1
-          }),
-        })
-      )
     })
 
     it('should use custom limit when provided', async () => {
-      mockFindUnique.mockResolvedValue(null)
-      mockCreate.mockResolvedValue({})
+      mockQueryRaw.mockResolvedValue([{ allowed: true }])
 
       await checkRateLimit('test-key', { limit: 5 })
 
-      // First request should always be allowed
-      expect(mockCreate).toHaveBeenCalledWith({
-        data: expect.objectContaining({
-          key: 'test-key',
-          count: 1,
-        }),
-      })
+      // Verify $queryRaw was called (SQL template)
+      expect(mockQueryRaw).toHaveBeenCalledOnce()
     })
   })
 })

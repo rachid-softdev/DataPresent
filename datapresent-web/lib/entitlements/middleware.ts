@@ -8,9 +8,6 @@ import {
   hasFeature,
   canConsume,
   consume,
-  assertFeature,
-  FeatureNotAvailableError,
-  LimitReachedError,
   type ConsumeResult,
 } from '@/lib/entitlements'
 import type { NextRequest } from 'next/server'
@@ -19,7 +16,7 @@ import type { NextRequest } from 'next/server'
 // Helper: Extract orgId and userId from session
 // ==========================================
 
-async function getSessionContext(request: NextRequest): Promise<{
+async function getSessionContext(_request: NextRequest): Promise<{
   orgId: string | null
   userId: string | null
 }> {
@@ -266,107 +263,5 @@ export function withConsume(
   }
 }
 
-// ==========================================
-// Express/traditional API route helpers
-// ==========================================
-
-/**
- * For traditional API routes (Express-style in Next.js)
- * Use with router.post("/", requireFeature, handler)
- */
-export function requireFeature(featureKey: string) {
-  return async (req: any, res: any, next: any) => {
-    const { orgId, userId } = await getSessionContext(req)
-
-    if (!orgId) {
-      return res.status(401).json({ error: 'Unauthorized' })
-    }
-
-    const allowed = await hasFeature(orgId, featureKey, userId ?? undefined)
-
-    if (!allowed) {
-      return res.status(403).json({
-        error: 'FEATURE_NOT_AVAILABLE',
-        feature: featureKey,
-        plan_required: 'PRO',
-        current_plan: 'FREE',
-        upgrade_url: '/billing/upgrade',
-      })
-    }
-
-    // Attach to request for downstream handlers
-    req.entitlements = { orgId, userId }
-
-    next()
-  }
-}
-
-/**
- * Consume feature quota in API route
- */
-export function consumeFeature(featureKey: string, amount: number = 1) {
-  return async (req: any, res: any, next: any) => {
-    const { orgId, userId } = await getSessionContext(req)
-
-    if (!orgId) {
-      return res.status(401).json({ error: 'Unauthorized' })
-    }
-
-    const result = await consume(orgId, featureKey, amount, userId ?? undefined)
-
-    if (!result.success) {
-      if (result.error === 'FEATURE_NOT_AVAILABLE') {
-        return res.status(403).json({
-          error: 'FEATURE_NOT_AVAILABLE',
-          feature: featureKey,
-          plan_required: 'PRO',
-          current_plan: 'FREE',
-          upgrade_url: '/billing/upgrade',
-        })
-      }
-
-      return res.status(402).json({
-        error: 'LIMIT_REACHED',
-        feature: featureKey,
-        limit: result.limit,
-        used: result.used,
-        reset_at: result.resetAt?.toISOString() ?? null,
-        upgrade_url: '/billing/upgrade',
-      })
-    }
-
-    // Attach to request
-    req.entitlements = { orgId, userId, consumeResult: result }
-
-    next()
-  }
-}
-
-/**
- * Check limit without consuming (for preview/info endpoints)
- */
-export function requireLimit(featureKey: string, amount: number = 1) {
-  return async (req: any, res: any, next: any) => {
-    const { orgId, userId } = await getSessionContext(req)
-
-    if (!orgId) {
-      return res.status(401).json({ error: 'Unauthorized' })
-    }
-
-    const allowed = await canConsume(orgId, featureKey, amount, userId ?? undefined)
-
-    if (!allowed) {
-      return res.status(402).json({
-        error: 'LIMIT_REACHED',
-        feature: featureKey,
-        upgrade_url: '/billing/upgrade',
-      })
-    }
-
-    req.entitlements = { orgId, userId }
-
-    next()
-  }
-}
 
 

@@ -1,7 +1,6 @@
-import { unstable_cache } from 'next/cache'
-import { revalidateTag } from 'next/cache'
+import { unstable_cache, revalidateTag } from 'next/cache'
 import { prisma } from './prisma'
-import { PLANS } from './plans'
+import { PLANS } from '@/lib/entitlements/compat'
 
 // Cache tags for manual invalidation
 export const CACHE_TAGS = {
@@ -26,37 +25,41 @@ const CACHE_CONFIG = {
 /**
  * Get cached organization data
  */
-export const getCachedOrg = unstable_cache(
-  async (orgId: string) => {
-    const org = await prisma.organization.findUnique({
-      where: { id: orgId },
-      include: {
-        subscription: true,
-        members: {
-          include: { user: { select: { id: true, name: true, email: true, image: true } } },
+export function getCachedOrg(orgId: string) {
+  return unstable_cache(
+    async () => {
+      const org = await prisma.organization.findUnique({
+        where: { id: orgId },
+        include: {
+          subscription: true,
+          members: {
+            include: { user: { select: { id: true, name: true, email: true, image: true } } },
+          },
         },
-      },
-    })
-    return org
-  },
-  ['org', 'orgId'],
-  CACHE_CONFIG.MEDIUM
-)
+      })
+      return org
+    },
+    ['org', orgId],
+    { ...CACHE_CONFIG.MEDIUM, tags: [CACHE_TAGS.ORG(orgId)] }
+  )()
+}
 
 /**
  * Get cached organization by slug
  */
-export const getCachedOrgBySlug = unstable_cache(
-  async (slug: string) => {
-    const org = await prisma.organization.findUnique({
-      where: { slug },
-      include: { subscription: true },
-    })
-    return org
-  },
-  ['org', 'slug'],
-  CACHE_CONFIG.MEDIUM
-)
+export function getCachedOrgBySlug(slug: string) {
+  return unstable_cache(
+    async () => {
+      const org = await prisma.organization.findUnique({
+        where: { slug },
+        include: { subscription: true },
+      })
+      return org
+    },
+    ['org', slug],
+    { ...CACHE_CONFIG.MEDIUM, tags: [CACHE_TAGS.ORG(slug)] }
+  )()
+}
 
 /**
  * Get cached plans (static data)
@@ -72,53 +75,59 @@ export const getCachedPlans = unstable_cache(
 /**
  * Get cached user data
  */
-export const getCachedUser = unstable_cache(
-  async (userId: string) => {
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      select: { id: true, name: true, email: true, image: true },
-    })
-    return user
-  },
-  ['user', 'userId'],
-  CACHE_CONFIG.SHORT
-)
+export function getCachedUser(userId: string) {
+  return unstable_cache(
+    async () => {
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { id: true, name: true, email: true, image: true },
+      })
+      return user
+    },
+    ['user', userId],
+    { ...CACHE_CONFIG.SHORT, tags: [CACHE_TAGS.USER(userId)] }
+  )()
+}
 
 /**
  * Get cached report list for an organization
  */
-export const getCachedReportList = unstable_cache(
-  async (orgId: string, limit = 10) => {
-    const reports = await prisma.report.findMany({
-      where: { orgId },
-      orderBy: { updatedAt: 'desc' },
-      take: limit,
-      select: { id: true, title: true, status: true, sector: true, updatedAt: true },
-    })
-    return reports
-  },
-  ['reports', 'list'],
-  CACHE_CONFIG.SHORT
-)
+export function getCachedReportList(orgId: string, limit = 10) {
+  return unstable_cache(
+    async () => {
+      const reports = await prisma.report.findMany({
+        where: { orgId },
+        orderBy: { updatedAt: 'desc' },
+        take: limit,
+        select: { id: true, title: true, status: true, sector: true, updatedAt: true },
+      })
+      return reports
+    },
+    ['reports', 'list', orgId],
+    { ...CACHE_CONFIG.SHORT, tags: [CACHE_TAGS.REPORT(orgId)] }
+  )()
+}
 
 /**
  * Get cached single report
  */
-export const getCachedReport = unstable_cache(
-  async (reportId: string) => {
-    const report = await prisma.report.findUnique({
-      where: { id: reportId },
-      include: {
-        slides: { orderBy: { position: 'asc' } },
-        sourceFile: true,
-        exports: true,
-      },
-    })
-    return report
-  },
-  ['report', 'single'],
-  CACHE_CONFIG.SHORT
-)
+export function getCachedReport(reportId: string) {
+  return unstable_cache(
+    async () => {
+      const report = await prisma.report.findUnique({
+        where: { id: reportId },
+        include: {
+          slides: { orderBy: { position: 'asc' } },
+          sourceFile: true,
+          exports: true,
+        },
+      })
+      return report
+    },
+    ['report', reportId],
+    { ...CACHE_CONFIG.SHORT, tags: [CACHE_TAGS.REPORT(reportId)] }
+  )()
+}
 
 /**
  * Invalidate organization cache (call after updates)
@@ -144,16 +153,18 @@ export async function invalidateReportCache(reportId: string): Promise<void> {
 /**
  * Cached subscription check
  */
-export const getCachedSubscription = unstable_cache(
-  async (orgId: string) => {
-    const subscription = await prisma.subscription.findUnique({
-      where: { orgId },
-    })
-    return subscription
-  },
-  ['subscription', 'orgId'],
-  CACHE_CONFIG.MEDIUM
-)
+export function getCachedSubscription(orgId: string) {
+  return unstable_cache(
+    async () => {
+      const subscription = await prisma.subscription.findUnique({
+        where: { orgId },
+      })
+      return subscription
+    },
+    ['subscription', orgId],
+    { ...CACHE_CONFIG.MEDIUM, tags: [CACHE_TAGS.ORG(orgId)] }
+  )()
+}
 
 /**
  * Helper to check if data should be cached

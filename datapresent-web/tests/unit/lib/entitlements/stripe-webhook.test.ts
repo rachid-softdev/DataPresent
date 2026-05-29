@@ -43,6 +43,15 @@ vi.mock('@/lib/sentry', () => ({
   captureMessage: vi.fn(),
 }))
 
+vi.mock('@/env', () => ({
+  env: {
+    STRIPE_WEBHOOK_SECRET: 'whsec_test_secret',
+    STRIPE_PRICE_PRO_MONTHLY: 'price_pro_test',
+    STRIPE_PRICE_TEAM_MONTHLY: 'price_team_test',
+    STRIPE_PRICE_STARTER_MONTHLY: 'price_starter_test',
+  },
+}))
+
 vi.mock('@/lib/prisma', () => ({
   prisma: {
     webhookEvent: {

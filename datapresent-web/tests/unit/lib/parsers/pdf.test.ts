@@ -10,27 +10,21 @@ describe('pdf parser', () => {
     expect(module.parsePdf).toBeDefined()
   })
 
-  it('should return empty data for placeholder implementation', async () => {
+  it('should throw when called (placeholder implementation)', async () => {
     const { parsePdf } = await import('@/lib/parsers/pdf')
 
     const buffer = Buffer.from('test')
-    const result = await parsePdf(buffer, 'test.pdf')
-
-    expect(result.sheets).toHaveProperty('Sheet1')
-    expect(result.sheets.Sheet1).toEqual([])
-    expect(result.metadata).toEqual({
-      fileName: 'test.pdf',
-      rowCount: 0,
-      columnCount: 0,
-    })
+    await expect(parsePdf(buffer, 'test.pdf')).rejects.toThrow(
+      'PDF parsing is not yet implemented'
+    )
   })
 
-  it('should handle different filenames', async () => {
+  it('should throw regardless of filename', async () => {
     const { parsePdf } = await import('@/lib/parsers/pdf')
 
     const buffer = Buffer.from('test')
-    const result = await parsePdf(buffer, 'report.pdf')
-
-    expect(result.metadata.fileName).toBe('report.pdf')
+    await expect(parsePdf(buffer, 'report.pdf')).rejects.toThrow(
+      'PDF parsing is not yet implemented'
+    )
   })
 })

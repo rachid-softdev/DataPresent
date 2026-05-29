@@ -45,7 +45,10 @@ export class FeatureGateService {
    */
   async hasFeature(orgId: string, featureKey: string, userId?: string): Promise<boolean> {
     const resolved = await this.resolveFeature(orgId, featureKey, userId)
-    return resolved.value as boolean
+    // LIMIT features are available regardless of limit value
+    // (0 = exhausted but feature exists, null = unlimited)
+    if (resolved.featureType === 'LIMIT') return true
+    return Boolean(resolved.value)
   }
 
   /**

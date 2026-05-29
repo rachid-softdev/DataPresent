@@ -3,6 +3,7 @@
 // ==========================================
 
 import Stripe from 'stripe'
+import { env } from '@/env'
 import { getStripe } from './stripe'
 import { prisma } from './prisma'
 import { captureException, captureMessage } from './sentry'
@@ -38,9 +39,9 @@ function getPlanFromPriceId(priceId: string | null): Plan {
   if (!priceId) return 'FREE'
 
   const priceIdToPlan: Record<string, Plan> = {
-    [process.env.STRIPE_PRICE_PRO_MONTHLY!]: 'PRO',
-    [process.env.STRIPE_PRICE_TEAM_MONTHLY!]: 'TEAM',
-    [process.env.STRIPE_PRICE_STARTER_MONTHLY!]: 'FREE',
+    [env.STRIPE_PRICE_PRO_MONTHLY ?? '']: 'PRO',
+    [env.STRIPE_PRICE_TEAM_MONTHLY ?? '']: 'TEAM',
+    [env.STRIPE_PRICE_STARTER_MONTHLY ?? '']: 'FREE',
   }
 
   return priceIdToPlan[priceId] ?? 'PRO'
@@ -324,8 +325,12 @@ export async function processWebhookEvent(event: Stripe.Event, retryCount = 0): 
  */
 export function constructWebhookEvent(payload: string, signature: string): Stripe.Event {
   const stripe = getStripe()
+  const webhookSecret = env.STRIPE_WEBHOOK_SECRET
+  if (!webhookSecret) {
+    throw new Error('STRIPE_WEBHOOK_SECRET is not configured')
+  }
 
-  return stripe.webhooks.constructEvent(payload, signature, process.env.STRIPE_WEBHOOK_SECRET!)
+  return stripe.webhooks.constructEvent(payload, signature, webhookSecret)
 }
 
 /**
