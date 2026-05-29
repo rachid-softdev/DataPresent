@@ -76,10 +76,10 @@ export async function validateApiKey(key: string): Promise<{ valid: boolean; org
 /**
  * Revoke an API key
  */
-export async function revokeApiKey(keyId: string): Promise<boolean> {
+export async function revokeApiKey(keyId: string, orgId: string): Promise<boolean> {
   try {
     await prisma.apiKey.delete({
-      where: { id: keyId },
+      where: { id: keyId, orgId },
     })
 
     captureMessage(`API key revoked: ${keyId}`, 'info')

@@ -3,7 +3,7 @@ import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { checkRateLimit } from '@/lib/rate-limit'
 import { logApiError } from '@/lib/security'
-import { verifyToken } from '@/lib/crypto'
+import { verifyToken, extractTokenPrefix } from '@/lib/crypto'
 
 export async function POST(req: NextRequest) {
   try {
@@ -24,9 +24,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Too many attempts. Please try again later.' }, { status: 429 })
     }
 
-    // Find the invite token by iterating candidates and verifying
+    // Find the invite token by prefix for O(1) indexed lookup
+    const tokenPrefix = extractTokenPrefix(token)
     const candidates = await prisma.inviteToken.findMany({
-      where: { used: false, expires: { gt: new Date() } },
+      where: { tokenPrefix, used: false, expires: { gt: new Date() } },
     })
 
     let inviteToken = null

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { verifyPassword } from '@/lib/password'
+import { checkRateLimit } from '@/lib/rate-limit'
 import { notFound, unauthorized } from '@/lib/errors'
 
 /**
@@ -16,6 +17,13 @@ export async function POST(req: NextRequest) {
         { error: 'errors.validation.required' },
         { status: 400 }
       )
+    }
+
+    // Rate limiting: 10 attempts per hour per share token + IP
+    const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown'
+    const allowed = await checkRateLimit(`share-verify:${shareToken}:${ip}`, { limit: 10, windowMs: 3600000 })
+    if (!allowed) {
+      return NextResponse.json({ error: 'Too many attempts' }, { status: 429 })
     }
 
     const report = await prisma.report.findUnique({

@@ -103,6 +103,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.needsRefresh = true
       }
 
+      // Transparent rotation: reset iat so the JWT is re-issued with a fresh timestamp
+      if (token.needsRefresh) {
+        token.iat = Math.floor(Date.now() / 1000)
+      }
+
       return token
     },
   },

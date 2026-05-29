@@ -56,26 +56,29 @@ model MagicLinkToken {
 }
 
 model PasswordResetToken {
-  id        String   @id @default(cuid())
-  email     String
-  token     String   @unique
-  expires   DateTime
-  used      Boolean  @default(false)
-  createdAt DateTime @default(now())
+  id          String   @id @default(cuid())
+  email       String
+  token       String   @unique
+  tokenPrefix String?  // first 12 chars of raw token for O(1) lookup
+  expires     DateTime
+  used        Boolean  @default(false)
+  createdAt   DateTime @default(now())
 
   @@index([email])
   @@index([expires])
+  @@index([tokenPrefix])
 }
 
 model InviteToken {
-  id         String   @id @default(cuid())
-  email      String
-  orgId      String
-  role       MembershipRole @default(MEMBER)
-  token      String   @unique
-  expires    DateTime
-  used       Boolean  @default(false)
-  createdAt  DateTime @default(now())
+  id          String   @id @default(cuid())
+  email       String
+  orgId       String
+  role        MembershipRole @default(MEMBER)
+  token       String   @unique
+  tokenPrefix String?  // first 12 chars of raw token for O(1) lookup
+  expires     DateTime
+  used        Boolean  @default(false)
+  createdAt   DateTime @default(now())
   createdById String
 
   org       Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
@@ -84,6 +87,7 @@ model InviteToken {
   @@index([email])
   @@index([orgId])
   @@index([expires])
+  @@index([tokenPrefix])
 }
 
 model ReportVersion {
@@ -335,6 +339,7 @@ model Comment {
 model ApiKey {
   id          String    @id @default(cuid())
   keyHash     String    @unique
+  keyPrefix   String?   // first 12 chars of raw key for O(1) indexed lookup
   orgId       String
   name        String
   createdAt   DateTime  @default(now())
@@ -345,6 +350,7 @@ model ApiKey {
 
   @@index([orgId])
   @@index([expiresAt])
+  @@index([keyPrefix])
 }
 
 // ==========================================

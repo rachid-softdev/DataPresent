@@ -97,7 +97,7 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json({ error: 'Key ID is required' }, { status: 400 })
     }
 
-    const success = await revokeApiKey(keyId)
+    const success = await revokeApiKey(keyId, orgId)
     
     if (!success) {
       return NextResponse.json({ error: 'Failed to revoke API key' }, { status: 500 })

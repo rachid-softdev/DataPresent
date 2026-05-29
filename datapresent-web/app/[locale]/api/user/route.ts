@@ -40,6 +40,11 @@ export async function DELETE(req: NextRequest) {
     return unauthorized()
   }
 
+  const { confirm } = await req.json()
+  if (!confirm) {
+    return NextResponse.json({ error: 'Confirmation required. Set confirm: true to delete your account.' }, { status: 400 })
+  }
+
   await prisma.user.delete({
     where: { id: session.user.id },
   })

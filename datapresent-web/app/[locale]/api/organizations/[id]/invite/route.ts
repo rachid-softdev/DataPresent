@@ -3,7 +3,7 @@ import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { checkRateLimit } from '@/lib/rate-limit'
 import { logApiError, logSecurityEvent } from '@/lib/security'
-import { generateToken, hashToken } from '@/lib/crypto'
+import { generateToken, hashToken, extractTokenPrefix } from '@/lib/crypto'
 
 export async function POST(
   req: NextRequest,
@@ -74,6 +74,7 @@ export async function POST(
         orgId,
         role: role || 'MEMBER',
         token: hashedToken,
+        tokenPrefix: extractTokenPrefix(rawToken),
         expires,
         createdById: session.user.id,
       }
