@@ -1,8 +1,68 @@
 import IORedis from 'ioredis'
 import { env } from '@/env'
 
-let connection: IORedis | null = null
+export let connection: IORedis | null = null
+let connectionPromise: Promise<IORedis | null> | null = null
+let lastConnectAttempt = 0
+const RECONNECT_COOLDOWN_MS = 10_000
 
+/**
+ * Get Redis connection with explicit async connect.
+ * Returns null if Redis is unavailable (graceful degradation).
+ * Implements reconnect cooldown and connection deduplication.
+ */
+export async function getRedisConnectionAsync(): Promise<IORedis | null> {
+  // Fast path: connection is ready
+  if (connection?.status === 'ready') {
+    return connection
+  }
+
+  // Cooldown: don't hammer Redis if it's down
+  const now = Date.now()
+  if (now - lastConnectAttempt < RECONNECT_COOLDOWN_MS) {
+    return null
+  }
+
+  // Deduplicate concurrent connection attempts
+  if (connectionPromise) {
+    return connectionPromise
+  }
+
+  if (!env.REDIS_URL) {
+    console.warn('[Redis] REDIS_URL not defined')
+    return null
+  }
+
+  // Increase retry strategy for better resilience
+  lastConnectAttempt = now
+  connectionPromise = (async () => {
+    const conn = new IORedis(env.REDIS_URL!, {
+      maxRetriesPerRequest: null,
+      retryStrategy(times: number) {
+        if (times > 10) return null
+        return Math.min(times * 1000, 30_000)
+      },
+      lazyConnect: true,
+    })
+
+    try {
+      await conn.connect()
+      connection = conn
+      return conn
+    } catch (err) {
+      console.warn('[Redis] Connection failed, will retry', err)
+      conn.disconnect()
+      connection = null
+      return null
+    } finally {
+      connectionPromise = null
+    }
+  })()
+
+  return connectionPromise
+}
+
+// Keep existing sync function for backward compatibility
 export function getRedisConnection(): IORedis {
   if (!connection) {
     if (!env.REDIS_URL) throw new Error('REDIS_URL is required for Redis operations')

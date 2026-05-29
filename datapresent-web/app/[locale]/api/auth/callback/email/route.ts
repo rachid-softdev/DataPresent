@@ -3,22 +3,23 @@ import { prisma } from '@/lib/prisma'
 import { signIn } from '@/lib/auth'
 import { cookies } from 'next/headers'
 import { randomUUID } from 'crypto'
-import { verifyToken } from '@/lib/crypto'
+import { verifyToken, extractTokenPrefix } from '@/lib/crypto'
 
 export async function GET(req: NextRequest) {
   const searchParams = req.nextUrl.searchParams
   const token = searchParams.get('token')
-  const email = searchParams.get('email')
 
-  if (!token || !email) {
+  if (!token) {
     return NextResponse.redirect(new URL('/login?error=errors.auth.invalidToken', req.url))
   }
 
   try {
-    // Find candidate tokens by email and verify
+    const tokenPrefix = extractTokenPrefix(token)
+
+    // Find candidate tokens by tokenPrefix and verify
     const candidates = await prisma.magicLinkToken.findMany({
       where: {
-        email,
+        tokenPrefix,
         used: false,
         expires: { gt: new Date() },
       },
@@ -76,7 +77,6 @@ export async function GET(req: NextRequest) {
     // Create a session via the credentials provider which handles cookie setting
     const signInResult = await signIn('credentials', {
       token,
-      email: magicLinkToken.email,
       redirect: false,
     })
 

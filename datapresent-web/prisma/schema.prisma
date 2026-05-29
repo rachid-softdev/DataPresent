@@ -42,15 +42,17 @@ model VerificationToken {
 }
 
 model MagicLinkToken {
-  id        String   @id @default(cuid())
-  email     String
-  token     String   @unique
-  expires   DateTime
-  used      Boolean  @default(false)
-  createdAt DateTime @default(now())
+  id          String   @id @default(cuid())
+  email       String
+  token       String   @unique
+  tokenPrefix String?  // first 12 chars of raw token for O(1) callback lookup
+  expires     DateTime
+  used        Boolean  @default(false)
+  createdAt   DateTime @default(now())
 
   @@index([email, createdAt])
   @@index([expires])
+  @@index([tokenPrefix])
 }
 
 model PasswordResetToken {

@@ -4,7 +4,7 @@
 
 import IORedis from 'ioredis'
 import { LRUCache } from 'lru-cache'
-import { getRedisConnection, createSubscriberConnection } from '@/lib/redis'
+import { getRedisConnectionAsync, createSubscriberConnection, connection } from '@/lib/redis'
 import type { EntitlementMap } from './types'
 
 // ==========================================
@@ -16,21 +16,10 @@ const MEMORY_CACHE_TTL_MS = 30 * 1000 // 30 seconds
 const MAX_MEMORY_CACHE_SIZE = 100 // Max orgs in memory cache
 
 // ==========================================
-// Redis Client (re-use existing connection)
+// Redis Client (lazy async initialization)
 // ==========================================
 
 let subscriberInstance: IORedis | null = null
-
-function getRedisClient(): IORedis | null {
-  try {
-    return getRedisConnection()
-  } catch {
-    console.warn('[EntitlementsCache] REDIS_URL not defined, falling back to memory cache')
-    return null
-  }
-}
-
-const redisClient = getRedisClient()
 
 // ==========================================
 // Memory LRU Cache (fallback when Redis unavailable)
@@ -68,9 +57,10 @@ export class EntitlementsCacheService {
     const key = getCacheKey(orgId)
 
     // Try Redis first
-    if (redisClient) {
+    const redis = await getRedisConnectionAsync()
+    if (redis) {
       try {
-        const cached = await redisClient.get(key)
+        const cached = await redis.get(key)
         if (cached) {
           return JSON.parse(cached) as EntitlementMap
         }
@@ -96,9 +86,10 @@ export class EntitlementsCacheService {
     const serialized = JSON.stringify(entitlements)
 
     // Set in Redis with TTL
-    if (redisClient) {
+    const redis = await getRedisConnectionAsync()
+    if (redis) {
       try {
-        await redisClient.setex(key, ENTITLEMENTS_TTL_SECONDS, serialized)
+        await redis.setex(key, ENTITLEMENTS_TTL_SECONDS, serialized)
       } catch (error) {
         console.warn('[EntitlementsCache] Redis set failed, using memory only', error)
       }
@@ -118,9 +109,10 @@ export class EntitlementsCacheService {
     const key = getCacheKey(orgId)
 
     // Delete from Redis
-    if (redisClient) {
+    const redis = await getRedisConnectionAsync()
+    if (redis) {
       try {
-        await redisClient.del(key)
+        await redis.del(key)
       } catch (error) {
         console.warn('[EntitlementsCache] Redis delete failed', error)
       }
@@ -137,10 +129,11 @@ export class EntitlementsCacheService {
    * Publish invalidation event to other instances
    */
   private async publishInvalidation(orgId: string): Promise<void> {
-    if (!redisClient) return
+    const redis = await getRedisConnectionAsync()
+    if (!redis) return
 
     try {
-      await redisClient.publish(getInvalidationChannel(), orgId)
+      await redis.publish(getInvalidationChannel(), orgId)
     } catch (error) {
       console.warn('[EntitlementsCache] Failed to publish invalidation', error)
     }
@@ -150,7 +143,8 @@ export class EntitlementsCacheService {
    * Subscribe to invalidation events (for multi-instance)
    */
   async subscribeToInvalidations(callback: (orgId: string) => void): Promise<() => void> {
-    if (!redisClient) {
+    const redis = await getRedisConnectionAsync()
+    if (!redis) {
       console.warn('[EntitlementsCache] Redis not available, cannot subscribe to invalidations')
       return () => {}
     }
@@ -162,6 +156,7 @@ export class EntitlementsCacheService {
 
     // Only subscribe to the Redis channel and register listener once
     if (!this.subscribedToChannel) {
+      await subscriber.connect()
       await subscriber.subscribe(getInvalidationChannel())
       this.subscribedToChannel = true
 
@@ -178,7 +173,7 @@ export class EntitlementsCacheService {
    * Check if Redis is available
    */
   isRedisAvailable(): boolean {
-    return redisClient !== null
+    return connection?.status === 'ready'
   }
 }
 

@@ -8,6 +8,10 @@ const ALGORITHM = 'aes-256-gcm'
 const IV_LENGTH = 16
 const TAG_LENGTH = 16
 
+export function deriveKey(secret: string): Buffer {
+  return crypto.createHash('sha256').update(secret).digest()
+}
+
 /**
  * Generate a CSRF token for the current user session
  */
@@ -16,7 +20,7 @@ export function generateCsrfToken(userId?: string): string {
   const randomBytes = crypto.randomBytes(16).toString('hex')
 
   const iv = crypto.randomBytes(IV_LENGTH)
-  const cipher = crypto.createCipheriv(ALGORITHM, Buffer.from(CSRF_SECRET.slice(0, 32), 'utf8'), iv)
+  const cipher = crypto.createCipheriv(ALGORITHM, deriveKey(CSRF_SECRET), iv)
 
   const data = userId ? `${userId}:${timestamp}:${randomBytes}` : `${timestamp}:${randomBytes}`
   let encrypted = cipher.update(data, 'utf8', 'hex')
@@ -48,7 +52,7 @@ export async function validateCsrfToken(token: string, userId?: string): Promise
 
     const decipher = crypto.createDecipheriv(
       ALGORITHM,
-      Buffer.from(CSRF_SECRET.slice(0, 32), 'utf8'),
+      deriveKey(CSRF_SECRET),
       iv
     )
     decipher.setAuthTag(tag)

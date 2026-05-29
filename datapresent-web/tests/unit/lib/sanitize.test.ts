@@ -119,16 +119,22 @@ describe('sanitize', () => {
   })
 
   describe('sanitizeComment', () => {
-    it('should strip HTML tags', () => {
+    it('should strip HTML tags and entity-encode text content', () => {
       const input = '<p>Hello <script>alert(1)</script></p>'
-      // Note: this function only removes tags, not content inside tags
-      // This is a known limitation - the content "alert(1)" remains
+      // HTML-entity-encode prevents XSS via text content
+      // alert(1) has no special HTML chars so it passes through unchanged
       expect(sanitizeComment(input)).toBe('Hello alert(1)')
     })
 
-    it('should decode HTML entities', () => {
-      expect(sanitizeComment('&lt;script&gt;')).toBe('<script>')
-      expect(sanitizeComment('&amp;')).toBe('&')
+    it('should decode HTML entities and then entity-encode them', () => {
+      // JSDOM decodes &lt;script&gt; to <script>, then sanitizeComment entity-encodes it back
+      expect(sanitizeComment('&lt;script&gt;')).toBe('&lt;script&gt;')
+      expect(sanitizeComment('&amp;')).toBe('&amp;')
+    })
+
+    it('should HTML-entity-encode special characters after strip', () => {
+      expect(sanitizeComment('Hello <b>World</b> & more')).toBe('Hello World &amp; more')
+      expect(sanitizeComment("It's <em>nice</em> & <strong>cool</strong>")).toBe("It&#x27;s nice &amp; cool")
     })
 
     it('should limit length to 5000 chars', () => {

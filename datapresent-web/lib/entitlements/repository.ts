@@ -3,6 +3,7 @@
 // ==========================================
 
 import { prisma } from '@/lib/prisma'
+import { Prisma } from '@prisma/client'
 import type {
   Plan,
   Subscription,
@@ -218,34 +219,21 @@ export class PrismaEntitlementRepository implements IEntitlementRepository {
     const periodStart = new Date(now.getFullYear(), now.getMonth(), 1)
     const periodEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59)
 
-    // Try to atomically increment usage
-    // If limit is null (enterprise/unlimited), we skip the limit check
-    let result: { usageCount: number } | null = null
+    // Build conditional SQL for limit check
+    const limitCondition = limit !== null
+      ? Prisma.sql`AND "usageCount" + ${amount} <= ${limit}`
+      : Prisma.empty
 
-    if (limit !== null) {
-      // Atomic UPDATE with limit check
-      result = (await prisma.$queryRaw`
-        UPDATE "UsageTracking"
-        SET "usageCount" = "usageCount" + ${amount},
-            "updatedAt" = NOW()
-        WHERE "orgId" = ${orgId}
-          AND "featureKey" = ${featureKey}
-          AND "periodEnd" > NOW()
-          AND "usageCount" + ${amount} <= ${limit}
-        RETURNING "usageCount"
-      `) as unknown as { usageCount: number } | null
-    } else {
-      // No limit - just increment
-      result = (await prisma.$queryRaw`
-        UPDATE "UsageTracking"
-        SET "usageCount" = "usageCount" + ${amount},
-            "updatedAt" = NOW()
-        WHERE "orgId" = ${orgId}
-          AND "featureKey" = ${featureKey}
-          AND "periodEnd" > NOW()
-        RETURNING "usageCount"
-      `) as unknown as { usageCount: number } | null
-    }
+    let result = (await prisma.$queryRaw`
+      UPDATE "UsageTracking"
+      SET "usageCount" = "usageCount" + ${amount},
+          "updatedAt" = NOW()
+      WHERE "orgId" = ${orgId}
+        AND "featureKey" = ${featureKey}
+        AND "periodEnd" > NOW()
+      ${limitCondition}
+      RETURNING "usageCount"
+    `) as unknown as { usageCount: number } | { usageCount: number }[]
 
     // If no row was updated, create new tracking or limit was reached
     if (!result || (Array.isArray(result) && result.length === 0)) {

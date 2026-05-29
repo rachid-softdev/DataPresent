@@ -122,6 +122,10 @@ describe('Stripe Webhook Handler', () => {
       expect(result.success).toBe(true)
     })
 
+    // TODO: This test is skipped because it requires complex Stripe subscription event
+    // mocking (customer.subscription.updated with nested price/items data).
+    // The handleWebhookEvent function needs a full subscription object with proper
+    // price lookups. Fix when adding production Stripe integration tests.
     it.skip('should return not alreadyProcessed when event is new', async () => {
       mockRepository.isEventProcessed.mockResolvedValue(false)
 

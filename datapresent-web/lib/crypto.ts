@@ -53,3 +53,11 @@ export async function hashToken(token: string): Promise<string> {
 export async function verifyToken(token: string, hash: string): Promise<boolean> {
   return verifyPassword(token, hash)
 }
+
+/**
+ * Extract token prefix for indexed DB lookup
+ * First 12 characters of the raw hex token
+ */
+export function extractTokenPrefix(token: string): string {
+  return token.slice(0, 12)
+}
