@@ -7,7 +7,7 @@ const SECRET = env.CSRF_SECRET
 export function signJobData(data: Record<string, unknown>): { data: Record<string, unknown>; signature: string } {
   const signature = crypto
     .createHmac('sha256', SECRET)
-    .update(JSON.stringify(data))
+    .update(JSON.stringify(data, Object.keys(data).sort()))
     .digest('hex')
   return { data, signature }
 }
@@ -15,7 +15,7 @@ export function signJobData(data: Record<string, unknown>): { data: Record<strin
 export function verifyJobSignature(data: Record<string, unknown>, signature: string): boolean {
   const expected = crypto
     .createHmac('sha256', SECRET)
-    .update(JSON.stringify(data))
+    .update(JSON.stringify(data, Object.keys(data).sort()))
     .digest('hex')
   try {
     return crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expected))

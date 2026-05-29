@@ -1,3 +1,4 @@
+import crypto from 'crypto'
 import { prisma } from '@/lib/prisma'
 import { captureException, captureMessage } from '@/lib/sentry'
 import { hashPassword, verifyPassword } from './password'
@@ -149,24 +150,12 @@ export async function cleanupExpiredKeys(): Promise<number> {
 function generateSecureKey(): string {
   const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
   const keyLength = 64
+  const bytes = crypto.randomBytes(keyLength)
   let key = ''
-  
-  // Use crypto for secure random generation
-  const array = new Uint8Array(keyLength)
-  if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
-    crypto.getRandomValues(array)
-  } else {
-    // Fallback to Math.random (less secure)
-    for (let i = 0; i < keyLength; i++) {
-      array[i] = Math.floor(Math.random() * 256)
-    }
-  }
-
   for (let i = 0; i < keyLength; i++) {
-    key += chars[array[i] % chars.length]
+    key += chars[bytes[i] % chars.length]
   }
-
-  return `dp_${key}` // Prefix for DataPresent
+  return `dp_${key}`
 }
 
 /**

@@ -178,10 +178,13 @@ describe('sanitize', () => {
       expect(isUrlSafe('https://evil.com')).toBe(false)
     })
 
-    it('should return false for invalid URLs (Node.js environment)', () => {
-      // In Node.js, relative URLs like '/path' or 'relative' throw errors
-      // when passed to new URL() without a base URL
-      expect(isUrlSafe('/path')).toBe(false)
+    it('should allow root-relative URLs', () => {
+      expect(isUrlSafe('/api/reports')).toBe(true)
+      expect(isUrlSafe('/')).toBe(true)
+    })
+
+    it('should reject relative URLs without leading slash', () => {
+      // These don't start with / and fail URL parsing
       expect(isUrlSafe('relative')).toBe(false)
       expect(isUrlSafe('not-a-url')).toBe(false)
     })

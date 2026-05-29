@@ -1,14 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { readFileSync } from 'fs'
-import { join } from 'path'
-
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://datapresent.com'
+import { NextRequest } from 'next/server'
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url)
   const title = searchParams.get('title') || 'DataPresent Blog'
   const description = searchParams.get('description') || 'Latest news, tips and insights about data presentation'
-  const image = searchParams.get('image') || ''
   const slug = searchParams.get('slug') || ''
   const locale = searchParams.get('locale') || 'en'
 
@@ -70,7 +65,7 @@ export async function GET(req: NextRequest) {
     <h1 class="title">${escapeHtml(title)}</h1>
     <p class="description">${escapeHtml(description)}</p>
   </div>
-  <div class="url">datapresent.com/${locale}/blog/${slug}</div>
+  <div class="url">datapresent.com/${escapeHtml(locale)}/blog/${escapeHtml(slug)}</div>
 </body>
 </html>
   `

@@ -118,6 +118,9 @@ export function sanitizeSlideContent(content: string): string {
 export function isUrlSafe(url: string): boolean {
   if (!url) return false
 
+  // Allow root-relative URLs (same origin)
+  if (url.startsWith('/')) return true
+
   try {
     const parsedUrl = new URL(url)
 

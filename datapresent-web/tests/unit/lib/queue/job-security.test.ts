@@ -70,15 +70,26 @@ describe('job-security', () => {
       expect(isValid).toBe(false)
     })
 
-    it('should ignore existing signature in data object', () => {
+    it('should reject data that includes a signature field (must strip before verify)', () => {
       const data = { jobId: 'job-123', type: 'export' }
       const { signature } = signJobData(data)
 
-      // Data with embedded signature (like from signJobData result)
+      // verifyJobSignature hashes ALL keys in data, including 'signature'
+      // Since signJobData did NOT include 'signature' in its hash, this will differ
       const dataWithSignature = { jobId: 'job-123', type: 'export', signature }
 
       const isValid = verifyJobSignature(dataWithSignature as any, signature)
-      expect(isValid).toBe(true)
+      expect(isValid).toBe(false)
+    })
+
+    it('should verify correctly via extractSignedJobData (which strips signature first)', () => {
+      const data = { jobId: 'job-123', type: 'export' }
+      const { signature } = signJobData(data)
+
+      const result = extractSignedJobData({ ...data, signature })
+
+      expect(result.valid).toBe(true)
+      expect(result.cleanData.signature).toBeUndefined()
     })
   })
 
