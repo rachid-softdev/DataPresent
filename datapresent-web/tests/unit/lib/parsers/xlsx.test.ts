@@ -14,6 +14,7 @@ function createRow(values: unknown[]) {
     eachCell: vi.fn((callback: (cell: { value: unknown }, colNumber?: number) => void) => {
       values.forEach((val, idx) => callback(createCell(val), idx + 1))
     }),
+    }),
   }
 }
 
