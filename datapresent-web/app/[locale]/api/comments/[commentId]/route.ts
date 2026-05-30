@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { withCsrfProtection } from '@/lib/security'
 import { ERROR_CODES, unauthorized, forbidden, notFound, badRequest } from '@/lib/errors'
 import { sanitizeComment } from '@/lib/sanitize'
 
@@ -8,12 +9,14 @@ export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ commentId: string }> }
 ) {
+  const { commentId } = await params
+  const csrfResponse = await withCsrfProtection(req)
+  if (csrfResponse) return csrfResponse
+
   const session = await auth()
   if (!session?.user?.id) {
     return unauthorized()
   }
-
-  const { commentId } = await params
   const { body } = await req.json()
 
   if (!body?.trim()) {
@@ -55,12 +58,14 @@ export async function DELETE(
   req: NextRequest,
   { params }: { params: Promise<{ commentId: string }> }
 ) {
+  const { commentId } = await params
+  const csrfResponse = await withCsrfProtection(req)
+  if (csrfResponse) return csrfResponse
+
   const session = await auth()
   if (!session?.user?.id) {
     return unauthorized()
   }
-
-  const { commentId } = await params
 
   const comment = await prisma.comment.findUnique({
     where: { id: commentId }

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { listApiKeys, createApiKey, revokeApiKey } from '@/lib/api-keys'
+import { withCsrfProtection } from '@/lib/security'
 import { getUserPlan, PLANS } from '@/lib/entitlements/compat'
 import { checkRateLimit } from '@/lib/rate-limit'
 
@@ -31,6 +32,9 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const csrfResponse = await withCsrfProtection(req)
+  if (csrfResponse) return csrfResponse
+
   try {
     const session = await auth()
     if (!session?.user?.id) {
@@ -78,6 +82,9 @@ export async function POST(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
+  const csrfResponse = await withCsrfProtection(req)
+  if (csrfResponse) return csrfResponse
+
   try {
     const session = await auth()
     if (!session?.user?.id) {

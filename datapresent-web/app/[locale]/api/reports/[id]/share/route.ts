@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { withCsrfProtection } from '@/lib/security'
 import { ERROR_CODES, unauthorized, forbidden, notFound, badRequest } from '@/lib/errors'
 import { hashPassword, isPasswordValid } from '@/lib/password'
 
@@ -62,12 +63,14 @@ export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
+  const csrfResponse = await withCsrfProtection(req)
+  if (csrfResponse) return csrfResponse
+
   const session = await auth()
   if (!session?.user?.id) {
     return unauthorized()
   }
-
-  const { id } = await params
 
   const report = await prisma.report.findUnique({
     where: { id },
@@ -117,12 +120,14 @@ export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
+  const csrfResponse = await withCsrfProtection(req)
+  if (csrfResponse) return csrfResponse
+
   const session = await auth()
   if (!session?.user?.id) {
     return unauthorized()
   }
-
-  const { id } = await params
 
   const report = await prisma.report.findUnique({
     where: { id },

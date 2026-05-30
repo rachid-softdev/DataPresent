@@ -2,20 +2,22 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { checkRateLimit } from '@/lib/rate-limit'
-import { logApiError, logSecurityEvent } from '@/lib/security'
+import { logApiError, logSecurityEvent, withCsrfProtection } from '@/lib/security'
 import { generateToken, hashToken, extractTokenPrefix } from '@/lib/crypto'
 
 export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id: orgId } = await params
+  const csrfResponse = await withCsrfProtection(req)
+  if (csrfResponse) return csrfResponse
+
   try {
     const session = await auth()
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
-
-    const { id: orgId } = await params
     const { email, role } = await req.json()
 
     if (!email) {
@@ -89,7 +91,7 @@ export async function POST(
 
     return NextResponse.json({ success: true, message: 'Invitation sent successfully' })
   } catch (error) {
-    await logApiError(error as Error, { path: `/api/organizations/${await params.then(p => p.id)}/invite`, method: 'POST' })
+    await logApiError(error as Error, { path: `/api/organizations/${orgId}/invite`, method: 'POST' })
     return NextResponse.json({ error: 'An error occurred' }, { status: 500 })
   }
 }

@@ -79,6 +79,7 @@ const envSchema = z.object({
   // SECURITY
   // =========================
   CSRF_SECRET: z.string().min(32, 'CSRF_SECRET must be at least 32 characters'),
+  JOB_SIGNING_SECRET: z.string().min(32, 'JOB_SIGNING_SECRET must be at least 32 characters'),
   ALLOWED_ORIGINS: z.string().optional(),
 
   // =========================

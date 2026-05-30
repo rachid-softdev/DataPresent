@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { withCsrfProtection } from '@/lib/security'
 import { unauthorized, forbidden, notFound } from '@/lib/errors'
 
 /**
@@ -11,12 +12,14 @@ export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
+  const csrfResponse = await withCsrfProtection(req)
+  if (csrfResponse) return csrfResponse
+
   const session = await auth()
   if (!session?.user?.id) {
     return unauthorized()
   }
-
-  const { id } = await params
   const { slideOrder } = await req.json()
 
   if (!Array.isArray(slideOrder)) {

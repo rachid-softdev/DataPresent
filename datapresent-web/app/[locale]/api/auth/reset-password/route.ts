@@ -1,10 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { logApiError } from '@/lib/security'
+import { logApiError, withCsrfProtection } from '@/lib/security'
 import { verifyToken, extractTokenPrefix } from '@/lib/crypto'
 import { isPasswordValid } from '@/lib/password'
 
 export async function POST(req: NextRequest) {
+  const csrfResponse = await withCsrfProtection(req)
+  if (csrfResponse) return csrfResponse
+
   try {
     const { token, password } = await req.json()
 

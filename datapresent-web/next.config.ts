@@ -84,10 +84,6 @@ const nextConfig: NextConfig = {
         source: '/api/(.*)',
         headers: [
           {
-            key: 'Access-Control-Allow-Origin',
-            value: process.env.ALLOWED_ORIGINS?.split(',').map(s => s.trim()).join(', ') || 'https://datapresent.com,https://app.datapresent.com',
-          },
-          {
             key: 'Access-Control-Allow-Methods',
             value: 'GET, POST, PUT, DELETE, OPTIONS',
           },

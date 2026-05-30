@@ -3,18 +3,21 @@ import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { generateQueue } from '@/lib/queue'
 import { signJobData } from '@/lib/queue/job-security'
+import { withCsrfProtection } from '@/lib/security'
 import { ERROR_CODES, unauthorized, forbidden, notFound, badRequest } from '@/lib/errors'
 
 export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id: reportId } = await params
+  const csrfResponse = await withCsrfProtection(req)
+  if (csrfResponse) return csrfResponse
+
   const session = await auth()
   if (!session?.user?.id) {
     return unauthorized()
   }
-
-  const { id: reportId } = await params
 
   const report = await prisma.report.findUnique({
     where: { id: reportId },
