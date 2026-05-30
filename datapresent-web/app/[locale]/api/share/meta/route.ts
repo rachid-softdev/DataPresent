@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { notFound } from '@/lib/errors'
+import { checkRateLimit } from '@/lib/rate-limit'
 
 /**
  * GET /api/share/meta?token=xxx
@@ -13,6 +14,15 @@ export async function GET(req: NextRequest) {
 
     if (!token) {
       return NextResponse.json({ error: 'Token is required' }, { status: 400 })
+    }
+
+    // Rate limit: 20 requests per minute per IP
+    const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() 
+           || req.headers.get('x-real-ip') 
+           || 'unknown'
+    const rateLimitAllowed = await checkRateLimit(`share-meta:${ip}`, { limit: 20, windowMs: 60 * 1000 })
+    if (!rateLimitAllowed) {
+      return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
     }
 
     const report = await prisma.report.findUnique({

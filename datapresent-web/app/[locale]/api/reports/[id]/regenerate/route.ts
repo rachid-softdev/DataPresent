@@ -52,6 +52,10 @@ export async function POST(
   }
 
   if (sector) {
+    const validSectors = ['FINANCE', 'MARKETING', 'HR', 'SAAS', 'GENERIC'] as const
+    if (!validSectors.includes(sector as typeof validSectors[number])) {
+      return badRequest(ERROR_CODES.ERR_VALIDATION_REQUIRED)
+    }
     updateData.sector = sector
   }
 

@@ -24,9 +24,10 @@ export async function POST(req: NextRequest) {
   const result = await handleWebhookEvent(event)
 
   if (!result.success) {
-    // Return 500 so Stripe will retry
+    // Log internally but don't expose details to caller
+    console.error('Webhook processing failed:', result.error)
     return NextResponse.json(
-      { error: 'Webhook processing failed', details: result.error },
+      { error: 'Webhook processing failed' },
       { status: 500 }
     )
   }

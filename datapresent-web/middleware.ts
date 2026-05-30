@@ -21,13 +21,21 @@ function setCorsHeaders(response: NextResponse, requestOrigin: string | null): v
 
   const allowed = getAllowedOrigins()
   
-  // In development, allow all origins
+  // In development, restrict to localhost origins only
   if (process.env.NODE_ENV === 'development') {
-    response.headers.set('Access-Control-Allow-Origin', requestOrigin)
-    response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
-    response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-CSRF-Token')
-    response.headers.set('Access-Control-Allow-Credentials', 'true')
-    response.headers.set('Access-Control-Max-Age', '86400')
+    const allowedDevOrigins = [
+      'http://localhost:3000',
+      'http://127.0.0.1:3000',
+      'http://localhost:3001',
+      'http://127.0.0.1:3001',
+    ]
+    if (allowedDevOrigins.includes(requestOrigin)) {
+      response.headers.set('Access-Control-Allow-Origin', requestOrigin)
+      response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
+      response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-CSRF-Token')
+      response.headers.set('Access-Control-Allow-Credentials', 'true')
+      response.headers.set('Access-Control-Max-Age', '86400')
+    }
     return
   }
 

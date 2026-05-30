@@ -2,7 +2,7 @@ import crypto from 'crypto'
 import { env } from '@/env'
 import { hashPassword, verifyPassword } from './password'
 
-const SECRET = env.JOB_SIGNING_SECRET || env.CSRF_SECRET
+const SECRET = env.JOB_SIGNING_SECRET
 
 export function signJobData(data: Record<string, unknown>): { data: Record<string, unknown>; signature: string } {
   const signature = crypto
