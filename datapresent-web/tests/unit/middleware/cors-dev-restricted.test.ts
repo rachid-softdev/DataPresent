@@ -1,13 +1,11 @@
 // ==========================================
-// CORS Middleware Tests
+// CORS Dev Mode Restricted (Fix #3)
 // ==========================================
 //
-// Tests the CORS handling in middleware.ts:
-// - Valid origin is reflected in Access-Control-Allow-Origin
-// - Invalid origin is rejected
-// - OPTIONS preflight returns 204 with CORS headers
-// - No origin header returns no CORS headers
-// - Development mode allows all origins
+// Tests that development mode restricts CORS to localhost origins only:
+// - http://localhost:3000, http://127.0.0.1:3000 are allowed
+// - Non-localhost origins (e.g. http://localhost:5173, https://evil.com) are blocked
+// - Production mode continues to use ALLOWED_ORIGINS check
 
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
@@ -84,52 +82,133 @@ function createMockRequest({
   } as unknown as NextRequest
 }
 
-describe('CORS Middleware', () => {
+describe('CORS Dev Mode Restricted (Fix #3)', () => {
+  const ORIGINAL_NODE_ENV = process.env.NODE_ENV
+
   beforeEach(() => {
     vi.clearAllMocks()
+    process.env.NODE_ENV = 'development'
   })
 
-  describe('valid origin', () => {
-    it('should reflect valid origin in Access-Control-Allow-Origin', () => {
+  afterEach(() => {
+    process.env.NODE_ENV = ORIGINAL_NODE_ENV
+  })
+
+  // -----------------------------------------------------------------------
+  // Allowed localhost origins
+  // -----------------------------------------------------------------------
+  describe('allowed localhost origins in dev mode', () => {
+    it('should allow http://localhost:3000', () => {
       const req = createMockRequest({
         method: 'GET',
         pathname: '/api/reports',
-        origin: 'https://datapresent.com',
+        origin: 'http://localhost:3000',
       })
       const response = middleware(req)
       expect(response!.headers.get('Access-Control-Allow-Origin')).toBe(
-        'https://datapresent.com'
+        'http://localhost:3000'
       )
     })
 
-    it('should include CORS headers for valid app origin', () => {
+    it('should allow http://127.0.0.1:3000', () => {
       const req = createMockRequest({
-        method: 'POST',
+        method: 'GET',
         pathname: '/api/reports',
-        origin: 'https://app.datapresent.com',
+        origin: 'http://127.0.0.1:3000',
       })
       const response = middleware(req)
       expect(response!.headers.get('Access-Control-Allow-Origin')).toBe(
-        'https://app.datapresent.com'
+        'http://127.0.0.1:3000'
+      )
+    })
+
+    it('should allow http://localhost:3001', () => {
+      const req = createMockRequest({
+        method: 'GET',
+        pathname: '/api/reports',
+        origin: 'http://localhost:3001',
+      })
+      const response = middleware(req)
+      expect(response!.headers.get('Access-Control-Allow-Origin')).toBe(
+        'http://localhost:3001'
+      )
+    })
+
+    it('should allow http://127.0.0.1:3001', () => {
+      const req = createMockRequest({
+        method: 'GET',
+        pathname: '/api/reports',
+        origin: 'http://127.0.0.1:3001',
+      })
+      const response = middleware(req)
+      expect(response!.headers.get('Access-Control-Allow-Origin')).toBe(
+        'http://127.0.0.1:3001'
+      )
+    })
+
+    it('should reflect allowed origin with CORS headers on OPTIONS', () => {
+      const req = createMockRequest({
+        method: 'OPTIONS',
+        pathname: '/api/reports',
+        origin: 'http://localhost:3000',
+      })
+      const response = middleware(req)
+      expect(response!.status).toBe(204)
+      expect(response!.headers.get('Access-Control-Allow-Origin')).toBe(
+        'http://localhost:3000'
       )
       expect(response!.headers.get('Access-Control-Allow-Methods')).toBeTruthy()
       expect(response!.headers.get('Access-Control-Allow-Headers')).toBeTruthy()
       expect(response!.headers.get('Access-Control-Allow-Credentials')).toBe('true')
+      expect(response!.headers.get('Access-Control-Max-Age')).toBe('86400')
+    })
+  })
+
+  // -----------------------------------------------------------------------
+  // Blocked non-localhost origins
+  // -----------------------------------------------------------------------
+  describe('blocked non-localhost origins in dev mode', () => {
+    it('should block http://localhost:5173 (not in allowed list)', () => {
+      const req = createMockRequest({
+        method: 'GET',
+        pathname: '/api/reports',
+        origin: 'http://localhost:5173',
+      })
+      const response = middleware(req)
+      expect(response!.headers.get('Access-Control-Allow-Origin')).toBeNull()
     })
 
-    it('should include Access-Control-Max-Age header', () => {
+    it('should block http://localhost:3002 (non-matching port)', () => {
+      const req = createMockRequest({
+        method: 'GET',
+        pathname: '/api/reports',
+        origin: 'http://localhost:3002',
+      })
+      const response = middleware(req)
+      expect(response!.headers.get('Access-Control-Allow-Origin')).toBeNull()
+    })
+
+    it('should block http://127.0.0.1:8080 (non-matching port)', () => {
+      const req = createMockRequest({
+        method: 'GET',
+        pathname: '/api/reports',
+        origin: 'http://127.0.0.1:8080',
+      })
+      const response = middleware(req)
+      expect(response!.headers.get('Access-Control-Allow-Origin')).toBeNull()
+    })
+
+    it('should block external production origin', () => {
       const req = createMockRequest({
         method: 'GET',
         pathname: '/api/reports',
         origin: 'https://datapresent.com',
       })
       const response = middleware(req)
-      expect(response!.headers.get('Access-Control-Max-Age')).toBe('86400')
+      expect(response!.headers.get('Access-Control-Allow-Origin')).toBeNull()
     })
-  })
 
-  describe('invalid origin', () => {
-    it('should NOT reflect origin that is not in the allowed list', () => {
+    it('should block evil external origin', () => {
       const req = createMockRequest({
         method: 'GET',
         pathname: '/api/reports',
@@ -139,122 +218,47 @@ describe('CORS Middleware', () => {
       expect(response!.headers.get('Access-Control-Allow-Origin')).toBeNull()
     })
 
-    it('should not return any CORS headers for disallowed origin', () => {
-      const req = createMockRequest({
-        method: 'POST',
-        pathname: '/api/reports',
-        origin: 'https://attacker.com',
-      })
-      const response = middleware(req)
-      expect(response!.headers.get('Access-Control-Allow-Methods')).toBeNull()
-      expect(response!.headers.get('Access-Control-Allow-Headers')).toBeNull()
-    })
-  })
-
-  describe('OPTIONS preflight', () => {
-    it('should return 204 status for OPTIONS requests', () => {
+    it('should not set any CORS headers for blocked origin on OPTIONS', () => {
       const req = createMockRequest({
         method: 'OPTIONS',
         pathname: '/api/reports',
-        origin: 'https://datapresent.com',
+        origin: 'http://localhost:5173',
       })
       const response = middleware(req)
       expect(response!.status).toBe(204)
-    })
-
-    it('should include CORS headers on OPTIONS response', () => {
-      const req = createMockRequest({
-        method: 'OPTIONS',
-        pathname: '/api/reports',
-        origin: 'https://datapresent.com',
-      })
-      const response = middleware(req)
-      expect(response!.headers.get('Access-Control-Allow-Origin')).toBe(
-        'https://datapresent.com'
-      )
-      expect(response!.headers.get('Access-Control-Allow-Methods')).toBeTruthy()
-      expect(response!.headers.get('Access-Control-Allow-Headers')).toBeTruthy()
-      expect(response!.headers.get('Access-Control-Allow-Credentials')).toBe('true')
-      expect(response!.headers.get('Access-Control-Max-Age')).toBe('86400')
-    })
-
-    it('should NOT reflect disallowed origins on OPTIONS', () => {
-      const req = createMockRequest({
-        method: 'OPTIONS',
-        pathname: '/api/reports',
-        origin: 'https://evil-site.com',
-      })
-      const response = middleware(req)
-      expect(response!.status).toBe(204)
-      expect(response!.headers.get('Access-Control-Allow-Origin')).toBeNull()
-    })
-  })
-
-  describe('no origin header', () => {
-    it('should not set any CORS headers when no origin is present', () => {
-      const req = createMockRequest({
-        method: 'GET',
-        pathname: '/api/reports',
-        // no origin
-      })
-      const response = middleware(req)
       expect(response!.headers.get('Access-Control-Allow-Origin')).toBeNull()
       expect(response!.headers.get('Access-Control-Allow-Methods')).toBeNull()
     })
   })
 
-  describe('development mode', () => {
-    const ORIGINAL_NODE_ENV = process.env.NODE_ENV
-
+  // -----------------------------------------------------------------------
+  // Production mode still enforces ALLOWED_ORIGINS
+  // -----------------------------------------------------------------------
+  describe('production mode still enforces ALLOWED_ORIGINS', () => {
     beforeEach(() => {
-      // Set development mode
-      process.env.NODE_ENV = 'development'
+      process.env.NODE_ENV = 'production'
     })
 
-    afterEach(() => {
-      process.env.NODE_ENV = ORIGINAL_NODE_ENV
-    })
-
-    it('should allow localhost:3000 in development mode (restricted to allowed ports)', () => {
+    it('should allow origin from ALLOWED_ORIGINS in production', () => {
       const req = createMockRequest({
         method: 'GET',
         pathname: '/api/reports',
-        origin: 'http://localhost:3000',
-      })
-      const response = middleware(req)
-      expect(response!.headers.get('Access-Control-Allow-Origin')).toBe(
-        'http://localhost:3000'
-      )
-    })
-
-    it('should include all CORS headers for allowed dev origin on OPTIONS', () => {
-      const req = createMockRequest({
-        method: 'OPTIONS',
-        pathname: '/api/reports',
-        origin: 'http://localhost:3000',
-      })
-      const response = middleware(req)
-      expect(response!.status).toBe(204)
-      expect(response!.headers.get('Access-Control-Allow-Origin')).toBe(
-        'http://localhost:3000'
-      )
-      expect(response!.headers.get('Access-Control-Allow-Methods')).toBeTruthy()
-      expect(response!.headers.get('Access-Control-Allow-Headers')).toBeTruthy()
-      expect(response!.headers.get('Access-Control-Allow-Credentials')).toBe('true')
-      expect(response!.headers.get('Access-Control-Max-Age')).toBe('86400')
-    })
-  })
-
-  describe('non-API routes', () => {
-    it('should not set CORS headers on non-API routes', () => {
-      const req = createMockRequest({
-        method: 'GET',
-        pathname: '/dashboard',
         origin: 'https://datapresent.com',
       })
       const response = middleware(req)
-      // Non-API routes go through i18n middleware, not CORS
-      expect(response).toBeTruthy()
+      expect(response!.headers.get('Access-Control-Allow-Origin')).toBe(
+        'https://datapresent.com'
+      )
+    })
+
+    it('should block non-ALLOWED_ORIGINS in production', () => {
+      const req = createMockRequest({
+        method: 'GET',
+        pathname: '/api/reports',
+        origin: 'http://localhost:3000',
+      })
+      const response = middleware(req)
+      expect(response!.headers.get('Access-Control-Allow-Origin')).toBeNull()
     })
   })
 })
