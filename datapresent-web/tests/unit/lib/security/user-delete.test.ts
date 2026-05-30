@@ -18,6 +18,9 @@ const { mockPrisma } = vi.hoisted(() => ({
       findUnique: vi.fn(),
       delete: vi.fn(),
     },
+    password: {
+      findUnique: vi.fn(),
+    },
   },
 }))
 

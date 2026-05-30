@@ -2,8 +2,10 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { checkRateLimit } from '@/lib/rate-limit'
+import { normalizeEmail } from '@/lib/email-normalize'
 import { logApiError, logSecurityEvent, withCsrfProtection } from '@/lib/security'
 import { generateToken, hashToken, extractTokenPrefix } from '@/lib/crypto'
+import { InviteSchema } from '@/lib/validation-schemas'
 
 export async function POST(
   req: NextRequest,
@@ -18,11 +20,16 @@ export async function POST(
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
-    const { email, role } = await req.json()
-
-    if (!email) {
-      return NextResponse.json({ error: 'Email is required' }, { status: 400 })
+    const body = await req.json()
+    const parsed = InviteSchema.safeParse(body)
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: parsed.error.flatten().fieldErrors },
+        { status: 400 }
+      )
     }
+    const { email: rawEmail, role } = parsed.data
+    const email = normalizeEmail(rawEmail)
 
     // Check if user is ADMIN or OWNER of the organization
     const membership = await prisma.membership.findFirst({

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { sendMagicLinkEmail } from '@/lib/email'
 import { checkRateLimit } from '@/lib/rate-limit'
+import { normalizeEmail } from '@/lib/email-normalize'
 import { generateToken, hashToken, extractTokenPrefix } from '@/lib/crypto'
 import { ERROR_CODES, SUCCESS_CODES, badRequest, apiSuccess } from '@/lib/errors'
 
@@ -15,7 +16,7 @@ export async function POST(req: NextRequest) {
       return badRequest(ERROR_CODES.ERR_VALIDATION_EMAIL_REQUIRED)
     }
     
-    const normalizedEmail = email.toLowerCase().trim()
+    const normalizedEmail = normalizeEmail(email)
     
     if (!normalizedEmail.includes('@') || !normalizedEmail.includes('.')) {
       return badRequest(ERROR_CODES.ERR_VALIDATION_EMAIL_INVALID)
