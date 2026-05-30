@@ -3,7 +3,9 @@ import { PrismaAdapter } from "@auth/prisma-adapter"
 import GoogleProvider from "next-auth/providers/google"
 import CredentialsProvider from "next-auth/providers/credentials"
 import { prisma } from "@/lib/prisma"
+import { normalizeEmail } from "@/lib/email-normalize"
 import { verifyToken, extractTokenPrefix } from "@/lib/crypto"
+import { verifyPassword } from "@/lib/password"
 
 const googleConfigured = !!(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET)
 
@@ -65,6 +67,27 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           })
         }
 
+        return { id: user.id, email: user.email, name: user.name }
+      }
+    }),
+    CredentialsProvider({
+      id: "password",
+      name: "Password",
+      credentials: {
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" }
+      },
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password) return null
+        const email = normalizeEmail(credentials.email as string)
+        const user = await prisma.user.findUnique({ where: { email } })
+        if (!user) return null
+        const stored = await prisma.password.findUnique({
+          where: { userId: user.id }
+        })
+        if (!stored) return null
+        const valid = await verifyPassword(credentials.password as string, stored.hash)
+        if (!valid) return null
         return { id: user.id, email: user.email, name: user.name }
       }
     })

@@ -1,6 +1,18 @@
 import IORedis from 'ioredis'
 import { env } from '@/env'
 
+/**
+ * Build TLS options for IORedis when REDIS_TLS_ENABLED is 'true'.
+ * Returns undefined when TLS is not enabled, which is a no-op when spread.
+ */
+function buildRedisTlsOptions(): { rejectUnauthorized: boolean; ca?: string } | undefined {
+  if (env.REDIS_TLS_ENABLED !== 'true') return undefined
+  return {
+    rejectUnauthorized: env.REDIS_TLS_REJECT_UNAUTHORIZED === 'true',
+    ...(env.REDIS_TLS_CA ? { ca: env.REDIS_TLS_CA } : {}),
+  }
+}
+
 export let connection: IORedis | null = null
 let connectionPromise: Promise<IORedis | null> | null = null
 let lastConnectAttempt = 0
@@ -43,6 +55,7 @@ export async function getRedisConnectionAsync(): Promise<IORedis | null> {
         return Math.min(times * 1000, 30_000)
       },
       lazyConnect: true,
+      tls: buildRedisTlsOptions(),
     })
 
     try {
@@ -73,6 +86,7 @@ export function getRedisConnection(): IORedis {
         return Math.min(times * 200, 2000)
       },
       lazyConnect: true,
+      tls: buildRedisTlsOptions(),
     })
   }
   return connection
@@ -88,5 +102,6 @@ export function createSubscriberConnection(): IORedis {
       return Math.min(times * 200, 2000)
     },
     lazyConnect: true,
+    tls: buildRedisTlsOptions(),
   })
 }

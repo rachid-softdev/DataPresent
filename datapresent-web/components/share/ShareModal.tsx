@@ -124,8 +124,17 @@ export function ShareModal({ reportId }: ShareModalProps) {
       toast.error('Les mots de passe ne correspondent pas')
       return
     }
-    if (newPassword.length < 4) {
-      toast.error('Le mot de passe doit contenir au moins 4 caractères')
+    if (newPassword.length < 12) {
+      toast.error('Le mot de passe doit contenir au moins 12 caractères')
+      return
+    }
+    // Verify complexity requirements match server validation
+    const hasUppercase = /[A-Z]/.test(newPassword)
+    const hasLowercase = /[a-z]/.test(newPassword)
+    const hasNumber = /[0-9]/.test(newPassword)
+    const hasSpecial = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(newPassword)
+    if (!hasUppercase || !hasLowercase || !hasNumber || !hasSpecial) {
+      toast.error('Le mot de passe doit contenir au moins une majuscule, une minuscule, un chiffre et un caractère spécial')
       return
     }
 
@@ -262,7 +271,7 @@ export function ShareModal({ reportId }: ShareModalProps) {
                         type="password"
                         value={newPassword}
                         onChange={(e) => setNewPassword(e.target.value)}
-                        placeholder="Minimum 4 caractères"
+                        placeholder="Minimum 12 caractères"
                         className="mt-1"
                       />
                     </div>

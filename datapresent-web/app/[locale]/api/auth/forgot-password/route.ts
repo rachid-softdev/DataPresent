@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { checkRateLimit } from '@/lib/rate-limit'
+import { normalizeEmail } from '@/lib/email-normalize'
 import { logApiError } from '@/lib/security'
 import { ERROR_CODES } from '@/lib/errors'
 import { generateToken, hashToken, extractTokenPrefix } from '@/lib/crypto'
@@ -8,7 +9,7 @@ import { generateToken, hashToken, extractTokenPrefix } from '@/lib/crypto'
 export async function POST(req: NextRequest) {
   try {
     const { email: rawEmail } = await req.json()
-    const email = rawEmail?.toLowerCase().trim()
+    const email = normalizeEmail(rawEmail)
 
     if (!email || typeof email !== 'string') {
       return NextResponse.json({ error: 'Email is required' }, { status: 400 })

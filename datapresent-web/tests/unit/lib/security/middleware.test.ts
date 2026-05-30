@@ -26,19 +26,32 @@ vi.mock('@/i18n/routing', () => ({
 // ---------------------------------------------------------------------------
 // Mock next/server — NextResponse
 // ---------------------------------------------------------------------------
-vi.mock('next/server', () => ({
-  NextResponse: {
-    next: vi.fn(() => ({ status: 200 })),
-    json: vi.fn((body: object, init?: ResponseInit) => {
+vi.mock('next/server', () => {
+  class MockNextResponse {
+    public status: number
+    public headers: Headers
+    public body: string | null
+
+    constructor(body: BodyInit | null, init?: ResponseInit) {
+      this.status = init?.status ?? 200
+      this.headers = new Headers(init?.headers)
+      this.body = body as string | null
+    }
+
+    static next = vi.fn(() => new MockNextResponse(null, { status: 200 }))
+    static json = vi.fn((body: object, init?: ResponseInit) => {
       const headers = new Headers(init?.headers)
-      return new Response(JSON.stringify(body), {
-        status: init?.status ?? 200,
-        headers,
-      })
-    }),
-  },
-  NextRequest: vi.fn(),
-}))
+      const res = new MockNextResponse(null, { status: init?.status ?? 200, headers })
+      res.body = JSON.stringify(body)
+      return res
+    })
+  }
+
+  return {
+    NextResponse: MockNextResponse,
+    NextRequest: vi.fn(),
+  }
+})
 
 import { NextRequest } from 'next/server'
 import { middleware } from '@/middleware'
@@ -84,12 +97,18 @@ describe('Middleware', () => {
     })
 
     it('should pass through all HTTP methods on API routes', () => {
-      const methods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'HEAD']
+      const methods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD']
       for (const method of methods) {
         const req = createMockRequest({ method, pathname: '/api/test' })
         const response = middleware(req)
         expect(response?.status).toBe(200)
       }
+    })
+
+    it('should return 204 for OPTIONS on API routes', () => {
+      const req = createMockRequest({ method: 'OPTIONS', pathname: '/api/test' })
+      const response = middleware(req)
+      expect(response?.status).toBe(204)
     })
 
     it('should pass through nested API routes', () => {

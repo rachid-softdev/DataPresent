@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { checkRateLimit } from '@/lib/rate-limit'
+import { extractClientIP } from '@/lib/client-ip'
 
 export class AdminAuthError extends Error {
   constructor(message: string, public statusCode: number = 403) {
@@ -59,7 +60,7 @@ export function withAdmin(handler: Handler, options?: AdminOptions) {
 
       // Optional rate limiting
       if (options?.rateLimit) {
-        const ip = req.headers.get('x-forwarded-for') ?? 'unknown'
+        const ip = extractClientIP(req) ?? 'unknown'
         const key = `admin:${session.user.id}:${ip}`
         const allowed = await checkRateLimit(key, options.rateLimit)
         if (!allowed) {

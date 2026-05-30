@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { verifyPassword } from '@/lib/password'
 import { checkRateLimit } from '@/lib/rate-limit'
+import { extractClientIP } from '@/lib/client-ip'
 import { notFound, unauthorized } from '@/lib/errors'
 
 /**
@@ -20,7 +21,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Rate limiting: 10 attempts per hour per share token + IP
-    const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown'
+    const ip = extractClientIP(req) ?? 'unknown'
     const allowed = await checkRateLimit(`share-verify:${shareToken}:${ip}`, { limit: 10, windowMs: 3600000 })
     if (!allowed) {
       return NextResponse.json({ error: 'Too many attempts' }, { status: 429 })

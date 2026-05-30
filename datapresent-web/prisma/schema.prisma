@@ -134,6 +134,17 @@ model User {
   invites   InviteToken[]
   reportVersions ReportVersion[]
   createdEntitlementOverrides EntitlementOverride[] @relation("CreatedBy")
+  password  Password?
+}
+
+model Password {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  hash      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Organization {

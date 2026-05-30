@@ -74,12 +74,31 @@ const envSchema = z.object({
   // REDIS (BullMQ)
   // =========================
   REDIS_URL: z.string().url().optional(),
+  REDIS_TLS_ENABLED: z.enum(['true', 'false']).optional().default('false'),
+  REDIS_TLS_CA: z.string().optional(),
+  REDIS_TLS_REJECT_UNAUTHORIZED: z.enum(['true', 'false']).optional().default('true'),
 
   // =========================
   // SECURITY
   // =========================
   CSRF_SECRET: z.string().min(32, 'CSRF_SECRET must be at least 32 characters'),
-  ALLOWED_ORIGINS: z.string().optional(),
+  JOB_SIGNING_SECRET: z.string().min(32, 'JOB_SIGNING_SECRET must be at least 32 characters'),
+  ALLOWED_ORIGINS: z.string()
+  .optional()
+  .refine(
+    (val) => {
+      if (!val) return true // optional
+      return val.split(',').every(o => {
+        try {
+          const url = new URL(o.trim())
+          return url.protocol === 'https:' || url.protocol === 'http:'
+        } catch {
+          return false
+        }
+      })
+    },
+    { message: 'ALLOWED_ORIGINS must be a comma-separated list of valid URLs (e.g., https://app.example.com,https://example.com)' }
+  ),
 
   // =========================
   // RATE LIMITING

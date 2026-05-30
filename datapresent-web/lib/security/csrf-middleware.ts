@@ -14,7 +14,7 @@ export async function withCsrfProtection(req: NextRequest): Promise<NextResponse
   }
 
   // Skip for webhook endpoints that use their own signature validation
-  const pathname = req.nextUrl.pathname
+  const pathname = req.nextUrl?.pathname ?? new URL(req.url).pathname
   if (pathname.includes('/api/stripe/webhook') || pathname.includes('/api/webhook')) {
     return null
   }

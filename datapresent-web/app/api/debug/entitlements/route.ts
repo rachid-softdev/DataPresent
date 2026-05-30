@@ -7,6 +7,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { getDebugTrace } from '@/lib/entitlements'
 import { prisma } from '@/lib/prisma'
+import { checkRateLimit } from '@/lib/rate-limit'
+import { extractClientIP } from '@/lib/client-ip'
 
 export async function GET(request: NextRequest) {
   try {
@@ -24,6 +26,14 @@ export async function GET(request: NextRequest) {
 
     if (user?.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Forbidden - Admin only' }, { status: 403 })
+    }
+
+    // Rate limiting: 10 requests per hour per admin
+    const ip = extractClientIP(request) ?? 'unknown'
+    const rateLimitKey = `debug-entitlements:${session.user.id}:${ip}`
+    const allowed = await checkRateLimit(rateLimitKey, { limit: 10, windowMs: 60 * 60 * 1000 })
+    if (!allowed) {
+      return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
     }
 
     const { searchParams } = new URL(request.url)

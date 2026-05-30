@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
-import { ERROR_CODES, unauthorized, forbidden, notFound, badRequest } from '@/lib/errors'
-import { hashPassword, isPasswordValid } from '@/lib/password'
+import { withCsrfProtection } from '@/lib/security'
+import { unauthorized, forbidden, notFound } from '@/lib/errors'
+import { hashPassword } from '@/lib/password'
+import { ShareCreateSchema, ShareUpdateSchema } from '@/lib/validation-schemas'
 
 export async function GET(
   req: NextRequest,
@@ -62,12 +64,14 @@ export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
+  const csrfResponse = await withCsrfProtection(req)
+  if (csrfResponse) return csrfResponse
+
   const session = await auth()
   if (!session?.user?.id) {
     return unauthorized()
   }
-
-  const { id } = await params
 
   const report = await prisma.report.findUnique({
     where: { id },
@@ -83,7 +87,15 @@ export async function POST(
     return forbidden()
   }
 
-  const { isPublic } = await req.json()
+  const body = await req.json()
+  const parsed = ShareCreateSchema.safeParse(body)
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: parsed.error.flatten().fieldErrors },
+      { status: 400 }
+    )
+  }
+  const { isPublic } = parsed.data
 
   let shareToken = report.shareToken
   if (isPublic && !shareToken) {
@@ -117,12 +129,14 @@ export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
+  const csrfResponse = await withCsrfProtection(req)
+  if (csrfResponse) return csrfResponse
+
   const session = await auth()
   if (!session?.user?.id) {
     return unauthorized()
   }
-
-  const { id } = await params
 
   const report = await prisma.report.findUnique({
     where: { id },
@@ -138,15 +152,15 @@ export async function PATCH(
     return forbidden()
   }
 
-  const { allowComments, allowEmbed, expiresAt, password } = await req.json()
-
-  // Validate password if provided
-  if (password && !isPasswordValid(password)) {
-    return badRequest(ERROR_CODES.ERR_VALIDATION_INVALID_PASSWORD)
+  const body = await req.json()
+  const parsed = ShareUpdateSchema.safeParse(body)
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: parsed.error.flatten().fieldErrors },
+      { status: 400 }
+    )
   }
-
-  // Hash the password if provided
-  const hashedPassword = password ? await hashPassword(password) : null
+  const { allowComments, allowEmbed, expiresAt, password } = parsed.data
 
   let shareExpiresAt: Date | null = null
   if (expiresAt === '7d') {
@@ -157,8 +171,12 @@ export async function PATCH(
     shareExpiresAt = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000)
   }
 
-  // If password is being removed, set to null; otherwise use hashed password
-  const passwordUpdate = password === '' ? null : hashedPassword
+  // Only update password when explicitly provided (undefined = no change).
+  // '' = remove existing password, non-empty string = hash and set new password.
+  let passwordUpdate: string | null | undefined = undefined
+  if (password !== undefined) {
+    passwordUpdate = password === '' ? null : await hashPassword(password)
+  }
 
   const updated = await prisma.report.update({
     where: { id },
@@ -166,7 +184,7 @@ export async function PATCH(
       allowComments: allowComments ?? true,
       allowEmbed: allowEmbed ?? false,
       shareExpiresAt,
-      sharePassword: passwordUpdate,
+      ...(passwordUpdate !== undefined ? { sharePassword: passwordUpdate } : {}),
     },
     select: {
       allowComments: true,

@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma'
 import { exportQueue } from '@/lib/queue'
 import { checkRateLimit } from '@/lib/rate-limit'
 import { signJobData } from '@/lib/queue/job-security'
+import { withCsrfProtection } from '@/lib/security'
 import { canUseFormat } from '@/lib/entitlements/compat'
 import { ExportFormat } from '@prisma/client'
 import { ERROR_CODES, unauthorized, notFound, forbidden, badRequest } from '@/lib/errors'
@@ -12,6 +13,10 @@ export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
+  const csrfResponse = await withCsrfProtection(req)
+  if (csrfResponse) return csrfResponse
+
   const session = await auth()
   if (!session?.user?.id) {
     return unauthorized()
@@ -22,8 +27,6 @@ export async function POST(
   if (!allowed) {
     return NextResponse.json({ error: ERROR_CODES.ERR_VALIDATION_RATE_LIMIT }, { status: 429 })
   }
-
-  const { id } = await params
   const { format } = await req.json()
 
   const report = await prisma.report.findUnique({
