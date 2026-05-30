@@ -32,7 +32,7 @@ const envSchema = z.object({
   // =========================
   // AI
   // =========================
-  ANTHROPIC_API_KEY: z.string().min(40, 'ANTHROPIC_API_KEY must be at least 40 characters'),
+  ANTHROPIC_API_KEY: z.string().min(8, 'ANTHROPIC_API_KEY must be at least 8 characters'),
 
   // =========================
   // EMAIL (SMTP - dev)

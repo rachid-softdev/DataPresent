@@ -25,8 +25,8 @@ export async function checkRateLimit(key: string, options?: RateLimitOptions): P
   const windowMs = options?.windowMs ?? DEFAULT_WINDOW
 
   // Use COALESCE for defaults (PostgreSQL || is string concat, not null-coalescing)
-  const intervalMs = windowMs * 2 > 0 ? windowMs * 2 : 120000
-  const windowIntervalMs = windowMs > 0 ? windowMs : 60000
+  const intervalMs = windowMs * 2
+  const windowIntervalMs = windowMs
 
   const result = await prisma.$queryRaw<Array<{ allowed: boolean }>>`
     INSERT INTO "RateLimit" ("key", "count", "windowStart", "expires")

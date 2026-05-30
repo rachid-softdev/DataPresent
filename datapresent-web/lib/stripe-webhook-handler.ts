@@ -44,7 +44,7 @@ function getPlanFromPriceId(priceId: string | null): Plan {
     [env.STRIPE_PRICE_STARTER_MONTHLY ?? '']: 'FREE',
   }
 
-  return priceIdToPlan[priceId] ?? 'PRO'
+  return priceIdToPlan[priceId] ?? 'FREE'
 }
 
 /**

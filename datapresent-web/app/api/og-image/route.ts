@@ -13,13 +13,7 @@ export async function GET(request: NextRequest) {
   const type = searchParams.get('type') || 'default' // 'default', 'report', 'blog'
 
   try {
-    const image = generateOgImage({ title, description, locale, type })
-    return new Response(image, {
-      headers: {
-        'Content-Type': 'image/png',
-        'Cache-Control': 'public, max-age=31536000, immutable',
-      },
-    })
+    return generateOgImage({ title, description, locale, type })
   } catch (error) {
     console.error('OG Image generation error:', error)
     return new NextResponse('Failed to generate image', { status: 500 })
@@ -31,7 +25,7 @@ function generateOgImage(params: {
   description: string
   locale: string
   type: string
-}): Buffer {
+}): Response {
   // Create an ImageResponse with the design
   const response = new ImageResponse(
     {
@@ -147,6 +141,5 @@ function generateOgImage(params: {
     }
   )
 
-  // ImageResponse returns a Blob, we need to convert to Buffer
-  return Buffer.from((response as any).body as ArrayBuffer)
+  return response
 }

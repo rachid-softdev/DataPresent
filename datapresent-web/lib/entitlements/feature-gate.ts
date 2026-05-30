@@ -28,7 +28,7 @@ import { isInExperiment, getExperimentConfig } from './experiments'
 // ==========================================
 
 export class FeatureGateService {
-  private invalidationTimers: Map<string, NodeJS.Timeout> = new Map()
+  private invalidationTimers: Map<string, ReturnType<typeof setTimeout>> = new Map()
 
   private debouncedInvalidate(orgId: string): void {
     const existing = this.invalidationTimers.get(orgId)
