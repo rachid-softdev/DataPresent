@@ -73,23 +73,23 @@ describe('CSRF Security', () => {
 
   describe('validateCsrfToken', () => {
     it('should return false for empty token', async () => {
-      const result = await validateCsrfToken('')
+      const result = validateCsrfToken('')
       expect(result).toBe(false)
     })
 
     it('should return false for invalid token format', async () => {
-      const result = await validateCsrfToken('invalid-token')
+      const result = validateCsrfToken('invalid-token')
       expect(result).toBe(false)
     })
 
     it('should return false for token with wrong number of parts', async () => {
-      const result = await validateCsrfToken('part1:part2')
+      const result = validateCsrfToken('part1:part2')
       expect(result).toBe(false)
     })
 
     it('should return true for valid token', async () => {
       const token = generateCsrfToken()
-      const result = await validateCsrfToken(token)
+      const result = validateCsrfToken(token)
       expect(result).toBe(true)
     })
 
@@ -100,27 +100,35 @@ describe('CSRF Security', () => {
       parts[2] = parts[2].substring(0, 4) + '0000' + parts[2].substring(8)
       const tamperedToken = parts.join(':')
 
-      const result = await validateCsrfToken(tamperedToken)
+      const result = validateCsrfToken(tamperedToken)
       expect(result).toBe(false)
     })
 
     it('should validate token with matching userId', async () => {
       const userId = 'user-123'
       const token = generateCsrfToken(userId)
-      const result = await validateCsrfToken(token, userId)
+      const result = validateCsrfToken(token, userId)
       expect(result).toBe(true)
     })
 
     it('should reject token with non-matching userId', async () => {
       const token = generateCsrfToken('user-123')
-      const result = await validateCsrfToken(token, 'user-456')
+      const result = validateCsrfToken(token, 'user-456')
       expect(result).toBe(false)
     })
 
     it('should accept token without userId when no userId provided', async () => {
       const token = generateCsrfToken()
-      const result = await validateCsrfToken(token)
+      const result = validateCsrfToken(token)
       expect(result).toBe(true)
+    })
+
+    it('should return false for token with garbage encrypted payload (simulates NaN timestamp)', async () => {
+      // We cannot easily forge an AES-256-GCM encrypted token with a specific
+      // timestamp. Instead, verify that completely malformed tokens are rejected.
+      // The iv:tag:encrypted format requires all three parts.
+      const result = await validateCsrfToken('00:00:00')
+      expect(result).toBe(false)
     })
   })
 

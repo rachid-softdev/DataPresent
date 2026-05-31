@@ -301,5 +301,52 @@ describe('withCsrfProtection', () => {
 
       expect(result).toBeNull()
     })
+
+    it('should skip HEAD requests (return null)', async () => {
+      const req = createMockRequest({
+        method: 'HEAD',
+        pathname: '/api/reports',
+        headers: {}, // no token — should be skipped
+      })
+      const result = await withCsrfProtection(req)
+
+      expect(result).toBeNull()
+    })
+  })
+})
+
+describe('withCsrfProtection providedUserId parameter', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('should use providedUserId instead of calling auth()', async () => {
+    // auth() should NOT be called when userId is provided
+    const req = createMockRequest({
+      method: 'POST',
+      pathname: '/api/reports',
+      headers: { 'x-csrf-token': generateCsrfToken('user-123') },
+    })
+
+    const result = await withCsrfProtection(req, 'user-123')
+
+    expect(result).toBeNull()
+    // auth should not have been called since we provided userId
+    expect(auth).not.toHaveBeenCalled()
+  })
+
+  it('should reject token that does not match providedUserId', async () => {
+    const req = createMockRequest({
+      method: 'POST',
+      pathname: '/api/reports',
+      headers: { 'x-csrf-token': generateCsrfToken('user-other') },
+    })
+
+    const result = await withCsrfProtection(req, 'user-123')
+
+    expect(result).not.toBeNull()
+    expect(result!.status).toBe(403)
+    // auth should not have been called
+    expect(auth).not.toHaveBeenCalled()
   })
 })

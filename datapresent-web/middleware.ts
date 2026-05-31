@@ -2,15 +2,22 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import createIntlMiddleware from 'next-intl/middleware'
 import { routing } from './i18n/routing'
+import { env } from './env'
 
 const intlMiddleware = createIntlMiddleware(routing)
+
+const CORS_HEADERS = {
+  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-CSRF-Token',
+  'Access-Control-Allow-Credentials': 'true',
+  'Access-Control-Max-Age': '86400',
+} as const
 
 /**
  * Get the allowed origins from environment or fallback
  */
 function getAllowedOrigins(): string[] {
-  const origins = process.env.ALLOWED_ORIGINS || 'https://datapresent.com,https://app.datapresent.com'
-  return origins.split(',').map(s => s.trim()).filter(Boolean)
+  return env.ALLOWED_ORIGINS.split(',').map(s => s.trim()).filter(Boolean)
 }
 
 /**
@@ -20,8 +27,7 @@ function setCorsHeaders(response: NextResponse, requestOrigin: string | null): v
   if (!requestOrigin) return
 
   const allowed = getAllowedOrigins()
-  
-  // In development, restrict to localhost origins only
+
   if (process.env.NODE_ENV === 'development') {
     const allowedDevOrigins = [
       'http://localhost:3000',
@@ -31,21 +37,18 @@ function setCorsHeaders(response: NextResponse, requestOrigin: string | null): v
     ]
     if (allowedDevOrigins.includes(requestOrigin)) {
       response.headers.set('Access-Control-Allow-Origin', requestOrigin)
-      response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
-      response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-CSRF-Token')
-      response.headers.set('Access-Control-Allow-Credentials', 'true')
-      response.headers.set('Access-Control-Max-Age', '86400')
+      for (const [key, val] of Object.entries(CORS_HEADERS)) {
+        response.headers.set(key, val)
+      }
     }
     return
   }
 
-  // In production, only reflect verified origins
   if (allowed.includes(requestOrigin)) {
     response.headers.set('Access-Control-Allow-Origin', requestOrigin)
-    response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
-    response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-CSRF-Token')
-    response.headers.set('Access-Control-Allow-Credentials', 'true')
-    response.headers.set('Access-Control-Max-Age', '86400')
+    for (const [key, val] of Object.entries(CORS_HEADERS)) {
+      response.headers.set(key, val)
+    }
   }
 }
 
@@ -73,6 +76,12 @@ export function middleware(request: NextRequest) {
     // Set CORS headers on actual requests
     const response = NextResponse.next()
     setCorsHeaders(response, request.headers.get('origin'))
+
+    // Security headers
+    response.headers.set('X-Content-Type-Options', 'nosniff')
+    response.headers.set('X-Frame-Options', 'DENY')
+    response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin')
+
     return response
   }
 

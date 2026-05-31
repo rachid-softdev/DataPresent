@@ -1,16 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { validateCsrfToken } from './csrf'
-import { verifyJobSignature } from '@/lib/crypto'
 import { auth } from '@/lib/auth'
 import { logSecurityEvent } from './error-logger'
 
 /**
  * CSRF protection middleware for API routes
  * Use this for POST, PUT, PATCH, DELETE requests
+ * @param req - The incoming request
+ * @param providedUserId - Optional. If provided, the CSRF token must be bound to this user.
+ *                         Pass session.user.id from the route handler to avoid a second auth() call.
  */
-export async function withCsrfProtection(req: NextRequest): Promise<NextResponse | null> {
-  // Skip CSRF for GET, OPTIONS, and health checks
-  if (req.method === 'GET' || req.method === 'OPTIONS') {
+export async function withCsrfProtection(req: NextRequest, providedUserId?: string): Promise<NextResponse | null> {
+  // Skip CSRF for GET, HEAD, OPTIONS, and health checks
+  if (req.method === 'GET' || req.method === 'HEAD' || req.method === 'OPTIONS') {
     return null
   }
 
@@ -34,11 +36,10 @@ export async function withCsrfProtection(req: NextRequest): Promise<NextResponse
     )
   }
 
-  // Get userId from session to bind token to user
-  const session = await auth()
-  const userId = session?.user?.id
+  // Use provided userId if available (avoids double auth() call)
+  const userId = providedUserId ?? (await auth())?.user?.id
 
-  const isValid = await validateCsrfToken(csrfToken, userId)
+  const isValid = validateCsrfToken(csrfToken, userId)
   if (!isValid) {
     logSecurityEvent({
       type: 'csrf_failure',
@@ -55,19 +56,4 @@ export async function withCsrfProtection(req: NextRequest): Promise<NextResponse
   return null
 }
 
-/**
- * Validate job signature for BullMQ workers
- */
-export function validateJobSignature<T extends Record<string, unknown>>(
-  jobData: T & { signature?: string }
-): { valid: boolean; cleanData: T } {
-  const { signature, ...rest } = jobData
-
-  if (!signature) {
-    return { valid: false, cleanData: rest as T }
-  }
-
-  const valid = verifyJobSignature(rest as T, signature)
-  return { valid, cleanData: rest as T }
-}
 

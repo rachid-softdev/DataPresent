@@ -32,7 +32,7 @@ export function generateCsrfToken(userId?: string): string {
 /**
  * Validate a CSRF token
  */
-export async function validateCsrfToken(token: string, userId?: string): Promise<boolean> {
+export function validateCsrfToken(token: string, userId?: string): boolean {
   if (!token) return false
 
   try {

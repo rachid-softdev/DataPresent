@@ -21,6 +21,6 @@ export const VALID_SECTORS: readonly string[] = Object.values(Sector)
  *     prisma.report.create({ data: { sector: someString } }) // someString is now Sector
  *   }
  */
-export function isValidSector(s: string): s is Sector {
-  return VALID_SECTORS.includes(s)
+export function isValidSector(s: string | null | undefined): s is Sector {
+  return typeof s === 'string' && VALID_SECTORS.includes(s)
 }

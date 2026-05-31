@@ -63,4 +63,8 @@ describe('normalizeEmail', () => {
     // Email "plus addressing" and dots
     expect(normalizeEmail('User+Tag@Example.COM')).toBe('user+tag@example.com')
   })
+
+  it('should return empty string for whitespace-only input', () => {
+    expect(normalizeEmail('   ')).toBe('')
+  })
 })

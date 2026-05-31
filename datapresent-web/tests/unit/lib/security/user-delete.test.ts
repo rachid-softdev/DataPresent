@@ -42,7 +42,6 @@ vi.mock('@/lib/errors', () => ({
 // Mock CSRF middleware to pass through (already tested separately)
 vi.mock('@/lib/security/csrf-middleware', () => ({
   withCsrfProtection: vi.fn().mockResolvedValue(null),
-  validateJobSignature: vi.fn(),
 }))
 
 // Mock NextResponse.json

@@ -19,6 +19,22 @@ describe('rate-limit', () => {
       expect(DEFAULT_LIMIT).toBe(30)
       expect(DEFAULT_WINDOW).toBe(3600000) // 1 hour for production
     })
+
+    it('should have a valid default limit (positive number)', () => {
+      expect(DEFAULT_LIMIT).toBeGreaterThan(0)
+    })
+
+    it('should have a valid default window (positive number)', () => {
+      expect(DEFAULT_WINDOW).toBeGreaterThan(0)
+    })
+
+    it('should have reasonable default limit (<= 1000)', () => {
+      expect(DEFAULT_LIMIT).toBeLessThanOrEqual(1000)
+    })
+
+    it('should have reasonable default window (<= 1 day in ms)', () => {
+      expect(DEFAULT_WINDOW).toBeLessThanOrEqual(86400000)
+    })
   })
 
   describe('checkRateLimit', () => {
