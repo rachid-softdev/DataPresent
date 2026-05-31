@@ -147,7 +147,7 @@ const eventHandlers: Record<string, EventHandler> = {
     })
 
     const isDowngrade =
-      currentSub && currentSub.plan !== 'FREE' && plan !== 'FREE' && plan !== currentSub.plan
+      currentSub && currentSub.plan !== 'FREE' && plan !== currentSub.plan
 
     if (isDowngrade) {
       captureMessage(

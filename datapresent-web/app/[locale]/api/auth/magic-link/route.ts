@@ -1,14 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { sendMagicLinkEmail } from '@/lib/email'
-import { checkRateLimit } from '@/lib/rate-limit'
+import { authRateLimit } from '@/lib/rate-limit'
 import { normalizeEmail } from '@/lib/email-normalize'
 import { generateToken, hashToken, extractTokenPrefix } from '@/lib/crypto'
+import { extractClientIP } from '@/lib/client-ip'
+import { withCsrfProtection } from '@/lib/security/csrf-middleware'
 import { ERROR_CODES, SUCCESS_CODES, badRequest, apiSuccess } from '@/lib/errors'
 
 const TOKEN_EXPIRY = 10 * 60 * 1000 // 10 minutes
 
 export async function POST(req: NextRequest) {
+  const csrfResponse = await withCsrfProtection(req)
+  if (csrfResponse) return csrfResponse
+
   try {
     const { email } = await req.json()
     
@@ -22,7 +27,7 @@ export async function POST(req: NextRequest) {
       return badRequest(ERROR_CODES.ERR_VALIDATION_EMAIL_INVALID)
     }
     
-    const hasRateLimit = await checkRateLimit(`magic-link:${normalizedEmail}`)
+    const hasRateLimit = await authRateLimit(normalizedEmail, extractClientIP(req) ?? undefined)
     
     if (!hasRateLimit) {
       return NextResponse.json(

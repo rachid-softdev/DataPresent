@@ -1,12 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { checkRateLimit } from '@/lib/rate-limit'
+import { authRateLimit } from '@/lib/rate-limit'
 import { normalizeEmail } from '@/lib/email-normalize'
+import { extractClientIP } from '@/lib/client-ip'
+import { withCsrfProtection } from '@/lib/security/csrf-middleware'
 import { logApiError } from '@/lib/security'
 import { ERROR_CODES } from '@/lib/errors'
 import { generateToken, hashToken, extractTokenPrefix } from '@/lib/crypto'
 
 export async function POST(req: NextRequest) {
+  const csrfResponse = await withCsrfProtection(req)
+  if (csrfResponse) return csrfResponse
+
   try {
     const { email: rawEmail } = await req.json()
     const email = normalizeEmail(rawEmail)
@@ -15,8 +20,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Email is required' }, { status: 400 })
     }
 
-    // Rate limiting: 5 requests per hour per email
-    const rateLimitAllowed = await checkRateLimit(`forgot-password:${email}`, { limit: 5, windowMs: 60 * 60 * 1000 })
+    // Rate limiting: 3 requests per minute per email (Redis-based auth limiter)
+    const rateLimitAllowed = await authRateLimit(email, extractClientIP(req) ?? undefined)
     if (!rateLimitAllowed) {
       return NextResponse.json({ error: ERROR_CODES.ERR_VALIDATION_RATE_LIMIT }, { status: 429 })
     }

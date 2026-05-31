@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { exportQueue } from "@/lib/queue";
+import { getExportQueue } from "@/lib/queue";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { signJobData } from "@/lib/queue/job-security";
 import { withCsrfProtection } from "@/lib/security";
@@ -62,6 +62,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     format,
     userId: session.user.id,
   });
+  const exportQueue = await getExportQueue();
   await exportQueue.add("export", signedJob);
 
   return NextResponse.json({ exportId: exp.id });

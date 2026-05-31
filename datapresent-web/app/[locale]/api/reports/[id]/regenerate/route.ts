@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
-import { generateQueue } from '@/lib/queue'
+import { getGenerateQueue } from '@/lib/queue'
 import { signJobData } from '@/lib/queue/job-security'
 import { withCsrfProtection } from '@/lib/security'
 import { isValidSector } from '@/lib/sector'
@@ -74,6 +74,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       userId: session.user.id,
       ...(slideCount && { slideCount }),
     })
+    const generateQueue = await getGenerateQueue()
     await generateQueue.add('generate', signedJob)
 
     return NextResponse.json({

@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma'
 import { env } from '@/env'
+import { getRedisConnectionAsync } from '@/lib/redis'
 
 const rateLimitMap = {
   relaxed: { limit: 100, windowMs: 60 * 1000 },    // 100/minute for dev
@@ -49,4 +50,51 @@ export async function checkRateLimit(key: string, options?: RateLimitOptions): P
   `
 
   return result[0]?.allowed ?? true
+}
+
+/**
+ * Redis-based rate limiter for auth endpoints (email + IP).
+ * Limits to 3 requests per minute per email.
+ * Falls back gracefully to PostgreSQL checkRateLimit if Redis is unavailable.
+ *
+ * @param email - The normalized email address to rate limit
+ * @param ip - Optional client IP for additional rate limiting
+ * @returns true if request is allowed, false if rate limited
+ */
+export async function authRateLimit(email: string, ip?: string): Promise<boolean> {
+  const LIMIT = 3
+  const WINDOW_SECONDS = 60
+
+  const key = `auth:${email}`
+
+  try {
+    const redis = await getRedisConnectionAsync()
+    if (!redis) {
+      // Fallback to PostgreSQL rate limiting when Redis is unavailable
+      return checkRateLimit(`auth:${email}`, { limit: LIMIT, windowMs: WINDOW_SECONDS * 1000 })
+    }
+
+    const count = await redis.incr(key)
+    if (count === 1) {
+      // First request in this window — set expiry
+      await redis.expire(key, WINDOW_SECONDS)
+    }
+
+    // Also rate limit by IP if provided (stricter: 10/min)
+    if (ip) {
+      const ipKey = `auth-ip:${ip}`
+      const ipCount = await redis.incr(ipKey)
+      if (ipCount === 1) {
+        await redis.expire(ipKey, WINDOW_SECONDS)
+      }
+      if (ipCount > 10) {
+        return false
+      }
+    }
+
+    return count <= LIMIT
+  } catch {
+    // Final fallback: allow through if Redis check fails entirely
+    return true
+  }
 }

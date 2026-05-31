@@ -3,7 +3,7 @@ import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { uploadToR2 } from '@/lib/r2'
 import { isValidSector, VALID_SECTORS } from '@/lib/sector'
-import { generateQueue } from '@/lib/queue'
+import { getGenerateQueue } from '@/lib/queue'
 import { canCreateReport, canHaveSlideCount, getUserPlan } from '@/lib/entitlements/compat'
 import { checkRateLimit } from '@/lib/rate-limit'
 import { signJobData } from '@/lib/queue/job-security'
@@ -143,6 +143,7 @@ export async function POST(req: NextRequest) {
       language,
       userId: session.user.id,
     })
+    const generateQueue = await getGenerateQueue()
     await generateQueue.add('generate', signedJob)
 
     return NextResponse.json({ reportId: report.id })

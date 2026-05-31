@@ -1,9 +1,31 @@
 import { Queue } from 'bullmq'
-import { getRedisConnection } from '@/lib/redis'
+import { getRedisConnectionAsync } from '@/lib/redis'
 
-const connection = getRedisConnection()
+let generateQueueInstance: Queue | null = null
+let exportQueueInstance: Queue | null = null
 
-export const generateQueue = new Queue('generate', { connection })
-export const exportQueue = new Queue('export', { connection })
+/**
+ * Get or create the generate queue (lazy singleton).
+ * Connection is established on first call, not at module import time.
+ */
+export async function getGenerateQueue(): Promise<Queue> {
+  if (!generateQueueInstance) {
+    const conn = await getRedisConnectionAsync()
+    if (!conn) throw new Error('Redis connection required for generate queue')
+    generateQueueInstance = new Queue('generate', { connection: conn })
+  }
+  return generateQueueInstance
+}
 
-export { connection }
+/**
+ * Get or create the export queue (lazy singleton).
+ * Connection is established on first call, not at module import time.
+ */
+export async function getExportQueue(): Promise<Queue> {
+  if (!exportQueueInstance) {
+    const conn = await getRedisConnectionAsync()
+    if (!conn) throw new Error('Redis connection required for export queue')
+    exportQueueInstance = new Queue('export', { connection: conn })
+  }
+  return exportQueueInstance
+}

@@ -66,6 +66,19 @@ export async function generatePdf(params: {
   }
 }
 
+/**
+ * Escape HTML special characters to prevent XSS.
+ * Escapes: & < > " '
+ */
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;')
+}
+
 function generateHtmlFromSlides(params: {
   title: string
   slides: Array<{
@@ -76,8 +89,8 @@ function generateHtmlFromSlides(params: {
 }): string {
   const slidesHtml = params.slides.map(slide => `
     <div class="slide">
-      <h1>${slide.title}</h1>
-      <pre>${JSON.stringify(slide.content, null, 2)}</pre>
+      <h1>${escapeHtml(slide.title)}</h1>
+      <pre>${escapeHtml(JSON.stringify(slide.content, null, 2))}</pre>
     </div>
   `).join('')
 
@@ -86,7 +99,7 @@ function generateHtmlFromSlides(params: {
     <html>
     <head>
       <meta charset="utf-8">
-      <title>${params.title}</title>
+      <title>${escapeHtml(params.title)}</title>
       <style>
         body { font-family: Arial, sans-serif; margin: 40px; }
         .slide { page-break-after: always; margin-bottom: 40px; }

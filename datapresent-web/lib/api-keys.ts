@@ -146,14 +146,26 @@ export async function cleanupExpiredKeys(): Promise<number> {
 
 /**
  * Generate a secure random key
+ * Uses rejection sampling to avoid modulo bias:
+ * chars.length = 62, which does not evenly divide 256.
+ * The largest multiple of 62 ≤ 255 is 62 × 4 = 248.
+ * Bytes ≥ 248 are rejected and retried to ensure uniform distribution.
  */
 function generateSecureKey(): string {
   const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
   const keyLength = 64
-  const bytes = crypto.randomBytes(keyLength)
+  const maxValidByte = Math.floor(256 / chars.length) * chars.length // 248
   let key = ''
-  for (let i = 0; i < keyLength; i++) {
-    key += chars[bytes[i] % chars.length]
+  let remaining = keyLength
+  while (remaining > 0) {
+    const bytes = crypto.randomBytes(remaining)
+    for (let i = 0; i < bytes.length && remaining > 0; i++) {
+      const byte = bytes[i]
+      if (byte < maxValidByte) {
+        key += chars[byte % chars.length]
+        remaining--
+      }
+    }
   }
   return `dp_${key}`
 }

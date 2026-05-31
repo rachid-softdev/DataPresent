@@ -1,3 +1,3 @@
-export { generateQueue, exportQueue, connection } from './client'
-export { generateWorker } from './workers/generate.worker'
-export { exportWorker } from './workers/export.worker'
+export { getGenerateQueue, getExportQueue } from './client'
+export { getGenerateWorker } from './workers/generate.worker'
+export { getExportWorker } from './workers/export.worker'
