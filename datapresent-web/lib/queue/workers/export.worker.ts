@@ -5,6 +5,7 @@ import { uploadToR2 } from '@/lib/r2'
 import { PLANS } from '@/lib/entitlements/compat'
 import { getRedisConnectionAsync } from '@/lib/redis'
 import { extractSignedJobData } from '../job-security'
+import { consume, LimitReachedError } from '@/lib/entitlements/feature-gate'
 
 let workerInstance: Worker | null = null
 
@@ -22,11 +23,13 @@ export async function getExportWorker(): Promise<Worker> {
     'export',
     async (job) => {
       // SECURITY: Validate job signature
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- job data is dynamically typed
       const { valid, cleanData } = extractSignedJobData(job.data as any)
       if (!valid) {
         throw new Error('Invalid job signature: unauthorized job submission')
       }
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- destructure from dynamic data
       const { exportId, format, userId } = cleanData as any
 
       // SECURITY: Validate required fields
@@ -42,6 +45,21 @@ export async function getExportWorker(): Promise<Worker> {
       // SECURITY: Verify user is member of organization
       if (!exp.report.org.members.length) {
         throw new Error(`User ${userId} is not authorized to export report ${exp.reportId}`)
+      }
+
+      // CHECK: Export quota
+      const orgId = exp.report.org.id
+      try {
+        await consume(orgId, 'exportsPerMonth')
+      } catch (quotaError) {
+        if (quotaError instanceof LimitReachedError) {
+          await prisma.export.update({
+            where: { id: exportId },
+            data: { status: 'ERROR' },
+          })
+          throw new Error(`Export limit reached for organization ${orgId}: ${quotaError.message}`)
+        }
+        throw quotaError
       }
 
       try {

@@ -6,6 +6,7 @@ import { getSignedDownloadUrl } from '@/lib/r2'
 import { getRedisConnectionAsync } from '@/lib/redis'
 import { extractSignedJobData } from '../job-security'
 import { captureException, captureMessage } from '@/lib/sentry'
+import { getLimit } from '@/lib/entitlements/feature-gate'
 
 // Retry configuration
 const MAX_RETRIES = 3
@@ -27,11 +28,13 @@ export async function getGenerateWorker(): Promise<Worker<unknown>> {
     'generate',
     async (job: Job) => {
       // SECURITY: Validate job signature
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- job data is dynamically typed
       const { valid, cleanData } = extractSignedJobData(job.data as any)
       if (!valid) {
         throw new Error('Invalid job signature: unauthorized job submission')
       }
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- destructure from dynamic data
       const { reportId, slideCount, language, userId } = cleanData as any
 
       // SECURITY: Validate required fields
@@ -53,6 +56,14 @@ export async function getGenerateWorker(): Promise<Worker<unknown>> {
         // SECURITY: Verify user is member of organization
         if (!report.org.members.length) {
           throw new Error(`User ${userId} is not authorized to access report ${reportId}`)
+        }
+
+        // CHECK: Slide count limit
+        const orgId = report.org.id
+        const maxSlides = await getLimit(orgId, 'maxSlides')
+        const requestedCount = slideCount ?? 10 // Default to 10 if slideCount is undefined
+        if (maxSlides !== null && requestedCount > maxSlides) {
+          throw new Error(`Slide count ${requestedCount} exceeds plan limit of ${maxSlides} for organization ${orgId}`)
         }
 
         // Download the actual file from R2 instead of using an empty buffer
@@ -108,6 +119,7 @@ export async function getGenerateWorker(): Promise<Worker<unknown>> {
               position: s.position,
               title: s.title,
               layout: s.layout,
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any -- dynamic slide content from AI
               contentJson: s.content as any,
               speakerNotes: s.speakerNotes || null,
             })),
@@ -206,41 +218,3 @@ export async function getGenerateWorker(): Promise<Worker<unknown>> {
 
   return workerInstance
 }
-
-// Dead letter queue handler - called when job fails after all retries
-generateWorker.on('failed', async (job: Job | undefined) => {
-  if (!job) return
-
-  const reportId = job.data?.reportId
-
-  if (reportId) {
-    // Update report status to ERROR
-    await prisma.report.update({
-      where: { id: reportId },
-      data: { status: 'ERROR' },
-    }).catch(() => {
-      // Ignore if report doesn't exist anymore
-    })
-
-    captureMessage(
-      `Report generation failed permanently: ${reportId}`,
-      'error',
-      {
-        jobId: job.id,
-        reportId,
-        failedReason: job.failedReason,
-        attempts: job.attemptsMade,
-      }
-    )
-  }
-})
-
-// Progress event handler for frontend polling
-generateWorker.on('progress', (job: Job | undefined) => {
-  if (!job) return
-
-  captureMessage(`Job ${job.id} progress: ${job.progress}`, 'debug', {
-    jobId: job.id,
-    reportId: job.data?.reportId,
-  })
-})

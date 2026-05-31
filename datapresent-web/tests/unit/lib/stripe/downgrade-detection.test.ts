@@ -120,7 +120,7 @@ describe('Downgrade detection in customer.subscription.updated', () => {
     // The repository's isEventProcessed returns false (new event)
     // We'll test the isDowngrade logic directly via the event handler
 
-    let isDowngradeDetected = false
+    const isDowngradeDetected = false
 
     // Spy on captureMessage to check if "downgrade detected" is logged
     const { captureMessage } = await import('@/lib/sentry')
@@ -316,6 +316,7 @@ describe('Downgrade detection in customer.subscription.updated', () => {
     const currentSub = undefined
     const plan = 'FREE'
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- undefined sub requires any for property access
     const isDowngrade = currentSub && (currentSub as any).plan !== 'FREE' && plan !== (currentSub as any).plan
     // undefined && ... evaluates to undefined (falsy), which means "no downgrade detected"
     expect(isDowngrade).toBeFalsy()

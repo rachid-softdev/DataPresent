@@ -1,5 +1,6 @@
 'use client'
 
+import { useMemo } from 'react'
 import {
   PieChart as RechartsPieChart,
   Pie,
@@ -8,6 +9,7 @@ import {
   ResponsiveContainer,
   Legend
 } from 'recharts'
+import { getChartColors } from './chart-colors'
 
 interface PieChartSlideProps {
   content: {
@@ -21,6 +23,7 @@ interface PieChartSlideProps {
 
 export function PieChartSlide({ content }: PieChartSlideProps) {
   const { data = [], title, subtitle, showLegend = true, innerRadius = 0 } = content
+  const colors = useMemo(() => getChartColors(), [])
 
   if (data.length === 0) {
     return (
@@ -29,8 +32,6 @@ export function PieChartSlide({ content }: PieChartSlideProps) {
       </div>
     )
   }
-
-  const colors = ['#6366f1', '#8b5cf6', '#ec4899', '#f97316', '#10b981', '#3b82f6', '#ef4444', '#14b8a6']
 
   return (
     <div>
@@ -54,10 +55,11 @@ export function PieChartSlide({ content }: PieChartSlideProps) {
             </Pie>
             <Tooltip
               contentStyle={{
-                backgroundColor: 'white',
-                border: '1px solid #e5e7eb',
+                backgroundColor: 'var(--surface)',
+                border: '1px solid var(--border)',
                 borderRadius: '8px',
-                fontSize: '12px'
+                fontSize: '12px',
+                color: 'var(--foreground)',
               }}
             />
             {showLegend && <Legend />}

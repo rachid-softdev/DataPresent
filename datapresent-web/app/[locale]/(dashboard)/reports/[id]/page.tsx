@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge'
 import { Spinner } from '@/components/ui/spinner'
 import { SlideViewer } from '@/components/slides/SlideViewer'
 import { ReportActions } from '@/components/reports/ReportActions'
+import { ReportDetailPoller } from '@/components/reports/ReportDetailPoller'
 
 export default async function ReportPage({ params }: { params: Promise<{ id: string }> }) {
   const t = await getTranslations()
@@ -16,12 +17,14 @@ export default async function ReportPage({ params }: { params: Promise<{ id: str
     redirect('/login')
   }
 
-  const report = await prisma.report.findUnique({
-    where: { id },
-    include: { 
+  const report = await prisma.report.findFirst({
+    where: {
+      id,
+      org: { members: { some: { userId: session.user.id } } },
+    },
+    include: {
       slides: { orderBy: { position: 'asc' } },
       sourceFile: true,
-      exports: true,
     },
   })
 
@@ -49,6 +52,7 @@ export default async function ReportPage({ params }: { params: Promise<{ id: str
 
       {isProcessing ? (
         <div className="text-center py-20">
+          <ReportDetailPoller reportId={id} status={report.status} />
           <Spinner className="mx-auto mb-4" />
           <p className="text-muted-foreground">{t('reports.status.generating')}</p>
         </div>

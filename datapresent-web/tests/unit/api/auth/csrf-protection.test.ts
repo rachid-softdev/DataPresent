@@ -43,6 +43,7 @@ describe('withCsrfProtection middleware', () => {
   // -----------------------------------------------------------------------
   // Helper: create a NextRequest-like object
   // -----------------------------------------------------------------------
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- mock request object
   function createRequest(method: string, headers: Record<string, string> = {}): any {
     return {
       method,
@@ -252,6 +253,7 @@ describe('withCsrfProtection middleware', () => {
       url: 'http://localhost:3000/fr/api/auth/signup',
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- mock request
     const result = await withCsrfProtection(req as any)
 
     // When there are headers but no x-csrf-token, it should return 403

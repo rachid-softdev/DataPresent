@@ -107,7 +107,21 @@
       "signupSuccess": "Vérifiez votre email pour finaliser la création de votre compte.",
       "signupSuccessDesc": "Nous vous avons envoyé un lien de vérification."
     },
-    "reports": {
+  "upload": {
+    "title": "Importez vos données",
+    "dragDrop": "Glissez-déposez votre fichier Excel, CSV ou PDF",
+    "uploading": "Téléversement",
+    "processing": "Traitement du rapport...",
+    "sector": {
+      "title": "Sélectionnez votre secteur",
+      "description": "Choisissez le secteur qui correspond le mieux à vos données"
+    },
+    "slideCount": {
+      "title": "Nombre de diapositives",
+      "description": "Choisissez le nombre de diapositives à générer"
+    }
+  },
+  "reports": {
       "generated": "Rapport généré avec succès",
       "deleted": "Rapport supprimé",
       "exported": "Rapport exporté"

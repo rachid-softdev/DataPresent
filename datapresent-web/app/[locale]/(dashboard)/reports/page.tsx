@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { EmptyState } from '@/components/ui/empty-state'
 import { FileSpreadsheet, ChevronLeft, ChevronRight } from 'lucide-react'
+import { ReportsPoller } from '@/components/reports/ReportsPoller'
 
 const PAGE_SIZE = 20
 
@@ -58,6 +59,7 @@ export default async function ReportsPage({ searchParams }: ReportsPageProps) {
 
   return (
     <div>
+      <ReportsPoller reports={reports.map(r => ({ id: r.id, status: r.status }))} />
       <div className="app-page-header">
         <div>
           <h1 className="app-heading app-heading-xl">{t('reports.title')}</h1>

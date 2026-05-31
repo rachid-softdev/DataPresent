@@ -27,6 +27,7 @@
   --chart-3: #9EDB7B;
   --chart-4: #2E6E18;
   --chart-5: #2d4a1f;
+  --chart-6: #6366f1;
 }
 
 /* ===== DESIGN TOKENS : DARK MODE ===== */
@@ -54,6 +55,7 @@
   --chart-3: #2E6E18;
   --chart-4: #9EDB7B;
   --chart-5: #E8F5DF;
+  --chart-6: #818cf8;
 }
 
 /* ===== WIRE CSS VARIABLES INTO TAILWIND v4 ===== */
@@ -82,6 +84,7 @@
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
+  --color-chart-6: var(--chart-6);
 
   --font-fraunces: var(--font-fraunces);
   --font-dm-sans: var(--font-dm-sans);

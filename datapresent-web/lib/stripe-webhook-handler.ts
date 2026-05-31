@@ -93,6 +93,7 @@ const eventHandlers: Record<string, EventHandler> = {
   'customer.subscription.created': async (data) => {
     const subscription = data as Stripe.Subscription
     const customerId = subscription.customer as string
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Stripe items type is incomplete
     const priceId = (subscription.items.data[0] as any)?.price?.id
     const plan = getPlanFromPriceId(priceId)
     const currentPeriodEnd = new Date(subscription.current_period_end * 1000)
@@ -116,6 +117,7 @@ const eventHandlers: Record<string, EventHandler> = {
   'customer.subscription.updated': async (data) => {
     const subscription = data as Stripe.Subscription
     const customerId = subscription.customer as string
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Stripe items type is incomplete
     const priceId = (subscription.items.data[0] as any)?.price?.id
     const plan = getPlanFromPriceId(priceId)
 

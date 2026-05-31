@@ -23,6 +23,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 let queueConstructorCalls: Array<{ name: string }> = []
 
 vi.mock('bullmq', () => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- bullmq mock
   function MockQueue(name: string, _opts: any) {
     queueConstructorCalls.push({ name })
     return { name, add: vi.fn(), close: vi.fn(), client: {} }
@@ -33,8 +34,8 @@ vi.mock('bullmq', () => {
 // ---------------------------------------------------------------------------
 // Mock ioredis — use a class so `new IORedis()` works
 // ---------------------------------------------------------------------------
-let redisConnectMock = vi.fn().mockResolvedValue(undefined)
-let redisDisconnectMock = vi.fn()
+const redisConnectMock = vi.fn().mockResolvedValue(undefined)
+const redisDisconnectMock = vi.fn()
 
 class MockIORedis {
   status: string = 'ready'
@@ -86,6 +87,7 @@ describe('BullMQ lazy initialisation', () => {
     const { getRedisConnectionAsync } = await import('@/lib/redis')
 
     // Should not throw even if Redis is unavailable
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Redis connection result
     let result: any
     let error: Error | null = null
     try {
@@ -174,6 +176,7 @@ describe('BullMQ lazy initialisation', () => {
     it('should provide getGenerateQueue() that returns a Queue singleton (contract test)', async () => {
       // This test validates the expected API using a local implementation
       // of the lazy init pattern, without depending on the actual client.ts.
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- queue singleton mock
       let queueInstance: any = null
 
       async function getGenerateQueue() {

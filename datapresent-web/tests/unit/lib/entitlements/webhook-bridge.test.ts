@@ -170,6 +170,7 @@ describe('webhook-bridge — entitlements webhook exports', () => {
       id: 'evt_test_123',
       type: 'checkout.session.completed',
       data: { object: {} },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- minimal Stripe event mock
     } as any
 
     const result = await handleWebhookEvent(event)

@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: ERROR_CODES.ERR_VALIDATION_RATE_LIMIT }, { status: 429 })
     }
 
-    const { allowed, reason, upgrade } = await canCreateReport(session.user.id)
+    const { allowed, upgrade } = await canCreateReport(session.user.id)
     if (!allowed) {
       return NextResponse.json(
         { error: ERROR_CODES.ERR_RESOURCE_NOT_FOUND, upgrade },

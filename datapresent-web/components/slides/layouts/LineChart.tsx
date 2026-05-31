@@ -46,26 +46,26 @@ export function LineChartSlide({ content }: LineChartSlideProps) {
         <ResponsiveContainer width="100%" height="100%">
           {showArea ? (
             <AreaChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-              <XAxis dataKey="name" tick={{ fontSize: 12 }} axisLine={{ stroke: '#e5e7eb' }} />
-              <YAxis tick={{ fontSize: 12 }} axisLine={{ stroke: '#e5e7eb' }} tickFormatter={(v) => yAxisLabel ? `${v}${yAxisLabel}` : v} />
-              <Tooltip contentStyle={{ backgroundColor: 'white', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: '12px' }} />
-              {lineKeys.map((line, i) => (
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+              <XAxis dataKey="name" tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }} axisLine={{ stroke: 'var(--border)' }} />
+              <YAxis tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }} axisLine={{ stroke: 'var(--border)' }} tickFormatter={(v) => yAxisLabel ? `${v}${yAxisLabel}` : v} />
+              <Tooltip contentStyle={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '8px', fontSize: '12px', color: 'var(--foreground)' }} />
+              {lineKeys.map((line) => (
                 <Area key={line.key} type="monotone" dataKey={line.key} name={line.name} stroke={line.color} fill={line.color} fillOpacity={0.1} />
               ))}
             </AreaChart>
           ) : (
             <RechartsLineChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-              <XAxis dataKey="name" tick={{ fontSize: 12 }} axisLine={{ stroke: '#e5e7eb' }} />
-              <YAxis tick={{ fontSize: 12 }} axisLine={{ stroke: '#e5e7eb' }} tickFormatter={(v) => yAxisLabel ? `${v}${yAxisLabel}` : v} />
-              <Tooltip contentStyle={{ backgroundColor: 'white', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: '12px' }} />
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+              <XAxis dataKey="name" tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }} axisLine={{ stroke: 'var(--border)' }} />
+              <YAxis tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }} axisLine={{ stroke: 'var(--border)' }} tickFormatter={(v) => yAxisLabel ? `${v}${yAxisLabel}` : v} />
+              <Tooltip contentStyle={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '8px', fontSize: '12px', color: 'var(--foreground)' }} />
               {hasMultipleLines ? (
-                lineKeys.map((line, i) => (
+                lineKeys.map((line) => (
                   <Line key={line.key} type="monotone" dataKey={line.key} name={line.name} stroke={line.color} strokeWidth={2} dot={{ r: 4 }} />
                 ))
               ) : (
-                <Line type="monotone" dataKey="value" stroke="#6366f1" strokeWidth={2} dot={{ r: 4 }} />
+                <Line type="monotone" dataKey="value" stroke="var(--chart-1)" strokeWidth={2} dot={{ r: 4 }} />
               )}
             </RechartsLineChart>
           )}

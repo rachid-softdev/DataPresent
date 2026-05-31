@@ -77,7 +77,7 @@ vi.mock("@/lib/sector", () => ({
 }));
 
 vi.mock("@/lib/queue", () => ({
-  generateQueue: mockGenerateQueue,
+  getGenerateQueue: vi.fn().mockResolvedValue(mockGenerateQueue),
 }));
 
 vi.mock("@/lib/entitlements/compat", () => ({

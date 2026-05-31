@@ -45,6 +45,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
   // SECURITY: Check format permissions based on plan
   const plan = report.org.subscription?.plan || "FREE";
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- plan from subscription may be null
   if (!canUseFormat(plan as any, format)) {
     return badRequest(ERROR_CODES.ERR_VALIDATION_FORMAT_NOT_ALLOWED);
   }

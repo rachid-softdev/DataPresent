@@ -1,5 +1,6 @@
 'use client'
 
+import { useMemo } from 'react'
 import {
   BarChart as RechartsBarChart,
   Bar,
@@ -11,6 +12,7 @@ import {
   Cell,
   Legend
 } from 'recharts'
+import { getChartColors } from './chart-colors'
 
 interface BarChartSlideProps {
   content: {
@@ -23,6 +25,7 @@ interface BarChartSlideProps {
 
 export function BarChartSlide({ content }: BarChartSlideProps) {
   const { data = [], title, subtitle, yAxisLabel } = content
+  const colors = useMemo(() => getChartColors(), [])
 
   if (data.length === 0) {
     return (
@@ -32,8 +35,6 @@ export function BarChartSlide({ content }: BarChartSlideProps) {
     )
   }
 
-  const colors = ['#6366f1', '#8b5cf6', '#ec4899', '#f97316', '#10b981', '#3b82f6']
-
   return (
     <div>
       {title && <h4 className="text-lg font-semibold mb-1">{title}</h4>}
@@ -41,23 +42,24 @@ export function BarChartSlide({ content }: BarChartSlideProps) {
       <div className="h-72">
         <ResponsiveContainer width="100%" height="100%">
           <RechartsBarChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
             <XAxis 
               dataKey="name" 
-              tick={{ fontSize: 12 }}
-              axisLine={{ stroke: '#e5e7eb' }}
+              tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }}
+              axisLine={{ stroke: 'var(--border)' }}
             />
             <YAxis 
-              tick={{ fontSize: 12 }}
-              axisLine={{ stroke: '#e5e7eb' }}
+              tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }}
+              axisLine={{ stroke: 'var(--border)' }}
               tickFormatter={(value) => yAxisLabel ? `${value}${yAxisLabel}` : value}
             />
             <Tooltip
               contentStyle={{
-                backgroundColor: 'white',
-                border: '1px solid #e5e7eb',
+                backgroundColor: 'var(--surface)',
+                border: '1px solid var(--border)',
                 borderRadius: '8px',
-                fontSize: '12px'
+                fontSize: '12px',
+                color: 'var(--foreground)',
               }}
               formatter={(value) => [yAxisLabel ? `${value}${yAxisLabel}` : value, '']}
             />

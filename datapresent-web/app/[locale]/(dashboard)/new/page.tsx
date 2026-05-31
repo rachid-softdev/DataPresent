@@ -1,12 +1,13 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Spinner } from '@/components/ui/spinner'
+import { Progress } from '@/components/ui/progress'
 import { DropZone } from '@/components/upload/DropZone'
 import { DataPreview } from '@/components/upload/DataPreview'
 import { SectorSelector } from '@/components/upload/SectorSelector'
@@ -18,6 +19,8 @@ export default function NewReportPage() {
   const [sector, setSector] = useState(useSearchParams()?.get('sector') || 'GENERIC')
   const [slideCount, setSlideCount] = useState(10)
   const [loading, setLoading] = useState(false)
+  const [uploadProgress, setUploadProgress] = useState(0)
+  const xhrRef = useRef<XMLHttpRequest | null>(null)
   const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -25,24 +28,56 @@ export default function NewReportPage() {
     if (!file) return
 
     setLoading(true)
+    setUploadProgress(0)
     const formData = new FormData()
     formData.append('file', file)
     formData.append('sector', sector)
     formData.append('slideCount', slideCount.toString())
 
-    const res = await fetch('/api/upload', {
-      method: 'POST',
-      body: formData,
-    })
+    const xhr = new XMLHttpRequest()
+    xhrRef.current = xhr
 
-    if (res.ok) {
-      const { reportId } = await res.json()
-      router.push(`/reports/${reportId}`)
-    } else {
-      setLoading(false)
-      const data = await res.json()
-      toast.error(t(data.error) || t('errors.generic'))
+    xhr.upload.onprogress = (event) => {
+      if (event.lengthComputable) {
+        const pct = Math.round((event.loaded / event.total) * 100)
+        setUploadProgress(pct)
+      }
     }
+
+    xhr.onload = () => {
+      xhrRef.current = null
+      if (xhr.status >= 200 && xhr.status < 300) {
+        try {
+          const data = JSON.parse(xhr.responseText)
+          router.push(`/reports/${data.reportId}`)
+        } catch {
+          setLoading(false)
+          toast.error(t('errors.generic'))
+        }
+      } else {
+        setLoading(false)
+        try {
+          const data = JSON.parse(xhr.responseText)
+          toast.error(t(data.error) || t('errors.generic'))
+        } catch {
+          toast.error(t('errors.generic'))
+        }
+      }
+    }
+
+    xhr.onerror = () => {
+      xhrRef.current = null
+      setLoading(false)
+      toast.error(t('errors.generic'))
+    }
+
+    xhr.onabort = () => {
+      xhrRef.current = null
+      setLoading(false)
+    }
+
+    xhr.open('POST', '/api/upload')
+    xhr.send(formData)
   }
 
   return (
@@ -115,6 +150,18 @@ export default function NewReportPage() {
               />
             </CardContent>
           </Card>
+
+          {/* Upload progress bar */}
+          {loading && (
+            <div className="space-y-2">
+              <Progress value={uploadProgress} max={100} className="h-3" />
+              <p className="text-sm text-muted-foreground text-center">
+                {uploadProgress < 100
+                  ? `${t('upload.uploading')} ${uploadProgress}%`
+                  : t('upload.processing')}
+              </p>
+            </div>
+          )}
 
           <Button
             type="submit"
