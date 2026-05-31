@@ -5,7 +5,8 @@
 
 'use client'
 
-import { useState, useEffect, useCallback, createContext, type ReactNode } from 'react'
+import Link from 'next/link'
+import { useState, useEffect, useCallback, createContext, useContext, type ReactNode } from 'react'
 
 // ==========================================
 // Types
@@ -43,26 +44,16 @@ interface UseLimitReturn {
 // Context
 // ==========================================
 
-const EntitlementsContext = createContext<{
+interface EntitlementsContextValue {
   entitlements: EntitlementsData | null
-  setEntitlements: (data: EntitlementsData) => void
-} | null>(null)
-
-export function EntitlementsProvider({ children }: { children: ReactNode }) {
-  const [entitlements, setEntitlements] = useState<EntitlementsData | null>(null)
-
-  return (
-    <EntitlementsContext.Provider value={{ entitlements, setEntitlements }}>
-      {children}
-    </EntitlementsContext.Provider>
-  )
+  isLoading: boolean
+  error: Error | null
+  refetch: () => Promise<void>
 }
 
-// ==========================================
-// Main Hook
-// ==========================================
+const EntitlementsContext = createContext<EntitlementsContextValue | null>(null)
 
-export function useEntitlements(): UseEntitlementsReturn {
+export function EntitlementsProvider({ children }: { children: ReactNode }) {
   const [entitlements, setEntitlements] = useState<EntitlementsData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<Error | null>(null)
@@ -87,16 +78,34 @@ export function useEntitlements(): UseEntitlementsReturn {
     }
   }, [])
 
-  useEffect(() => {
-    fetchEntitlements()
-  }, [fetchEntitlements])
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  useEffect(() => { fetchEntitlements() }, [fetchEntitlements])
 
-  return {
-    entitlements,
-    isLoading,
-    error,
-    refetch: fetchEntitlements,
+  return (
+    <EntitlementsContext.Provider value={{ entitlements, isLoading, error, refetch: fetchEntitlements }}>
+      {children}
+    </EntitlementsContext.Provider>
+  )
+}
+
+// ==========================================
+// Main Hook
+// ==========================================
+
+export function useEntitlements(): UseEntitlementsReturn {
+  const context = useContext(EntitlementsContext)
+
+  if (!context) {
+    // Return sensible defaults when used outside provider
+    return {
+      entitlements: null,
+      isLoading: false,
+      error: null,
+      refetch: async () => {},
+    }
   }
+
+  return context
 }
 
 // ==========================================
@@ -257,15 +266,15 @@ function UpgradePrompt({ feature }: { feature: string }) {
   return (
     <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
       <p className="text-sm text-amber-800">
-        La fonctionnalité <strong>{feature}</strong> n'est pas disponible sur votre plan{' '}
+        La fonctionnalit&eacute; <strong>{feature}</strong> n&apos;est pas disponible sur votre plan{' '}
         <strong>{entitlements?.plan ?? 'FREE'}</strong>.
       </p>
-      <a
+      <Link
         href="/billing/upgrade"
         className="mt-2 inline-block text-sm font-medium text-amber-600 hover:text-amber-800"
       >
         Mettre à niveau mon plan →
-      </a>
+      </Link>
     </div>
   )
 }
@@ -290,12 +299,12 @@ function LimitReachedPrompt({ feature }: { feature: string }) {
           <span> Réinitialisation le {new Date(featureResetAt).toLocaleDateString('fr-FR')}.</span>
         )}
       </p>
-      <a
+      <Link
         href="/billing/upgrade"
         className="mt-2 inline-block text-sm font-medium text-red-600 hover:text-red-800"
       >
         Mettre à niveau pour plus de limites →
-      </a>
+      </Link>
     </div>
   )
 }

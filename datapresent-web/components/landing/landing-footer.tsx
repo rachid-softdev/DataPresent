@@ -1,6 +1,5 @@
 'use client'
 
-import { useTheme } from '@/components/theme-provider'
 import { ThemeToggle } from '@/components/ui/theme-toggle'
 import Link from 'next/link'
 
@@ -13,8 +12,6 @@ export function LandingFooter({
   description,
   copyright = '© 2025 DataPresent · Tous droits réservés',
 }: LandingFooterProps) {
-  useTheme()
-
   return (
     <footer className="landing-footer">
       <div className="landing-container">

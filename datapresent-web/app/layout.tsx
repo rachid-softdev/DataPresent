@@ -69,8 +69,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const cookieStore = await cookies()
   const themeCookie = cookieStore.get('theme')?.value ?? 'light'
 
+  const localeCookie = cookieStore.get('NEXT_LOCALE')?.value ?? 'fr'
+
   return (
-    <html lang="fr" suppressHydrationWarning data-theme={themeCookie}>
+    <html lang={localeCookie} suppressHydrationWarning data-theme={themeCookie}>
       <body className={`${fraunces.variable} ${dmSans.variable} antialiased`}>
         <Providers>{children}</Providers>
       </body>

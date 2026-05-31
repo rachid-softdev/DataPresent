@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
+import { env } from "@/env";
 import { getStripe } from "@/lib/stripe";
 import { prisma } from "@/lib/prisma";
 import { PLANS } from "@/lib/entitlements/compat";
@@ -51,8 +52,8 @@ export async function POST(req: NextRequest) {
     customer: customerId,
     mode: "subscription",
     line_items: [{ price: planConfig.stripePriceId, quantity: 1 }],
-    success_url: `${process.env.NEXTAUTH_URL}/settings/billing?success=true`,
-    cancel_url: `${process.env.NEXTAUTH_URL}/settings/billing?canceled=true`,
+    success_url: `${env.NEXTAUTH_URL}/settings/billing?success=true`,
+    cancel_url: `${env.NEXTAUTH_URL}/settings/billing?canceled=true`,
     metadata: { orgId: org.id, priceId: planConfig.stripePriceId },
   });
 

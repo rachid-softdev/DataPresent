@@ -1,26 +1,27 @@
 import nodemailer from 'nodemailer'
 import { Resend } from 'resend'
+import { env } from '@/env'
 import { getEmailTemplate, emailConfig } from './email-templates'
 
-const isDev = process.env.NODE_ENV === 'development'
-const emailFrom = process.env.EMAIL_FROM || 'DataPresent <noreply@datapresent.com>'
-const appUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000'
+const isDev = env.NODE_ENV === 'development'
+const emailFrom = env.EMAIL_FROM || 'DataPresent <noreply@datapresent.com>'
+const appUrl = env.NEXTAUTH_URL
 
 let resend: Resend | null = null
 let transporter: nodemailer.Transporter | null = null
 
-if (!isDev && process.env.RESEND_API_KEY) {
-  resend = new Resend(process.env.RESEND_API_KEY)
+if (!isDev && env.RESEND_API_KEY) {
+  resend = new Resend(env.RESEND_API_KEY)
 }
 
-if (isDev && process.env.SMTP_HOST) {
+if (isDev && env.SMTP_HOST) {
   transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: parseInt(process.env.SMTP_PORT || '2525'),
+    host: env.SMTP_HOST,
+    port: parseInt(env.SMTP_PORT || '2525'),
     secure: false,
-    auth: process.env.SMTP_USER ? {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS,
+    auth: env.SMTP_USER ? {
+      user: env.SMTP_USER,
+      pass: env.SMTP_PASS,
     } : undefined,
   })
 }

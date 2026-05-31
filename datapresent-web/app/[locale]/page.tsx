@@ -1,9 +1,7 @@
-'use client'
-
-import { useState, useEffect } from 'react'
-import { useTranslations } from 'next-intl'
+import { getTranslations } from 'next-intl/server'
 import Link from 'next/link'
 import { ThemeToggle } from '@/components/ui/theme-toggle'
+import { HydrationGuard } from '@/components/hooks/hydration-guard'
 import {
   LandingHero,
   LandingFormats,
@@ -14,22 +12,12 @@ import {
   LandingFooter,
 } from '@/components/landing'
 
-export default function RootPage() {
-  const t = useTranslations('landing')
-  const nav = useTranslations('nav')
-  const [mounted, setMounted] = useState(false)
-
-  useEffect(() => {
-    setMounted(true)
-  }, [])
-
-  // Prevent hydration mismatch - show nothing until mounted
-  if (!mounted) {
-    return <div style={{ minHeight: '100vh', background: 'var(--bg)' }} />
-  }
+export default async function RootPage() {
+  const t = await getTranslations('landing')
+  const nav = await getTranslations('nav')
 
   return (
-    <>
+    <HydrationGuard>
       {/* ─── Nav ─── */}
       <header className="landing-nav">
         <div className="landing-container">
@@ -109,6 +97,6 @@ export default function RootPage() {
         description={t('footer.description')}
         copyright={t('footer.copyright')}
       />
-    </>
+    </HydrationGuard>
   )
 }

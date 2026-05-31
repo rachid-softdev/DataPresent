@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
+import { env } from "@/env";
 import { prisma } from "@/lib/prisma";
 import { withCsrfProtection } from "@/lib/security";
 import { unauthorized, forbidden, notFound } from "@/lib/errors";
@@ -45,10 +46,10 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   return NextResponse.json({
     shareToken: report.shareToken,
     isPublic: report.isPublic,
-    shareUrl: report.shareToken ? `${process.env.NEXTAUTH_URL}/share/${report.shareToken}` : null,
+    shareUrl: report.shareToken ? `${env.NEXTAUTH_URL}/share/${report.shareToken}` : null,
     embedUrl:
       report.shareToken && report.isPublic && report.allowEmbed
-        ? `${process.env.NEXTAUTH_URL}/embed/${report.shareToken}`
+        ? `${env.NEXTAUTH_URL}/embed/${report.shareToken}`
         : null,
     allowComments: report.allowComments,
     allowEmbed: report.allowEmbed,
@@ -113,7 +114,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     isPublic: updated.isPublic,
     allowComments: updated.allowComments,
     expiresAt: updated.shareExpiresAt,
-    shareUrl: updated.shareToken ? `${process.env.NEXTAUTH_URL}/share/${updated.shareToken}` : null,
+    shareUrl: updated.shareToken ? `${env.NEXTAUTH_URL}/share/${updated.shareToken}` : null,
   });
 }
 
@@ -160,7 +161,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   // Only update password when explicitly provided (undefined = no change).
   // '' = remove existing password, non-empty string = hash and set new password.
   let passwordUpdate: string | null | undefined = undefined;
-  if (password !== undefined) {
+  if (typeof password !== 'undefined') {
     passwordUpdate = password === "" ? null : await hashPassword(password);
   }
 

@@ -1,7 +1,3 @@
-'use client'
-
-import { useTheme } from '@/components/theme-provider'
-
 interface LandingFeaturesProps {
   label: string
   title: string
@@ -70,8 +66,6 @@ const FEATURES = [
 ]
 
 export function LandingFeatures({ label, title }: LandingFeaturesProps) {
-  useTheme()
-
   return (
     <section id="features" className="landing-section landing-section-alt">
       <div className="landing-container">

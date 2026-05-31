@@ -25,6 +25,11 @@ export default async function EmbedPage({ params, searchParams }: {
     notFound()
   }
 
+  // Check if share link has expired
+  if (report.shareExpiresAt && new Date() > report.shareExpiresAt) {
+    notFound()
+  }
+
   const plan = report.org.subscription?.plan || 'FREE'
   const showWatermark = plan === 'FREE'
   const isDark = theme === 'dark'

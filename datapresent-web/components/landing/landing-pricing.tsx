@@ -1,6 +1,3 @@
-'use client'
-
-import { useTheme } from '@/components/theme-provider'
 import Link from 'next/link'
 
 interface LandingPricingProps {
@@ -67,8 +64,6 @@ const PLANS = [
 ]
 
 export function LandingPricing({ label, title, subtitle }: LandingPricingProps) {
-  useTheme()
-
   return (
     <section id="pricing" className="landing-section">
       <div className="landing-container-sm">
