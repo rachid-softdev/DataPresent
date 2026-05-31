@@ -1,6 +1,3 @@
-'use client'
-
-import { useTheme } from '@/components/theme-provider'
 import Link from 'next/link'
 
 interface LandingCtaProps {
@@ -10,8 +7,6 @@ interface LandingCtaProps {
 }
 
 export function LandingCta({ title, body, button }: LandingCtaProps) {
-  useTheme()
-
   return (
     <section className="landing-cta-section">
       <div className="landing-container-xs landing-cta-inner">

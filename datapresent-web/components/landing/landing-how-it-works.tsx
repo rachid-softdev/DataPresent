@@ -1,7 +1,3 @@
-'use client'
-
-import { useTheme } from '@/components/theme-provider'
-
 interface LandingHowItWorksProps {
   label: string
   title: string
@@ -50,8 +46,6 @@ const STEPS = [
 ]
 
 export function LandingHowItWorks({ label, title, subtitle }: LandingHowItWorksProps) {
-  useTheme()
-
   return (
     <section className="landing-section">
       <div className="landing-container">

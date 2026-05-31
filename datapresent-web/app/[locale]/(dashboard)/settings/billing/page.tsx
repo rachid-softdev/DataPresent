@@ -2,7 +2,8 @@ import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { getTranslations } from 'next-intl/server'
 import { PLANS, PLAN_FEATURES } from '@/lib/entitlements/compat'
-import { PricingTable, PricingPlanFeature } from '@/components/billing/PricingTable'
+import { PricingPlanFeature } from '@/components/billing/PricingTable'
+import { PlanSelector } from '@/components/billing/PlanSelector'
 
 function formatValue(key: string, value: number | boolean): string | boolean {
   if (key === 'reportsPerMonth') {
@@ -103,25 +104,6 @@ export default async function BillingPage() {
     stripePriceId: PLANS[plan].stripePriceId || undefined,
   }))
 
-  const handleSelectPlan = async (planId: string) => {
-    'use server'
-    if (planId === 'FREE' || !PLANS[planId as keyof typeof PLANS].stripePriceId) {
-      return
-    }
-
-    const res = await fetch('/api/stripe/checkout', {
-      method: 'POST',
-      body: JSON.stringify({ plan: planId }),
-    })
-
-    if (res.ok) {
-      const data = await res.json()
-      if (data.url) {
-        window.location.href = data.url
-      }
-    }
-  }
-
   return (
     <div>
       <h1 className="text-3xl font-bold mb-8">{t('title')}</h1>
@@ -140,7 +122,7 @@ export default async function BillingPage() {
         </div>
       )}
 
-      <PricingTable plans={plans} onSelectPlan={handleSelectPlan} />
+      <PlanSelector plans={plans} />
     </div>
   )
 }

@@ -1,6 +1,3 @@
-'use client'
-
-import { useTheme } from '@/components/theme-provider'
 import Link from 'next/link'
 
 interface Stat {
@@ -32,8 +29,6 @@ export function LandingHero({
   note,
   stats = DEFAULT_STATS,
 }: LandingHeroProps) {
-  useTheme()
-
   return (
     <section className="landing-hero">
       <div className="landing-container-sm">

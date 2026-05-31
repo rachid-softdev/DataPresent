@@ -1,7 +1,3 @@
-'use client'
-
-import { useTheme } from '@/components/theme-provider'
-
 interface LandingFormatsProps {
   label: string
   title: string
@@ -54,8 +50,6 @@ const FORMATS = [
 ]
 
 export function LandingFormats({ label, title }: LandingFormatsProps) {
-  useTheme()
-
   return (
     <section className="landing-section landing-section-alt">
       <div className="landing-container-sm">

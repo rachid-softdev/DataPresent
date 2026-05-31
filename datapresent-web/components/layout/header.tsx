@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { useTranslations } from 'next-intl'
 import { ThemeToggle } from '@/components/ui/theme-toggle'
 
 interface HeaderProps {
@@ -9,24 +9,7 @@ interface HeaderProps {
 }
 
 export function Header({ hideAuth = false }: HeaderProps) {
-  const [nav, setNav] = useState<{ login: string; signup: string } | null>(null)
-
-  useEffect(() => {
-    import('next-intl')
-      .then((mod) => {
-        try {
-          const t = mod.useTranslations('nav')
-          setNav({ login: t('login'), signup: t('signup') })
-        } catch {
-          setNav({ login: 'Connexion', signup: 'Inscription' })
-        }
-      })
-      .catch(() => {
-        setNav({ login: 'Connexion', signup: 'Inscription' })
-      })
-  }, [])
-
-  const texts = nav || { login: 'Connexion', signup: 'Inscription' }
+  const t = useTranslations('nav')
 
   return (
     <header className="app-nav">
@@ -44,10 +27,10 @@ export function Header({ hideAuth = false }: HeaderProps) {
           <div className="flex items-center gap-3">
             <ThemeToggle />
             <Link href="/login" className="app-btn app-btn-ghost app-btn-sm">
-              {texts.login}
+              {t('login')}
             </Link>
             <Link href="/signup" className="app-btn app-btn-primary app-btn-sm">
-              {texts.signup}
+              {t('signup')}
             </Link>
           </div>
         )}

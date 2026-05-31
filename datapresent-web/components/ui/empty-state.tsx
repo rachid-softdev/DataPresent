@@ -1,4 +1,6 @@
+import Link from 'next/link'
 import { LucideIcon, FileText } from 'lucide-react'
+import { cn } from '@/lib/utils'
 import { Button, type ButtonProps } from './button'
 
 interface EmptyStateProps {
@@ -22,7 +24,7 @@ export function EmptyState({
   className = '',
 }: EmptyStateProps) {
   return (
-    <div className={`flex flex-col items-center justify-center py-16 text-center ${className}`}>
+    <div className={cn('flex flex-col items-center justify-center py-16 text-center', className)}>
       <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
         <Icon className="w-8 h-8 text-muted-foreground" />
       </div>
@@ -32,9 +34,9 @@ export function EmptyState({
       )}
       {action && (
         action.href ? (
-          <Button variant={action.variant || 'default'} onClick={() => window.location.href = action.href!}>
-            {action.label}
-          </Button>
+          <Link href={action.href}>
+            <Button variant={action.variant || 'default'}>{action.label}</Button>
+          </Link>
         ) : (
           <Button variant={action.variant || 'default'} onClick={action.onClick}>
             {action.label}
