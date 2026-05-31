@@ -59,4 +59,11 @@ describe('validateMagicBytes', () => {
       expect(validateMagicBytes(buffer, '')).toBe(false)
     })
   })
+
+  describe('invalid inputs', () => {
+    it('should reject buffer too small for magic bytes', () => {
+      const buffer = Buffer.from([0x25])
+      expect(validateMagicBytes(buffer, 'pdf')).toBe(false)
+    })
+  })
 })

@@ -1,44 +1,44 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { auth } from '@/lib/auth'
-import { prisma } from '@/lib/prisma'
-import { withCsrfProtection } from '@/lib/security'
-import { ERROR_CODES, unauthorized, forbidden, notFound, badRequest } from '@/lib/errors'
-import { sanitizeComment } from '@/lib/sanitize'
+import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
+import { withCsrfProtection } from "@/lib/security";
+import { ERROR_CODES, unauthorized, forbidden, notFound, badRequest } from "@/lib/errors";
+import { sanitizeComment } from "@/lib/sanitize";
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: Promise<{ commentId: string }> }
+  { params }: { params: Promise<{ commentId: string }> },
 ) {
-  const { commentId } = await params
-  const csrfResponse = await withCsrfProtection(req)
-  if (csrfResponse) return csrfResponse
-
-  const session = await auth()
+  const { commentId } = await params;
+  const session = await auth();
   if (!session?.user?.id) {
-    return unauthorized()
+    return unauthorized();
   }
-  const { body } = await req.json()
+
+  const csrfResponse = await withCsrfProtection(req, session.user.id);
+  if (csrfResponse) return csrfResponse;
+  const { body } = await req.json();
 
   if (!body?.trim()) {
-    return badRequest(ERROR_CODES.ERR_VALIDATION_COMMENT_REQUIRED)
+    return badRequest(ERROR_CODES.ERR_VALIDATION_COMMENT_REQUIRED);
   }
 
-  if (typeof body !== 'string' || body.length > 5000) {
-    return badRequest(ERROR_CODES.ERR_VALIDATION_COMMENT_REQUIRED)
+  if (typeof body !== "string" || body.length > 5000) {
+    return badRequest(ERROR_CODES.ERR_VALIDATION_COMMENT_REQUIRED);
   }
 
-  const sanitizedBody = sanitizeComment(body.trim())
+  const sanitizedBody = sanitizeComment(body.trim());
 
   const comment = await prisma.comment.findUnique({
-    where: { id: commentId }
-  })
+    where: { id: commentId },
+  });
 
   if (!comment) {
-    return notFound()
+    return notFound();
   }
 
   if (comment.authorId !== session.user.id) {
-    return forbidden()
+    return forbidden();
   }
 
   const updated = await prisma.comment.update({
@@ -46,42 +46,42 @@ export async function PATCH(
     data: { body: sanitizedBody },
     include: {
       author: {
-        select: { id: true, name: true, image: true, email: true }
-      }
-    }
-  })
+        select: { id: true, name: true, image: true, email: true },
+      },
+    },
+  });
 
-  return NextResponse.json(updated)
+  return NextResponse.json(updated);
 }
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: Promise<{ commentId: string }> }
+  { params }: { params: Promise<{ commentId: string }> },
 ) {
-  const { commentId } = await params
-  const csrfResponse = await withCsrfProtection(req)
-  if (csrfResponse) return csrfResponse
-
-  const session = await auth()
+  const { commentId } = await params;
+  const session = await auth();
   if (!session?.user?.id) {
-    return unauthorized()
+    return unauthorized();
   }
 
+  const csrfResponse = await withCsrfProtection(req, session.user.id);
+  if (csrfResponse) return csrfResponse;
+
   const comment = await prisma.comment.findUnique({
-    where: { id: commentId }
-  })
+    where: { id: commentId },
+  });
 
   if (!comment) {
-    return notFound()
+    return notFound();
   }
 
   if (comment.authorId !== session.user.id) {
-    return forbidden()
+    return forbidden();
   }
 
   await prisma.comment.delete({
-    where: { id: commentId }
-  })
+    where: { id: commentId },
+  });
 
-  return NextResponse.json({ success: true })
+  return NextResponse.json({ success: true });
 }

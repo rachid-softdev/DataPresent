@@ -1,14 +1,14 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { auth } from '@/lib/auth'
-import { prisma } from '@/lib/prisma'
-import { withCsrfProtection } from '@/lib/security'
-import { unauthorized } from '@/lib/errors'
-import { verifyPassword } from '@/lib/password'
+import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
+import { withCsrfProtection } from "@/lib/security";
+import { unauthorized } from "@/lib/errors";
+import { verifyPassword } from "@/lib/password";
 
 export async function GET(req: NextRequest) {
-  const session = await auth()
+  const session = await auth();
   if (!session?.user?.id) {
-    return unauthorized()
+    return unauthorized();
   }
 
   const user = await prisma.user.findUnique({
@@ -31,46 +31,52 @@ export async function GET(req: NextRequest) {
         },
       },
     },
-  })
+  });
 
-  return NextResponse.json(user)
+  return NextResponse.json(user);
 }
 
 export async function DELETE(req: NextRequest) {
-  const csrfResponse = await withCsrfProtection(req)
-  if (csrfResponse) return csrfResponse
-
-  const session = await auth()
+  const session = await auth();
   if (!session?.user?.id) {
-    return unauthorized()
+    return unauthorized();
   }
 
-  const { confirm, password } = await req.json()
+  const csrfResponse = await withCsrfProtection(req, session.user.id);
+  if (csrfResponse) return csrfResponse;
+
+  const { confirm, password } = await req.json();
 
   // Check if user has a password set
   const storedPassword = await prisma.password.findUnique({
-    where: { userId: session.user.id }
-  })
+    where: { userId: session.user.id },
+  });
 
   if (storedPassword) {
     // User has a password — require it for deletion
     if (!password) {
-      return NextResponse.json({ error: 'Password required for account deletion' }, { status: 400 })
+      return NextResponse.json(
+        { error: "Password required for account deletion" },
+        { status: 400 },
+      );
     }
-    const isValid = await verifyPassword(password, storedPassword.hash)
+    const isValid = await verifyPassword(password, storedPassword.hash);
     if (!isValid) {
-      return NextResponse.json({ error: 'Invalid password' }, { status: 403 })
+      return NextResponse.json({ error: "Invalid password" }, { status: 403 });
     }
   } else {
     // Magic Link only user — use existing confirmation
     if (!confirm) {
-      return NextResponse.json({ error: 'Confirmation required. Set confirm: true to delete your account.' }, { status: 400 })
+      return NextResponse.json(
+        { error: "Confirmation required. Set confirm: true to delete your account." },
+        { status: 400 },
+      );
     }
   }
 
   await prisma.user.delete({
     where: { id: session.user.id },
-  })
+  });
 
-  return NextResponse.json({ success: true })
+  return NextResponse.json({ success: true });
 }

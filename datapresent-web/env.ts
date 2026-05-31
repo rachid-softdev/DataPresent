@@ -85,21 +85,22 @@ const envSchema = z.object({
   // =========================
   CSRF_SECRET: z.string().min(32, 'CSRF_SECRET must be at least 32 characters'),
   JOB_SIGNING_SECRET: z.string().min(32, 'JOB_SIGNING_SECRET must be at least 32 characters'),
-  ALLOWED_ORIGINS: z.string()
-  .optional()
-  .refine(
+  ALLOWED_ORIGINS: z.preprocess(
     (val) => {
-      if (!val) return true // optional
-      return val.split(',').every(o => {
-        try {
-          const url = new URL(o.trim())
-          return url.protocol === 'https:' || url.protocol === 'http:'
-        } catch {
-          return false
-        }
-      })
+      if (val === undefined || val === null || val === '') return undefined
+      return val
     },
-    { message: 'ALLOWED_ORIGINS must be a comma-separated list of valid URLs (e.g., https://app.example.com,https://example.com)' }
+    z.string()
+      .default('https://datapresent.com,https://app.datapresent.com')
+      .refine(
+        (val) => val.split(',').every(o => {
+          try {
+            const url = new URL(o.trim())
+            return url.protocol === 'https:' || url.protocol === 'http:'
+          } catch { return false }
+        }),
+        { message: 'ALLOWED_ORIGINS must be a comma-separated list of valid URLs (e.g., https://app.example.com,https://example.com)' }
+      )
   ),
 
   // =========================
