@@ -3,7 +3,7 @@
 // ==========================================
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { renderHook, waitFor } from '@testing-library/react'
+import { render, renderHook, waitFor } from '@testing-library/react'
 import React, { type ReactNode } from 'react'
 
 // Mock fetch globally
@@ -42,9 +42,13 @@ describe('useEntitlements hook', () => {
       json: async () => mockEntitlements,
     })
 
-    const { useEntitlements } = await import('@/hooks/use-entitlements')
+    const { useEntitlements, EntitlementsProvider } = await import('@/hooks/use-entitlements')
 
-    const { result } = renderHook(() => useEntitlements())
+    const { result } = renderHook(() => useEntitlements(), {
+      wrapper: ({ children }: { children: ReactNode }) => (
+        <EntitlementsProvider>{children}</EntitlementsProvider>
+      ),
+    })
 
     await waitFor(() => {
       expect(result.current.entitlements).toEqual(mockEntitlements)
@@ -65,9 +69,13 @@ describe('useEntitlements hook', () => {
       json: async () => mockEntitlements,
     })
 
-    const { useEntitlements } = await import('@/hooks/use-entitlements')
+    const { useEntitlements, EntitlementsProvider } = await import('@/hooks/use-entitlements')
 
-    const { result } = renderHook(() => useEntitlements())
+    const { result } = renderHook(() => useEntitlements(), {
+      wrapper: ({ children }: { children: ReactNode }) => (
+        <EntitlementsProvider>{children}</EntitlementsProvider>
+      ),
+    })
 
     expect(result.current.isLoading).toBe(true)
   })
@@ -106,9 +114,13 @@ describe('useEntitlements hook', () => {
         json: async () => ({ ...mockEntitlements, plan: 'TEAM' }),
       })
 
-    const { useEntitlements } = await import('@/hooks/use-entitlements')
+    const { useEntitlements, EntitlementsProvider } = await import('@/hooks/use-entitlements')
 
-    const { result } = renderHook(() => useEntitlements())
+    const { result } = renderHook(() => useEntitlements(), {
+      wrapper: ({ children }: { children: ReactNode }) => (
+        <EntitlementsProvider>{children}</EntitlementsProvider>
+      ),
+    })
 
     await waitFor(() => {
       expect(result.current.entitlements).not.toBeNull()
@@ -146,9 +158,13 @@ describe('useFeature', () => {
   })
 
   it('should return true for enabled feature', async () => {
-    const { useFeature } = await import('@/hooks/use-entitlements')
+    const { useFeature, EntitlementsProvider } = await import('@/hooks/use-entitlements')
 
-    const { result } = renderHook(() => useFeature('EXPORT_PDF'))
+    const { result } = renderHook(() => useFeature('EXPORT_PDF'), {
+      wrapper: ({ children }: { children: ReactNode }) => (
+        <EntitlementsProvider>{children}</EntitlementsProvider>
+      ),
+    })
 
     await waitFor(() => {
       expect(result.current.isLoading).toBe(false)
@@ -187,9 +203,13 @@ describe('useFeature', () => {
       new Promise(() => {})
     )
 
-    const { useFeature } = await import('@/hooks/use-entitlements')
+    const { useFeature, EntitlementsProvider } = await import('@/hooks/use-entitlements')
 
-    const { result } = renderHook(() => useFeature('EXPORT_PDF'))
+    const { result } = renderHook(() => useFeature('EXPORT_PDF'), {
+      wrapper: ({ children }: { children: ReactNode }) => (
+        <EntitlementsProvider>{children}</EntitlementsProvider>
+      ),
+    })
 
     expect(result.current.isLoading).toBe(true)
     expect(result.current.hasFeature).toBe(false)
@@ -228,9 +248,13 @@ describe('useLimit', () => {
   })
 
   it('should return correct limit and usage values', async () => {
-    const { useLimit } = await import('@/hooks/use-entitlements')
+    const { useLimit, EntitlementsProvider } = await import('@/hooks/use-entitlements')
 
-    const { result } = renderHook(() => useLimit('REPORTS_PER_MONTH'))
+    const { result } = renderHook(() => useLimit('REPORTS_PER_MONTH'), {
+      wrapper: ({ children }: { children: ReactNode }) => (
+        <EntitlementsProvider>{children}</EntitlementsProvider>
+      ),
+    })
 
     await waitFor(() => {
       expect(result.current.isLoading).toBe(false)
@@ -243,9 +267,13 @@ describe('useLimit', () => {
   })
 
   it('should return 0 remaining when at limit', async () => {
-    const { useLimit } = await import('@/hooks/use-entitlements')
+    const { useLimit, EntitlementsProvider } = await import('@/hooks/use-entitlements')
 
-    const { result } = renderHook(() => useLimit('EXPORTS_PER_MONTH'))
+    const { result } = renderHook(() => useLimit('EXPORTS_PER_MONTH'), {
+      wrapper: ({ children }: { children: ReactNode }) => (
+        <EntitlementsProvider>{children}</EntitlementsProvider>
+      ),
+    })
 
     await waitFor(() => {
       expect(result.current.isLoading).toBe(false)

@@ -3,18 +3,19 @@ import { PrismaAdapter } from "@auth/prisma-adapter"
 import GoogleProvider from "next-auth/providers/google"
 import CredentialsProvider from "next-auth/providers/credentials"
 import { prisma } from "@/lib/prisma"
+import { env } from "@/env"
 import { normalizeEmail } from "@/lib/email-normalize"
 import { verifyToken, extractTokenPrefix } from "@/lib/crypto"
 import { verifyPassword } from "@/lib/password"
 
-const googleConfigured = !!(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET)
+const googleConfigured = !!(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET)
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
   providers: [
     ...(googleConfigured ? [GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      clientId: env.GOOGLE_CLIENT_ID!,
+      clientSecret: env.GOOGLE_CLIENT_SECRET!,
     })] : []),
     CredentialsProvider({
       name: "magic-link",
@@ -104,7 +105,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         })
 
         if (user) {
-          (session.user as any).isVerified = user.isVerified || !!user.emailVerified
+          ;(session.user as Record<string, unknown>).isVerified = user.isVerified || !!user.emailVerified
         }
       }
       return session
