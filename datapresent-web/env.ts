@@ -6,7 +6,9 @@ const envSchema = z.object({
   // =========================
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
   NEXTAUTH_SECRET: z.string().min(32, 'NEXTAUTH_SECRET must be at least 32 characters'),
-  NEXTAUTH_URL: z.string().optional().default('http://localhost:3000'),
+  NEXTAUTH_URL: process.env.NODE_ENV === 'production'
+  ? z.string().url('NEXTAUTH_URL must be a valid URL in production')
+  : z.string().optional().default('http://localhost:3000'),
   NEXT_PUBLIC_APP_URL: z.string().url(),
   NEXT_PUBLIC_BASE_URL: z.string().url().optional(),
   DATABASE_URL: z.string().url(),

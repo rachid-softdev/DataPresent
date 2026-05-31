@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { validateCsrfToken } from './csrf'
 import { verifyJobSignature } from '@/lib/crypto'
 import { auth } from '@/lib/auth'
+import { logSecurityEvent } from './error-logger'
 
 /**
  * CSRF protection middleware for API routes
@@ -22,6 +23,11 @@ export async function withCsrfProtection(req: NextRequest): Promise<NextResponse
   // Check CSRF token from header
   const csrfToken = req.headers.get('x-csrf-token')
   if (!csrfToken) {
+    logSecurityEvent({
+      type: 'csrf_failure',
+      path: pathname,
+      details: 'Missing CSRF token header',
+    })
     return NextResponse.json(
       { error: 'CSRF token required. Include X-CSRF-Token header.' },
       { status: 403 }
@@ -34,6 +40,12 @@ export async function withCsrfProtection(req: NextRequest): Promise<NextResponse
 
   const isValid = await validateCsrfToken(csrfToken, userId)
   if (!isValid) {
+    logSecurityEvent({
+      type: 'csrf_failure',
+      userId,
+      path: pathname,
+      details: 'Invalid or expired CSRF token',
+    })
     return NextResponse.json(
       { error: 'Invalid or expired CSRF token' },
       { status: 403 }

@@ -1,4 +1,3 @@
-import { cookies } from 'next/headers'
 import crypto from 'crypto'
 import { env } from '@/env'
 
@@ -73,7 +72,7 @@ export async function validateCsrfToken(token: string, userId?: string): Promise
     // If userId is provided, verify token belongs to that user
     if (userId && tokenUserId && tokenUserId !== userId) return false
 
-    const tokenAge = Date.now() - parseInt(timestamp)
+    const tokenAge = Date.now() - parseInt(timestamp, 10)
 
     return tokenAge < 3600000 // 1 hour in milliseconds
   } catch {
@@ -81,11 +80,5 @@ export async function validateCsrfToken(token: string, userId?: string): Promise
   }
 }
 
-/**
- * Get CSRF token from cookies (for server-side validation)
- */
-export async function getCsrfTokenFromCookies(): Promise<string | null> {
-  const cookieStore = await cookies()
-  return cookieStore.get('csrf-token')?.value || null
-}
+
 

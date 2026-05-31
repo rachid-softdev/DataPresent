@@ -20,6 +20,7 @@ import { signJobData, verifyJobSignature } from '@/lib/crypto'
 
 // Import env to check values in test setup
 import { env } from '@/env'
+import crypto from 'crypto'
 
 describe('Crypto No Fallback (Fix #4)', () => {
   const sampleData = { jobId: 'job-123', type: 'export' }
@@ -38,7 +39,7 @@ describe('Crypto No Fallback (Fix #4)', () => {
 
     // Verify that JOB_SIGNING_SECRET is indeed the one being used.
     // Replicate signing with known secrets to confirm which one is active.
-    const crypto = require('crypto')
+
 
     // Expected signature using JOB_SIGNING_SECRET
     const expectedJobSig = crypto
@@ -68,7 +69,7 @@ describe('Crypto No Fallback (Fix #4)', () => {
   it('should reject signature produced by CSRF_SECRET', () => {
     // Simulate what would happen if the old fallback were active:
     // sign with CSRF_SECRET, try to verify with the module (which uses JOB_SIGNING_SECRET)
-    const crypto = require('crypto')
+
     const csrfSignature = crypto
       .createHmac('sha256', env.CSRF_SECRET)
       .update(JSON.stringify(sampleData, Object.keys(sampleData).sort()))

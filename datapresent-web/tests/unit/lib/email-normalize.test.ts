@@ -4,7 +4,7 @@
 //
 // Tests for normalizeEmail() in lib/email-normalize.ts:
 // - Lowercases, trims, applies NFKC normalization
-// - Fails open (returns input as-is for non-strings or falsy)
+// - Fails closed (returns empty string for non-strings or falsy)
 // - Idempotent
 
 import { describe, it, expect } from 'vitest'
@@ -23,8 +23,8 @@ describe('normalizeEmail', () => {
     expect(normalizeEmail('')).toBe('')
   })
 
-  it('should return undefined when input is undefined', () => {
-    expect(normalizeEmail(undefined as unknown as string)).toBeUndefined()
+  it('should return empty string when input is undefined', () => {
+    expect(normalizeEmail(undefined as unknown as string)).toBe('')
   })
 
   it('should handle leading/trailing whitespace', () => {

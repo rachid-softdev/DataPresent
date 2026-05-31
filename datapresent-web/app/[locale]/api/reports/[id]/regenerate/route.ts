@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma'
 import { generateQueue } from '@/lib/queue'
 import { signJobData } from '@/lib/queue/job-security'
 import { withCsrfProtection } from '@/lib/security'
+import { isValidSector } from '@/lib/sector'
 import { ERROR_CODES, unauthorized, forbidden, notFound, badRequest } from '@/lib/errors'
 
 export async function POST(
@@ -52,8 +53,7 @@ export async function POST(
   }
 
   if (sector) {
-    const validSectors = ['FINANCE', 'MARKETING', 'HR', 'SAAS', 'GENERIC'] as const
-    if (!validSectors.includes(sector as typeof validSectors[number])) {
+    if (!isValidSector(sector)) {
       return badRequest(ERROR_CODES.ERR_VALIDATION_REQUIRED)
     }
     updateData.sector = sector

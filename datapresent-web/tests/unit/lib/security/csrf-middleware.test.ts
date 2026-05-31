@@ -26,19 +26,6 @@ vi.mock('next/server', () => ({
   },
   NextRequest: vi.fn(),
 }))
-
-// ---------------------------------------------------------------------------
-// Mock next/headers (required by csrf.ts → cookies())
-// ---------------------------------------------------------------------------
-const { mockCookies } = vi.hoisted(() => ({
-  mockCookies: {
-    get: vi.fn(),
-  },
-}))
-vi.mock('next/headers', () => ({
-  cookies: vi.fn().mockResolvedValue(mockCookies),
-}))
-
 // ---------------------------------------------------------------------------
 // Mock auth
 // ---------------------------------------------------------------------------
@@ -197,6 +184,73 @@ describe('withCsrfProtection', () => {
       const result = await withCsrfProtection(req)
 
       expect(result).toBeNull()
+    })
+  })
+
+  // -----------------------------------------------------------------------
+  // Security event logging
+  // -----------------------------------------------------------------------
+  describe('security event logging', () => {
+    beforeEach(() => {
+      vi.spyOn(console, 'warn').mockImplementation(() => {})
+    })
+
+    afterEach(() => {
+      vi.mocked(console.warn).mockRestore?.()
+    })
+
+    it('should log security event when CSRF token is missing', async () => {
+      vi.mocked(auth).mockResolvedValue({
+        user: { id: 'user-123', email: 'test@example.com' },
+        expires: new Date(Date.now() + 86400).toISOString(),
+      })
+
+      const req = createMockRequest({ method: 'POST', pathname: '/api/reports' })
+      const result = await withCsrfProtection(req)
+
+      // Assert 403
+      expect(result).not.toBeNull()
+      expect(result!.status).toBe(403)
+
+      // Assert console.warn was called with security event
+      expect(console.warn).toHaveBeenCalledTimes(1)
+      expect(console.warn).toHaveBeenCalledWith(
+        '[Security Event]',
+        expect.stringContaining('"type":"csrf_failure"')
+      )
+      expect(console.warn).toHaveBeenCalledWith(
+        '[Security Event]',
+        expect.stringContaining('Missing')
+      )
+    })
+
+    it('should log security event on invalid CSRF token', async () => {
+      vi.mocked(auth).mockResolvedValue({
+        user: { id: 'user-123', email: 'test@example.com' },
+        expires: new Date(Date.now() + 86400).toISOString(),
+      })
+
+      const req = createMockRequest({
+        method: 'POST',
+        pathname: '/api/reports',
+        headers: { 'x-csrf-token': 'deadbeefdeadbeef:deadbeefdeadbeef:tampered' },
+      })
+      const result = await withCsrfProtection(req)
+
+      // Assert 403
+      expect(result).not.toBeNull()
+      expect(result!.status).toBe(403)
+
+      // Assert console.warn was called with security event
+      expect(console.warn).toHaveBeenCalledTimes(1)
+      expect(console.warn).toHaveBeenCalledWith(
+        '[Security Event]',
+        expect.stringContaining('"type":"csrf_failure"')
+      )
+      expect(console.warn).toHaveBeenCalledWith(
+        '[Security Event]',
+        expect.stringContaining('Invalid')
+      )
     })
   })
 

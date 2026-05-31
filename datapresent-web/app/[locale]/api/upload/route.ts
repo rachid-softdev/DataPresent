@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
-import { Sector } from '@prisma/client'
 import { uploadToR2 } from '@/lib/r2'
+import { isValidSector } from '@/lib/sector'
 import { generateQueue } from '@/lib/queue'
 import { canCreateReport, canHaveSlideCount, getUserPlan } from '@/lib/entitlements/compat'
 import { checkRateLimit } from '@/lib/rate-limit'
@@ -42,8 +42,7 @@ export async function POST(req: NextRequest) {
   }
 
   // Validate sector against allowed enum values
-  const validSectors = ['FINANCE', 'MARKETING', 'HR', 'SAAS', 'GENERIC'] as const
-  if (!validSectors.includes(sector as typeof validSectors[number])) {
+  if (!isValidSector(sector)) {
     return NextResponse.json(
       { error: 'Secteur invalide. Valeurs autorisées: FINANCE, MARKETING, HR, SAAS, GENERIC' },
       { status: 400 }
@@ -113,7 +112,7 @@ export async function POST(req: NextRequest) {
   const report = await prisma.report.create({
     data: {
       title: file.name.replace(/\.[^/.]+$/, ''),
-      sector: sector as Sector,
+      sector,
       orgId: org.id,
       slideCount,
       language,

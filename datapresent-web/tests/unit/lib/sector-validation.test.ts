@@ -1,137 +1,83 @@
 // ==========================================
-// Sector Validation Tests (Fixes #6 & #7)
+// Sector Validation Tests
 // ==========================================
 //
-// Tests the sector validation logic added to:
-// 1. POST /api/upload — rejects invalid sectors before processing
-// 2. POST /api/reports/[id]/regenerate — rejects invalid sectors on update
-//
-// Both routes validate against: FINANCE, MARKETING, HR, SAAS, GENERIC
+// Tests the shared isValidSector() type guard from lib/sector.ts,
+// which is derived from Prisma's Sector enum.
+// Used by: POST /api/upload and POST /api/reports/[id]/regenerate
 
 import { describe, it, expect } from 'vitest'
+import { isValidSector, VALID_SECTORS } from '@/lib/sector'
 
-// The valid sectors as defined in both routes
-const VALID_SECTORS = ['FINANCE', 'MARKETING', 'HR', 'SAAS', 'GENERIC'] as const
-type Sector = typeof VALID_SECTORS[number]
-
-/**
- * Reproduces the exact validation logic from upload/route.ts lines 45-51
- */
-function validateSectorUpload(sector: string): boolean {
-  const validSectors = ['FINANCE', 'MARKETING', 'HR', 'SAAS', 'GENERIC'] as const
-  return (validSectors as readonly string[]).includes(sector)
-}
-
-/**
- * Reproduces the exact validation logic from regenerate/route.ts lines 54-59
- * (identical to upload but returns boolean for testing)
- */
-function validateSectorRegenerate(sector: string): boolean {
-  const validSectors = ['FINANCE', 'MARKETING', 'HR', 'SAAS', 'GENERIC'] as const
-  return (validSectors as readonly string[]).includes(sector)
-}
-
-describe('Sector validation (Fix #6 — Upload)', () => {
-  it('should accept valid sector: FINANCE', () => {
-    expect(validateSectorUpload('FINANCE')).toBe(true)
-  })
-
-  it('should accept valid sector: MARKETING', () => {
-    expect(validateSectorUpload('MARKETING')).toBe(true)
-  })
-
-  it('should accept valid sector: HR', () => {
-    expect(validateSectorUpload('HR')).toBe(true)
-  })
-
-  it('should accept valid sector: SAAS', () => {
-    expect(validateSectorUpload('SAAS')).toBe(true)
-  })
-
-  it('should accept valid sector: GENERIC', () => {
-    expect(validateSectorUpload('GENERIC')).toBe(true)
-  })
-
-  it('should reject lowercase sector: finance', () => {
-    expect(validateSectorUpload('finance')).toBe(false)
-  })
-
-  it('should reject lowercase sector: marketing', () => {
-    expect(validateSectorUpload('marketing')).toBe(false)
-  })
-
-  it('should reject empty string', () => {
-    expect(validateSectorUpload('')).toBe(false)
-  })
-
-  it('should reject undefined (before route reaches validation)', () => {
-    expect(validateSectorUpload(undefined as unknown as string)).toBe(false)
-  })
-
-  it('should reject null', () => {
-    expect(validateSectorUpload(null as unknown as string)).toBe(false)
-  })
-
-  it('should reject misspelled sector: FINANCE', () => {
-    expect(validateSectorUpload('FINANC')).toBe(false)
-  })
-
-  it('should reject unknown sector', () => {
-    expect(validateSectorUpload('HEALTHCARE')).toBe(false)
-  })
-
-  it('should reject sector with extra spaces', () => {
-    expect(validateSectorUpload(' FINANCE')).toBe(false)
-    expect(validateSectorUpload('FINANCE ')).toBe(false)
-  })
-
-  it('should reject numeric strings', () => {
-    expect(validateSectorUpload('123')).toBe(false)
-  })
-
-  it('should reject special characters', () => {
-    expect(validateSectorUpload('FINANCE!')).toBe(false)
-  })
-
-  it('should reject mixed case', () => {
-    expect(validateSectorUpload('Finance')).toBe(false)
+describe('Sector validation — VALID_SECTORS constant', () => {
+  it('should contain all expected sectors', () => {
+    expect(VALID_SECTORS).toEqual(['FINANCE', 'MARKETING', 'HR', 'SAAS', 'GENERIC'])
   })
 })
 
-describe('Sector validation (Fix #7 — Regenerate)', () => {
+describe('Sector validation — isValidSector()', () => {
   it('should accept valid sector: FINANCE', () => {
-    expect(validateSectorRegenerate('FINANCE')).toBe(true)
+    expect(isValidSector('FINANCE')).toBe(true)
   })
 
   it('should accept valid sector: MARKETING', () => {
-    expect(validateSectorRegenerate('MARKETING')).toBe(true)
+    expect(isValidSector('MARKETING')).toBe(true)
   })
 
   it('should accept valid sector: HR', () => {
-    expect(validateSectorRegenerate('HR')).toBe(true)
+    expect(isValidSector('HR')).toBe(true)
   })
 
   it('should accept valid sector: SAAS', () => {
-    expect(validateSectorRegenerate('SAAS')).toBe(true)
+    expect(isValidSector('SAAS')).toBe(true)
   })
 
   it('should accept valid sector: GENERIC', () => {
-    expect(validateSectorRegenerate('GENERIC')).toBe(true)
+    expect(isValidSector('GENERIC')).toBe(true)
   })
 
-  it('should reject lowercase: finance', () => {
-    expect(validateSectorRegenerate('finance')).toBe(false)
+  it('should reject lowercase sector: finance', () => {
+    expect(isValidSector('finance')).toBe(false)
+  })
+
+  it('should reject lowercase sector: marketing', () => {
+    expect(isValidSector('marketing')).toBe(false)
   })
 
   it('should reject empty string', () => {
-    expect(validateSectorRegenerate('')).toBe(false)
+    expect(isValidSector('')).toBe(false)
+  })
+
+  it('should reject undefined', () => {
+    expect(isValidSector(undefined as unknown as string)).toBe(false)
   })
 
   it('should reject null', () => {
-    expect(validateSectorRegenerate(null as unknown as string)).toBe(false)
+    expect(isValidSector(null as unknown as string)).toBe(false)
+  })
+
+  it('should reject misspelled sector: FINANC', () => {
+    expect(isValidSector('FINANC')).toBe(false)
   })
 
   it('should reject unknown sector', () => {
-    expect(validateSectorRegenerate('HEALTHCARE')).toBe(false)
+    expect(isValidSector('HEALTHCARE')).toBe(false)
+  })
+
+  it('should reject sector with extra spaces', () => {
+    expect(isValidSector(' FINANCE')).toBe(false)
+    expect(isValidSector('FINANCE ')).toBe(false)
+  })
+
+  it('should reject numeric strings', () => {
+    expect(isValidSector('123')).toBe(false)
+  })
+
+  it('should reject special characters', () => {
+    expect(isValidSector('FINANCE!')).toBe(false)
+  })
+
+  it('should reject mixed case', () => {
+    expect(isValidSector('Finance')).toBe(false)
   })
 })

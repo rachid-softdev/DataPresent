@@ -4,16 +4,6 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
-const { mockCookies } = vi.hoisted(() => ({
-  mockCookies: {
-    get: vi.fn(),
-  },
-}))
-
-vi.mock('next/headers', () => ({
-  cookies: vi.fn().mockResolvedValue(mockCookies),
-}))
-
 import { generateCsrfToken, validateCsrfToken, deriveKey } from '@/lib/security/csrf'
 import { signJobData, verifyJobSignature } from '@/lib/crypto'
 
