@@ -1,13 +1,13 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { auth } from '@/lib/auth'
-import { prisma } from '@/lib/prisma'
-import { withCsrfProtection } from '@/lib/security'
-import { ERROR_CODES, unauthorized, badRequest } from '@/lib/errors'
+import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
+import { withCsrfProtection } from "@/lib/security";
+import { ERROR_CODES, unauthorized, badRequest } from "@/lib/errors";
 
 export async function GET(req: NextRequest) {
-  const session = await auth()
+  const session = await auth();
   if (!session?.user?.id) {
-    return unauthorized()
+    return unauthorized();
   }
 
   const user = await prisma.user.findUnique({
@@ -18,48 +18,49 @@ export async function GET(req: NextRequest) {
           org: {
             include: {
               subscription: true,
-              _count: { select: { reports: true, members: true } }
-            }
-          }
-        }
-      }
-    }
-  })
+              _count: { select: { reports: true, members: true } },
+            },
+          },
+        },
+      },
+    },
+  });
 
-  const organizations = user?.membership.map(m => ({
-    id: m.org.id,
-    name: m.org.name,
-    slug: m.org.slug,
-    role: m.role,
-    reportCount: m.org._count.reports,
-    memberCount: m.org._count.members,
-    plan: m.org.subscription?.plan || 'FREE'
-  })) || []
+  const organizations =
+    user?.membership.map((m) => ({
+      id: m.org.id,
+      name: m.org.name,
+      slug: m.org.slug,
+      role: m.role,
+      reportCount: m.org._count.reports,
+      memberCount: m.org._count.members,
+      plan: m.org.subscription?.plan || "FREE",
+    })) || [];
 
-  return NextResponse.json({ organizations })
+  return NextResponse.json({ organizations });
 }
 
 export async function POST(req: NextRequest) {
-  const csrfResponse = await withCsrfProtection(req)
-  if (csrfResponse) return csrfResponse
-
-  const session = await auth()
+  const session = await auth();
   if (!session?.user?.id) {
-    return unauthorized()
+    return unauthorized();
   }
 
-  const { name, slug } = await req.json()
+  const csrfResponse = await withCsrfProtection(req, session.user.id);
+  if (csrfResponse) return csrfResponse;
+
+  const { name, slug } = await req.json();
 
   if (!name || !slug) {
-    return badRequest(ERROR_CODES.ERR_VALIDATION_SLUG_REQUIRED)
+    return badRequest(ERROR_CODES.ERR_VALIDATION_SLUG_REQUIRED);
   }
 
   const existingSlug = await prisma.organization.findUnique({
-    where: { slug }
-  })
+    where: { slug },
+  });
 
   if (existingSlug) {
-    return badRequest(ERROR_CODES.ERR_VALIDATION_SLUG_TAKEN)
+    return badRequest(ERROR_CODES.ERR_VALIDATION_SLUG_TAKEN);
   }
 
   const org = await prisma.organization.create({
@@ -69,21 +70,21 @@ export async function POST(req: NextRequest) {
       members: {
         create: {
           userId: session.user.id,
-          role: 'OWNER'
-        }
-      }
+          role: "OWNER",
+        },
+      },
     },
     include: {
-      members: true
-    }
-  })
+      members: true,
+    },
+  });
 
-  return NextResponse.json({ 
+  return NextResponse.json({
     organization: {
       id: org.id,
       name: org.name,
       slug: org.slug,
-      role: 'OWNER'
-    }
-  })
+      role: "OWNER",
+    },
+  });
 }

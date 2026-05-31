@@ -1,29 +1,26 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { auth } from '@/lib/auth'
-import { prisma } from '@/lib/prisma'
-import { withCsrfProtection } from '@/lib/security'
-import { unauthorized, forbidden, notFound } from '@/lib/errors'
+import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
+import { withCsrfProtection } from "@/lib/security";
+import { unauthorized, forbidden, notFound } from "@/lib/errors";
 
 /**
  * PATCH /api/reports/[id]/reorder
  * Reorder slides within a report
  */
-export async function PATCH(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  const { id } = await params
-  const csrfResponse = await withCsrfProtection(req)
-  if (csrfResponse) return csrfResponse
-
-  const session = await auth()
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const session = await auth();
   if (!session?.user?.id) {
-    return unauthorized()
+    return unauthorized();
   }
-  const { slideOrder } = await req.json()
+
+  const csrfResponse = await withCsrfProtection(req, session.user.id);
+  if (csrfResponse) return csrfResponse;
+  const { slideOrder } = await req.json();
 
   if (!Array.isArray(slideOrder)) {
-    return NextResponse.json({ error: 'Invalid slide order' }, { status: 400 })
+    return NextResponse.json({ error: "Invalid slide order" }, { status: 400 });
   }
 
   const report = await prisma.report.findUnique({
@@ -31,18 +28,18 @@ export async function PATCH(
     include: {
       org: {
         include: {
-          members: { where: { userId: session.user.id } }
-        }
-      }
-    }
-  })
+          members: { where: { userId: session.user.id } },
+        },
+      },
+    },
+  });
 
   if (!report) {
-    return notFound()
+    return notFound();
   }
 
   if (!report.org.members.length) {
-    return forbidden()
+    return forbidden();
   }
 
   // Update positions in a transaction
@@ -51,9 +48,9 @@ export async function PATCH(
       prisma.slide.update({
         where: { id: item.id, reportId: id },
         data: { position: item.position },
-      })
-    )
-  )
+      }),
+    ),
+  );
 
-  return NextResponse.json({ success: true })
+  return NextResponse.json({ success: true });
 }
