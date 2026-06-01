@@ -1,21 +1,21 @@
-'use client'
+"use client";
 
-import { useEffect } from 'react'
-import Link from 'next/link'
-import { AlertTriangle, RefreshCw, LogIn } from 'lucide-react'
-import { Header } from '@/components/layout/header'
-import { Footer } from '@/components/layout/footer'
+import { useEffect } from "react";
+import Link from "next/link";
+import { AlertTriangle, RefreshCw, LogIn } from "lucide-react";
+import { Header } from "@/components/layout/header";
+import { Footer } from "@/components/layout/footer";
 
 export default function Error({
   error,
   reset,
 }: {
-  error: Error & { digest?: string }
-  reset: () => void
+  error: Error & { digest?: string };
+  reset: () => void;
 }) {
   useEffect(() => {
-    console.error('Auth error:', error)
-  }, [error])
+    console.error("Auth error:", error);
+  }, [error]);
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
@@ -36,10 +36,10 @@ export default function Error({
             Une erreur s'est produite lors de la connexion. Veuillez réessayer.
           </p>
 
-          {process.env.NODE_ENV === 'development' && (
+          {process.env.NODE_ENV === "development" && (
             <div className="mb-6 p-4 bg-muted rounded-lg text-left text-sm overflow-auto max-h-32 border border-border/50">
               <p className="font-mono text-destructive break-words">
-                {error.message || 'Unknown error'}
+                {error.message || "Unknown error"}
               </p>
             </div>
           )}
@@ -70,5 +70,5 @@ export default function Error({
 
       <Footer />
     </div>
-  )
+  );
 }

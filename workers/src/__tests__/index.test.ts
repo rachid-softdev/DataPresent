@@ -23,7 +23,9 @@ const mockExportClose = vi.hoisted(() => vi.fn());
 const mockCreateServer = vi.hoisted(() => vi.fn());
 const mockServerListen = vi.hoisted(() => vi.fn());
 const mockServerClose = vi.hoisted(() => vi.fn());
-const capturedHandler = vi.hoisted(() => ({ current: null as ((req: any, res: any) => void) | null }));
+const capturedHandler = vi.hoisted(() => ({
+  current: null as ((req: any, res: any) => void) | null,
+}));
 
 // Track process listeners for shutdown tests
 const processListeners = vi.hoisted(() => ({}) as Record<string, () => void>);
@@ -270,11 +272,9 @@ describe("index.ts entry point", () => {
 
   describe("module import", () => {
     it("should import module without crashing when dependencies are mocked", async () => {
-      const exitSpy = vi
-        .spyOn(process, "exit")
-        .mockImplementation((() => {
-          /* noop */
-        }) as any);
+      const exitSpy = vi.spyOn(process, "exit").mockImplementation((() => {
+        /* noop */
+      }) as any);
 
       const mod = await import("../index.js");
       expect(mod).toBeDefined();
@@ -385,21 +385,17 @@ describe("index.ts entry point", () => {
 
   describe("graceful shutdown", () => {
     it("should close server and workers on SIGTERM", async () => {
-      const exitSpy = vi
-        .spyOn(process, "exit")
-        .mockImplementation((() => {
-          /* noop */
-        }) as any);
+      const exitSpy = vi.spyOn(process, "exit").mockImplementation((() => {
+        /* noop */
+      }) as any);
 
-      const processOnSpy = vi
-        .spyOn(process, "on")
-        .mockImplementation(((
-          event: string,
-          listener: (...args: unknown[]) => unknown
-        ) => {
-          processListeners[event] = listener as () => void;
-          return process;
-        }) as any);
+      const processOnSpy = vi.spyOn(process, "on").mockImplementation(((
+        event: string,
+        listener: (...args: unknown[]) => unknown,
+      ) => {
+        processListeners[event] = listener as () => void;
+        return process;
+      }) as any);
 
       await import("../index.js");
 
@@ -415,21 +411,17 @@ describe("index.ts entry point", () => {
     });
 
     it("should close server and workers on SIGINT", async () => {
-      const exitSpy = vi
-        .spyOn(process, "exit")
-        .mockImplementation((() => {
-          /* noop */
-        }) as any);
+      const exitSpy = vi.spyOn(process, "exit").mockImplementation((() => {
+        /* noop */
+      }) as any);
 
-      const processOnSpy = vi
-        .spyOn(process, "on")
-        .mockImplementation(((
-          event: string,
-          listener: (...args: unknown[]) => unknown
-        ) => {
-          processListeners[event] = listener as () => void;
-          return process;
-        }) as any);
+      const processOnSpy = vi.spyOn(process, "on").mockImplementation(((
+        event: string,
+        listener: (...args: unknown[]) => unknown,
+      ) => {
+        processListeners[event] = listener as () => void;
+        return process;
+      }) as any);
 
       await import("../index.js");
 

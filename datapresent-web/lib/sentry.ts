@@ -1,11 +1,11 @@
-import * as Sentry from '@sentry/nextjs'
+import * as Sentry from "@sentry/nextjs";
 
 /**
  * Initialize Sentry for error tracking and performance monitoring
  * Only enabled in production to avoid noise in development
  */
 export function initSentry() {
-  if (process.env.NODE_ENV === 'production' && process.env.SENTRY_DSN) {
+  if (process.env.NODE_ENV === "production" && process.env.SENTRY_DSN) {
     Sentry.init({
       dsn: process.env.SENTRY_DSN,
       // Performance monitoring
@@ -17,29 +17,28 @@ export function initSentry() {
       replaysOnErrorSampleRate: 1.0,
       // Environment info
       environment: process.env.NODE_ENV,
-      release: process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA || `datapresent@${process.env.npm_package_version}`,
+      release:
+        process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA ||
+        `datapresent@${process.env.npm_package_version}`,
       // Filter out common non-critical errors
       beforeSend(event, hint) {
-        const error = hint.originalException
-        
+        const error = hint.originalException;
+
         // Ignore network errors from external APIs (they're logged separately)
-        if (error instanceof TypeError && error.message.includes('fetch')) {
-          return null
+        if (error instanceof TypeError && error.message.includes("fetch")) {
+          return null;
         }
-        
+
         // Ignore 404s on certain paths
-        if (event.request?.url?.includes('/api/') && event.response?.status === 404) {
-          return null
+        if (event.request?.url?.includes("/api/") && event.response?.status === 404) {
+          return null;
         }
-        
-        return event
+
+        return event;
       },
       // Integration options
-      integrations: [
-        Sentry.httpIntegration(),
-        Sentry.moduleIntegration(),
-      ],
-    })
+      integrations: [Sentry.httpIntegration(), Sentry.moduleIntegration()],
+    });
   }
 }
 
@@ -47,13 +46,13 @@ export function initSentry() {
  * Capture an exception with additional context
  */
 export function captureException(error: Error, context?: Record<string, unknown>) {
-  if (process.env.NODE_ENV === 'production') {
+  if (process.env.NODE_ENV === "production") {
     Sentry.captureException(error, {
       extra: context,
-    })
+    });
   } else {
     // In development, just log to console
-    console.error('[Sentry] Captured exception:', error, context)
+    console.error("[Sentry] Captured exception:", error, context);
   }
 }
 
@@ -62,42 +61,39 @@ export function captureException(error: Error, context?: Record<string, unknown>
  */
 export function captureMessage(
   message: string,
-  level: 'fatal' | 'error' | 'warning' | 'info' | 'debug' = 'info',
-  context?: Record<string, unknown>
+  level: "fatal" | "error" | "warning" | "info" | "debug" = "info",
+  context?: Record<string, unknown>,
 ) {
-  if (process.env.NODE_ENV === 'production') {
+  if (process.env.NODE_ENV === "production") {
     Sentry.captureMessage(message, {
       level,
       extra: context,
-    })
+    });
   } else {
-    const consoleMethod = {
-      fatal: console.error,
-      error: console.error,
-      warning: console.warn,
-      info: console.info,
-      debug: console.debug,
-    }[level] ?? console.log
+    const consoleMethod =
+      {
+        fatal: console.error,
+        error: console.error,
+        warning: console.warn,
+        info: console.info,
+        debug: console.debug,
+      }[level] ?? console.log;
 
-    consoleMethod(`[Sentry] ${level}:`, message, context)
+    consoleMethod(`[Sentry] ${level}:`, message, context);
   }
 }
 
 /**
  * Add custom breadcrumb for tracking user actions
  */
-export function addBreadcrumb(
-  message: string,
-  category: string,
-  data?: Record<string, unknown>
-) {
-  if (process.env.NODE_ENV === 'production') {
+export function addBreadcrumb(message: string, category: string, data?: Record<string, unknown>) {
+  if (process.env.NODE_ENV === "production") {
     Sentry.addBreadcrumb({
       message,
       category,
       data,
-      level: 'info',
-    })
+      level: "info",
+    });
   }
 }
 
@@ -105,8 +101,8 @@ export function addBreadcrumb(
  * Set user context for all events
  */
 export function setUser(user: { id: string; email?: string; username?: string } | null) {
-  if (process.env.NODE_ENV === 'production') {
-    Sentry.setUser(user)
+  if (process.env.NODE_ENV === "production") {
+    Sentry.setUser(user);
   }
 }
 
@@ -116,20 +112,20 @@ export function setUser(user: { id: string; email?: string; username?: string } 
 export async function startTransaction<T>(
   name: string,
   op: string,
-  fn: () => Promise<T>
+  fn: () => Promise<T>,
 ): Promise<T> {
-  if (process.env.NODE_ENV === 'production') {
+  if (process.env.NODE_ENV === "production") {
     return Sentry.startSpan(
       {
         name,
         op,
       },
-      fn
-    )
+      fn,
+    );
   }
-  
+
   // In development, just execute the function
-  return fn()
+  return fn();
 }
 
 /**
@@ -138,16 +134,16 @@ export async function startTransaction<T>(
 export function withSentryCapture(handler: (request: Request) => Promise<Response>) {
   return async function (request: Request): Promise<Response> {
     try {
-      return await handler(request)
+      return await handler(request);
     } catch (error) {
       captureException(error instanceof Error ? error : new Error(String(error)), {
         url: request.url,
         method: request.method,
-      })
-      throw error
+      });
+      throw error;
     }
-  }
+  };
 }
 
 // Export Sentry for direct access if needed
-export { Sentry }
+export { Sentry };

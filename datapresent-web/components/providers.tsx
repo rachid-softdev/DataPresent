@@ -1,7 +1,7 @@
-'use client'
+"use client";
 
-import { ThemeProvider } from './theme-provider'
-import { Toaster } from 'sonner'
+import { ThemeProvider } from "./theme-provider";
+import { Toaster } from "sonner";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
@@ -9,5 +9,5 @@ export function Providers({ children }: { children: React.ReactNode }) {
       {children}
       <Toaster position="top-right" richColors />
     </ThemeProvider>
-  )
+  );
 }

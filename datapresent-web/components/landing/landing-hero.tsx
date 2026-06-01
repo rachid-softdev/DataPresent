@@ -1,25 +1,25 @@
-import Link from 'next/link'
+import Link from "next/link";
 
 interface Stat {
-  value: string
-  label: string
+  value: string;
+  label: string;
 }
 
 interface LandingHeroProps {
-  badge: string
-  title: React.ReactNode
-  body: string
-  cta: string
-  note: string
-  stats?: Stat[]
+  badge: string;
+  title: React.ReactNode;
+  body: string;
+  cta: string;
+  note: string;
+  stats?: Stat[];
 }
 
 const DEFAULT_STATS: Stat[] = [
-  { value: '10K+', label: 'Présentations générées' },
-  { value: '< 30s', label: 'Temps de génération' },
-  { value: '4', label: 'Formats supportés' },
-  { value: '99.9%', label: 'Disponibilité' },
-]
+  { value: "10K+", label: "Présentations générées" },
+  { value: "< 30s", label: "Temps de génération" },
+  { value: "4", label: "Formats supportés" },
+  { value: "99.9%", label: "Disponibilité" },
+];
 
 export function LandingHero({
   badge,
@@ -41,12 +41,26 @@ export function LandingHero({
         <div className="landing-hero-cta anim-up-3">
           <Link href="/signup" className="landing-btn landing-btn-primary landing-btn-xl">
             {cta}
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
               <path d="M5 12h14M12 5l7 7-7 7" />
             </svg>
           </Link>
           <span className="landing-hero-note">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+            >
               <path d="M20 6L9 17l-5-5" />
             </svg>
             {note}
@@ -62,5 +76,5 @@ export function LandingHero({
         </div>
       </div>
     </section>
-  )
+  );
 }

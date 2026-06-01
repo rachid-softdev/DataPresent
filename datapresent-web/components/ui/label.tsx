@@ -1,1 +1,1 @@
-export { Label } from '@datapresent/ui'
+export { Label } from "@datapresent/ui";

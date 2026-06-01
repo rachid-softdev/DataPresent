@@ -1,21 +1,21 @@
-'use client'
+"use client";
 
-import { useEffect } from 'react'
-import Link from 'next/link'
-import { AlertTriangle, Home } from 'lucide-react'
-import { Header } from '@/components/layout/header'
-import { Footer } from '@/components/layout/footer'
+import { useEffect } from "react";
+import Link from "next/link";
+import { AlertTriangle, Home } from "lucide-react";
+import { Header } from "@/components/layout/header";
+import { Footer } from "@/components/layout/footer";
 
 export default function Error({
   error,
   reset,
 }: {
-  error: Error & { digest?: string }
-  reset: () => void
+  error: Error & { digest?: string };
+  reset: () => void;
 }) {
   useEffect(() => {
-    console.error('Share error:', error)
-  }, [error])
+    console.error("Share error:", error);
+  }, [error]);
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
@@ -62,5 +62,5 @@ export default function Error({
 
       <Footer />
     </div>
-  )
+  );
 }

@@ -1,5 +1,5 @@
-import Link from 'next/link'
-import { Button } from '@/components/ui/button'
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 export default function NotFound() {
   return (
@@ -13,11 +13,9 @@ export default function NotFound() {
           La page que vous recherchez n'existe pas ou a été déplacée.
         </p>
         <Button asChild className="mt-6">
-          <Link href="/">
-            Retour à l'accueil
-          </Link>
+          <Link href="/">Retour à l'accueil</Link>
         </Button>
       </div>
     </div>
-  )
+  );
 }

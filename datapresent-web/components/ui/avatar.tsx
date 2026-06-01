@@ -1,1 +1,1 @@
-export { Avatar, AvatarImage, AvatarFallback } from '@datapresent/ui'
+export { Avatar, AvatarImage, AvatarFallback } from "@datapresent/ui";

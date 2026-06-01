@@ -1,26 +1,24 @@
-'use client'
+"use client";
 
-import { Calendar } from 'lucide-react'
+import { Calendar } from "lucide-react";
 
 interface TitleSlideProps {
   content: {
-    subtitle?: string
-    date?: string
-    author?: string
-  }
+    subtitle?: string;
+    date?: string;
+    author?: string;
+  };
 }
 
 export function TitleSlide({ content }: TitleSlideProps) {
-  const { subtitle, date, author } = content
+  const { subtitle, date, author } = content;
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[300px] text-center">
       <div className="w-16 h-16 rounded-full bg-primary flex items-center justify-center mb-6">
         <span className="text-2xl font-bold text-primary-foreground">DP</span>
       </div>
-      {subtitle && (
-        <p className="text-lg text-muted-foreground mb-4 max-w-lg">{subtitle}</p>
-      )}
+      {subtitle && <p className="text-lg text-muted-foreground mb-4 max-w-lg">{subtitle}</p>}
       <div className="flex items-center gap-4 text-sm text-muted-foreground">
         {date && (
           <div className="flex items-center gap-1">
@@ -31,5 +29,5 @@ export function TitleSlide({ content }: TitleSlideProps) {
         {author && <span>Par {author}</span>}
       </div>
     </div>
-  )
+  );
 }

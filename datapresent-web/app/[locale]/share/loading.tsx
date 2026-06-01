@@ -1,4 +1,4 @@
-import { Skeleton } from '@/components/ui/skeleton'
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Loading() {
   return (
@@ -16,7 +16,7 @@ export default function Loading() {
         </div>
 
         <div className="space-y-6">
-          {[1, 2, 3, 4, 5].map(i => (
+          {[1, 2, 3, 4, 5].map((i) => (
             <div key={i} className="bg-white rounded-lg border p-6">
               <Skeleton className="h-6 w-48 mb-4" />
               <Skeleton className="h-40 w-full" />
@@ -25,5 +25,5 @@ export default function Loading() {
         </div>
       </main>
     </div>
-  )
+  );
 }

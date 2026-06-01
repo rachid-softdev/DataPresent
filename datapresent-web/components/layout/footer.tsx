@@ -1,7 +1,7 @@
-import Link from 'next/link'
+import Link from "next/link";
 
 export function Footer() {
-  const currentYear = new Date().getFullYear()
+  const currentYear = new Date().getFullYear();
 
   return (
     <footer className="border-t border-border bg-surface py-10">
@@ -31,5 +31,5 @@ export function Footer() {
         </div>
       </div>
     </footer>
-  )
+  );
 }
