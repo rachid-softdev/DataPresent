@@ -1,1 +1,1 @@
-export { Progress } from '@datapresent/ui'
+export { Progress } from "@datapresent/ui";

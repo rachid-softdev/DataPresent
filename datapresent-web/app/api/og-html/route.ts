@@ -1,26 +1,27 @@
-import { NextRequest } from 'next/server'
+import { NextRequest } from "next/server";
 
 export async function GET(req: NextRequest) {
-  const { searchParams } = new URL(req.url)
-  const rawTitle = searchParams.get('title') || 'DataPresent Blog'
-  const rawDescription = searchParams.get('description') || 'Latest news, tips and insights about data presentation'
-  const rawSlug = searchParams.get('slug') || ''
-  const locale = searchParams.get('locale') || 'en'
+  const { searchParams } = new URL(req.url);
+  const rawTitle = searchParams.get("title") || "DataPresent Blog";
+  const rawDescription =
+    searchParams.get("description") || "Latest news, tips and insights about data presentation";
+  const rawSlug = searchParams.get("slug") || "";
+  const locale = searchParams.get("locale") || "en";
 
   // Validate input lengths before truncation to prevent DoS
   if (rawTitle.length > 200) {
-    return new Response('Title too long', { status: 400 })
+    return new Response("Title too long", { status: 400 });
   }
   if (rawDescription.length > 500) {
-    return new Response('Description too long', { status: 400 })
+    return new Response("Description too long", { status: 400 });
   }
   if (rawSlug.length > 100) {
-    return new Response('Slug too long', { status: 400 })
+    return new Response("Slug too long", { status: 400 });
   }
 
-  const title = rawTitle.slice(0, 100)
-  const description = rawDescription.slice(0, 300)
-  const slug = rawSlug.slice(0, 100)
+  const title = rawTitle.slice(0, 100);
+  const description = rawDescription.slice(0, 300);
+  const slug = rawSlug.slice(0, 100);
 
   // HTML template for OG image
   const html = `
@@ -54,7 +55,7 @@ export async function GET(req: NextRequest) {
       max-width: 800px;
     }
     .title {
-      font-size: ${title.length > 50 ? '36' : '48'}px;
+      font-size: ${title.length > 50 ? "36" : "48"}px;
       font-weight: 700;
       color: #0c1407;
       margin-bottom: 16px;
@@ -83,21 +84,21 @@ export async function GET(req: NextRequest) {
   <div class="url">datapresent.com/${escapeHtml(locale)}/blog/${escapeHtml(slug)}</div>
 </body>
 </html>
-  `
+  `;
 
   return new Response(html, {
     headers: {
-      'Content-Type': 'text/html',
-      'Cache-Control': 'public, max-age=31536000, immutable',
+      "Content-Type": "text/html",
+      "Cache-Control": "public, max-age=31536000, immutable",
     },
-  })
+  });
 }
 
 function escapeHtml(text: string): string {
   return text
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;')
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
 }

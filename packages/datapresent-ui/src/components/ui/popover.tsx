@@ -1,29 +1,29 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { cn } from '../../utils'
+import * as React from "react";
+import { cn } from "../../utils";
 
 interface PopoverProps {
-  open?: boolean
-  onOpenChange?: (open: boolean) => void
-  children: React.ReactNode
-  content: React.ReactNode
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  children: React.ReactNode;
+  content: React.ReactNode;
 }
 
 export function Popover({ open, onOpenChange, children, content }: PopoverProps) {
-  const ref = React.useRef<HTMLDivElement>(null)
+  const ref = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (ref.current && !ref.current.contains(e.target as Node)) {
-        onOpenChange?.(false)
+        onOpenChange?.(false);
       }
-    }
+    };
     if (open) {
-      document.addEventListener('mousedown', handleClickOutside)
-      return () => document.removeEventListener('mousedown', handleClickOutside)
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => document.removeEventListener("mousedown", handleClickOutside);
     }
-  }, [open, onOpenChange])
+  }, [open, onOpenChange]);
 
   return (
     <div ref={ref} className="relative inline-block">
@@ -34,5 +34,5 @@ export function Popover({ open, onOpenChange, children, content }: PopoverProps)
         </div>
       )}
     </div>
-  )
+  );
 }

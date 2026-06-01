@@ -1,82 +1,82 @@
-'use client'
+"use client";
 
-import { useState, useEffect, Suspense } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
-import Link from 'next/link'
-import { useTranslations } from 'next-intl'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
-import { Loader2, ArrowLeft, Lock, CheckCircle, AlertCircle } from 'lucide-react'
-import { toast } from 'sonner'
+import { useState, useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Loader2, ArrowLeft, Lock, CheckCircle, AlertCircle } from "lucide-react";
+import { toast } from "sonner";
 
 function ResetPasswordContent() {
-  const t = useTranslations()
-  const router = useRouter()
-  const searchParams = useSearchParams()
-  const token = searchParams.get('token')
+  const t = useTranslations();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const token = searchParams.get("token");
 
-  const [password, setPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [success, setSuccess] = useState(false)
-  const [isValidToken, setIsValidToken] = useState<boolean | null>(null)
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
+  const [isValidToken, setIsValidToken] = useState<boolean | null>(null);
 
   useEffect(() => {
     if (!token) {
-      setError('Token de réinitialisation manquant')
-      return
+      setError("Token de réinitialisation manquant");
+      return;
     }
     // Mark as valid since we don't have a way to validate without calling the API
-    setIsValidToken(true)
-  }, [token])
+    setIsValidToken(true);
+  }, [token]);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
     if (!token) {
-      setError('Token de réinitialisation manquant')
-      return
+      setError("Token de réinitialisation manquant");
+      return;
     }
 
     if (password.length < 8) {
-      setError('Le mot de passe doit contenir au moins 8 caractères')
-      return
+      setError("Le mot de passe doit contenir au moins 8 caractères");
+      return;
     }
 
     if (password !== confirmPassword) {
-      setError('Les mots de passe ne correspondent pas')
-      return
+      setError("Les mots de passe ne correspondent pas");
+      return;
     }
 
-    setLoading(true)
-    setError(null)
+    setLoading(true);
+    setError(null);
 
     try {
-      const res = await fetch('/api/auth/reset-password', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch("/api/auth/reset-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ token, password }),
-      })
+      });
 
-      const data = await res.json()
+      const data = await res.json();
 
       if (res.ok) {
-        setSuccess(true)
-        toast.success('Mot de passe réinitialisé avec succès')
+        setSuccess(true);
+        toast.success("Mot de passe réinitialisé avec succès");
       } else {
-        setError(data.error || 'Une erreur est survenue')
-        toast.error(data.error || 'Erreur lors de la réinitialisation')
+        setError(data.error || "Une erreur est survenue");
+        toast.error(data.error || "Erreur lors de la réinitialisation");
       }
     } catch (err) {
-      setError('Erreur de connexion')
-      toast.error('Erreur de connexion')
+      setError("Erreur de connexion");
+      toast.error("Erreur de connexion");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   if (!token) {
     return (
@@ -98,7 +98,7 @@ function ResetPasswordContent() {
           </CardContent>
         </Card>
       </div>
-    )
+    );
   }
 
   if (success) {
@@ -123,7 +123,7 @@ function ResetPasswordContent() {
           </CardContent>
         </Card>
       </div>
-    )
+    );
   }
 
   return (
@@ -191,7 +191,7 @@ function ResetPasswordContent() {
                   Réinitialisation en cours...
                 </>
               ) : (
-                'Réinitialiser le mot de passe'
+                "Réinitialiser le mot de passe"
               )}
             </Button>
 
@@ -205,7 +205,7 @@ function ResetPasswordContent() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }
 
 export default function ResetPasswordPage() {
@@ -219,5 +219,5 @@ export default function ResetPasswordPage() {
     >
       <ResetPasswordContent />
     </Suspense>
-  )
+  );
 }

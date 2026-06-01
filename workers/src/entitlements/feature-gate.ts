@@ -10,7 +10,7 @@ import type {
   PlanFeature,
   EntitlementOverride,
   UsageTracking,
-} from '@prisma/client'
+} from "@prisma/client";
 import type {
   EntitlementMap,
   DebugTrace,
@@ -18,24 +18,27 @@ import type {
   ConsumeResult,
   ExperimentConfig,
   FeatureKey,
-} from './types'
-import { entitlementRepository } from './repository'
-import { entitlementsCache } from './cache'
+} from "./types";
+import { entitlementRepository } from "./repository";
+import { entitlementsCache } from "./cache";
 
 // ==========================================
 // Feature Gate Service Class
 // ==========================================
 
 export class FeatureGateService {
-  private invalidationTimers: Map<string, ReturnType<typeof setTimeout>> = new Map()
+  private invalidationTimers: Map<string, ReturnType<typeof setTimeout>> = new Map();
 
   private debouncedInvalidate(orgId: string): void {
-    const existing = this.invalidationTimers.get(orgId)
-    if (existing) clearTimeout(existing)
-    this.invalidationTimers.set(orgId, setTimeout(() => {
-      this.invalidateCache(orgId)
-      this.invalidationTimers.delete(orgId)
-    }, 500))
+    const existing = this.invalidationTimers.get(orgId);
+    if (existing) clearTimeout(existing);
+    this.invalidationTimers.set(
+      orgId,
+      setTimeout(() => {
+        this.invalidateCache(orgId);
+        this.invalidationTimers.delete(orgId);
+      }, 500),
+    );
   }
 
   /**
@@ -43,11 +46,11 @@ export class FeatureGateService {
    * Resolution order: user_override → org_override → plan → fallback
    */
   async hasFeature(orgId: string, featureKey: string, userId?: string): Promise<boolean> {
-    const resolved = await this.resolveFeature(orgId, featureKey, userId)
+    const resolved = await this.resolveFeature(orgId, featureKey, userId);
     // LIMIT features are available regardless of limit value
     // (0 = exhausted but feature exists, null = unlimited)
-    if (resolved.featureType === 'LIMIT') return true
-    return Boolean(resolved.value)
+    if (resolved.featureType === "LIMIT") return true;
+    return Boolean(resolved.value);
   }
 
   /**
@@ -55,18 +58,18 @@ export class FeatureGateService {
    * Returns null for unlimited (Enterprise)
    */
   async getLimit(orgId: string, limitKey: string, userId?: string): Promise<number | null> {
-    const resolved = await this.resolveFeature(orgId, limitKey, userId)
-    return resolved.value as number | null
+    const resolved = await this.resolveFeature(orgId, limitKey, userId);
+    return resolved.value as number | null;
   }
 
   /**
    * Assert that a feature is available, throws 403 if not
    */
   async assertFeature(orgId: string, featureKey: string, userId?: string): Promise<void> {
-    const hasAccess = await this.hasFeature(orgId, featureKey, userId)
+    const hasAccess = await this.hasFeature(orgId, featureKey, userId);
     if (!hasAccess) {
-      const trace = await this.getDebugTrace(orgId, featureKey, userId)
-      throw new FeatureNotAvailableError(featureKey, trace.planKey ?? 'FREE')
+      const trace = await this.getDebugTrace(orgId, featureKey, userId);
+      throw new FeatureNotAvailableError(featureKey, trace.planKey ?? "FREE");
     }
   }
 
@@ -77,23 +80,23 @@ export class FeatureGateService {
     orgId: string,
     featureKey: string,
     amount: number = 1,
-    userId?: string
+    userId?: string,
   ): Promise<boolean> {
     // First check if feature is enabled
-    const hasAccess = await this.hasFeature(orgId, featureKey, userId)
-    if (!hasAccess) return false
+    const hasAccess = await this.hasFeature(orgId, featureKey, userId);
+    if (!hasAccess) return false;
 
     // Get the limit
-    const limit = await this.getLimit(orgId, featureKey, userId)
+    const limit = await this.getLimit(orgId, featureKey, userId);
 
     // null limit means unlimited
-    if (limit === null) return true
+    if (limit === null) return true;
 
     // Get current usage
-    const usage = await entitlementRepository.getUsage(orgId, featureKey)
-    const currentUsage = usage?.usageCount ?? 0
+    const usage = await entitlementRepository.getUsage(orgId, featureKey);
+    const currentUsage = usage?.usageCount ?? 0;
 
-    return currentUsage + amount <= limit
+    return currentUsage + amount <= limit;
   }
 
   /**
@@ -103,34 +106,34 @@ export class FeatureGateService {
     orgId: string,
     featureKey: string,
     amount: number = 1,
-    userId?: string
+    userId?: string,
   ): Promise<ConsumeResult> {
     // First check if feature is enabled
-    const hasAccess = await this.hasFeature(orgId, featureKey, userId)
+    const hasAccess = await this.hasFeature(orgId, featureKey, userId);
     if (!hasAccess) {
-      const trace = await this.getDebugTrace(orgId, featureKey, userId)
+      const trace = await this.getDebugTrace(orgId, featureKey, userId);
       return {
         success: false,
-        error: 'FEATURE_NOT_AVAILABLE',
+        error: "FEATURE_NOT_AVAILABLE",
         featureKey,
         limit: null,
         used: 0,
         resetAt: null,
-      }
+      };
     }
 
     // Get the limit
-    const limit = await this.getLimit(orgId, featureKey, userId)
+    const limit = await this.getLimit(orgId, featureKey, userId);
 
     // Perform atomic consume
-    const result = await entitlementRepository.consumeUsage(orgId, featureKey, amount, limit)
+    const result = await entitlementRepository.consumeUsage(orgId, featureKey, amount, limit);
 
     // Invalidate cache after consumption (debounced)
     if (result.success) {
-      this.debouncedInvalidate(orgId)
+      this.debouncedInvalidate(orgId);
     }
 
-    return result
+    return result;
   }
 
   /**
@@ -138,33 +141,33 @@ export class FeatureGateService {
    */
   async getAllEntitlements(orgId: string, userId?: string): Promise<EntitlementMap> {
     // Check cache first
-    const cached = await entitlementsCache.get(orgId)
+    const cached = await entitlementsCache.get(orgId);
     if (cached) {
-      return cached
+      return cached;
     }
 
     // Get subscription
-    const subscription = await entitlementRepository.getActiveSubscription(orgId)
-    const plan = subscription?.plan ?? 'FREE'
-    const status = subscription?.status ?? 'ACTIVE'
+    const subscription = await entitlementRepository.getActiveSubscription(orgId);
+    const plan = subscription?.plan ?? "FREE";
+    const status = subscription?.status ?? "ACTIVE";
 
     // Get all features
-    const features = await entitlementRepository.getAllPlanFeatures()
+    const features = await entitlementRepository.getAllPlanFeatures();
 
     // Get overrides
-    const overrides = await entitlementRepository.getAllOverrides(orgId, userId)
+    const overrides = await entitlementRepository.getAllOverrides(orgId, userId);
 
     // Get usage
-    const usageRecords = await entitlementRepository.getAllUsage(orgId)
+    const usageRecords = await entitlementRepository.getAllUsage(orgId);
 
     // Build maps
-    const featuresMap: Record<string, boolean> = {}
-    const limitsMap: Record<string, number | null> = {}
-    const usageMap: Record<string, number> = {}
-    const resetAtMap: Record<string, Date | null> = {}
+    const featuresMap: Record<string, boolean> = {};
+    const limitsMap: Record<string, number | null> = {};
+    const usageMap: Record<string, number> = {};
+    const resetAtMap: Record<string, Date | null> = {};
 
     // Get all feature keys from plan_features
-    const featureKeys = new Set(features.map((f) => f.feature.key))
+    const featureKeys = new Set(features.map((f) => f.feature.key));
 
     for (const featureKey of featureKeys) {
       // Resolve each feature using priority system
@@ -174,17 +177,17 @@ export class FeatureGateService {
         userId,
         overrides,
         plan,
-        features
-      )
+        features,
+      );
 
-      featuresMap[featureKey] = resolved.value as boolean
+      featuresMap[featureKey] = resolved.value as boolean;
       limitsMap[featureKey] =
-        resolved.featureType === 'LIMIT' ? (resolved.value as number | null) : null
+        resolved.featureType === "LIMIT" ? (resolved.value as number | null) : null;
 
       // Get usage for this feature
-      const usage = usageRecords.find((u) => u.featureKey === featureKey)
-      usageMap[featureKey] = usage?.usageCount ?? 0
-      resetAtMap[featureKey] = usage?.periodEnd ?? null
+      const usage = usageRecords.find((u) => u.featureKey === featureKey);
+      usageMap[featureKey] = usage?.usageCount ?? 0;
+      resetAtMap[featureKey] = usage?.periodEnd ?? null;
     }
 
     const entitlementMap: EntitlementMap = {
@@ -194,12 +197,12 @@ export class FeatureGateService {
       limits: limitsMap,
       usage: usageMap,
       resetAt: resetAtMap,
-    }
+    };
 
     // Cache the result
-    await entitlementsCache.set(orgId, entitlementMap)
+    await entitlementsCache.set(orgId, entitlementMap);
 
-    return entitlementMap
+    return entitlementMap;
   }
 
   /**
@@ -211,8 +214,8 @@ export class FeatureGateService {
       featureKey,
       userId,
       undefined,
-      undefined
-    )
+      undefined,
+    );
 
     return {
       featureKey,
@@ -222,14 +225,14 @@ export class FeatureGateService {
       expiresAt: resolved.expiresAt,
       planKey: resolved.planKey,
       experimentConfig: resolved.experimentConfig,
-    }
+    };
   }
 
   /**
    * Invalidate cache for an organization
    */
   async invalidateCache(orgId: string): Promise<void> {
-    await entitlementsCache.invalidate(orgId)
+    await entitlementsCache.invalidate(orgId);
   }
 
   // ==========================================
@@ -242,24 +245,24 @@ export class FeatureGateService {
   private async resolveFeature(
     orgId: string,
     featureKey: string,
-    userId?: string
+    userId?: string,
   ): Promise<{
-    value: boolean | number | null
-    resolvedVia: ResolutionSource
-    overrideId?: string
-    expiresAt?: Date | null
-    planKey?: Plan | null
-    featureType?: FeatureType
-    experimentConfig?: ExperimentConfig | null
+    value: boolean | number | null;
+    resolvedVia: ResolutionSource;
+    overrideId?: string;
+    expiresAt?: Date | null;
+    planKey?: Plan | null;
+    featureType?: FeatureType;
+    experimentConfig?: ExperimentConfig | null;
   }> {
     // Get overrides if not provided
-    const overrides = await entitlementRepository.getAllOverrides(orgId, userId)
+    const overrides = await entitlementRepository.getAllOverrides(orgId, userId);
 
     // Get subscription for plan
-    const subscription = await entitlementRepository.getActiveSubscription(orgId)
-    const plan = subscription?.plan ?? 'FREE'
+    const subscription = await entitlementRepository.getActiveSubscription(orgId);
+    const plan = subscription?.plan ?? "FREE";
 
-    return this.resolveFeatureWithOverrides(orgId, featureKey, userId, overrides, plan)
+    return this.resolveFeatureWithOverrides(orgId, featureKey, userId, overrides, plan);
   }
 
   /**
@@ -271,108 +274,109 @@ export class FeatureGateService {
     userId: string | undefined,
     overrides: EntitlementOverride[] | undefined,
     plan: Plan | undefined,
-    preloadedFeatures?: PlanFeature[]
+    preloadedFeatures?: PlanFeature[],
   ): Promise<{
-    value: boolean | number | null
-    resolvedVia: ResolutionSource
-    overrideId?: string
-    expiresAt?: Date | null
-    planKey?: Plan | null
-    featureType?: FeatureType
-    experimentConfig?: ExperimentConfig | null
+    value: boolean | number | null;
+    resolvedVia: ResolutionSource;
+    overrideId?: string;
+    expiresAt?: Date | null;
+    planKey?: Plan | null;
+    featureType?: FeatureType;
+    experimentConfig?: ExperimentConfig | null;
   }> {
     // 1. Check user override (highest priority)
     if (userId) {
       const userOverride = overrides?.find(
-        (o) => o.scope === 'USER' && o.scopeId === userId && o.featureKey === featureKey
-      )
+        (o) => o.scope === "USER" && o.scopeId === userId && o.featureKey === featureKey,
+      );
 
       if (userOverride && this.isOverrideValid(userOverride)) {
         return {
           value: userOverride.enabled,
-          resolvedVia: 'user_override',
+          resolvedVia: "user_override",
           overrideId: userOverride.id,
           expiresAt: userOverride.expiresAt,
-        }
+        };
       }
     }
 
     // 2. Check org override
     const orgOverride = overrides?.find(
-      (o) => o.scope === 'ORG' && o.scopeId === orgId && o.featureKey === featureKey
-    )
+      (o) => o.scope === "ORG" && o.scopeId === orgId && o.featureKey === featureKey,
+    );
 
     if (orgOverride && this.isOverrideValid(orgOverride)) {
       return {
         value: orgOverride.enabled,
-        resolvedVia: 'org_override',
+        resolvedVia: "org_override",
         overrideId: orgOverride.id,
         expiresAt: orgOverride.expiresAt,
-      }
+      };
     }
 
     // 3. Check plan features
-    const planFeatures = preloadedFeatures ?? await entitlementRepository.getPlanFeatures(plan ?? 'FREE')
-    const planFeature = planFeatures.find((pf) => pf.feature.key === featureKey)
+    const planFeatures =
+      preloadedFeatures ?? (await entitlementRepository.getPlanFeatures(plan ?? "FREE"));
+    const planFeature = planFeatures.find((pf) => pf.feature.key === featureKey);
 
     if (planFeature && planFeature.enabled) {
       // Handle experiments differently
-      if (planFeature.feature.type === 'EXPERIMENT' && planFeature.configJson) {
+      if (planFeature.feature.type === "EXPERIMENT" && planFeature.configJson) {
         // If no userId, return based on config percentage (org-level)
-        const experimentConfig = planFeature.configJson as ExperimentConfig
+        const experimentConfig = planFeature.configJson as ExperimentConfig;
 
         // For limit type, return the limit value
         if (planFeature.limitValue !== null) {
           return {
             value: planFeature.limitValue,
-            resolvedVia: 'plan',
-            planKey: plan ?? 'FREE',
+            resolvedVia: "plan",
+            planKey: plan ?? "FREE",
             featureType: planFeature.feature.type,
             experimentConfig,
-          }
+          };
         }
 
         // For boolean experiments, we need userId for bucketing
         return {
           value: true, // Default to enabled, actual bucketing done separately
-          resolvedVia: 'plan',
-          planKey: plan ?? 'FREE',
+          resolvedVia: "plan",
+          planKey: plan ?? "FREE",
           featureType: planFeature.feature.type,
           experimentConfig,
-        }
+        };
       }
 
       // Regular boolean or limit feature
-      if (planFeature.feature.type === 'LIMIT') {
+      if (planFeature.feature.type === "LIMIT") {
         return {
           value: planFeature.limitValue,
-          resolvedVia: 'plan',
-          planKey: plan ?? 'FREE',
+          resolvedVia: "plan",
+          planKey: plan ?? "FREE",
           featureType: planFeature.feature.type,
-        }
+        };
       }
 
       return {
         value: planFeature.enabled,
-        resolvedVia: 'plan',
-        planKey: plan ?? 'FREE',
+        resolvedVia: "plan",
+        planKey: plan ?? "FREE",
         featureType: planFeature.feature.type,
-      }
+      };
     }
 
     // 4. Fallback - feature disabled, limit = 0
     return {
       value: false,
-      resolvedVia: 'fallback',
-    }
+      resolvedVia: "fallback",
+    };
   }
 
   /**
    * Check if an override is still valid (not expired)
    */
   private isOverrideValid(override: EntitlementOverride): boolean {
-    if (!override.expiresAt) return true
-    return new Date(override.expiresAt) > new Date()
+    if (!override.expiresAt) return true;
+    return new Date(override.expiresAt) > new Date();
   }
 }
 
@@ -383,10 +387,10 @@ export class FeatureGateService {
 export class FeatureNotAvailableError extends Error {
   constructor(
     public featureKey: string,
-    public currentPlan: Plan
+    public currentPlan: Plan,
   ) {
-    super(`Feature ${featureKey} is not available on plan ${currentPlan}`)
-    this.name = 'FeatureNotAvailableError'
+    super(`Feature ${featureKey} is not available on plan ${currentPlan}`);
+    this.name = "FeatureNotAvailableError";
   }
 }
 
@@ -395,17 +399,17 @@ export class LimitReachedError extends Error {
     public featureKey: string,
     public limit: number,
     public used: number,
-    public resetAt: Date | null
+    public resetAt: Date | null,
   ) {
-    super(`Limit reached for ${featureKey}: ${used}/${limit}`)
-    this.name = 'LimitReachedError'
+    super(`Limit reached for ${featureKey}: ${used}/${limit}`);
+    this.name = "LimitReachedError";
   }
 }
 
 export class SubscriptionExpiredError extends Error {
   constructor() {
-    super('Subscription has expired')
-    this.name = 'SubscriptionExpiredError'
+    super("Subscription has expired");
+    this.name = "SubscriptionExpiredError";
   }
 }
 
@@ -413,7 +417,7 @@ export class SubscriptionExpiredError extends Error {
 // Singleton Instance
 // ==========================================
 
-export const featureGateService = new FeatureGateService()
+export const featureGateService = new FeatureGateService();
 
 // ==========================================
 // Convenience Functions
@@ -422,57 +426,57 @@ export const featureGateService = new FeatureGateService()
 export async function hasFeature(
   orgId: string,
   featureKey: string,
-  userId?: string
+  userId?: string,
 ): Promise<boolean> {
-  return featureGateService.hasFeature(orgId, featureKey, userId)
+  return featureGateService.hasFeature(orgId, featureKey, userId);
 }
 
 export async function getLimit(
   orgId: string,
   limitKey: string,
-  userId?: string
+  userId?: string,
 ): Promise<number | null> {
-  return featureGateService.getLimit(orgId, limitKey, userId)
+  return featureGateService.getLimit(orgId, limitKey, userId);
 }
 
 export async function assertFeature(
   orgId: string,
   featureKey: string,
-  userId?: string
+  userId?: string,
 ): Promise<void> {
-  return featureGateService.assertFeature(orgId, featureKey, userId)
+  return featureGateService.assertFeature(orgId, featureKey, userId);
 }
 
 export async function canConsume(
   orgId: string,
   featureKey: string,
   amount?: number,
-  userId?: string
+  userId?: string,
 ): Promise<boolean> {
-  return featureGateService.canConsume(orgId, featureKey, amount, userId)
+  return featureGateService.canConsume(orgId, featureKey, amount, userId);
 }
 
 export async function consume(
   orgId: string,
   featureKey: string,
   amount?: number,
-  userId?: string
+  userId?: string,
 ): Promise<ConsumeResult> {
-  return featureGateService.consume(orgId, featureKey, amount, userId)
+  return featureGateService.consume(orgId, featureKey, amount, userId);
 }
 
 export async function getAllEntitlements(orgId: string, userId?: string): Promise<EntitlementMap> {
-  return featureGateService.getAllEntitlements(orgId, userId)
+  return featureGateService.getAllEntitlements(orgId, userId);
 }
 
 export async function getDebugTrace(
   orgId: string,
   featureKey: string,
-  userId?: string
+  userId?: string,
 ): Promise<DebugTrace> {
-  return featureGateService.getDebugTrace(orgId, featureKey, userId)
+  return featureGateService.getDebugTrace(orgId, featureKey, userId);
 }
 
 export async function invalidateCache(orgId: string): Promise<void> {
-  return featureGateService.invalidateCache(orgId)
+  return featureGateService.invalidateCache(orgId);
 }

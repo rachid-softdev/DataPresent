@@ -1,1 +1,1 @@
-export { Tooltip } from '@datapresent/ui'
+export { Tooltip } from "@datapresent/ui";

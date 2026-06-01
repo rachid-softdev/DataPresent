@@ -1,36 +1,36 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
-import { Button } from '@/components/ui/button'
-import { Switch } from '@/components/ui/switch'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { X, Copy, Check, Globe, Lock, Users, Calendar, EyeOff } from 'lucide-react'
-import { toast } from 'sonner'
+} from "@/components/ui/select";
+import { X, Copy, Check, Globe, Lock, Users, Calendar, EyeOff } from "lucide-react";
+import { toast } from "sonner";
 
 interface ShareModalProps {
-  reportId: string
+  reportId: string;
 }
 
 interface ShareSettings {
-  isPublic: boolean
-  shareToken: string | null
-  shareUrl: string | null
-  allowComments: boolean
-  allowEmbed: boolean
-  expiresAt: string | null
-  hasPassword: boolean
+  isPublic: boolean;
+  shareToken: string | null;
+  shareUrl: string | null;
+  allowComments: boolean;
+  allowEmbed: boolean;
+  expiresAt: string | null;
+  hasPassword: boolean;
 }
 
 export function ShareModal({ reportId }: ShareModalProps) {
-  const [isOpen, setIsOpen] = useState(false)
+  const [isOpen, setIsOpen] = useState(false);
   const [settings, setSettings] = useState<ShareSettings>({
     isPublic: false,
     shareToken: null,
@@ -39,16 +39,16 @@ export function ShareModal({ reportId }: ShareModalProps) {
     allowEmbed: false,
     expiresAt: null,
     hasPassword: false,
-  })
-  const [loading, setLoading] = useState(false)
-  const [copied, setCopied] = useState(false)
-  const [initialLoading, setInitialLoading] = useState(true)
+  });
+  const [loading, setLoading] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
 
   // New password form state
-  const [showPasswordForm, setShowPasswordForm] = useState(false)
-  const [newPassword, setNewPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
-  const [expiration, setExpiration] = useState<string>('none')
+  const [showPasswordForm, setShowPasswordForm] = useState(false);
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [expiration, setExpiration] = useState<string>("none");
 
   useEffect(() => {
     if (isOpen) {
@@ -63,110 +63,112 @@ export function ShareModal({ reportId }: ShareModalProps) {
             allowEmbed: data.allowEmbed || false,
             expiresAt: data.expiresAt || null,
             hasPassword: data.password || false,
-          })
+          });
         })
-        .finally(() => setInitialLoading(false))
+        .finally(() => setInitialLoading(false));
     }
-  }, [isOpen, reportId])
+  }, [isOpen, reportId]);
 
   const togglePublic = async () => {
-    setLoading(true)
+    setLoading(true);
     const res = await fetch(`/api/reports/${reportId}/share`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ isPublic: !settings.isPublic }),
-    })
+    });
 
     if (res.ok) {
-      const data = await res.json()
+      const data = await res.json();
       setSettings((prev) => ({
         ...prev,
         isPublic: data.isPublic,
         shareToken: data.shareToken,
         shareUrl: data.shareUrl,
-      }))
-      toast.success(settings.isPublic ? 'Lien rendu privé' : 'Lien rendu public')
+      }));
+      toast.success(settings.isPublic ? "Lien rendu privé" : "Lien rendu public");
     } else {
-      toast.error('Erreur lors de la mise à jour')
+      toast.error("Erreur lors de la mise à jour");
     }
-    setLoading(false)
-  }
+    setLoading(false);
+  };
 
   const updateSettings = async (updates: Partial<ShareSettings>) => {
-    setLoading(true)
+    setLoading(true);
     try {
       const res = await fetch(`/api/reports/${reportId}/share`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(updates),
-      })
+      });
 
       if (res.ok) {
-        const data = await res.json()
+        const data = await res.json();
         setSettings((prev) => ({
           ...prev,
           ...updates,
           hasPassword: data.password || false,
-        }))
-        toast.success('Paramètres mis à jour')
+        }));
+        toast.success("Paramètres mis à jour");
       } else {
-        toast.error('Erreur lors de la mise à jour')
+        toast.error("Erreur lors de la mise à jour");
       }
     } catch {
-      toast.error('Erreur lors de la mise à jour')
+      toast.error("Erreur lors de la mise à jour");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handlePasswordSubmit = async () => {
     if (newPassword !== confirmPassword) {
-      toast.error('Les mots de passe ne correspondent pas')
-      return
+      toast.error("Les mots de passe ne correspondent pas");
+      return;
     }
     if (newPassword.length < 12) {
-      toast.error('Le mot de passe doit contenir au moins 12 caractères')
-      return
+      toast.error("Le mot de passe doit contenir au moins 12 caractères");
+      return;
     }
     // Verify complexity requirements match server validation
-    const hasUppercase = /[A-Z]/.test(newPassword)
-    const hasLowercase = /[a-z]/.test(newPassword)
-    const hasNumber = /[0-9]/.test(newPassword)
-    const hasSpecial = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(newPassword)
+    const hasUppercase = /[A-Z]/.test(newPassword);
+    const hasLowercase = /[a-z]/.test(newPassword);
+    const hasNumber = /[0-9]/.test(newPassword);
+    const hasSpecial = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(newPassword);
     if (!hasUppercase || !hasLowercase || !hasNumber || !hasSpecial) {
-      toast.error('Le mot de passe doit contenir au moins une majuscule, une minuscule, un chiffre et un caractère spécial')
-      return
+      toast.error(
+        "Le mot de passe doit contenir au moins une majuscule, une minuscule, un chiffre et un caractère spécial",
+      );
+      return;
     }
 
     await updateSettings({
       password: newPassword,
-      expiresAt: expiration !== 'none' ? expiration : undefined,
-    })
-    setShowPasswordForm(false)
-    setNewPassword('')
-    setConfirmPassword('')
-    setExpiration('none')
-  }
+      expiresAt: expiration !== "none" ? expiration : undefined,
+    });
+    setShowPasswordForm(false);
+    setNewPassword("");
+    setConfirmPassword("");
+    setExpiration("none");
+  };
 
   const handleRemovePassword = async () => {
-    await updateSettings({ password: '' })
-  }
+    await updateSettings({ password: "" });
+  };
 
   const copyLink = () => {
     if (settings.shareUrl) {
-      navigator.clipboard.writeText(settings.shareUrl)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
-      toast.success('Lien copié dans le presse-papiers')
+      navigator.clipboard.writeText(settings.shareUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+      toast.success("Lien copié dans le presse-papiers");
     }
-  }
+  };
 
   if (!isOpen) {
     return (
       <Button variant="outline" onClick={() => setIsOpen(true)}>
         Partager
       </Button>
-    )
+    );
   }
 
   return (
@@ -197,12 +199,12 @@ export function ShareModal({ reportId }: ShareModalProps) {
                 )}
                 <div>
                   <p className="font-medium text-foreground">
-                    {settings.isPublic ? 'Lien public activé' : 'Lien privé'}
+                    {settings.isPublic ? "Lien public activé" : "Lien privé"}
                   </p>
                   <p className="text-sm text-muted-foreground">
                     {settings.isPublic
-                      ? 'Toute personne avec le lien peut voir'
-                      : 'Réservé aux membres'}
+                      ? "Toute personne avec le lien peut voir"
+                      : "Réservé aux membres"}
                   </p>
                 </div>
               </div>
@@ -250,7 +252,7 @@ export function ShareModal({ reportId }: ShareModalProps) {
                     <div>
                       <p className="font-medium text-foreground">Protection par mot de passe</p>
                       <p className="text-sm text-muted-foreground">
-                        {settings.hasPassword ? 'Lien protégé' : 'Optionnel'}
+                        {settings.hasPassword ? "Lien protégé" : "Optionnel"}
                       </p>
                     </div>
                   </div>
@@ -259,7 +261,7 @@ export function ShareModal({ reportId }: ShareModalProps) {
                     size="sm"
                     onClick={() => setShowPasswordForm(!showPasswordForm)}
                   >
-                    {settings.hasPassword ? 'Modifier' : 'Ajouter'}
+                    {settings.hasPassword ? "Modifier" : "Ajouter"}
                   </Button>
                 </div>
 
@@ -327,13 +329,13 @@ export function ShareModal({ reportId }: ShareModalProps) {
                   </div>
                 </div>
                 <Select
-                  value={settings.expiresAt ? getExpirationValue(settings.expiresAt) : 'none'}
+                  value={settings.expiresAt ? getExpirationValue(settings.expiresAt) : "none"}
                   onValueChange={async (value) => {
-                    setExpiration(value)
-                    if (value !== 'none') {
-                      await updateSettings({ expiresAt: value })
+                    setExpiration(value);
+                    if (value !== "none") {
+                      await updateSettings({ expiresAt: value });
                     } else {
-                      await updateSettings({ expiresAt: null })
+                      await updateSettings({ expiresAt: null });
                     }
                   }}
                   disabled={loading}
@@ -377,17 +379,17 @@ export function ShareModal({ reportId }: ShareModalProps) {
         )}
       </div>
     </div>
-  )
+  );
 }
 
 function getExpirationValue(expiresAt: string | null): string {
-  if (!expiresAt) return 'none'
-  const date = new Date(expiresAt)
-  const now = new Date()
-  const diffDays = Math.ceil((date.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+  if (!expiresAt) return "none";
+  const date = new Date(expiresAt);
+  const now = new Date();
+  const diffDays = Math.ceil((date.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
 
-  if (diffDays <= 7) return '7d'
-  if (diffDays <= 30) return '30d'
-  if (diffDays <= 90) return '90d'
-  return 'none'
+  if (diffDays <= 7) return "7d";
+  if (diffDays <= 30) return "30d";
+  if (diffDays <= 90) return "90d";
+  return "none";
 }

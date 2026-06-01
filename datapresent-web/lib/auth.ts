@@ -1,139 +1,144 @@
-import NextAuth from "next-auth"
-import { PrismaAdapter } from "@auth/prisma-adapter"
-import GoogleProvider from "next-auth/providers/google"
-import CredentialsProvider from "next-auth/providers/credentials"
-import { prisma } from "@/lib/prisma"
-import { env } from "@/env"
-import { normalizeEmail } from "@/lib/email-normalize"
-import { verifyToken, extractTokenPrefix } from "@/lib/crypto"
-import { verifyPassword } from "@/lib/password"
+import NextAuth from "next-auth";
+import { PrismaAdapter } from "@auth/prisma-adapter";
+import GoogleProvider from "next-auth/providers/google";
+import CredentialsProvider from "next-auth/providers/credentials";
+import { prisma } from "@/lib/prisma";
+import { env } from "@/env";
+import { normalizeEmail } from "@/lib/email-normalize";
+import { verifyToken, extractTokenPrefix } from "@/lib/crypto";
+import { verifyPassword } from "@/lib/password";
 
-const googleConfigured = !!(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET)
+const googleConfigured = !!(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET);
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
   providers: [
-    ...(googleConfigured ? [GoogleProvider({
-      clientId: env.GOOGLE_CLIENT_ID!,
-      clientSecret: env.GOOGLE_CLIENT_SECRET!,
-    })] : []),
+    ...(googleConfigured
+      ? [
+          GoogleProvider({
+            clientId: env.GOOGLE_CLIENT_ID!,
+            clientSecret: env.GOOGLE_CLIENT_SECRET!,
+          }),
+        ]
+      : []),
     CredentialsProvider({
       name: "magic-link",
       credentials: {
-        token: { type: "text" }
+        token: { type: "text" },
       },
       async authorize(credentials) {
-        if (!credentials?.token) return null
-        const token = credentials.token as string
+        if (!credentials?.token) return null;
+        const token = credentials.token as string;
 
         // Find candidate tokens by token prefix for O(1) indexed lookup
-        const tokenPrefix = extractTokenPrefix(token)
+        const tokenPrefix = extractTokenPrefix(token);
         const candidates = await prisma.magicLinkToken.findMany({
           where: {
             tokenPrefix,
             used: false,
             expires: { gt: new Date() },
           },
-        })
+        });
 
-        let magicLinkToken = null
+        let magicLinkToken = null;
         for (const candidate of candidates) {
           if (await verifyToken(token, candidate.token)) {
-            magicLinkToken = candidate
-            break
+            magicLinkToken = candidate;
+            break;
           }
         }
 
         if (!magicLinkToken) {
-          return null
+          return null;
         }
 
         await prisma.magicLinkToken.update({
           where: { id: magicLinkToken.id },
-          data: { used: true }
-        })
+          data: { used: true },
+        });
 
         let user = await prisma.user.findUnique({
-          where: { email: magicLinkToken.email }
-        })
+          where: { email: magicLinkToken.email },
+        });
 
         if (!user) {
           user = await prisma.user.create({
             data: {
               email: magicLinkToken.email,
-              name: magicLinkToken.email.split('@')[0],
+              name: magicLinkToken.email.split("@")[0],
               isVerified: true,
               emailVerified: new Date(),
-            }
-          })
+            },
+          });
         }
 
-        return { id: user.id, email: user.email, name: user.name }
-      }
+        return { id: user.id, email: user.email, name: user.name };
+      },
     }),
     CredentialsProvider({
       id: "password",
       name: "Password",
       credentials: {
         email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" }
+        password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) return null
-        const email = normalizeEmail(credentials.email as string)
-        const user = await prisma.user.findUnique({ where: { email } })
-        if (!user) return null
+        if (!credentials?.email || !credentials?.password) return null;
+        const email = normalizeEmail(credentials.email as string);
+        const user = await prisma.user.findUnique({ where: { email } });
+        if (!user) return null;
         const stored = await prisma.password.findUnique({
-          where: { userId: user.id }
-        })
-        if (!stored) return null
-        const valid = await verifyPassword(credentials.password as string, stored.hash)
-        if (!valid) return null
-        return { id: user.id, email: user.email, name: user.name }
-      }
-    })
+          where: { userId: user.id },
+        });
+        if (!stored) return null;
+        const valid = await verifyPassword(credentials.password as string, stored.hash);
+        if (!valid) return null;
+        return { id: user.id, email: user.email, name: user.name };
+      },
+    }),
   ],
   callbacks: {
     async session({ session, token }) {
       if (session.user && token.sub) {
-        session.user.id = token.sub
+        session.user.id = token.sub;
 
         // Get user verification status
         const user = await prisma.user.findUnique({
           where: { id: token.sub },
-          select: { isVerified: true, emailVerified: true }
-        })
+          select: { isVerified: true, emailVerified: true },
+        });
 
         if (user) {
-          ;(session.user as Record<string, unknown>).isVerified = user.isVerified || !!user.emailVerified
+          (session.user as Record<string, unknown>).isVerified =
+            user.isVerified || !!user.emailVerified;
         }
       }
-      return session
+      return session;
     },
     async jwt({ token, user, trigger, session }) {
       if (user) {
-        token.sub = user.id
-        token.iat = Math.floor(Date.now() / 1000)
+        token.sub = user.id;
+        token.iat = Math.floor(Date.now() / 1000);
       }
 
       // Handle session updates
-      if (trigger === 'update' && session?.expires) {
-        token.expires = session.expires
+      if (trigger === "update" && session?.expires) {
+        token.expires = session.expires;
       }
 
       // Check token age for rotation (24 hours)
-      const now = Math.floor(Date.now() / 1000)
-      if (token.iat && (now - token.iat) > 24 * 60 * 60) {
-        token.needsRefresh = true
+      const now = Math.floor(Date.now() / 1000);
+      if (token.iat && now - token.iat > 24 * 60 * 60) {
+        token.needsRefresh = true;
       }
 
       // Transparent rotation: reset iat so the JWT is re-issued with a fresh timestamp
       if (token.needsRefresh) {
-        token.iat = Math.floor(Date.now() / 1000)
-        delete token.needsRefresh // Prevent infinite rotation on subsequent calls
+        token.iat = Math.floor(Date.now() / 1000);
+        delete token.needsRefresh; // Prevent infinite rotation on subsequent calls
       }
 
-      return token
+      return token;
     },
   },
   pages: {
@@ -148,4 +153,4 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   jwt: {
     maxAge: 24 * 60 * 60, // 24 hours
   },
-})
+});

@@ -2,20 +2,20 @@
 // Stripe Webhook Handler - Enriched with Idempotency & Cache
 // ==========================================
 
-import Stripe from 'stripe'
-import { env } from '@/env'
-import { getStripe } from './stripe'
-import { prisma } from './prisma'
-import { captureException, captureMessage } from './sentry'
-import { entitlementRepository } from './entitlements/repository'
-import { invalidateCache } from './entitlements/feature-gate'
-import type { Plan } from '@prisma/client'
+import Stripe from "stripe";
+import { env } from "@/env";
+import { getStripe } from "./stripe";
+import { prisma } from "./prisma";
+import { captureException, captureMessage } from "./sentry";
+import { entitlementRepository } from "./entitlements/repository";
+import { invalidateCache } from "./entitlements/feature-gate";
+import type { Plan } from "@prisma/client";
 
-const MAX_RETRIES = 3
-const RETRY_DELAYS = [1000, 2000, 4000] // 1s, 2s, 4s - exponential backoff
+const MAX_RETRIES = 3;
+const RETRY_DELAYS = [1000, 2000, 4000]; // 1s, 2s, 4s - exponential backoff
 
-type EventHandler = (data: Stripe.Event['data']['object']) => Promise<void>
-type EventHandlerWithOrg = (data: Stripe.Event['data']['object'], orgId: string) => Promise<void>
+type EventHandler = (data: Stripe.Event["data"]["object"]) => Promise<void>;
+type EventHandlerWithOrg = (data: Stripe.Event["data"]["object"], orgId: string) => Promise<void>;
 
 // ==========================================
 // Helper Functions
@@ -28,23 +28,23 @@ async function getOrgIdByCustomer(customerId: string): Promise<string | null> {
   const subscription = await prisma.subscription.findUnique({
     where: { stripeCustomerId: customerId },
     select: { orgId: true },
-  })
-  return subscription?.orgId ?? null
+  });
+  return subscription?.orgId ?? null;
 }
 
 /**
  * Map Stripe price ID to plan key
  */
 function getPlanFromPriceId(priceId: string | null): Plan {
-  if (!priceId) return 'FREE'
+  if (!priceId) return "FREE";
 
   const priceIdToPlan: Record<string, Plan> = {
-    [env.STRIPE_PRICE_PRO_MONTHLY ?? '']: 'PRO',
-    [env.STRIPE_PRICE_TEAM_MONTHLY ?? '']: 'TEAM',
-    [env.STRIPE_PRICE_STARTER_MONTHLY ?? '']: 'FREE',
-  }
+    [env.STRIPE_PRICE_PRO_MONTHLY ?? ""]: "PRO",
+    [env.STRIPE_PRICE_TEAM_MONTHLY ?? ""]: "TEAM",
+    [env.STRIPE_PRICE_STARTER_MONTHLY ?? ""]: "FREE",
+  };
 
-  return priceIdToPlan[priceId] ?? 'FREE'
+  return priceIdToPlan[priceId] ?? "FREE";
 }
 
 /**
@@ -52,12 +52,12 @@ function getPlanFromPriceId(priceId: string | null): Plan {
  */
 async function invalidateSubscriptionCache(orgId: string): Promise<void> {
   try {
-    await invalidateCache(orgId)
-    captureMessage(`Entitlements cache invalidated for org ${orgId}`, 'debug')
+    await invalidateCache(orgId);
+    captureMessage(`Entitlements cache invalidated for org ${orgId}`, "debug");
   } catch (error) {
     captureException(new Error(`Failed to invalidate cache for org ${orgId}`), {
       orgId,
-    })
+    });
   }
 }
 
@@ -66,96 +66,95 @@ async function invalidateSubscriptionCache(orgId: string): Promise<void> {
 // ==========================================
 
 const eventHandlers: Record<string, EventHandler> = {
-  'checkout.session.completed': async (data) => {
-    const session = data as Stripe.Checkout.Session
-    const customerId = session.customer as string
-    const subscriptionId = session.subscription as string
-    const priceId = session.metadata?.priceId
+  "checkout.session.completed": async (data) => {
+    const session = data as Stripe.Checkout.Session;
+    const customerId = session.customer as string;
+    const subscriptionId = session.subscription as string;
+    const priceId = session.metadata?.priceId;
 
-    const orgId = await getOrgIdByCustomer(customerId)
+    const orgId = await getOrgIdByCustomer(customerId);
 
     if (orgId) {
-      const plan = getPlanFromPriceId(priceId)
+      const plan = getPlanFromPriceId(priceId);
       await entitlementRepository.updateSubscription(orgId, {
         stripeSubscriptionId: subscriptionId,
         stripePriceId: priceId,
         plan,
-        status: 'ACTIVE',
-      })
+        status: "ACTIVE",
+      });
 
-      await invalidateSubscriptionCache(orgId)
-      captureMessage(`Subscription activated for org ${orgId}`, 'info', { plan })
+      await invalidateSubscriptionCache(orgId);
+      captureMessage(`Subscription activated for org ${orgId}`, "info", { plan });
     } else {
-      captureMessage(`Orphan checkout session: ${session.id}`, 'warning', { customerId })
+      captureMessage(`Orphan checkout session: ${session.id}`, "warning", { customerId });
     }
   },
 
-  'customer.subscription.created': async (data) => {
-    const subscription = data as Stripe.Subscription
-    const customerId = subscription.customer as string
+  "customer.subscription.created": async (data) => {
+    const subscription = data as Stripe.Subscription;
+    const customerId = subscription.customer as string;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Stripe items type is incomplete
-    const priceId = (subscription.items.data[0] as any)?.price?.id
-    const plan = getPlanFromPriceId(priceId)
-    const currentPeriodEnd = new Date(subscription.current_period_end * 1000)
+    const priceId = (subscription.items.data[0] as any)?.price?.id;
+    const plan = getPlanFromPriceId(priceId);
+    const currentPeriodEnd = new Date(subscription.current_period_end * 1000);
 
-    const orgId = await getOrgIdByCustomer(customerId)
+    const orgId = await getOrgIdByCustomer(customerId);
 
     if (orgId) {
       await entitlementRepository.updateSubscription(orgId, {
         plan,
-        status: 'ACTIVE',
+        status: "ACTIVE",
         stripeSubscriptionId: subscription.id,
         stripePriceId: priceId,
         currentPeriodEnd,
-      })
+      });
 
-      await invalidateSubscriptionCache(orgId)
-      captureMessage(`Subscription created for org ${orgId}`, 'info', { plan })
+      await invalidateSubscriptionCache(orgId);
+      captureMessage(`Subscription created for org ${orgId}`, "info", { plan });
     }
   },
 
-  'customer.subscription.updated': async (data) => {
-    const subscription = data as Stripe.Subscription
-    const customerId = subscription.customer as string
+  "customer.subscription.updated": async (data) => {
+    const subscription = data as Stripe.Subscription;
+    const customerId = subscription.customer as string;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Stripe items type is incomplete
-    const priceId = (subscription.items.data[0] as any)?.price?.id
-    const plan = getPlanFromPriceId(priceId)
+    const priceId = (subscription.items.data[0] as any)?.price?.id;
+    const plan = getPlanFromPriceId(priceId);
 
-    const orgId = await getOrgIdByCustomer(customerId)
+    const orgId = await getOrgIdByCustomer(customerId);
 
     if (!orgId) {
-      captureMessage(`Subscription update for unknown customer: ${customerId}`, 'warning')
-      return
+      captureMessage(`Subscription update for unknown customer: ${customerId}`, "warning");
+      return;
     }
 
     // Map Stripe status to our status
-    const statusMap: Record<string, 'ACTIVE' | 'PAST_DUE' | 'CANCELED' | 'TRIALING'> = {
-      active: 'ACTIVE',
-      past_due: 'PAST_DUE',
-      canceled: 'CANCELED',
-      trialing: 'TRIALING',
-      incomplete: 'PAST_DUE',
-      incomplete_expired: 'CANCELED',
-      unpaid: 'PAST_DUE',
-    }
+    const statusMap: Record<string, "ACTIVE" | "PAST_DUE" | "CANCELED" | "TRIALING"> = {
+      active: "ACTIVE",
+      past_due: "PAST_DUE",
+      canceled: "CANCELED",
+      trialing: "TRIALING",
+      incomplete: "PAST_DUE",
+      incomplete_expired: "CANCELED",
+      unpaid: "PAST_DUE",
+    };
 
-    const status = statusMap[subscription.status] ?? 'ACTIVE'
-    const currentPeriodEnd = new Date(subscription.current_period_end * 1000)
+    const status = statusMap[subscription.status] ?? "ACTIVE";
+    const currentPeriodEnd = new Date(subscription.current_period_end * 1000);
 
     // Check for plan downgrade
     const currentSub = await prisma.subscription.findUnique({
       where: { orgId },
       select: { plan: true },
-    })
+    });
 
-    const isDowngrade =
-      currentSub && currentSub.plan !== 'FREE' && plan !== currentSub.plan
+    const isDowngrade = currentSub && currentSub.plan !== "FREE" && plan !== currentSub.plan;
 
     if (isDowngrade) {
       captureMessage(
         `Plan downgrade detected for org ${orgId}: ${currentSub.plan} -> ${plan}`,
-        'info'
-      )
+        "info",
+      );
     }
 
     await entitlementRepository.updateSubscription(orgId, {
@@ -163,96 +162,96 @@ const eventHandlers: Record<string, EventHandler> = {
       status,
       stripePriceId: priceId,
       currentPeriodEnd,
-    })
+    });
 
-    await invalidateSubscriptionCache(orgId)
+    await invalidateSubscriptionCache(orgId);
 
-    captureMessage(`Subscription updated for org ${orgId}`, 'info', {
+    captureMessage(`Subscription updated for org ${orgId}`, "info", {
       status: subscription.status,
       plan,
       isDowngrade,
-    })
+    });
   },
 
-  'customer.subscription.deleted': async (data) => {
-    const subscription = data as Stripe.Subscription
-    const customerId = subscription.customer as string
+  "customer.subscription.deleted": async (data) => {
+    const subscription = data as Stripe.Subscription;
+    const customerId = subscription.customer as string;
 
-    const orgId = await getOrgIdByCustomer(customerId)
+    const orgId = await getOrgIdByCustomer(customerId);
 
     if (orgId) {
       await entitlementRepository.updateSubscription(orgId, {
-        status: 'CANCELED',
-        plan: 'FREE',
+        status: "CANCELED",
+        plan: "FREE",
         stripeSubscriptionId: null,
         stripePriceId: null,
         currentPeriodEnd: null,
-      })
+      });
 
-      await invalidateSubscriptionCache(orgId)
-      captureMessage(`Subscription cancelled for org ${orgId}`, 'info')
+      await invalidateSubscriptionCache(orgId);
+      captureMessage(`Subscription cancelled for org ${orgId}`, "info");
     }
   },
 
-  'invoice.payment_succeeded': async (data) => {
-    const invoice = data as Stripe.Invoice
-    const customerId = invoice.customer as string
-    const orgId = await getOrgIdByCustomer(customerId)
+  "invoice.payment_succeeded": async (data) => {
+    const invoice = data as Stripe.Invoice;
+    const customerId = invoice.customer as string;
+    const orgId = await getOrgIdByCustomer(customerId);
 
     if (!orgId) {
-      captureMessage(`Invoice payment for unknown customer: ${customerId}`, 'warning')
-      return
+      captureMessage(`Invoice payment for unknown customer: ${customerId}`, "warning");
+      return;
     }
 
     // Update subscription to ACTIVE if it was past_due
     // Also update period dates
-    const periodEnd = invoice.period_end ? new Date(invoice.period_end * 1000) : undefined
+    const periodEnd = invoice.period_end ? new Date(invoice.period_end * 1000) : undefined;
 
     await entitlementRepository.updateSubscription(orgId, {
-      status: 'ACTIVE',
+      status: "ACTIVE",
       ...(periodEnd && { currentPeriodEnd: periodEnd }),
-    })
+    });
 
-    await invalidateSubscriptionCache(orgId)
+    await invalidateSubscriptionCache(orgId);
 
-    captureMessage(`Invoice paid for org ${orgId}`, 'info', {
+    captureMessage(`Invoice paid for org ${orgId}`, "info", {
       amount: invoice.amount_paid,
-    })
+    });
   },
 
-  'invoice.payment_failed': async (data) => {
-    const invoice = data as Stripe.Invoice
-    const customerId = invoice.customer as string
+  "invoice.payment_failed": async (data) => {
+    const invoice = data as Stripe.Invoice;
+    const customerId = invoice.customer as string;
 
-    const orgId = await getOrgIdByCustomer(customerId)
+    const orgId = await getOrgIdByCustomer(customerId);
 
     if (orgId) {
       // Mark subscription as past_due
       await entitlementRepository.updateSubscription(orgId, {
-        status: 'PAST_DUE',
-      })
+        status: "PAST_DUE",
+      });
 
-      await invalidateSubscriptionCache(orgId)
+      await invalidateSubscriptionCache(orgId);
 
-      captureMessage(`Invoice payment failed for org ${orgId}`, 'warning', {
+      captureMessage(`Invoice payment failed for org ${orgId}`, "warning", {
         amount: invoice.amount_due,
-      })
+      });
     }
   },
 
-  'customer.subscription.trial_will_end': async (data) => {
-    const subscription = data as Stripe.Subscription
-    const customerId = subscription.customer as string
-    const orgId = await getOrgIdByCustomer(customerId)
+  "customer.subscription.trial_will_end": async (data) => {
+    const subscription = data as Stripe.Subscription;
+    const customerId = subscription.customer as string;
+    const orgId = await getOrgIdByCustomer(customerId);
 
     if (orgId) {
       // Trial ending soon - could trigger email notification here
-      captureMessage(`Trial ending soon for org ${orgId}`, 'info', {
+      captureMessage(`Trial ending soon for org ${orgId}`, "info", {
         trialEnd: subscription.trial_end,
-      })
+      });
     }
   },
-}
+};
 
 // ==========================================
 // Idempotency Check
@@ -262,14 +261,14 @@ const eventHandlers: Record<string, EventHandler> = {
  * Check if event has already been processed
  */
 export async function isEventProcessed(eventId: string): Promise<boolean> {
-  return entitlementRepository.isEventProcessed(eventId)
+  return entitlementRepository.isEventProcessed(eventId);
 }
 
 /**
  * Mark event as processed
  */
 export async function markEventProcessed(eventId: string, eventType: string): Promise<void> {
-  return entitlementRepository.markEventProcessed(eventId, eventType)
+  return entitlementRepository.markEventProcessed(eventId, eventType);
 }
 
 // ==========================================
@@ -280,29 +279,29 @@ export async function markEventProcessed(eventId: string, eventType: string): Pr
  * Process a Stripe webhook event with retry logic
  */
 export async function processWebhookEvent(event: Stripe.Event, retryCount = 0): Promise<void> {
-  const handler = eventHandlers[event.type]
+  const handler = eventHandlers[event.type];
 
   if (!handler) {
-    captureMessage(`Unhandled webhook event type: ${event.type}`, 'debug')
-    return
+    captureMessage(`Unhandled webhook event type: ${event.type}`, "debug");
+    return;
   }
 
   try {
-    await handler(event.data.object)
+    await handler(event.data.object);
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error)
+    const errorMessage = error instanceof Error ? error.message : String(error);
 
     if (retryCount < MAX_RETRIES) {
-      const delay = RETRY_DELAYS[retryCount] || RETRY_DELAYS[RETRY_DELAYS.length - 1]
+      const delay = RETRY_DELAYS[retryCount] || RETRY_DELAYS[RETRY_DELAYS.length - 1];
 
-      captureMessage(`Webhook ${event.type} failed, retrying in ${delay}ms`, 'warning', {
+      captureMessage(`Webhook ${event.type} failed, retrying in ${delay}ms`, "warning", {
         retryCount,
         maxRetries: MAX_RETRIES,
         error: errorMessage,
-      })
+      });
 
-      await new Promise((resolve) => setTimeout(resolve, delay))
-      return processWebhookEvent(event, retryCount + 1)
+      await new Promise((resolve) => setTimeout(resolve, delay));
+      return processWebhookEvent(event, retryCount + 1);
     }
 
     // All retries exhausted
@@ -311,10 +310,10 @@ export async function processWebhookEvent(event: Stripe.Event, retryCount = 0): 
       {
         eventType: event.type,
         eventId: event.id,
-      }
-    )
+      },
+    );
 
-    throw error // Re-throw so the route returns 500 for Stripe to retry
+    throw error; // Re-throw so the route returns 500 for Stripe to retry
   }
 }
 
@@ -326,13 +325,13 @@ export async function processWebhookEvent(event: Stripe.Event, retryCount = 0): 
  * Verify webhook signature and construct the event
  */
 export function constructWebhookEvent(payload: string, signature: string): Stripe.Event {
-  const stripe = getStripe()
-  const webhookSecret = env.STRIPE_WEBHOOK_SECRET
+  const stripe = getStripe();
+  const webhookSecret = env.STRIPE_WEBHOOK_SECRET;
   if (!webhookSecret) {
-    throw new Error('STRIPE_WEBHOOK_SECRET is not configured')
+    throw new Error("STRIPE_WEBHOOK_SECRET is not configured");
   }
 
-  return stripe.webhooks.constructEvent(payload, signature, webhookSecret)
+  return stripe.webhooks.constructEvent(payload, signature, webhookSecret);
 }
 
 /**
@@ -340,12 +339,12 @@ export function constructWebhookEvent(payload: string, signature: string): Strip
  */
 export function verifyWebhookSignature(payload: string, signature: string): Stripe.Event | null {
   try {
-    return constructWebhookEvent(payload, signature)
+    return constructWebhookEvent(payload, signature);
   } catch (error) {
-    captureException(new Error('Invalid webhook signature'), {
+    captureException(new Error("Invalid webhook signature"), {
       error: error instanceof Error ? error.message : String(error),
-    })
-    return null
+    });
+    return null;
   }
 }
 
@@ -361,36 +360,36 @@ export function verifyWebhookSignature(payload: string, signature: string): Stri
  * 4. Invalidate cache
  */
 export async function handleWebhookEvent(
-  event: Stripe.Event
+  event: Stripe.Event,
 ): Promise<{ success: boolean; error?: string; alreadyProcessed?: boolean }> {
-  const eventId = event.id
-  const eventType = event.type
+  const eventId = event.id;
+  const eventType = event.type;
 
   // Log receipt
-  captureMessage(`Webhook received: ${eventType}`, 'debug', { eventId })
+  captureMessage(`Webhook received: ${eventType}`, "debug", { eventId });
 
   // Idempotency check
-  const alreadyProcessed = await isEventProcessed(eventId)
+  const alreadyProcessed = await isEventProcessed(eventId);
   if (alreadyProcessed) {
-    captureMessage(`Webhook already processed: ${eventId}`, 'debug', { eventId })
-    return { success: true, alreadyProcessed: true }
+    captureMessage(`Webhook already processed: ${eventId}`, "debug", { eventId });
+    return { success: true, alreadyProcessed: true };
   }
 
   try {
-    await processWebhookEvent(event)
+    await processWebhookEvent(event);
 
     // Mark event as processed AFTER successful handling
-    await markEventProcessed(eventId, eventType)
+    await markEventProcessed(eventId, eventType);
 
-    captureMessage(`Webhook processed successfully: ${eventType}`, 'debug', { eventId })
-    return { success: true }
+    captureMessage(`Webhook processed successfully: ${eventType}`, "debug", { eventId });
+    return { success: true };
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error)
-    captureMessage(`Webhook processing failed: ${eventType}`, 'error', {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    captureMessage(`Webhook processing failed: ${eventType}`, "error", {
       eventId,
       error: errorMessage,
-    })
-    return { success: false, error: errorMessage }
+    });
+    return { success: false, error: errorMessage };
   }
 }
 
@@ -403,7 +402,7 @@ export async function handleWebhookEvent(
  */
 export function parseWebhookBody(payload: string | Buffer): string {
   if (Buffer.isBuffer(payload)) {
-    return payload.toString('utf-8')
+    return payload.toString("utf-8");
   }
-  return payload
+  return payload;
 }

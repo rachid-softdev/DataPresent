@@ -8,7 +8,7 @@
     "dev:mailhog": "node scripts/start-dev-with-mailhog.js",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "eslint . --no-warn-ignored",
     "lint:staged": "eslint --no-warn-ignored",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
