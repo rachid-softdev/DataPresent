@@ -2,19 +2,19 @@
 // Plan Utils Tests
 // ==========================================
 
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi } from "vitest";
 
 // Mock env to prevent module-level schema validation at import time
-vi.mock('@/env', () => ({
+vi.mock("@/env", () => ({
   env: {
-    NODE_ENV: 'test',
+    NODE_ENV: "test",
     STRIPE_SECRET_KEY: undefined,
     STRIPE_PRICE_PRO_MONTHLY: undefined,
     STRIPE_PRICE_TEAM_MONTHLY: undefined,
     STRIPE_PRICE_STARTER_MONTHLY: undefined,
   },
   isFeatureEnabled: vi.fn().mockReturnValue(false),
-}))
+}));
 
 // Mock prisma
 const mockPrisma = {
@@ -39,229 +39,229 @@ const mockPrisma = {
   planFeature: {
     findMany: vi.fn().mockResolvedValue([]),
   },
-}
+};
 
-vi.mock('@/lib/prisma', () => ({
+vi.mock("@/lib/prisma", () => ({
   prisma: mockPrisma,
-}))
+}));
 
-describe('plan-utils', () => {
+describe("plan-utils", () => {
   beforeEach(() => {
-    vi.clearAllMocks()
+    vi.clearAllMocks();
     // Default mocks for feature-gate dependencies
     mockPrisma.subscription.findUnique.mockResolvedValue({
-      plan: 'PRO',
-      status: 'ACTIVE',
+      plan: "PRO",
+      status: "ACTIVE",
       stripeSubscriptionId: null,
       stripePriceId: null,
       currentPeriodEnd: null,
-    })
-    mockPrisma.entitlementOverride.findMany.mockResolvedValue([])
-    mockPrisma.usageTracking.findMany.mockResolvedValue([])
-    mockPrisma.usageTracking.findUnique.mockResolvedValue(null)
+    });
+    mockPrisma.entitlementOverride.findMany.mockResolvedValue([]);
+    mockPrisma.usageTracking.findMany.mockResolvedValue([]);
+    mockPrisma.usageTracking.findUnique.mockResolvedValue(null);
     // Return plan features for reportsPerMonth (LIMIT type)
     mockPrisma.planFeature.findMany.mockImplementation((args: { where: { plan?: string } }) => {
-      const plan = args?.where?.plan ?? 'FREE'
+      const plan = args?.where?.plan ?? "FREE";
       const limits: Record<string, number | null> = {
         FREE: 3,
         PRO: 30,
         TEAM: 30,
         AGENCY: null,
-      }
+      };
       return Promise.resolve([
         {
-          feature: { key: 'reportsPerMonth', type: 'LIMIT' },
+          feature: { key: "reportsPerMonth", type: "LIMIT" },
           limitValue: limits[plan] !== undefined ? limits[plan] : 0,
           enabled: true,
         },
-      ])
-    })
-  })
-  it('should export canUseFormat function', async () => {
-    const { canUseFormat } = await import('@/lib/entitlements/compat')
-    expect(canUseFormat).toBeDefined()
-  })
+      ]);
+    });
+  });
+  it("should export canUseFormat function", async () => {
+    const { canUseFormat } = await import("@/lib/entitlements/compat");
+    expect(canUseFormat).toBeDefined();
+  });
 
-  it('should check format permissions correctly', async () => {
-    const { canUseFormat } = await import('@/lib/entitlements/compat')
+  it("should check format permissions correctly", async () => {
+    const { canUseFormat } = await import("@/lib/entitlements/compat");
 
-    expect(canUseFormat('FREE', 'PPTX')).toBe(true)
-    expect(canUseFormat('FREE', 'PDF')).toBe(false)
-    expect(canUseFormat('FREE', 'DOCX')).toBe(false)
-    expect(canUseFormat('PRO', 'PDF')).toBe(true)
-    expect(canUseFormat('PRO', 'DOCX')).toBe(true)
-    expect(canUseFormat('TEAM', 'PPTX')).toBe(true)
-  })
+    expect(canUseFormat("FREE", "PPTX")).toBe(true);
+    expect(canUseFormat("FREE", "PDF")).toBe(false);
+    expect(canUseFormat("FREE", "DOCX")).toBe(false);
+    expect(canUseFormat("PRO", "PDF")).toBe(true);
+    expect(canUseFormat("PRO", "DOCX")).toBe(true);
+    expect(canUseFormat("TEAM", "PPTX")).toBe(true);
+  });
 
-  it('should export canHaveSlideCount function', async () => {
-    const { canHaveSlideCount } = await import('@/lib/entitlements/compat')
-    expect(canHaveSlideCount).toBeDefined()
-  })
+  it("should export canHaveSlideCount function", async () => {
+    const { canHaveSlideCount } = await import("@/lib/entitlements/compat");
+    expect(canHaveSlideCount).toBeDefined();
+  });
 
-  it('should check slide count limits', async () => {
-    const { canHaveSlideCount } = await import('@/lib/entitlements/compat')
+  it("should check slide count limits", async () => {
+    const { canHaveSlideCount } = await import("@/lib/entitlements/compat");
 
     // FREE: maxSlides = 8
-    expect(canHaveSlideCount('FREE', 5).allowed).toBe(true)
-    expect(canHaveSlideCount('FREE', 8).allowed).toBe(true)
-    expect(canHaveSlideCount('FREE', 9).allowed).toBe(false)
-    expect(canHaveSlideCount('FREE', 9).maxSlides).toBe(8)
+    expect(canHaveSlideCount("FREE", 5).allowed).toBe(true);
+    expect(canHaveSlideCount("FREE", 8).allowed).toBe(true);
+    expect(canHaveSlideCount("FREE", 9).allowed).toBe(false);
+    expect(canHaveSlideCount("FREE", 9).maxSlides).toBe(8);
 
     // PRO: maxSlides = 20
-    expect(canHaveSlideCount('PRO', 20).allowed).toBe(true)
-    expect(canHaveSlideCount('PRO', 21).allowed).toBe(false)
+    expect(canHaveSlideCount("PRO", 20).allowed).toBe(true);
+    expect(canHaveSlideCount("PRO", 21).allowed).toBe(false);
 
     // TEAM: maxSlides = 30
-    expect(canHaveSlideCount('TEAM', 30).allowed).toBe(true)
+    expect(canHaveSlideCount("TEAM", 30).allowed).toBe(true);
 
     // AGENCY: unlimited (-1)
-    const agency = canHaveSlideCount('AGENCY', 999999)
-    expect(agency.allowed).toBe(true)
-    expect(agency.maxSlides).toBe(-1)
-  })
+    const agency = canHaveSlideCount("AGENCY", 999999);
+    expect(agency.allowed).toBe(true);
+    expect(agency.maxSlides).toBe(-1);
+  });
 
-  it('should export getUserPlan function', async () => {
-    const { getUserPlan } = await import('@/lib/entitlements/compat')
-    expect(getUserPlan).toBeDefined()
-  })
+  it("should export getUserPlan function", async () => {
+    const { getUserPlan } = await import("@/lib/entitlements/compat");
+    expect(getUserPlan).toBeDefined();
+  });
 
-  it('should return FREE plan when user has no membership', async () => {
-    const { getUserPlan } = await import('@/lib/entitlements/compat')
+  it("should return FREE plan when user has no membership", async () => {
+    const { getUserPlan } = await import("@/lib/entitlements/compat");
 
-    mockPrisma.user.findUnique.mockResolvedValue(null)
+    mockPrisma.user.findUnique.mockResolvedValue(null);
 
-    const result = await getUserPlan('user-123')
+    const result = await getUserPlan("user-123");
 
-    expect(result.plan).toBe('FREE')
-    expect(result.orgId).toBe('')
-  })
+    expect(result.plan).toBe("FREE");
+    expect(result.orgId).toBe("");
+  });
 
-  it('should return plan from subscription', async () => {
-    const { getUserPlan } = await import('@/lib/entitlements/compat')
-
-    mockPrisma.user.findUnique.mockResolvedValue({
-      membership: [
-        {
-          orgId: 'org-1',
-          org: {
-            subscription: { plan: 'PRO' },
-          },
-        },
-      ],
-    })
-
-    const result = await getUserPlan('user-123')
-
-    expect(result.plan).toBe('PRO')
-    expect(result.orgId).toBe('org-1')
-  })
-
-  it('should export canCreateReport function', async () => {
-    const { canCreateReport } = await import('@/lib/entitlements/compat')
-    expect(canCreateReport).toBeDefined()
-  })
-
-  it('should allow report creation when under limit', async () => {
-    const { canCreateReport } = await import('@/lib/entitlements/compat')
+  it("should return plan from subscription", async () => {
+    const { getUserPlan } = await import("@/lib/entitlements/compat");
 
     mockPrisma.user.findUnique.mockResolvedValue({
       membership: [
         {
-          orgId: 'org-1',
+          orgId: "org-1",
           org: {
-            subscription: { plan: 'PRO' },
+            subscription: { plan: "PRO" },
           },
         },
       ],
-    })
+    });
+
+    const result = await getUserPlan("user-123");
+
+    expect(result.plan).toBe("PRO");
+    expect(result.orgId).toBe("org-1");
+  });
+
+  it("should export canCreateReport function", async () => {
+    const { canCreateReport } = await import("@/lib/entitlements/compat");
+    expect(canCreateReport).toBeDefined();
+  });
+
+  it("should allow report creation when under limit", async () => {
+    const { canCreateReport } = await import("@/lib/entitlements/compat");
+
+    mockPrisma.user.findUnique.mockResolvedValue({
+      membership: [
+        {
+          orgId: "org-1",
+          org: {
+            subscription: { plan: "PRO" },
+          },
+        },
+      ],
+    });
     mockPrisma.usageTracking.findFirst.mockResolvedValue({
       usageCount: 5,
-      periodEnd: new Date('2099-12-31'),
-    })
+      periodEnd: new Date("2099-12-31"),
+    });
 
-    const result = await canCreateReport('user-123')
+    const result = await canCreateReport("user-123");
 
-    expect(result.allowed).toBe(true)
-  })
+    expect(result.allowed).toBe(true);
+  });
 
-  it('should deny report creation when at limit', async () => {
-    const { canCreateReport } = await import('@/lib/entitlements/compat')
+  it("should deny report creation when at limit", async () => {
+    const { canCreateReport } = await import("@/lib/entitlements/compat");
 
     mockPrisma.user.findUnique.mockResolvedValue({
       membership: [
         {
-          orgId: 'org-1',
+          orgId: "org-1",
           org: {
-            subscription: { plan: 'FREE' },
+            subscription: { plan: "FREE" },
           },
         },
       ],
-    })
+    });
     mockPrisma.subscription.findUnique.mockResolvedValue({
-      plan: 'FREE',
-      status: 'ACTIVE',
-    })
+      plan: "FREE",
+      status: "ACTIVE",
+    });
     mockPrisma.usageTracking.findFirst.mockResolvedValue({
       usageCount: 3,
-      periodEnd: new Date('2099-12-31'),
-    })
+      periodEnd: new Date("2099-12-31"),
+    });
 
-    const result = await canCreateReport('user-123')
+    const result = await canCreateReport("user-123");
 
-    expect(result.allowed).toBe(false)
-    expect(result.upgrade).toBe(true)
-    expect(result.reason).toContain('3')
-  })
+    expect(result.allowed).toBe(false);
+    expect(result.upgrade).toBe(true);
+    expect(result.reason).toContain("3");
+  });
 
-  it('should allow unlimited reports for -1 limit plans', async () => {
-    const { canCreateReport } = await import('@/lib/entitlements/compat')
-
-    mockPrisma.user.findUnique.mockResolvedValue({
-      membership: [
-        {
-          orgId: 'org-1',
-          org: {
-            subscription: { plan: 'AGENCY' },
-          },
-        },
-      ],
-    })
-    mockPrisma.subscription.findUnique.mockResolvedValue({
-      plan: 'AGENCY',
-      status: 'ACTIVE',
-    })
-
-    const result = await canCreateReport('user-123')
-
-    expect(result.allowed).toBe(true)
-  })
-
-  it('should export getRemainingReports function', async () => {
-    const { getRemainingReports } = await import('@/lib/entitlements/compat')
-    expect(getRemainingReports).toBeDefined()
-  })
-
-  it('should return -1 for unlimited plans', async () => {
-    const { getRemainingReports } = await import('@/lib/entitlements/compat')
+  it("should allow unlimited reports for -1 limit plans", async () => {
+    const { canCreateReport } = await import("@/lib/entitlements/compat");
 
     mockPrisma.user.findUnique.mockResolvedValue({
       membership: [
         {
-          orgId: 'org-1',
+          orgId: "org-1",
           org: {
-            subscription: { plan: 'AGENCY' },
+            subscription: { plan: "AGENCY" },
           },
         },
       ],
-    })
+    });
     mockPrisma.subscription.findUnique.mockResolvedValue({
-      plan: 'AGENCY',
-      status: 'ACTIVE',
-    })
+      plan: "AGENCY",
+      status: "ACTIVE",
+    });
 
-    const result = await getRemainingReports('user-123')
+    const result = await canCreateReport("user-123");
 
-    expect(result.remaining).toBe(-1)
-    expect(result.total).toBe(-1)
-  })
-})
+    expect(result.allowed).toBe(true);
+  });
+
+  it("should export getRemainingReports function", async () => {
+    const { getRemainingReports } = await import("@/lib/entitlements/compat");
+    expect(getRemainingReports).toBeDefined();
+  });
+
+  it("should return -1 for unlimited plans", async () => {
+    const { getRemainingReports } = await import("@/lib/entitlements/compat");
+
+    mockPrisma.user.findUnique.mockResolvedValue({
+      membership: [
+        {
+          orgId: "org-1",
+          org: {
+            subscription: { plan: "AGENCY" },
+          },
+        },
+      ],
+    });
+    mockPrisma.subscription.findUnique.mockResolvedValue({
+      plan: "AGENCY",
+      status: "ACTIVE",
+    });
+
+    const result = await getRemainingReports("user-123");
+
+    expect(result.remaining).toBe(-1);
+    expect(result.total).toBe(-1);
+  });
+});

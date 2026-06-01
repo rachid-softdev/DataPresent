@@ -595,8 +595,14 @@ describe("Upload Route — CSRF Protection & Validation", () => {
       mockGenerateQueue.add.mockResolvedValue(undefined);
 
       const xlsxContent = Buffer.from([
-        0x50, 0x4b, 0x03, 0x04, // ZIP magic
-        0x00, 0x00, 0x00, 0x00,
+        0x50,
+        0x4b,
+        0x03,
+        0x04, // ZIP magic
+        0x00,
+        0x00,
+        0x00,
+        0x00,
       ]);
       const xlsxFile = new File([xlsxContent], "data.xlsx", {
         type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",

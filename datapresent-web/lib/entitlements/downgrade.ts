@@ -2,12 +2,12 @@
 // Downgrade Service - Handle Plan Downgrades
 // ==========================================
 
-import { prisma } from '@/lib/prisma'
-import type { Plan, DowngradeStrategy, SubscriptionStatus } from '@prisma/client'
-import type { DowngradePreview, DowngradeInfo } from './types'
-import { entitlementRepository } from './repository'
-import { getAllEntitlements, invalidateCache } from './feature-gate'
-import { captureMessage } from '@/lib/sentry'
+import { prisma } from "@/lib/prisma";
+import type { Plan, DowngradeStrategy, SubscriptionStatus } from "@prisma/client";
+import type { DowngradePreview, DowngradeInfo } from "./types";
+import { entitlementRepository } from "./repository";
+import { getAllEntitlements, invalidateCache } from "./feature-gate";
+import { captureMessage } from "@/lib/sentry";
 
 // ==========================================
 // Downgrade Service Class
@@ -20,46 +20,46 @@ export class DowngradeService {
    */
   async getDowngradePreview(orgId: string, targetPlan: Plan): Promise<DowngradePreview[]> {
     // Get current subscription
-    const subscription = await entitlementRepository.getActiveSubscription(orgId)
-    const currentPlan = subscription?.plan ?? 'FREE'
+    const subscription = await entitlementRepository.getActiveSubscription(orgId);
+    const currentPlan = subscription?.plan ?? "FREE";
 
     // Don't show preview if same or higher plan
     if (
       targetPlan === currentPlan ||
       this.getPlanPriority(targetPlan) >= this.getPlanPriority(currentPlan)
     ) {
-      return []
+      return [];
     }
 
     // Get all plan features for both plans
-    const currentPlanFeatures = await entitlementRepository.getPlanFeatures(currentPlan)
-    const targetPlanFeatures = await entitlementRepository.getPlanFeatures(targetPlan)
+    const currentPlanFeatures = await entitlementRepository.getPlanFeatures(currentPlan);
+    const targetPlanFeatures = await entitlementRepository.getPlanFeatures(targetPlan);
 
     // Get current entitlements to check usage
-    const entitlements = await getAllEntitlements(orgId)
+    const entitlements = await getAllEntitlements(orgId);
 
-    const previews: DowngradePreview[] = []
+    const previews: DowngradePreview[] = [];
 
     // Compare each feature
     for (const currentPf of currentPlanFeatures) {
-      const featureKey = currentPf.feature.key
+      const featureKey = currentPf.feature.key;
 
       // Skip if feature is not enabled in current plan
-      if (!currentPf.enabled) continue
+      if (!currentPf.enabled) continue;
 
-      const targetPf = targetPlanFeatures.find((pf) => pf.feature.key === featureKey)
+      const targetPf = targetPlanFeatures.find((pf) => pf.feature.key === featureKey);
 
       // Feature will be disabled or limited in target plan
-      const willBeEnabled = targetPf?.enabled ?? false
+      const willBeEnabled = targetPf?.enabled ?? false;
 
       // Determine reason
-      let reason: 'plan_downgrade' | 'limit_exceeded' = 'plan_downgrade'
+      let reason: "plan_downgrade" | "limit_exceeded" = "plan_downgrade";
 
       if (targetPf?.enabled && targetPf.limitValue !== null && targetPf.limitValue !== undefined) {
         // Check if current usage exceeds new limit
-        const currentUsage = entitlements.usage[featureKey] ?? 0
+        const currentUsage = entitlements.usage[featureKey] ?? 0;
         if (currentUsage > targetPf.limitValue) {
-          reason = 'limit_exceeded'
+          reason = "limit_exceeded";
         }
       }
 
@@ -68,38 +68,38 @@ export class DowngradeService {
         currentlyEnabled: true,
         willBeEnabled,
         reason,
-        downgradeStrategy: targetPf?.downgradeStrategy ?? 'IMMEDIATE',
-      })
+        downgradeStrategy: targetPf?.downgradeStrategy ?? "IMMEDIATE",
+      });
     }
 
     // Sort by feature key
-    return previews.sort((a, b) => a.featureKey.localeCompare(b.featureKey))
+    return previews.sort((a, b) => a.featureKey.localeCompare(b.featureKey));
   }
 
   /**
    * Get full downgrade info with effective date
    */
   async getDowngradeInfo(orgId: string, targetPlan: Plan): Promise<DowngradeInfo | null> {
-    const subscription = await entitlementRepository.getActiveSubscription(orgId)
-    const currentPlan = subscription?.plan ?? 'FREE'
+    const subscription = await entitlementRepository.getActiveSubscription(orgId);
+    const currentPlan = subscription?.plan ?? "FREE";
 
     // Don't provide info if same or higher plan
     if (
       targetPlan === currentPlan ||
       this.getPlanPriority(targetPlan) >= this.getPlanPriority(currentPlan)
     ) {
-      return null
+      return null;
     }
 
-    const previews = await this.getDowngradePreview(orgId, targetPlan)
+    const previews = await this.getDowngradePreview(orgId, targetPlan);
 
     // Calculate effective date based on strategy
     // Graceful: until period end, Immediate: now, Freeze: now
-    let effectiveDate: Date | null = null
+    let effectiveDate: Date | null = null;
 
-    const hasGracefulFeature = previews.some((p) => p.downgradeStrategy === 'GRACEFUL')
+    const hasGracefulFeature = previews.some((p) => p.downgradeStrategy === "GRACEFUL");
     if (hasGracefulFeature && subscription?.currentPeriodEnd) {
-      effectiveDate = subscription.currentPeriodEnd
+      effectiveDate = subscription.currentPeriodEnd;
     }
 
     return {
@@ -108,7 +108,7 @@ export class DowngradeService {
       targetPlan,
       previews,
       effectiveDate,
-    }
+    };
   }
 
   /**
@@ -118,58 +118,58 @@ export class DowngradeService {
   async applyDowngrade(
     orgId: string,
     targetPlan: Plan,
-    overrideStrategy?: DowngradeStrategy
+    overrideStrategy?: DowngradeStrategy,
   ): Promise<void> {
-    const subscription = await entitlementRepository.getActiveSubscription(orgId)
-    const currentPlan = subscription?.plan ?? 'FREE'
+    const subscription = await entitlementRepository.getActiveSubscription(orgId);
+    const currentPlan = subscription?.plan ?? "FREE";
 
     // Don't apply if same or higher plan
     if (
       targetPlan === currentPlan ||
       this.getPlanPriority(targetPlan) >= this.getPlanPriority(currentPlan)
     ) {
-      return
+      return;
     }
 
-    const previews = await this.getDowngradePreview(orgId, targetPlan)
+    const previews = await this.getDowngradePreview(orgId, targetPlan);
 
     // Determine strategy to use
-    const strategy = overrideStrategy ?? this.determineStrategy(previews)
+    const strategy = overrideStrategy ?? this.determineStrategy(previews);
 
     switch (strategy) {
-      case 'GRACEFUL':
+      case "GRACEFUL":
         // Keep current plan active until period end
         // Features will be cut off at period end via scheduled job
-        captureMessage(`Downgrade GRACEFUL applied for org ${orgId}`, 'info', {
+        captureMessage(`Downgrade GRACEFUL applied for org ${orgId}`, "info", {
           currentPlan,
           targetPlan,
           effectiveDate: subscription?.currentPeriodEnd,
-        })
+        });
         // Could trigger email notification here
-        break
+        break;
 
-      case 'IMMEDIATE':
+      case "IMMEDIATE":
         // Update subscription plan immediately
         await entitlementRepository.updateSubscription(orgId, {
           plan: targetPlan,
-        })
-        await invalidateCache(orgId)
+        });
+        await invalidateCache(orgId);
 
-        captureMessage(`Downgrade IMMEDIATE applied for org ${orgId}`, 'info', {
+        captureMessage(`Downgrade IMMEDIATE applied for org ${orgId}`, "info", {
           currentPlan,
           targetPlan,
-        })
-        break
+        });
+        break;
 
-      case 'FREEZE':
+      case "FREEZE":
         // Don't change subscription but flag for freeze
         // Feature consumption will be blocked but data kept
-        captureMessage(`Downgrade FREEZE applied for org ${orgId}`, 'info', {
+        captureMessage(`Downgrade FREEZE applied for org ${orgId}`, "info", {
           currentPlan,
           targetPlan,
-        })
+        });
         // Could set a flag in subscription metadata or separate table
-        break
+        break;
     }
   }
 
@@ -177,18 +177,18 @@ export class DowngradeService {
    * Check if organization is in grace period (graceful downgrade scenario)
    */
   async isInGracePeriod(orgId: string): Promise<boolean> {
-    const subscription = await entitlementRepository.getActiveSubscription(orgId)
+    const subscription = await entitlementRepository.getActiveSubscription(orgId);
 
-    if (!subscription) return false
-    if (!subscription.currentPeriodEnd) return false
+    if (!subscription) return false;
+    if (!subscription.currentPeriodEnd) return false;
 
     // Check if we're in the last 7 days of the period
-    const now = new Date()
+    const now = new Date();
     const daysUntilEnd = Math.ceil(
-      (subscription.currentPeriodEnd.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
-    )
+      (subscription.currentPeriodEnd.getTime() - now.getTime()) / (1000 * 60 * 60 * 24),
+    );
 
-    return daysUntilEnd > 0 && daysUntilEnd <= 7
+    return daysUntilEnd > 0 && daysUntilEnd <= 7;
   }
 
   /**
@@ -196,18 +196,18 @@ export class DowngradeService {
    */
   async getOrgsApproachingDowngrade(daysThreshold: number = 7): Promise<
     {
-      orgId: string
-      currentPlan: Plan
-      daysUntilEnd: number
+      orgId: string;
+      currentPlan: Plan;
+      daysUntilEnd: number;
     }[]
   > {
-    const futureDate = new Date()
-    futureDate.setDate(futureDate.getDate() + daysThreshold)
+    const futureDate = new Date();
+    futureDate.setDate(futureDate.getDate() + daysThreshold);
 
     const subscriptions = await prisma.subscription.findMany({
       where: {
-        status: { in: ['ACTIVE', 'TRIALING'] },
-        plan: { not: 'FREE' },
+        status: { in: ["ACTIVE", "TRIALING"] },
+        plan: { not: "FREE" },
         currentPeriodEnd: {
           lte: futureDate,
           gte: new Date(), // Only future dates
@@ -218,20 +218,20 @@ export class DowngradeService {
         plan: true,
         currentPeriodEnd: true,
       },
-    })
+    });
 
-    const now = new Date()
+    const now = new Date();
 
     return subscriptions
       .map((sub) => ({
         orgId: sub.orgId,
         currentPlan: sub.plan,
         daysUntilEnd: Math.ceil(
-          (sub.currentPeriodEnd!.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
+          (sub.currentPeriodEnd!.getTime() - now.getTime()) / (1000 * 60 * 60 * 24),
         ),
       }))
       .filter((r) => r.daysUntilEnd > 0)
-      .sort((a, b) => a.daysUntilEnd - b.daysUntilEnd)
+      .sort((a, b) => a.daysUntilEnd - b.daysUntilEnd);
   }
 
   // ==========================================
@@ -247,26 +247,26 @@ export class DowngradeService {
       PRO: 1,
       TEAM: 2,
       AGENCY: 3,
-    }
-    return priorities[plan] ?? 0
+    };
+    return priorities[plan] ?? 0;
   }
 
   /**
    * Determine overall downgrade strategy based on feature strategies
    */
   private determineStrategy(previews: DowngradePreview[]): DowngradeStrategy {
-    if (previews.length === 0) return 'IMMEDIATE'
+    if (previews.length === 0) return "IMMEDIATE";
 
     // If any feature uses graceful, use graceful
-    const hasGraceful = previews.some((p) => p.downgradeStrategy === 'GRACEFUL')
-    if (hasGraceful) return 'GRACEFUL'
+    const hasGraceful = previews.some((p) => p.downgradeStrategy === "GRACEFUL");
+    if (hasGraceful) return "GRACEFUL";
 
     // If any feature uses freeze, use freeze
-    const hasFreeze = previews.some((p) => p.downgradeStrategy === 'FREEZE')
-    if (hasFreeze) return 'FREEZE'
+    const hasFreeze = previews.some((p) => p.downgradeStrategy === "FREEZE");
+    if (hasFreeze) return "FREEZE";
 
     // Default to immediate
-    return 'IMMEDIATE'
+    return "IMMEDIATE";
   }
 }
 
@@ -274,7 +274,7 @@ export class DowngradeService {
 // Singleton Instance
 // ==========================================
 
-export const downgradeService = new DowngradeService()
+export const downgradeService = new DowngradeService();
 
 // ==========================================
 // Convenience Functions
@@ -282,22 +282,22 @@ export const downgradeService = new DowngradeService()
 
 export async function getDowngradePreview(
   orgId: string,
-  targetPlan: Plan
+  targetPlan: Plan,
 ): Promise<DowngradePreview[]> {
-  return downgradeService.getDowngradePreview(orgId, targetPlan)
+  return downgradeService.getDowngradePreview(orgId, targetPlan);
 }
 
 export async function getDowngradeInfo(
   orgId: string,
-  targetPlan: Plan
+  targetPlan: Plan,
 ): Promise<DowngradeInfo | null> {
-  return downgradeService.getDowngradeInfo(orgId, targetPlan)
+  return downgradeService.getDowngradeInfo(orgId, targetPlan);
 }
 
 export async function applyDowngrade(
   orgId: string,
   targetPlan: Plan,
-  strategy?: DowngradeStrategy
+  strategy?: DowngradeStrategy,
 ): Promise<void> {
-  return downgradeService.applyDowngrade(orgId, targetPlan, strategy)
+  return downgradeService.applyDowngrade(orgId, targetPlan, strategy);
 }

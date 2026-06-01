@@ -1,1 +1,1 @@
-export { Spinner } from '@datapresent/ui'
+export { Spinner } from "@datapresent/ui";

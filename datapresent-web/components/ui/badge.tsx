@@ -1,1 +1,1 @@
-export { Badge, badgeVariants } from '@datapresent/ui'
+export { Badge, badgeVariants } from "@datapresent/ui";

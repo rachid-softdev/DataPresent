@@ -1,36 +1,36 @@
-'use client'
+"use client";
 
-import { useMemo } from 'react'
+import { useMemo } from "react";
 import {
   PieChart as RechartsPieChart,
   Pie,
   Cell,
   Tooltip,
   ResponsiveContainer,
-  Legend
-} from 'recharts'
-import { getChartColors } from './chart-colors'
+  Legend,
+} from "recharts";
+import { getChartColors } from "./chart-colors";
 
 interface PieChartSlideProps {
   content: {
-    data?: Array<{ name: string; value: number; color?: string }>
-    title?: string
-    subtitle?: string
-    showLegend?: boolean
-    innerRadius?: number
-  }
+    data?: Array<{ name: string; value: number; color?: string }>;
+    title?: string;
+    subtitle?: string;
+    showLegend?: boolean;
+    innerRadius?: number;
+  };
 }
 
 export function PieChartSlide({ content }: PieChartSlideProps) {
-  const { data = [], title, subtitle, showLegend = true, innerRadius = 0 } = content
-  const colors = useMemo(() => getChartColors(), [])
+  const { data = [], title, subtitle, showLegend = true, innerRadius = 0 } = content;
+  const colors = useMemo(() => getChartColors(), []);
 
   if (data.length === 0) {
     return (
       <div className="text-center text-muted-foreground py-8">
         Aucune donnée de graphique disponible
       </div>
-    )
+    );
   }
 
   return (
@@ -55,11 +55,11 @@ export function PieChartSlide({ content }: PieChartSlideProps) {
             </Pie>
             <Tooltip
               contentStyle={{
-                backgroundColor: 'var(--surface)',
-                border: '1px solid var(--border)',
-                borderRadius: '8px',
-                fontSize: '12px',
-                color: 'var(--foreground)',
+                backgroundColor: "var(--surface)",
+                border: "1px solid var(--border)",
+                borderRadius: "8px",
+                fontSize: "12px",
+                color: "var(--foreground)",
               }}
             />
             {showLegend && <Legend />}
@@ -67,5 +67,5 @@ export function PieChartSlide({ content }: PieChartSlideProps) {
         </ResponsiveContainer>
       </div>
     </div>
-  )
+  );
 }

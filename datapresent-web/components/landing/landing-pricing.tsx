@@ -1,67 +1,67 @@
-import Link from 'next/link'
+import Link from "next/link";
 
 interface LandingPricingProps {
-  label: string
-  title: string
-  subtitle: string
+  label: string;
+  title: string;
+  subtitle: string;
 }
 
 const PLANS = [
   {
-    name: 'Gratuit',
-    desc: 'Pour découvrir',
-    price: '0€',
-    per: '/mois',
+    name: "Gratuit",
+    desc: "Pour découvrir",
+    price: "0€",
+    per: "/mois",
     popular: false,
     features: [
-      '3 rapports / mois',
-      '8 slides maximum',
-      'Export PPTX',
-      'Analyse IA de base',
-      'Watermark DataPresent',
+      "3 rapports / mois",
+      "8 slides maximum",
+      "Export PPTX",
+      "Analyse IA de base",
+      "Watermark DataPresent",
     ],
-    cta: 'Démarrer gratuitement',
-    href: '/signup',
-    btnVariant: 'outline' as const,
+    cta: "Démarrer gratuitement",
+    href: "/signup",
+    btnVariant: "outline" as const,
   },
   {
-    name: 'Pro',
-    desc: 'Pour les professionnels',
-    price: '19€',
-    per: '/mois',
+    name: "Pro",
+    desc: "Pour les professionnels",
+    price: "19€",
+    per: "/mois",
     popular: true,
-    badge: 'Le plus populaire',
+    badge: "Le plus populaire",
     features: [
-      '30 rapports / mois',
-      '20 slides maximum',
-      'PPTX, PDF, DOCX',
-      'Analyse IA avancée',
-      'Sans watermark',
-      'Support email prioritaire',
+      "30 rapports / mois",
+      "20 slides maximum",
+      "PPTX, PDF, DOCX",
+      "Analyse IA avancée",
+      "Sans watermark",
+      "Support email prioritaire",
     ],
-    cta: 'Essayer Pro',
-    href: '/signup',
-    btnVariant: 'primary' as const,
+    cta: "Essayer Pro",
+    href: "/signup",
+    btnVariant: "primary" as const,
   },
   {
-    name: 'Team',
-    desc: 'Pour les équipes',
-    price: '49€',
-    per: '/mois',
+    name: "Team",
+    desc: "Pour les équipes",
+    price: "49€",
+    per: "/mois",
     popular: false,
     features: [
-      'Rapports illimités',
-      '30 slides maximum',
-      'Tous les formats',
-      'Collaboration temps réel',
-      'Support prioritaire 24/7',
-      'API & webhooks',
+      "Rapports illimités",
+      "30 slides maximum",
+      "Tous les formats",
+      "Collaboration temps réel",
+      "Support prioritaire 24/7",
+      "API & webhooks",
     ],
-    cta: 'Contacter l\'équipe',
-    href: '/contact',
-    btnVariant: 'outline' as const,
+    cta: "Contacter l'équipe",
+    href: "/contact",
+    btnVariant: "outline" as const,
   },
-]
+];
 
 export function LandingPricing({ label, title, subtitle }: LandingPricingProps) {
   return (
@@ -70,13 +70,16 @@ export function LandingPricing({ label, title, subtitle }: LandingPricingProps) 
         <div className="landing-section-header">
           <span className="landing-label">{label}</span>
           <h2 className="landing-heading-lg">{title}</h2>
-          <p className="landing-body-md" style={{ maxWidth: 400, margin: '12px auto 0' }}>
+          <p className="landing-body-md" style={{ maxWidth: 400, margin: "12px auto 0" }}>
             {subtitle}
           </p>
         </div>
         <div className="landing-pricing-grid">
           {PLANS.map((plan) => (
-            <div key={plan.name} className={`landing-price-card ${plan.popular ? 'landing-featured' : ''}`}>
+            <div
+              key={plan.name}
+              className={`landing-price-card ${plan.popular ? "landing-featured" : ""}`}
+            >
               {plan.popular && plan.badge && (
                 <div className="landing-price-badge">{plan.badge}</div>
               )}
@@ -89,7 +92,14 @@ export function LandingPricing({ label, title, subtitle }: LandingPricingProps) 
               <hr className="landing-price-divider" />
               {plan.features.map((feat) => (
                 <div key={feat} className="landing-price-feature">
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <svg
+                    width="15"
+                    height="15"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                  >
                     <path d="M20 6L9 17l-5-5" />
                   </svg>
                   {feat}
@@ -97,8 +107,13 @@ export function LandingPricing({ label, title, subtitle }: LandingPricingProps) 
               ))}
               <Link
                 href={plan.href}
-                className={`landing-btn landing-btn-md ${plan.btnVariant === 'primary' ? 'landing-btn-primary' : 'landing-btn-outline'}`}
-                style={{ display: 'block', width: '100%', marginTop: '1.75rem', textAlign: 'center' }}
+                className={`landing-btn landing-btn-md ${plan.btnVariant === "primary" ? "landing-btn-primary" : "landing-btn-outline"}`}
+                style={{
+                  display: "block",
+                  width: "100%",
+                  marginTop: "1.75rem",
+                  textAlign: "center",
+                }}
               >
                 {plan.cta}
               </Link>
@@ -107,5 +122,5 @@ export function LandingPricing({ label, title, subtitle }: LandingPricingProps) 
         </div>
       </div>
     </section>
-  )
+  );
 }

@@ -1,53 +1,62 @@
-'use client'
+"use client";
 
-import { Lightbulb, Target, AlertTriangle } from 'lucide-react'
+import { Lightbulb, Target, AlertTriangle } from "lucide-react";
 
 interface TextSummaryProps {
   content: {
     sections?: Array<{
-      title?: string
-      text: string
-      type?: 'insight' | 'recommendation' | 'warning'
-    }>
-    bullets?: string[]
-    conclusion?: string
-  }
+      title?: string;
+      text: string;
+      type?: "insight" | "recommendation" | "warning";
+    }>;
+    bullets?: string[];
+    conclusion?: string;
+  };
 }
 
 export function TextSummary({ content }: TextSummaryProps) {
-  const { sections = [], bullets = [], conclusion } = content
+  const { sections = [], bullets = [], conclusion } = content;
 
   const getIcon = (type?: string) => {
     switch (type) {
-      case 'insight': return <Lightbulb className="w-5 h-5 text-amber-500" />
-      case 'recommendation': return <Target className="w-5 h-5 text-green-500" />
-      case 'warning': return <AlertTriangle className="w-5 h-5 text-red-500" />
-      default: return null
+      case "insight":
+        return <Lightbulb className="w-5 h-5 text-amber-500" />;
+      case "recommendation":
+        return <Target className="w-5 h-5 text-green-500" />;
+      case "warning":
+        return <AlertTriangle className="w-5 h-5 text-red-500" />;
+      default:
+        return null;
     }
-  }
+  };
 
   const getBgColor = (type?: string) => {
     switch (type) {
-      case 'insight': return 'bg-amber-50 border-amber-200'
-      case 'recommendation': return 'bg-green-50 border-green-200'
-      case 'warning': return 'bg-red-50 border-red-200'
-      default: return 'bg-muted/50 border-border'
+      case "insight":
+        return "bg-amber-50 border-amber-200";
+      case "recommendation":
+        return "bg-green-50 border-green-200";
+      case "warning":
+        return "bg-red-50 border-red-200";
+      default:
+        return "bg-muted/50 border-border";
     }
-  }
+  };
 
   return (
     <div className="space-y-4">
-      {sections.length > 0 && sections.map((section, i) => (
-        <div key={i} className={`p-4 rounded-lg border ${getBgColor(section.type)}`}>
-          <div className="flex items-start gap-3">
-            {getIcon(section.type)}
-            <div>
-              {section.title && <h5 className="font-medium mb-1">{section.title}</h5>}
-              <p className="text-sm text-gray-700">{section.text}</p>
+      {sections.length > 0 &&
+        sections.map((section, i) => (
+          <div key={i} className={`p-4 rounded-lg border ${getBgColor(section.type)}`}>
+            <div className="flex items-start gap-3">
+              {getIcon(section.type)}
+              <div>
+                {section.title && <h5 className="font-medium mb-1">{section.title}</h5>}
+                <p className="text-sm text-gray-700">{section.text}</p>
+              </div>
             </div>
           </div>
-        </div>
-      ))}
+        ))}
 
       {bullets.length > 0 && (
         <ul className="space-y-2">
@@ -67,5 +76,5 @@ export function TextSummary({ content }: TextSummaryProps) {
         </div>
       )}
     </div>
-  )
+  );
 }

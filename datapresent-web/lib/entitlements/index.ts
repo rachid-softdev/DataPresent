@@ -3,10 +3,10 @@
 // ==========================================
 
 // Types
-export * from './types'
+export * from "./types";
 
 // Repository
-export { entitlementRepository, IEntitlementRepository } from './repository'
+export { entitlementRepository, IEntitlementRepository } from "./repository";
 
 // Cache
 export {
@@ -14,7 +14,7 @@ export {
   getCachedEntitlements,
   setCachedEntitlements,
   invalidateEntitlementsCache,
-} from './cache'
+} from "./cache";
 
 // Feature Gate (Main Service)
 export {
@@ -30,7 +30,7 @@ export {
   FeatureNotAvailableError,
   LimitReachedError,
   SubscriptionExpiredError,
-} from './feature-gate'
+} from "./feature-gate";
 
 // Experiments
 export {
@@ -40,7 +40,7 @@ export {
   isInExperimentBucket,
   calculateExperimentDistribution,
   getDistributionStats,
-} from './experiments'
+} from "./experiments";
 
 // Downgrade
 export {
@@ -48,12 +48,11 @@ export {
   getDowngradePreview,
   getDowngradeInfo,
   applyDowngrade,
-} from './downgrade'
+} from "./downgrade";
 
 // Middleware
 export {
   createFeatureMiddleware,
   createLimitMiddleware,
   createConsumeMiddleware,
-} from './middleware'
-
+} from "./middleware";

@@ -1,6 +1,6 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
+import { useState } from "react";
 import {
   DndContext,
   closestCenter,
@@ -9,24 +9,24 @@ import {
   useSensor,
   useSensors,
   type DragEndEvent,
-} from '@dnd-kit/core'
+} from "@dnd-kit/core";
 import {
   arrayMove,
   SortableContext,
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
   useSortable,
-} from '@dnd-kit/sortable'
-import { CSS } from '@dnd-kit/utilities'
-import { GripVertical } from 'lucide-react'
-import type { Slide } from '@prisma/client'
-import { Badge } from '@/components/ui/badge'
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import { GripVertical } from "lucide-react";
+import type { Slide } from "@prisma/client";
+import { Badge } from "@/components/ui/badge";
 
 interface SortableSlideListProps {
-  slides: Slide[]
-  currentIndex: number
-  onSelect: (index: number) => void
-  onReorder: (slides: Slide[]) => void
+  slides: Slide[];
+  currentIndex: number;
+  onSelect: (index: number) => void;
+  onReorder: (slides: Slide[]) => void;
 }
 
 function SortableSlideItem({
@@ -35,25 +35,20 @@ function SortableSlideItem({
   isActive,
   onSelect,
 }: {
-  slide: Slide
-  index: number
-  isActive: boolean
-  onSelect: () => void
+  slide: Slide;
+  index: number;
+  isActive: boolean;
+  onSelect: () => void;
 }) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: slide.id })
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: slide.id,
+  });
 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
-  }
+  };
 
   return (
     <div
@@ -61,9 +56,9 @@ function SortableSlideItem({
       style={style}
       className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer transition-colors ${
         isActive
-          ? 'bg-primary/10 border border-primary'
-          : 'hover:bg-muted/50 border border-transparent'
-      } ${isDragging ? 'z-50 shadow-lg' : ''}`}
+          ? "bg-primary/10 border border-primary"
+          : "hover:bg-muted/50 border border-transparent"
+      } ${isDragging ? "z-50 shadow-lg" : ""}`}
       onClick={onSelect}
     >
       <button
@@ -78,11 +73,11 @@ function SortableSlideItem({
           {index + 1}. {slide.title}
         </div>
         <Badge variant="outline" className="text-[10px] mt-0.5">
-          {slide.layout.replace('_', ' ')}
+          {slide.layout.replace("_", " ")}
         </Badge>
       </div>
     </div>
-  )
+  );
 }
 
 export function SortableSlideList({
@@ -97,32 +92,25 @@ export function SortableSlideList({
     }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    })
-  )
+    }),
+  );
 
   function handleDragEnd(event: DragEndEvent) {
-    const { active, over } = event
-    if (!over || active.id === over.id) return
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
 
-    const oldIndex = slides.findIndex((s) => s.id === active.id)
-    const newIndex = slides.findIndex((s) => s.id === over.id)
+    const oldIndex = slides.findIndex((s) => s.id === active.id);
+    const newIndex = slides.findIndex((s) => s.id === over.id);
 
-    const newSlides = arrayMove(slides, oldIndex, newIndex)
+    const newSlides = arrayMove(slides, oldIndex, newIndex);
     // Update positions
-    const updatedSlides = newSlides.map((s, i) => ({ ...s, position: i }))
-    onReorder(updatedSlides)
+    const updatedSlides = newSlides.map((s, i) => ({ ...s, position: i }));
+    onReorder(updatedSlides);
   }
 
   return (
-    <DndContext
-      sensors={sensors}
-      collisionDetection={closestCenter}
-      onDragEnd={handleDragEnd}
-    >
-      <SortableContext
-        items={slides.map((s) => s.id)}
-        strategy={verticalListSortingStrategy}
-      >
+    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+      <SortableContext items={slides.map((s) => s.id)} strategy={verticalListSortingStrategy}>
         <div className="space-y-1 max-h-[60vh] overflow-y-auto">
           {slides.map((slide, index) => (
             <SortableSlideItem
@@ -136,5 +124,5 @@ export function SortableSlideList({
         </div>
       </SortableContext>
     </DndContext>
-  )
+  );
 }

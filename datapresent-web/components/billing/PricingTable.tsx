@@ -1,7 +1,7 @@
-'use client'
+"use client";
 
-import { Check, X, Loader2 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { Check, X, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -9,32 +9,32 @@ import {
   CardTitle,
   CardDescription,
   CardFooter,
-} from '@/components/ui/card'
-import { cn } from '@/lib/utils'
+} from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 
 export interface PricingPlanFeature {
-  name: string
-  category: 'reports' | 'exports' | 'collaboration' | 'professional' | 'support'
-  value: string | boolean | number
+  name: string;
+  category: "reports" | "exports" | "collaboration" | "professional" | "support";
+  value: string | boolean | number;
 }
 
 export interface PricingPlan {
-  id: string
-  name: string
-  price: number
-  period?: string
-  description: string
-  features: PricingPlanFeature[]
-  popular?: boolean
-  cta: string
-  currentPlan?: boolean
-  stripePriceId?: string
+  id: string;
+  name: string;
+  price: number;
+  period?: string;
+  description: string;
+  features: PricingPlanFeature[];
+  popular?: boolean;
+  cta: string;
+  currentPlan?: boolean;
+  stripePriceId?: string;
 }
 
 interface PricingTableProps {
-  plans: PricingPlan[]
-  onSelectPlan: (planId: string) => Promise<void>
-  loadingPlanId?: string | null
+  plans: PricingPlan[];
+  onSelectPlan: (planId: string) => Promise<void>;
+  loadingPlanId?: string | null;
 }
 
 export function PricingTable({ plans, onSelectPlan, loadingPlanId = null }: PricingTableProps) {
@@ -49,21 +49,21 @@ export function PricingTable({ plans, onSelectPlan, loadingPlanId = null }: Pric
         />
       ))}
     </div>
-  )
+  );
 }
 
 interface PricingCardProps {
-  plan: PricingPlan
-  onSelect: (planId: string) => Promise<void>
-  isLoading: boolean
+  plan: PricingPlan;
+  onSelect: (planId: string) => Promise<void>;
+  isLoading: boolean;
 }
 
 function PricingCard({ plan, onSelect, isLoading }: PricingCardProps) {
   return (
     <Card
       className={cn(
-        'relative flex flex-col',
-        plan.popular && 'border-primary shadow-lg scale-105 z-10'
+        "relative flex flex-col",
+        plan.popular && "border-primary shadow-lg scale-105 z-10",
       )}
     >
       {plan.popular && (
@@ -80,7 +80,7 @@ function PricingCard({ plan, onSelect, isLoading }: PricingCardProps) {
       <CardContent className="flex-1">
         <div className="mb-6 text-center">
           <span className="text-4xl font-bold">
-            {plan.price === -1 ? 'Sur mesure' : plan.price === 0 ? 'Gratuit' : `${plan.price}€`}
+            {plan.price === -1 ? "Sur mesure" : plan.price === 0 ? "Gratuit" : `${plan.price}€`}
           </span>
           {plan.price > 0 && plan.period && (
             <span className="text-muted-foreground">/{plan.period}</span>
@@ -96,7 +96,7 @@ function PricingCard({ plan, onSelect, isLoading }: PricingCardProps) {
             Rapports & Slides
           </p>
           {plan.features
-            .filter((f) => f.category === 'reports')
+            .filter((f) => f.category === "reports")
             .map((f, i) => (
               <div key={i} className="flex justify-between text-sm py-1">
                 <span>{f.name}</span>
@@ -111,7 +111,7 @@ function PricingCard({ plan, onSelect, isLoading }: PricingCardProps) {
             Formats d'export
           </p>
           {plan.features
-            .filter((f) => f.category === 'exports')
+            .filter((f) => f.category === "exports")
             .map((f, i) => (
               <div key={i} className="flex justify-between text-sm py-1">
                 <span>{f.name}</span>
@@ -125,13 +125,13 @@ function PricingCard({ plan, onSelect, isLoading }: PricingCardProps) {
         </div>
 
         {/* Collaboration */}
-        {plan.features.some((f) => f.category === 'collaboration') && (
+        {plan.features.some((f) => f.category === "collaboration") && (
           <div className="mb-4">
             <p className="text-xs font-medium text-muted-foreground uppercase mb-2">
               Collaboration
             </p>
             {plan.features
-              .filter((f) => f.category === 'collaboration')
+              .filter((f) => f.category === "collaboration")
               .map((f, i) => (
                 <div key={i} className="flex justify-between text-sm py-1">
                   <span>{f.name}</span>
@@ -146,11 +146,11 @@ function PricingCard({ plan, onSelect, isLoading }: PricingCardProps) {
         )}
 
         {/* Professional */}
-        {plan.features.some((f) => f.category === 'professional') && (
+        {plan.features.some((f) => f.category === "professional") && (
           <div className="mb-4">
             <p className="text-xs font-medium text-muted-foreground uppercase mb-2">Options pro</p>
             {plan.features
-              .filter((f) => f.category === 'professional')
+              .filter((f) => f.category === "professional")
               .map((f, i) => (
                 <div key={i} className="flex justify-between text-sm py-1">
                   <span>{f.name}</span>
@@ -165,11 +165,11 @@ function PricingCard({ plan, onSelect, isLoading }: PricingCardProps) {
         )}
 
         {/* Support */}
-        {plan.features.some((f) => f.category === 'support') && (
+        {plan.features.some((f) => f.category === "support") && (
           <div className="mb-4">
             <p className="text-xs font-medium text-muted-foreground uppercase mb-2">Support</p>
             {plan.features
-              .filter((f) => f.category === 'support')
+              .filter((f) => f.category === "support")
               .map((f, i) => (
                 <div key={i} className="flex justify-between text-sm py-1">
                   <span>{f.name}</span>
@@ -187,14 +187,14 @@ function PricingCard({ plan, onSelect, isLoading }: PricingCardProps) {
       <CardFooter>
         <Button
           className="w-full"
-          variant={plan.currentPlan ? 'outline' : plan.popular ? 'default' : 'outline'}
+          variant={plan.currentPlan ? "outline" : plan.popular ? "default" : "outline"}
           disabled={plan.currentPlan || isLoading}
           onClick={() => onSelect(plan.id)}
         >
           {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-          {plan.currentPlan ? 'Plan actuel' : plan.cta}
+          {plan.currentPlan ? "Plan actuel" : plan.cta}
         </Button>
       </CardFooter>
     </Card>
-  )
+  );
 }

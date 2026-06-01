@@ -1,46 +1,46 @@
-import { NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
-import { getRedisConnectionAsync } from '@/lib/redis'
+import { NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+import { getRedisConnectionAsync } from "@/lib/redis";
 
-export const dynamic = 'force-dynamic'
+export const dynamic = "force-dynamic";
 
 export async function GET() {
   const checks: { database: string; redis: string } = {
-    database: 'unknown',
-    redis: 'unknown',
-  }
+    database: "unknown",
+    redis: "unknown",
+  };
 
   // Check database
   try {
-    await prisma.$queryRaw<unknown>`SELECT 1`
-    checks.database = 'ok'
+    await prisma.$queryRaw<unknown>`SELECT 1`;
+    checks.database = "ok";
   } catch (error) {
-    console.error('[health] Database check failed:', error)
-    checks.database = 'error'
+    console.error("[health] Database check failed:", error);
+    checks.database = "error";
   }
 
   // Check Redis
   try {
-    const redis = await getRedisConnectionAsync()
+    const redis = await getRedisConnectionAsync();
     if (redis) {
-      await redis.ping()
-      checks.redis = 'ok'
+      await redis.ping();
+      checks.redis = "ok";
     } else {
-      checks.redis = 'unavailable'
+      checks.redis = "unavailable";
     }
   } catch (error) {
-    console.error('[health] Redis check failed:', error)
-    checks.redis = 'error'
+    console.error("[health] Redis check failed:", error);
+    checks.redis = "error";
   }
 
-  const allOk = checks.database === 'ok' && checks.redis === 'ok'
+  const allOk = checks.database === "ok" && checks.redis === "ok";
 
   return NextResponse.json(
     {
-      status: allOk ? 'ok' : 'degraded',
+      status: allOk ? "ok" : "degraded",
       checks,
       timestamp: new Date().toISOString(),
     },
-    { status: allOk ? 200 : 503 }
-  )
+    { status: allOk ? 200 : 503 },
+  );
 }

@@ -2,40 +2,35 @@
 // Middleware Factories - Framework-Agnostic
 // ==========================================
 
-import { auth } from '@/lib/auth'
-import { prisma } from '@/lib/prisma'
-import {
-  hasFeature,
-  canConsume,
-  consume,
-  type ConsumeResult,
-} from '@/lib/entitlements'
-import type { NextRequest } from 'next/server'
+import { auth } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
+import { hasFeature, canConsume, consume, type ConsumeResult } from "@/lib/entitlements";
+import type { NextRequest } from "next/server";
 
 // ==========================================
 // Helper: Extract orgId and userId from session
 // ==========================================
 
 async function getSessionContext(_request: NextRequest): Promise<{
-  orgId: string | null
-  userId: string | null
+  orgId: string | null;
+  userId: string | null;
 }> {
-  const session = await auth()
+  const session = await auth();
 
   if (!session?.user?.id) {
-    return { orgId: null, userId: null }
+    return { orgId: null, userId: null };
   }
 
   // Get user's organization
   const membership = await prisma.membership.findFirst({
     where: { userId: session.user.id },
     select: { orgId: true },
-  })
+  });
 
   return {
     orgId: membership?.orgId ?? null,
     userId: session.user.id,
-  }
+  };
 }
 
 // ==========================================
@@ -45,33 +40,33 @@ async function getSessionContext(_request: NextRequest): Promise<{
 function createFeatureErrorResponse(featureKey: string, currentPlan: string): Response {
   return Response.json(
     {
-      error: 'FEATURE_NOT_AVAILABLE',
+      error: "FEATURE_NOT_AVAILABLE",
       feature: featureKey,
-      plan_required: 'PRO',
+      plan_required: "PRO",
       current_plan: currentPlan,
-      upgrade_url: '/billing/upgrade',
+      upgrade_url: "/billing/upgrade",
     },
-    { status: 403 }
-  )
+    { status: 403 },
+  );
 }
 
 function createLimitErrorResponse(
   featureKey: string,
   limit: number,
   used: number,
-  resetAt: Date | null
+  resetAt: Date | null,
 ): Response {
   return Response.json(
     {
-      error: 'LIMIT_REACHED',
+      error: "LIMIT_REACHED",
       feature: featureKey,
       limit,
       used,
       reset_at: resetAt?.toISOString() ?? null,
-      upgrade_url: '/billing/upgrade',
+      upgrade_url: "/billing/upgrade",
     },
-    { status: 402 }
-  )
+    { status: 402 },
+  );
 }
 
 // ==========================================
@@ -90,22 +85,22 @@ function createLimitErrorResponse(
  */
 export function createFeatureMiddleware(featureKey: string) {
   return async (
-    request: NextRequest
+    request: NextRequest,
   ): Promise<{
-    allowed: boolean
-    orgId: string | null
-    userId: string | null
+    allowed: boolean;
+    orgId: string | null;
+    userId: string | null;
   }> => {
-    const { orgId, userId } = await getSessionContext(request)
+    const { orgId, userId } = await getSessionContext(request);
 
     if (!orgId) {
-      return { allowed: false, orgId: null, userId: null }
+      return { allowed: false, orgId: null, userId: null };
     }
 
-    const allowed = await hasFeature(orgId, featureKey, userId ?? undefined)
+    const allowed = await hasFeature(orgId, featureKey, userId ?? undefined);
 
-    return { allowed, orgId, userId }
-  }
+    return { allowed, orgId, userId };
+  };
 }
 
 /**
@@ -113,21 +108,21 @@ export function createFeatureMiddleware(featureKey: string) {
  */
 export function withFeature(
   featureKey: string,
-  handler: (request: NextRequest, context: { orgId: string; userId: string }) => Promise<Response>
+  handler: (request: NextRequest, context: { orgId: string; userId: string }) => Promise<Response>,
 ) {
   return async (request: NextRequest): Promise<Response> => {
-    const { allowed, orgId, userId } = await createFeatureMiddleware(featureKey)(request)
+    const { allowed, orgId, userId } = await createFeatureMiddleware(featureKey)(request);
 
     if (!orgId) {
-      return Response.json({ error: 'Unauthorized' }, { status: 401 })
+      return Response.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     if (!allowed) {
-      return createFeatureErrorResponse(featureKey, 'FREE')
+      return createFeatureErrorResponse(featureKey, "FREE");
     }
 
-    return handler(request, { orgId: orgId!, userId: userId! })
-  }
+    return handler(request, { orgId: orgId!, userId: userId! });
+  };
 }
 
 // ==========================================
@@ -141,22 +136,22 @@ export function withFeature(
 export function createLimitMiddleware(featureKey: string) {
   return async (
     request: NextRequest,
-    amount: number = 1
+    amount: number = 1,
   ): Promise<{
-    allowed: boolean
-    orgId: string | null
-    userId: string | null
+    allowed: boolean;
+    orgId: string | null;
+    userId: string | null;
   }> => {
-    const { orgId, userId } = await getSessionContext(request)
+    const { orgId, userId } = await getSessionContext(request);
 
     if (!orgId) {
-      return { allowed: false, orgId: null, userId: null }
+      return { allowed: false, orgId: null, userId: null };
     }
 
-    const allowed = await canConsume(orgId, featureKey, amount, userId ?? undefined)
+    const allowed = await canConsume(orgId, featureKey, amount, userId ?? undefined);
 
-    return { allowed, orgId, userId }
-  }
+    return { allowed, orgId, userId };
+  };
 }
 
 /**
@@ -164,30 +159,30 @@ export function createLimitMiddleware(featureKey: string) {
  */
 export function withLimit(
   featureKey: string,
-  handler: (request: NextRequest, context: { orgId: string; userId: string }) => Promise<Response>
+  handler: (request: NextRequest, context: { orgId: string; userId: string }) => Promise<Response>,
 ) {
   return async (request: NextRequest): Promise<Response> => {
-    const { allowed, orgId, userId } = await createLimitMiddleware(featureKey)(request, 1)
+    const { allowed, orgId, userId } = await createLimitMiddleware(featureKey)(request, 1);
 
     if (!orgId) {
-      return Response.json({ error: 'Unauthorized' }, { status: 401 })
+      return Response.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     if (!allowed) {
       // Get current usage for error response
-      const entitlements = await import('@/lib/entitlements').then((m) =>
-        m.getAllEntitlements(orgId, userId ?? undefined)
-      )
+      const entitlements = await import("@/lib/entitlements").then((m) =>
+        m.getAllEntitlements(orgId, userId ?? undefined),
+      );
 
-      const limit = entitlements.limits[featureKey] ?? 0
-      const used = entitlements.usage[featureKey] ?? 0
-      const resetAt = entitlements.resetAt[featureKey]
+      const limit = entitlements.limits[featureKey] ?? 0;
+      const used = entitlements.usage[featureKey] ?? 0;
+      const resetAt = entitlements.resetAt[featureKey];
 
-      return createLimitErrorResponse(featureKey, limit, used, resetAt)
+      return createLimitErrorResponse(featureKey, limit, used, resetAt);
     }
 
-    return handler(request, { orgId: orgId!, userId: userId! })
-  }
+    return handler(request, { orgId: orgId!, userId: userId! });
+  };
 }
 
 // ==========================================
@@ -200,19 +195,19 @@ export function withLimit(
  */
 export function createConsumeMiddleware(featureKey: string, amount: number = 1) {
   return async (
-    request: NextRequest
+    request: NextRequest,
   ): Promise<{
-    result: ConsumeResult
-    orgId: string | null
-    userId: string | null
+    result: ConsumeResult;
+    orgId: string | null;
+    userId: string | null;
   }> => {
-    const { orgId, userId } = await getSessionContext(request)
+    const { orgId, userId } = await getSessionContext(request);
 
     if (!orgId) {
       return {
         result: {
           success: false,
-          error: 'FEATURE_NOT_AVAILABLE',
+          error: "FEATURE_NOT_AVAILABLE",
           featureKey,
           limit: null,
           used: 0,
@@ -220,13 +215,13 @@ export function createConsumeMiddleware(featureKey: string, amount: number = 1) 
         },
         orgId: null,
         userId: null,
-      }
+      };
     }
 
-    const result = await consume(orgId, featureKey, amount, userId ?? undefined)
+    const result = await consume(orgId, featureKey, amount, userId ?? undefined);
 
-    return { result, orgId, userId }
-  }
+    return { result, orgId, userId };
+  };
 }
 
 /**
@@ -237,31 +232,28 @@ export function withConsume(
   amount: number = 1,
   handler: (
     request: NextRequest,
-    context: { orgId: string; userId: string; consumeResult: ConsumeResult }
-  ) => Promise<Response>
+    context: { orgId: string; userId: string; consumeResult: ConsumeResult },
+  ) => Promise<Response>,
 ) {
   return async (request: NextRequest): Promise<Response> => {
-    const { result, orgId, userId } = await createConsumeMiddleware(featureKey, amount)(request)
+    const { result, orgId, userId } = await createConsumeMiddleware(featureKey, amount)(request);
 
     if (!orgId) {
-      return Response.json({ error: 'Unauthorized' }, { status: 401 })
+      return Response.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     if (!result.success) {
-      if (result.error === 'FEATURE_NOT_AVAILABLE') {
-        return createFeatureErrorResponse(featureKey, 'FREE')
+      if (result.error === "FEATURE_NOT_AVAILABLE") {
+        return createFeatureErrorResponse(featureKey, "FREE");
       }
 
-      return createLimitErrorResponse(featureKey, result.limit ?? 0, result.used, result.resetAt)
+      return createLimitErrorResponse(featureKey, result.limit ?? 0, result.used, result.resetAt);
     }
 
     return handler(request, {
       orgId: orgId!,
       userId: userId!,
       consumeResult: result,
-    })
-  }
+    });
+  };
 }
-
-
-
