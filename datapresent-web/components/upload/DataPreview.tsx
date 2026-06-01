@@ -1,130 +1,130 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
-import { useTranslations } from 'next-intl'
-import { Loader2, Table, FileSpreadsheet, FileText } from 'lucide-react'
+import { useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
+import { Loader2, Table, FileSpreadsheet, FileText } from "lucide-react";
 
 interface DataPreviewProps {
-  file: File | null
+  file: File | null;
 }
 
 interface PreviewData {
-  headers: string[]
-  rows: string[][]
-  totalRows: number
-  sheetName?: string
+  headers: string[];
+  rows: string[][];
+  totalRows: number;
+  sheetName?: string;
 }
 
 export function DataPreview({ file }: DataPreviewProps) {
-  const t = useTranslations('preview')
-  const [data, setData] = useState<PreviewData | null>(null)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const t = useTranslations("preview");
+  const [data, setData] = useState<PreviewData | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!file) {
-      setData(null)
-      setError(null)
-      return
+      setData(null);
+      setError(null);
+      return;
     }
 
-    const ext = file.name.split('.').pop()?.toLowerCase()
-    if (ext === 'pdf') {
-      setData(null)
-      setError(null)
-      return
+    const ext = file.name.split(".").pop()?.toLowerCase();
+    if (ext === "pdf") {
+      setData(null);
+      setError(null);
+      return;
     }
 
-    let cancelled = false
-    setLoading(true)
-    setError(null)
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
 
     const parseFile = async () => {
       try {
-        const ExcelJS = await import('exceljs')
-        const buffer = await file.arrayBuffer()
-        const workbook = new ExcelJS.Workbook()
-        await workbook.xlsx.load(buffer)
-        const worksheet = workbook.worksheets[0]
-        const sheetName = worksheet.name
+        const ExcelJS = await import("exceljs");
+        const buffer = await file.arrayBuffer();
+        const workbook = new ExcelJS.Workbook();
+        await workbook.xlsx.load(buffer);
+        const worksheet = workbook.worksheets[0];
+        const sheetName = worksheet.name;
         // Convert ExcelJS rows to array format like sheet_to_json with header:1
-        const jsonData: unknown[][] = []
-        const row1 = worksheet.getRow(1)
-        const headers: unknown[] = []
-        row1.eachCell((cell) => { headers.push(cell.value) })
-        if (headers.length > 0) jsonData.push(headers)
+        const jsonData: unknown[][] = [];
+        const row1 = worksheet.getRow(1);
+        const headers: unknown[] = [];
+        row1.eachCell((cell) => {
+          headers.push(cell.value);
+        });
+        if (headers.length > 0) jsonData.push(headers);
         worksheet.eachRow((row, rowNumber) => {
-          if (rowNumber === 1) return
-          const rowArr: unknown[] = []
-          row.eachCell((cell) => { rowArr.push(cell.value) })
-          jsonData.push(rowArr)
-        })
+          if (rowNumber === 1) return;
+          const rowArr: unknown[] = [];
+          row.eachCell((cell) => {
+            rowArr.push(cell.value);
+          });
+          jsonData.push(rowArr);
+        });
 
-        if (cancelled) return
+        if (cancelled) return;
 
         if (jsonData.length === 0) {
-          setError(t('emptyFile'))
-          setLoading(false)
-          return
+          setError(t("emptyFile"));
+          setLoading(false);
+          return;
         }
 
-        const firstRow = jsonData[0]
-        const headers = firstRow.map((h) => String(h || ''))
-        const rows = jsonData.slice(1, 6).map((row) =>
-          row.map((cell) => String(cell ?? ''))
-        )
+        const firstRow = jsonData[0];
+        const headers = firstRow.map((h) => String(h || ""));
+        const rows = jsonData.slice(1, 6).map((row) => row.map((cell) => String(cell ?? "")));
         // Pad rows to match header length
         rows.forEach((row) => {
-          while (row.length < headers.length) row.push('')
-        })
+          while (row.length < headers.length) row.push("");
+        });
 
         setData({
           headers,
           rows,
           totalRows: jsonData.length - 1,
           sheetName,
-        })
+        });
       } catch {
-        if (!cancelled) setError(t('cannotRead'))
+        if (!cancelled) setError(t("cannotRead"));
       } finally {
-        if (!cancelled) setLoading(false)
+        if (!cancelled) setLoading(false);
       }
-    }
+    };
 
-    parseFile()
-    return () => { cancelled = true }
-  }, [file])
+    parseFile();
+    return () => {
+      cancelled = true;
+    };
+  }, [file]);
 
-  if (!file) return null
+  if (!file) return null;
 
-  const ext = file.name.split('.').pop()?.toLowerCase()
-  if (ext === 'pdf') {
+  const ext = file.name.split(".").pop()?.toLowerCase();
+  if (ext === "pdf") {
     return (
       <div className="flex items-center gap-2 text-sm text-muted-foreground p-4 bg-muted/30 rounded-lg">
         <FileText className="w-4 h-4" />
-        <span>{t('notAvailable')}</span>
+        <span>{t("notAvailable")}</span>
       </div>
-    )
+    );
   }
 
   if (loading) {
     return (
       <div className="flex items-center gap-2 text-sm text-muted-foreground p-4">
         <Loader2 className="w-4 h-4 animate-spin" />
-        <span>{t('loading')}</span>
+        <span>{t("loading")}</span>
       </div>
-    )
+    );
   }
 
   if (error) {
-    return (
-      <div className="text-sm text-destructive p-4 bg-destructive/10 rounded-lg">
-        {error}
-      </div>
-    )
+    return <div className="text-sm text-destructive p-4 bg-destructive/10 rounded-lg">{error}</div>;
   }
 
-  if (!data) return null
+  if (!data) return null;
 
   return (
     <div className="space-y-2">
@@ -132,7 +132,7 @@ export function DataPreview({ file }: DataPreviewProps) {
         <FileSpreadsheet className="w-4 h-4" />
         <span>
           {data.sheetName && `${data.sheetName} — `}
-          {t('rows', { count: data.totalRows })}, {t('columns', { count: data.headers.length })}
+          {t("rows", { count: data.totalRows })}, {t("columns", { count: data.headers.length })}
         </span>
       </div>
 
@@ -141,7 +141,10 @@ export function DataPreview({ file }: DataPreviewProps) {
           <thead>
             <tr className="bg-muted/50">
               {data.headers.map((h, i) => (
-                <th key={i} className="px-3 py-2 text-left font-medium text-muted-foreground whitespace-nowrap">
+                <th
+                  key={i}
+                  className="px-3 py-2 text-left font-medium text-muted-foreground whitespace-nowrap"
+                >
                   {h}
                 </th>
               ))}
@@ -163,9 +166,9 @@ export function DataPreview({ file }: DataPreviewProps) {
 
       {data.totalRows > 5 && (
         <p className="text-xs text-muted-foreground text-center">
-          {t('andMore', { count: data.totalRows - 5 })}
+          {t("andMore", { count: data.totalRows - 5 })}
         </p>
       )}
     </div>
-  )
+  );
 }

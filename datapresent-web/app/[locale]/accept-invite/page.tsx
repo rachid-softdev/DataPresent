@@ -1,80 +1,80 @@
-'use client'
+"use client";
 
-import { useState, useEffect, Suspense } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
-import { useTranslations } from 'next-intl'
-import Link from 'next/link'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Loader2, CheckCircle, AlertCircle, ArrowLeft, Building2 } from 'lucide-react'
-import { toast } from 'sonner'
+import { useState, useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Loader2, CheckCircle, AlertCircle, ArrowLeft, Building2 } from "lucide-react";
+import { toast } from "sonner";
 
 function AcceptInviteContent() {
-  const t = useTranslations()
-  const router = useRouter()
-  const searchParams = useSearchParams()
-  const token = searchParams.get('token')
+  const t = useTranslations();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const token = searchParams.get("token");
 
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [success, setSuccess] = useState(false)
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
   const [inviteData, setInviteData] = useState<{
-    email: string
-    orgName: string
-    role: string
-  } | null>(null)
+    email: string;
+    orgName: string;
+    role: string;
+  } | null>(null);
 
   useEffect(() => {
     if (!token) {
-      setError("Token d'invitation manquant")
-      setLoading(false)
-      return
+      setError("Token d'invitation manquant");
+      setLoading(false);
+      return;
     }
 
     // Check if user is logged in - if not, redirect to login with invite token
-    checkSessionAndAcceptInvite()
-  }, [token])
+    checkSessionAndAcceptInvite();
+  }, [token]);
 
   const checkSessionAndAcceptInvite = async () => {
     try {
       // First check if user is logged in
-      const sessionRes = await fetch('/api/user')
+      const sessionRes = await fetch("/api/user");
 
       if (!sessionRes.ok) {
         // User not logged in - redirect to login with invite token
-        router.push(`/login?callbackUrl=/accept-invite?token=${token}`)
-        return
+        router.push(`/login?callbackUrl=/accept-invite?token=${token}`);
+        return;
       }
 
-      const sessionData = await sessionRes.json()
+      const sessionData = await sessionRes.json();
 
       // Now accept the invite
-      const res = await fetch('/api/auth/accept-invite', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch("/api/auth/accept-invite", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ token }),
-      })
+      });
 
-      const data = await res.json()
+      const data = await res.json();
 
       if (res.ok) {
-        setSuccess(true)
+        setSuccess(true);
         setInviteData({
           email: sessionData.email,
-          orgName: data.orgName || 'votre organisation',
-          role: data.role || 'Membre',
-        })
+          orgName: data.orgName || "votre organisation",
+          role: data.role || "Membre",
+        });
       } else {
-        setError(data.error || 'Une erreur est survenue')
+        setError(data.error || "Une erreur est survenue");
       }
     } catch (err) {
-      setError('Erreur de connexion')
+      setError("Erreur de connexion");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   if (loading) {
     return (
@@ -84,7 +84,7 @@ function AcceptInviteContent() {
           <p className="text-muted-foreground">Traitement de l&apos;invitation...</p>
         </div>
       </div>
-    )
+    );
   }
 
   if (error) {
@@ -113,7 +113,7 @@ function AcceptInviteContent() {
           </CardContent>
         </Card>
       </div>
-    )
+    );
   }
 
   if (success) {
@@ -126,8 +126,8 @@ function AcceptInviteContent() {
             </div>
             <CardTitle className="text-center text-green-600">Invitation acceptée !</CardTitle>
             <CardDescription className="text-center">
-              Vous avez rejoint {inviteData?.orgName || "l'organisation"} en tant que{' '}
-              {inviteData?.role || 'Membre'}
+              Vous avez rejoint {inviteData?.orgName || "l'organisation"} en tant que{" "}
+              {inviteData?.role || "Membre"}
             </CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col gap-4">
@@ -143,10 +143,10 @@ function AcceptInviteContent() {
           </CardContent>
         </Card>
       </div>
-    )
+    );
   }
 
-  return null
+  return null;
 }
 
 export default function AcceptInvitePage() {
@@ -160,5 +160,5 @@ export default function AcceptInvitePage() {
     >
       <AcceptInviteContent />
     </Suspense>
-  )
+  );
 }

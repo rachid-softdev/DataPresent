@@ -1,23 +1,24 @@
-'use client'
+"use client";
 
-import Link from 'next/link'
-import { Home, Search, ArrowLeft } from 'lucide-react'
+import Link from "next/link";
+import { Home, Search, ArrowLeft } from "lucide-react";
 
 export default function NotFound() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center px-4 py-12 bg-background">
       <div className="text-center max-w-lg">
         <div className="relative inline-block mb-6">
-          <span className="text-[8rem] md:text-[10rem] font-bold text-primary leading-none select-none" style={{ fontFamily: 'var(--font-fraunces), Fraunces, serif' }}>
+          <span
+            className="text-[8rem] md:text-[10rem] font-bold text-primary leading-none select-none"
+            style={{ fontFamily: "var(--font-fraunces), Fraunces, serif" }}
+          >
             404
           </span>
           <div className="absolute -top-4 -right-4 w-16 h-16 bg-accent/20 rounded-full blur-xl animate-pulse" />
           <div className="absolute -bottom-4 -left-4 w-20 h-20 bg-primary/20 rounded-full blur-xl animate-pulse delay-1000" />
         </div>
 
-        <h1 className="app-heading app-heading-xl mb-3">
-          Page non trouvée
-        </h1>
+        <h1 className="app-heading app-heading-xl mb-3">Page non trouvée</h1>
         <p className="text-muted-foreground text-lg mb-8 max-w-sm mx-auto">
           La page que vous recherchez n&apos;existe pas ou a été déplacée.
         </p>
@@ -32,17 +33,11 @@ export default function NotFound() {
         </div>
 
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
-          <Link
-            href="/"
-            className="app-btn app-btn-primary"
-          >
+          <Link href="/" className="app-btn app-btn-primary">
             <Home className="w-4 h-4" />
             Retour à l&apos;accueil
           </Link>
-          <Link
-            href="javascript:history.back()"
-            className="app-btn app-btn-outline"
-          >
+          <Link href="javascript:history.back()" className="app-btn app-btn-outline">
             <ArrowLeft className="w-4 h-4" />
             Page précédente
           </Link>
@@ -54,5 +49,5 @@ export default function NotFound() {
         <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-accent/5 rounded-full blur-3xl" />
       </div>
     </div>
-  )
+  );
 }

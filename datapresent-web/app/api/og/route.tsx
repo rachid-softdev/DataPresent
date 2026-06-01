@@ -1,35 +1,35 @@
-import { ImageResponse } from 'next/og'
-import { NextRequest } from 'next/server'
+import { ImageResponse } from "next/og";
+import { NextRequest } from "next/server";
 
 export async function GET(req: NextRequest) {
-  const { searchParams } = new URL(req.url)
-  const title = searchParams.get('title') || 'DataPresent'
+  const { searchParams } = new URL(req.url);
+  const title = searchParams.get("title") || "DataPresent";
   const description =
-    searchParams.get('description') ||
-    "Transformez vos données en présentations percutantes avec l'IA"
+    searchParams.get("description") ||
+    "Transformez vos données en présentations percutantes avec l'IA";
 
   return new ImageResponse(
     <div
       style={{
         width: 1200,
         height: 630,
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'flex-end',
-        backgroundColor: '#f1f8ec',
-        padding: '60px',
-        position: 'relative',
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "flex-end",
+        backgroundColor: "#f1f8ec",
+        padding: "60px",
+        position: "relative",
       }}
     >
       {/* Background pattern */}
       <div
         style={{
-          position: 'absolute',
+          position: "absolute",
           top: 0,
           right: 0,
-          width: '50%',
-          height: '100%',
-          background: 'linear-gradient(135deg, #d4e8c4 0%, transparent 50%)',
+          width: "50%",
+          height: "100%",
+          background: "linear-gradient(135deg, #d4e8c4 0%, transparent 50%)",
           opacity: 0.5,
         }}
       />
@@ -37,12 +37,12 @@ export async function GET(req: NextRequest) {
       {/* Logo */}
       <div
         style={{
-          position: 'absolute',
-          top: '40px',
-          left: '60px',
-          fontSize: '32px',
-          fontWeight: 'bold',
-          color: '#0c1407',
+          position: "absolute",
+          top: "40px",
+          left: "60px",
+          fontSize: "32px",
+          fontWeight: "bold",
+          color: "#0c1407",
         }}
       >
         DataPresent
@@ -51,17 +51,17 @@ export async function GET(req: NextRequest) {
       {/* Content */}
       <div
         style={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '16px',
-          maxWidth: '800px',
+          display: "flex",
+          flexDirection: "column",
+          gap: "16px",
+          maxWidth: "800px",
         }}
       >
         <div
           style={{
-            fontSize: title.length > 40 ? '42' : '56',
-            fontWeight: 'bold',
-            color: '#0c1407',
+            fontSize: title.length > 40 ? "42" : "56",
+            fontWeight: "bold",
+            color: "#0c1407",
             lineHeight: 1.2,
           }}
         >
@@ -69,8 +69,8 @@ export async function GET(req: NextRequest) {
         </div>
         <div
           style={{
-            fontSize: '24',
-            color: '#3d5a32',
+            fontSize: "24",
+            color: "#3d5a32",
             lineHeight: 1.4,
           }}
         >
@@ -81,11 +81,11 @@ export async function GET(req: NextRequest) {
       {/* Footer */}
       <div
         style={{
-          position: 'absolute',
-          bottom: '40px',
-          right: '60px',
-          fontSize: '20',
-          color: '#6b7c5c',
+          position: "absolute",
+          bottom: "40px",
+          right: "60px",
+          fontSize: "20",
+          color: "#6b7c5c",
         }}
       >
         datapresent.com
@@ -96,14 +96,14 @@ export async function GET(req: NextRequest) {
       height: 630,
       fonts: [
         {
-          name: 'Inter',
+          name: "Inter",
           data: await fetch(
             new URL(
-              'https://fonts.gstatic.com/s/inter/v13/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hiA.woff2'
-            )
+              "https://fonts.gstatic.com/s/inter/v13/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hiA.woff2",
+            ),
           ).then((res) => res.arrayBuffer()),
         },
       ],
-    }
-  )
+    },
+  );
 }

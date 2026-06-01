@@ -1,51 +1,51 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import Link from 'next/link'
-import { useTranslations } from 'next-intl'
-import { Loader2, ArrowLeft, Mail, CheckCircle, AlertCircle } from 'lucide-react'
-import { toast } from 'sonner'
+import { useState } from "react";
+import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { Loader2, ArrowLeft, Mail, CheckCircle, AlertCircle } from "lucide-react";
+import { toast } from "sonner";
 
 export default function ForgotPasswordPage() {
-  const t = useTranslations()
-  const [email, setEmail] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [success, setSuccess] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const t = useTranslations();
+  const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!email.trim()) return
+    e.preventDefault();
+    if (!email.trim()) return;
 
-    setLoading(true)
-    setError(null)
-    setSuccess(false)
+    setLoading(true);
+    setError(null);
+    setSuccess(false);
 
     try {
-      const res = await fetch('/api/auth/forgot-password', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch("/api/auth/forgot-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
-      })
+      });
 
-      const data = await res.json()
+      const data = await res.json();
 
       if (res.ok) {
-        setSuccess(true)
+        setSuccess(true);
         toast.success(
-          'Si un compte existe avec cet email, vous recevrez un lien de réinitialisation.'
-        )
+          "Si un compte existe avec cet email, vous recevrez un lien de réinitialisation.",
+        );
       } else {
-        setError(data.error || 'Une erreur est survenue')
-        toast.error(data.error || 'Erreur lors de la demande')
+        setError(data.error || "Une erreur est survenue");
+        toast.error(data.error || "Erreur lors de la demande");
       }
     } catch {
-      setError('Erreur de connexion')
-      toast.error('Erreur de connexion')
+      setError("Erreur de connexion");
+      toast.error("Erreur de connexion");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <div className="app-auth-page">
@@ -56,11 +56,10 @@ export default function ForgotPasswordPage() {
           </div>
         </div>
 
-        <h1 className="app-heading app-heading-lg text-center mb-2">
-          Mot de passe oublié ?
-        </h1>
+        <h1 className="app-heading app-heading-lg text-center mb-2">Mot de passe oublié ?</h1>
         <p className="text-center text-muted-foreground text-sm mb-8">
-          Entrez votre adresse email et nous vous enverrons un lien pour réinitialiser votre mot de passe.
+          Entrez votre adresse email et nous vous enverrons un lien pour réinitialiser votre mot de
+          passe.
         </p>
 
         {success ? (
@@ -69,7 +68,8 @@ export default function ForgotPasswordPage() {
               <CheckCircle className="w-12 h-12 text-green-500" />
             </div>
             <p className="text-sm text-muted-foreground">
-              Si un compte existe avec cet email, vous recevrez un lien de réinitialisation dans les prochaines minutes.
+              Si un compte existe avec cet email, vous recevrez un lien de réinitialisation dans les
+              prochaines minutes.
             </p>
             <div className="pt-4">
               <Link href="/login" className="app-btn app-btn-outline w-full justify-center">
@@ -113,12 +113,15 @@ export default function ForgotPasswordPage() {
                   Envoi en cours...
                 </>
               ) : (
-                'Envoyer le lien de réinitialisation'
+                "Envoyer le lien de réinitialisation"
               )}
             </button>
 
             <div className="text-center pt-4">
-              <Link href="/login" className="text-sm text-muted-foreground hover:text-primary transition-colors inline-flex items-center gap-1">
+              <Link
+                href="/login"
+                className="text-sm text-muted-foreground hover:text-primary transition-colors inline-flex items-center gap-1"
+              >
                 <ArrowLeft className="w-4 h-4" />
                 Retour à la connexion
               </Link>
@@ -127,5 +130,5 @@ export default function ForgotPasswordPage() {
         )}
       </div>
     </div>
-  )
+  );
 }

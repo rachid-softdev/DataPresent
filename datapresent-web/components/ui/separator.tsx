@@ -1,1 +1,1 @@
-export { Separator } from '@datapresent/ui'
+export { Separator } from "@datapresent/ui";

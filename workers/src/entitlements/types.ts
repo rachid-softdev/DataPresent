@@ -8,36 +8,36 @@ import type {
   FeatureType,
   DowngradeStrategy,
   OverrideScope,
-} from '@prisma/client'
+} from "@prisma/client";
 
 // Re-export Prisma types for convenience
-export type { Plan, SubscriptionStatus, FeatureType, DowngradeStrategy, OverrideScope }
+export type { Plan, SubscriptionStatus, FeatureType, DowngradeStrategy, OverrideScope };
 
 // ==========================================
 // Feature Types
 // ==========================================
 
-export type FeatureKey = string
+export type FeatureKey = string;
 
 export interface ExperimentConfig {
-  percentage: number
-  seed: string
+  percentage: number;
+  seed: string;
 }
 
 // ==========================================
 // Debug Trace
 // ==========================================
 
-export type ResolutionSource = 'user_override' | 'org_override' | 'plan' | 'fallback'
+export type ResolutionSource = "user_override" | "org_override" | "plan" | "fallback";
 
 export interface DebugTrace {
-  featureKey: string
-  resolvedVia: ResolutionSource
-  value: boolean | number | null
-  overrideId?: string | null
-  expiresAt?: Date | null
-  planKey?: Plan | null
-  experimentConfig?: ExperimentConfig | null
+  featureKey: string;
+  resolvedVia: ResolutionSource;
+  value: boolean | number | null;
+  overrideId?: string | null;
+  expiresAt?: Date | null;
+  planKey?: Plan | null;
+  experimentConfig?: ExperimentConfig | null;
 }
 
 // ==========================================
@@ -45,12 +45,12 @@ export interface DebugTrace {
 // ==========================================
 
 export interface EntitlementMap {
-  plan: Plan
-  status: SubscriptionStatus
-  features: Record<FeatureKey, boolean>
-  limits: Record<FeatureKey, number | null>
-  usage: Record<FeatureKey, number>
-  resetAt: Record<FeatureKey, Date | null>
+  plan: Plan;
+  status: SubscriptionStatus;
+  features: Record<FeatureKey, boolean>;
+  limits: Record<FeatureKey, number | null>;
+  usage: Record<FeatureKey, number>;
+  resetAt: Record<FeatureKey, Date | null>;
 }
 
 // ==========================================
@@ -58,36 +58,36 @@ export interface EntitlementMap {
 // ==========================================
 
 export interface ConsumeSuccess {
-  success: true
-  featureKey: string
-  previousUsage: number
-  newUsage: number
-  limit: number | null
-  remaining: number | null
+  success: true;
+  featureKey: string;
+  previousUsage: number;
+  newUsage: number;
+  limit: number | null;
+  remaining: number | null;
 }
 
 export interface ConsumeFailure {
-  success: false
-  error: 'LIMIT_REACHED' | 'FEATURE_NOT_AVAILABLE'
-  featureKey: string
-  limit: number | null
-  used: number
-  resetAt: Date | null
-  upgradeUrl?: string
+  success: false;
+  error: "LIMIT_REACHED" | "FEATURE_NOT_AVAILABLE";
+  featureKey: string;
+  limit: number | null;
+  used: number;
+  resetAt: Date | null;
+  upgradeUrl?: string;
 }
 
-export type ConsumeResult = ConsumeSuccess | ConsumeFailure
+export type ConsumeResult = ConsumeSuccess | ConsumeFailure;
 
 // ==========================================
 // API Response Types
 // ==========================================
 
 export interface EntitlementsAPIResponse {
-  plan: Plan
-  features: Record<FeatureKey, boolean>
-  limits: Record<FeatureKey, number | null>
-  usage: Record<FeatureKey, number>
-  resetAt: Record<FeatureKey, string>
+  plan: Plan;
+  features: Record<FeatureKey, boolean>;
+  limits: Record<FeatureKey, number | null>;
+  usage: Record<FeatureKey, number>;
+  resetAt: Record<FeatureKey, string>;
 }
 
 // ==========================================
@@ -95,47 +95,47 @@ export interface EntitlementsAPIResponse {
 // ==========================================
 
 export interface FeatureNotAvailableError {
-  error: 'FEATURE_NOT_AVAILABLE'
-  feature: FeatureKey
-  planRequired: Plan
-  currentPlan: Plan
-  upgradeUrl: string
+  error: "FEATURE_NOT_AVAILABLE";
+  feature: FeatureKey;
+  planRequired: Plan;
+  currentPlan: Plan;
+  upgradeUrl: string;
 }
 
 export interface LimitReachedError {
-  error: 'LIMIT_REACHED'
-  feature: FeatureKey
-  limit: number
-  used: number
-  resetAt: string
-  upgradeUrl: string
+  error: "LIMIT_REACHED";
+  feature: FeatureKey;
+  limit: number;
+  used: number;
+  resetAt: string;
+  upgradeUrl: string;
 }
 
 export interface SubscriptionExpiredError {
-  error: 'SUBSCRIPTION_EXPIRED'
-  renewUrl: string
+  error: "SUBSCRIPTION_EXPIRED";
+  renewUrl: string;
 }
 
-export type APIError = FeatureNotAvailableError | LimitReachedError | SubscriptionExpiredError
+export type APIError = FeatureNotAvailableError | LimitReachedError | SubscriptionExpiredError;
 
 // ==========================================
 // Downgrade Types
 // ==========================================
 
 export interface DowngradePreview {
-  featureKey: FeatureKey
-  currentlyEnabled: boolean
-  willBeEnabled: boolean
-  reason: 'plan_downgrade' | 'limit_exceeded'
-  downgradeStrategy: DowngradeStrategy
+  featureKey: FeatureKey;
+  currentlyEnabled: boolean;
+  willBeEnabled: boolean;
+  reason: "plan_downgrade" | "limit_exceeded";
+  downgradeStrategy: DowngradeStrategy;
 }
 
 export interface DowngradeInfo {
-  orgId: string
-  currentPlan: Plan
-  targetPlan: Plan
-  previews: DowngradePreview[]
-  effectiveDate: Date | null // null for IMMEDIATE, date for GRACEFUL
+  orgId: string;
+  currentPlan: Plan;
+  targetPlan: Plan;
+  previews: DowngradePreview[];
+  effectiveDate: Date | null; // null for IMMEDIATE, date for GRACEFUL
 }
 
 // ==========================================
@@ -143,13 +143,13 @@ export interface DowngradeInfo {
 // ==========================================
 
 export interface CreateOverrideInput {
-  scope: OverrideScope
-  scopeId: string // userId or orgId
-  featureKey: FeatureKey
-  enabled: boolean
-  limitValue?: number | null
-  expiresAt?: Date | null
-  reason: string
+  scope: OverrideScope;
+  scopeId: string; // userId or orgId
+  featureKey: FeatureKey;
+  enabled: boolean;
+  limitValue?: number | null;
+  expiresAt?: Date | null;
+  reason: string;
 }
 
 // ==========================================
@@ -157,18 +157,18 @@ export interface CreateOverrideInput {
 // ==========================================
 
 export interface FeatureWithPlanConfig {
-  featureKey: string
-  description: string | null
-  type: FeatureType
-  isActive: boolean
-  defaultConfig: ExperimentConfig | null
+  featureKey: string;
+  description: string | null;
+  type: FeatureType;
+  isActive: boolean;
+  defaultConfig: ExperimentConfig | null;
   plans: Record<
     Plan,
     {
-      enabled: boolean
-      limitValue: number | null
-      configJson: ExperimentConfig | null
-      downgradeStrategy: DowngradeStrategy
+      enabled: boolean;
+      limitValue: number | null;
+      configJson: ExperimentConfig | null;
+      downgradeStrategy: DowngradeStrategy;
     }
-  >
+  >;
 }

@@ -1,68 +1,73 @@
-let browserPromise: Promise<import('puppeteer-core').Browser> | null = null
+let browserPromise: Promise<import("puppeteer-core").Browser> | null = null;
 
-async function getBrowser(): Promise<import('puppeteer-core').Browser> {
+async function getBrowser(): Promise<import("puppeteer-core").Browser> {
   if (!browserPromise) {
-    const puppeteer = await import('puppeteer-core')
-    const isVercel = process.env.VERCEL === '1'
-    let executablePath: string | undefined
+    const puppeteer = await import("puppeteer-core");
+    const isVercel = process.env.VERCEL === "1";
+    let executablePath: string | undefined;
     if (isVercel) {
-      const chromium = await import('@sparticuz/chromium').catch(() => null)
+      const chromium = await import("@sparticuz/chromium").catch(() => null);
       if (chromium) {
-        executablePath = await chromium.default.executablePath()
+        executablePath = await chromium.default.executablePath();
       }
     }
     browserPromise = puppeteer.launch({
       headless: true,
       executablePath,
-      args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--disable-gpu'],
+      args: [
+        "--no-sandbox",
+        "--disable-setuid-sandbox",
+        "--disable-dev-shm-usage",
+        "--disable-gpu",
+      ],
       protocolTimeout: 60000,
-    })
+    });
   }
-  return browserPromise
+  return browserPromise;
 }
 
 export async function generatePdf(params: {
-  title: string
+  title: string;
   slides: Array<{
-    title: string
-    layout: string
-    content: Record<string, unknown>
-  }>
+    title: string;
+    layout: string;
+    content: Record<string, unknown>;
+  }>;
 }): Promise<Buffer> {
-  const html = generateHtmlFromSlides(params)
-  
+  const html = generateHtmlFromSlides(params);
+
   // Verify puppeteer-core is available before proceeding
   try {
-    await import('puppeteer-core')
+    await import("puppeteer-core");
   } catch {
     throw new Error(
-      'PDF generation requires puppeteer-core. ' +
-      'Install it with: npm install puppeteer-core\n' +
-      'For Vercel deployments, @sparticuz/chromium is also needed.'
-    )
+      "PDF generation requires puppeteer-core. " +
+        "Install it with: npm install puppeteer-core\n" +
+        "For Vercel deployments, @sparticuz/chromium is also needed.",
+    );
   }
 
-  const browser = await getBrowser()
-  let page: import('puppeteer-core').Page | null = null
+  const browser = await getBrowser();
+  let page: import("puppeteer-core").Page | null = null;
 
   try {
-    page = await browser.newPage()
-    await page.setContent(html, { waitUntil: 'networkidle0' })
-    
+    page = await browser.newPage();
+    await page.setContent(html, { waitUntil: "networkidle0" });
+
     const pdfBuffer = await page.pdf({
-      format: 'A4',
+      format: "A4",
       printBackground: true,
       margin: {
-        top: '20mm',
-        bottom: '20mm',
-        left: '20mm',
-        right: '20mm',
+        top: "20mm",
+        bottom: "20mm",
+        left: "20mm",
+        right: "20mm",
       },
-    })
-    
-    return Buffer.from(pdfBuffer)
+    });
+
+    return Buffer.from(pdfBuffer);
   } finally {
-    if (page) await page.close()
+    if (page) await page.close();
   }
 }
 
@@ -72,27 +77,31 @@ export async function generatePdf(params: {
  */
 function escapeHtml(str: string): string {
   return str
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#x27;')
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#x27;");
 }
 
 function generateHtmlFromSlides(params: {
-  title: string
+  title: string;
   slides: Array<{
-    title: string
-    layout: string
-    content: Record<string, unknown>
-  }>
+    title: string;
+    layout: string;
+    content: Record<string, unknown>;
+  }>;
 }): string {
-  const slidesHtml = params.slides.map(slide => `
+  const slidesHtml = params.slides
+    .map(
+      (slide) => `
     <div class="slide">
       <h1>${escapeHtml(slide.title)}</h1>
       <pre>${escapeHtml(JSON.stringify(slide.content, null, 2))}</pre>
     </div>
-  `).join('')
+  `,
+    )
+    .join("");
 
   return `
     <!DOCTYPE html>
@@ -111,7 +120,7 @@ function generateHtmlFromSlides(params: {
       ${slidesHtml}
     </body>
     </html>
-  `
+  `;
 }
 
-export { generateHtmlFromSlides }
+export { generateHtmlFromSlides };

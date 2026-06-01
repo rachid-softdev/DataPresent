@@ -1,60 +1,60 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { useSearchParams } from 'next/navigation'
-import { signIn } from 'next-auth/react'
-import Link from 'next/link'
-import { ThemeToggle } from '@/components/ui/theme-toggle'
-import { GoogleIcon } from '@/components/ui/icons'
-import { useTranslations } from 'next-intl'
-import { Loader2 } from 'lucide-react'
+import { useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { signIn } from "next-auth/react";
+import Link from "next/link";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { GoogleIcon } from "@/components/ui/icons";
+import { useTranslations } from "next-intl";
+import { Loader2 } from "lucide-react";
 
 export default function LoginPage() {
-  const searchParams = useSearchParams()
-  const t = useTranslations()
-  const isDark = false // We use CSS variables, no need for manual dark mode checks
+  const searchParams = useSearchParams();
+  const t = useTranslations();
+  const isDark = false; // We use CSS variables, no need for manual dark mode checks
 
-  const error = searchParams.get('error')
-  const [email, setEmail] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
+  const error = searchParams.get("error");
+  const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
   const handleMagicLink = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
-    setMessage(null)
+    e.preventDefault();
+    setLoading(true);
+    setMessage(null);
 
     try {
-      const res = await fetch('/api/auth/magic-link', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch("/api/auth/magic-link", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
-      })
+      });
 
-      const data = await res.json()
+      const data = await res.json();
 
       if (res.ok) {
-        setMessage({ type: 'success', text: t(data.message) || data.message })
-        setEmail('')
+        setMessage({ type: "success", text: t(data.message) || data.message });
+        setEmail("");
       } else {
-        setMessage({ type: 'error', text: t(data.error) || data.error })
+        setMessage({ type: "error", text: t(data.error) || data.error });
       }
     } catch {
-      setMessage({ type: 'error', text: t('errors.generic') })
+      setMessage({ type: "error", text: t("errors.generic") });
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const getErrorMessage = () => {
-    if (!error) return null
-    if (error.startsWith('errors.')) {
-      return t(error)
+    if (!error) return null;
+    if (error.startsWith("errors.")) {
+      return t(error);
     }
-    return null
-  }
+    return null;
+  };
 
-  const errorMessage = getErrorMessage()
+  const errorMessage = getErrorMessage();
 
   return (
     <>
@@ -63,7 +63,14 @@ export default function LoginPage() {
         <div className="app-auth-header-inner">
           <Link href="/" className="app-logo">
             <div className="app-logo-mark">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5">
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#fff"
+                strokeWidth="2.5"
+              >
                 <path d="M3 3v18h18" />
                 <path d="M7 16l4-8 4 4 4-6" />
               </svg>
@@ -76,22 +83,16 @@ export default function LoginPage() {
 
       <main className="app-auth-page pt-20">
         <div className="app-auth-card">
-          <h1 className="app-heading app-heading-xl text-center mb-2">
-            Connexion
-          </h1>
+          <h1 className="app-heading app-heading-xl text-center mb-2">Connexion</h1>
           <p className="text-center text-muted-foreground text-sm mb-8">
             Connectez-vous à votre compte DataPresent
           </p>
 
-          {errorMessage && (
-            <div className="app-alert app-alert-error mb-6">
-              {errorMessage}
-            </div>
-          )}
+          {errorMessage && <div className="app-alert app-alert-error mb-6">{errorMessage}</div>}
 
           <div className="space-y-4">
             <button
-              onClick={() => signIn('google', { callbackUrl: '/' })}
+              onClick={() => signIn("google", { callbackUrl: "/" })}
               className="app-btn app-btn-outline w-full justify-center"
             >
               <GoogleIcon className="w-5 h-5" />
@@ -125,7 +126,9 @@ export default function LoginPage() {
               </div>
 
               {message && (
-                <div className={`app-alert ${message.type === 'success' ? 'app-alert-success' : 'app-alert-error'}`}>
+                <div
+                  className={`app-alert ${message.type === "success" ? "app-alert-success" : "app-alert-error"}`}
+                >
                   {message.text}
                 </div>
               )}
@@ -141,21 +144,24 @@ export default function LoginPage() {
                     Envoi en cours...
                   </span>
                 ) : (
-                  'Envoyer le lien de connexion'
+                  "Envoyer le lien de connexion"
                 )}
               </button>
             </div>
           </form>
 
           <p className="text-center text-sm mt-8 text-muted-foreground">
-            Pas encore de compte ?{' '}
+            Pas encore de compte ?{" "}
             <Link href="/signup" className="text-primary hover:underline font-medium">
               Créez un compte
             </Link>
           </p>
 
           <p className="text-center text-sm mt-4">
-            <Link href="/forgot-password" className="text-muted-foreground hover:text-primary transition-colors">
+            <Link
+              href="/forgot-password"
+              className="text-muted-foreground hover:text-primary transition-colors"
+            >
               Mot de passe oublié ?
             </Link>
           </p>
@@ -166,5 +172,5 @@ export default function LoginPage() {
         </p>
       </main>
     </>
-  )
+  );
 }

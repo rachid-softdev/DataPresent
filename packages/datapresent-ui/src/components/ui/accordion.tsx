@@ -1,25 +1,25 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { cn } from '../../utils'
-import { ChevronDown } from 'lucide-react'
+import * as React from "react";
+import { cn } from "../../utils";
+import { ChevronDown } from "lucide-react";
 
 interface AccordionItem {
-  id: string
-  title: string
-  content: React.ReactNode
+  id: string;
+  title: string;
+  content: React.ReactNode;
 }
 
 interface AccordionProps {
-  items: AccordionItem[]
-  className?: string
+  items: AccordionItem[];
+  className?: string;
 }
 
 export function Accordion({ items, className }: AccordionProps) {
-  const [openId, setOpenId] = React.useState<string | null>(null)
+  const [openId, setOpenId] = React.useState<string | null>(null);
 
   return (
-    <div className={cn('space-y-2', className)}>
+    <div className={cn("space-y-2", className)}>
       {items.map((item) => (
         <div key={item.id} className="border border-border rounded-lg overflow-hidden">
           <button
@@ -30,8 +30,8 @@ export function Accordion({ items, className }: AccordionProps) {
             <span className="font-medium text-foreground">{item.title}</span>
             <ChevronDown
               className={cn(
-                'w-5 h-5 text-muted-foreground transition-transform',
-                openId === item.id && 'rotate-180'
+                "w-5 h-5 text-muted-foreground transition-transform",
+                openId === item.id && "rotate-180",
               )}
             />
           </button>
@@ -43,5 +43,5 @@ export function Accordion({ items, className }: AccordionProps) {
         </div>
       ))}
     </div>
-  )
+  );
 }

@@ -237,10 +237,7 @@ describe("Share CRUD Route — Rate Limiting", () => {
       const req = createShareRequest({ method: "POST", body: { isPublic: true } });
       await POST(req, createMockParams());
 
-      expect(mockCheckRateLimit).toHaveBeenCalledWith(
-        "share-crud:user-123",
-        expect.any(Object),
-      );
+      expect(mockCheckRateLimit).toHaveBeenCalledWith("share-crud:user-123", expect.any(Object));
     });
   });
 

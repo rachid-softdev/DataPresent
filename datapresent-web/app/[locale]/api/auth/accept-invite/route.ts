@@ -1,50 +1,59 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { auth } from '@/lib/auth'
-import { prisma } from '@/lib/prisma'
-import { checkRateLimit } from '@/lib/rate-limit'
-import { logApiError } from '@/lib/security'
-import { verifyToken, extractTokenPrefix } from '@/lib/crypto'
+import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
+import { checkRateLimit } from "@/lib/rate-limit";
+import { logApiError } from "@/lib/security";
+import { verifyToken, extractTokenPrefix } from "@/lib/crypto";
 
 export async function POST(req: NextRequest) {
   try {
-    const session = await auth()
+    const session = await auth();
     if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { token } = await req.json()
+    const { token } = await req.json();
 
     if (!token) {
-      return NextResponse.json({ error: 'Token is required' }, { status: 400 })
+      return NextResponse.json({ error: "Token is required" }, { status: 400 });
     }
 
     // Rate limiting: 5 attempts per hour
-    const rateLimitAllowed = await checkRateLimit(`invite:${session.user.id}`, { limit: 5, windowMs: 60 * 60 * 1000 })
+    const rateLimitAllowed = await checkRateLimit(`invite:${session.user.id}`, {
+      limit: 5,
+      windowMs: 60 * 60 * 1000,
+    });
     if (!rateLimitAllowed) {
-      return NextResponse.json({ error: 'Too many attempts. Please try again later.' }, { status: 429 })
+      return NextResponse.json(
+        { error: "Too many attempts. Please try again later." },
+        { status: 429 },
+      );
     }
 
     // Find the invite token by prefix for O(1) indexed lookup
-    const tokenPrefix = extractTokenPrefix(token)
+    const tokenPrefix = extractTokenPrefix(token);
     const candidates = await prisma.inviteToken.findMany({
       where: { tokenPrefix, used: false, expires: { gt: new Date() } },
-    })
+    });
 
-    let inviteToken = null
+    let inviteToken = null;
     for (const candidate of candidates) {
       if (await verifyToken(token, candidate.token)) {
-        inviteToken = candidate
-        break
+        inviteToken = candidate;
+        break;
       }
     }
 
     if (!inviteToken) {
-      return NextResponse.json({ error: 'Invalid invitation token' }, { status: 400 })
+      return NextResponse.json({ error: "Invalid invitation token" }, { status: 400 });
     }
 
     // Check if the user's email matches the invite
     if (session.user.email !== inviteToken.email) {
-      return NextResponse.json({ error: 'This invitation was sent to a different email address' }, { status: 403 })
+      return NextResponse.json(
+        { error: "This invitation was sent to a different email address" },
+        { status: 403 },
+      );
     }
 
     // Create membership
@@ -53,18 +62,21 @@ export async function POST(req: NextRequest) {
         userId: session.user.id,
         orgId: inviteToken.orgId,
         role: inviteToken.role,
-      }
-    })
+      },
+    });
 
     // Mark token as used
     await prisma.inviteToken.update({
       where: { id: inviteToken.id },
-      data: { used: true }
-    })
+      data: { used: true },
+    });
 
-    return NextResponse.json({ success: true, message: 'You have joined the organization successfully' })
+    return NextResponse.json({
+      success: true,
+      message: "You have joined the organization successfully",
+    });
   } catch (error) {
-    await logApiError(error as Error, { path: '/api/auth/accept-invite', method: 'POST' })
-    return NextResponse.json({ error: 'An error occurred' }, { status: 500 })
+    await logApiError(error as Error, { path: "/api/auth/accept-invite", method: "POST" });
+    return NextResponse.json({ error: "An error occurred" }, { status: 500 });
   }
 }

@@ -1,4 +1,4 @@
-import { hash, verify } from '@node-rs/argon2'
+import { hash, verify } from "@node-rs/argon2";
 
 /**
  * Hash a password using Argon2id
@@ -12,7 +12,7 @@ export async function hashPassword(password: string): Promise<string> {
     timeCost: 3,
     outputLen: 32,
     parallelism: 4,
-  })
+  });
 }
 
 /**
@@ -23,9 +23,9 @@ export async function hashPassword(password: string): Promise<string> {
  */
 export async function verifyPassword(password: string, hash: string): Promise<boolean> {
   try {
-    return await verify(hash, password)
+    return await verify(hash, password);
   } catch {
-    return false
+    return false;
   }
 }
 
@@ -36,15 +36,15 @@ export async function verifyPassword(password: string, hash: string): Promise<bo
  * @returns True if password meets minimum requirements
  */
 export function isPasswordValid(password: string): boolean {
-  if (!password || password.length < 12) return false
+  if (!password || password.length < 12) return false;
 
   // Check for required character types
-  const hasUppercase = /[A-Z]/.test(password)
-  const hasLowercase = /[a-z]/.test(password)
-  const hasNumber = /[0-9]/.test(password)
-  const hasSpecial = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)
+  const hasUppercase = /[A-Z]/.test(password);
+  const hasLowercase = /[a-z]/.test(password);
+  const hasNumber = /[0-9]/.test(password);
+  const hasSpecial = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
 
-  return hasUppercase && hasLowercase && hasNumber && hasSpecial
+  return hasUppercase && hasLowercase && hasNumber && hasSpecial;
 }
 
 /**
@@ -53,14 +53,14 @@ export function isPasswordValid(password: string): boolean {
  * @returns Strength score
  */
 export function getPasswordStrength(password: string): number {
-  if (!password) return 0
+  if (!password) return 0;
 
-  let score = 0
-  if (password.length >= 12) score++
-  if (password.length >= 16) score++
-  if (/[A-Z]/.test(password) && /[a-z]/.test(password)) score++
-  if (/[0-9]/.test(password)) score++
-  if (/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) score++
+  let score = 0;
+  if (password.length >= 12) score++;
+  if (password.length >= 16) score++;
+  if (/[A-Z]/.test(password) && /[a-z]/.test(password)) score++;
+  if (/[0-9]/.test(password)) score++;
+  if (/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) score++;
 
-  return Math.min(score, 4)
+  return Math.min(score, 4);
 }

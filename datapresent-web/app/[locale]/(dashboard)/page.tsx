@@ -1,39 +1,43 @@
-import { auth } from '@/lib/auth'
-import { prisma } from '@/lib/prisma'
-import { ensureUserHasOrganization } from '@/lib/org'
-import { redirect } from 'next/navigation'
-import { getTranslations } from 'next-intl/server'
-import Link from 'next/link'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { EmptyState } from '@/components/ui/empty-state'
-import { UsageCard } from '@/components/usage/UsageCard'
-import { PlusCircle } from 'lucide-react'
+import { auth } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
+import { ensureUserHasOrganization } from "@/lib/org";
+import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { EmptyState } from "@/components/ui/empty-state";
+import { UsageCard } from "@/components/usage/UsageCard";
+import { PlusCircle } from "lucide-react";
 
 export default async function DashboardPage() {
-  const t = await getTranslations()
-  const session = await auth()
-  
-  if (!session?.user?.id) redirect('/login')
+  const t = await getTranslations();
+  const session = await auth();
 
-  await ensureUserHasOrganization(session.user.id, session.user.email || '')
+  if (!session?.user?.id) redirect("/login");
+
+  await ensureUserHasOrganization(session.user.id, session.user.email || "");
 
   const user = await prisma.user.findUnique({
     where: { id: session.user.id },
-    include: { membership: { include: { org: { include: { reports: { orderBy: { createdAt: 'desc' }, take: 5 } } } } } },
-  })
+    include: {
+      membership: {
+        include: { org: { include: { reports: { orderBy: { createdAt: "desc" }, take: 5 } } } },
+      },
+    },
+  });
 
-  const reports = user?.membership[0]?.org?.reports || []
+  const reports = user?.membership[0]?.org?.reports || [];
 
   return (
     <div>
       <div className="app-page-header">
         <div>
-          <h1 className="app-heading app-heading-xl">{t('dashboard.recentReports')}</h1>
+          <h1 className="app-heading app-heading-xl">{t("dashboard.recentReports")}</h1>
         </div>
         <Link href="/new">
-          <Button data-onboarding="new-report">{t('dashboard.newReport')}</Button>
+          <Button data-onboarding="new-report">{t("dashboard.newReport")}</Button>
         </Link>
       </div>
 
@@ -42,9 +46,9 @@ export default async function DashboardPage() {
           {reports.length === 0 ? (
             <EmptyState
               icon={PlusCircle}
-              title={t('dashboard.noReports')}
-              description={t('dashboard.noReportsDesc')}
-              action={{ label: t('dashboard.newReport'), href: '/new' }}
+              title={t("dashboard.noReports")}
+              description={t("dashboard.noReportsDesc")}
+              action={{ label: t("dashboard.newReport"), href: "/new" }}
             />
           ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -56,7 +60,15 @@ export default async function DashboardPage() {
                     </CardHeader>
                     <CardContent>
                       <div className="flex items-center gap-2">
-                        <Badge variant={report.status === 'DONE' ? 'success' : report.status === 'ERROR' ? 'error' : 'warning'}>
+                        <Badge
+                          variant={
+                            report.status === "DONE"
+                              ? "success"
+                              : report.status === "ERROR"
+                                ? "error"
+                                : "warning"
+                          }
+                        >
                           {t(`reports.status.${report.status.toLowerCase()}`)}
                         </Badge>
                         <span className="text-sm text-muted-foreground">{report.sector}</span>
@@ -73,5 +85,5 @@ export default async function DashboardPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }
