@@ -4,4 +4,4 @@ export {
   signJobData,
   verifyJobSignature,
   extractSignedJobData,
-} from '@/lib/crypto'
+} from "@/lib/crypto";

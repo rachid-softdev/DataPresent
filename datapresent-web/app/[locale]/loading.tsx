@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 export default function Loading() {
   return (
@@ -8,5 +8,5 @@ export default function Loading() {
         <p className="text-sm text-muted-foreground">Chargement...</p>
       </div>
     </div>
-  )
+  );
 }

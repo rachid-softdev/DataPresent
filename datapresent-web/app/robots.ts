@@ -1,16 +1,16 @@
-import { MetadataRoute } from 'next'
+import { MetadataRoute } from "next";
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://datapresent.com'
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://datapresent.com";
 
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: [
       {
-        userAgent: '*',
-        allow: '/',
-        disallow: ['/api/', '/dashboard/', '/settings/', '/share/'],
+        userAgent: "*",
+        allow: "/",
+        disallow: ["/api/", "/dashboard/", "/settings/", "/share/"],
       },
     ],
     sitemap: `${BASE_URL}/sitemap.xml`,
-  }
+  };
 }

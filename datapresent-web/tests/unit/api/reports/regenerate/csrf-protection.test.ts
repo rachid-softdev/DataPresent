@@ -308,9 +308,7 @@ describe("Regenerate Route — CSRF Protection & Validation", () => {
         expires: new Date(Date.now() + 86400).toISOString(),
       });
       mockWithCsrfProtection.mockResolvedValue(null);
-      mockPrisma.report.findUnique.mockResolvedValue(
-        makeValidReport({ sourceFile: null }),
-      );
+      mockPrisma.report.findUnique.mockResolvedValue(makeValidReport({ sourceFile: null }));
 
       const req = createRequest();
       const result = await POST(req, { params: Promise.resolve({ id: "report-123" }) });
@@ -324,9 +322,7 @@ describe("Regenerate Route — CSRF Protection & Validation", () => {
         expires: new Date(Date.now() + 86400).toISOString(),
       });
       mockWithCsrfProtection.mockResolvedValue(null);
-      mockPrisma.report.findUnique.mockResolvedValue(
-        makeValidReport({ status: "PROCESSING" }),
-      );
+      mockPrisma.report.findUnique.mockResolvedValue(makeValidReport({ status: "PROCESSING" }));
 
       const req = createRequest();
       const result = await POST(req, { params: Promise.resolve({ id: "report-123" }) });

@@ -1,27 +1,24 @@
-'use client'
+"use client";
 
-import { ThemeToggle } from '@/components/ui/theme-toggle'
-import Link from 'next/link'
+import { ThemeToggle } from "@/components/ui/theme-toggle";
+import Link from "next/link";
 
 interface LandingFooterProps {
-  description: string
-  copyright?: string
+  description: string;
+  copyright?: string;
 }
 
 export function LandingFooter({
   description,
-  copyright = '© 2025 DataPresent · Tous droits réservés',
+  copyright = "© 2025 DataPresent · Tous droits réservés",
 }: LandingFooterProps) {
   return (
     <footer className="landing-footer">
       <div className="landing-container">
         <div className="landing-footer-grid">
           <div>
-            <Link href="/" className="landing-logo" style={{ display: 'inline-flex' }}>
-              <div
-                className="landing-logo-mark"
-                style={{ background: 'rgba(255,255,255,0.1)' }}
-              >
+            <Link href="/" className="landing-logo" style={{ display: "inline-flex" }}>
+              <div className="landing-logo-mark" style={{ background: "rgba(255,255,255,0.1)" }}>
                 <svg
                   width="18"
                   height="18"
@@ -34,7 +31,7 @@ export function LandingFooter({
                   <path d="M7 16l4-8 4 4 4-6" />
                 </svg>
               </div>
-              <span className="landing-logo-text" style={{ color: '#fff' }}>
+              <span className="landing-logo-text" style={{ color: "#fff" }}>
                 DataPresent
               </span>
             </Link>
@@ -74,5 +71,5 @@ export function LandingFooter({
         </div>
       </div>
     </footer>
-  )
+  );
 }

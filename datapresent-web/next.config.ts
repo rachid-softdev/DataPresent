@@ -1,61 +1,61 @@
 import type { NextConfig } from "next";
-import createNextIntlPlugin from 'next-intl/plugin';
+import createNextIntlPlugin from "next-intl/plugin";
 
 const withNextIntl = createNextIntlPlugin();
 
-const isDev = process.env.NODE_ENV === 'development'
+const isDev = process.env.NODE_ENV === "development";
 const scriptSrc = isDev
   ? "'self' 'unsafe-eval' https://js.stripe.com"
-  : "'self' https://js.stripe.com"
+  : "'self' https://js.stripe.com";
 
 const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
       {
-        protocol: 'https',
-        hostname: '**.amazonaws.com',
+        protocol: "https",
+        hostname: "**.amazonaws.com",
       },
       {
-        protocol: 'https',
-        hostname: '**.r2.cloudflarestorage.com',
+        protocol: "https",
+        hostname: "**.r2.cloudflarestorage.com",
       },
       {
-        protocol: 'https',
-        hostname: 'lh3.googleusercontent.com',
+        protocol: "https",
+        hostname: "lh3.googleusercontent.com",
       },
       {
-        protocol: 'https',
-        hostname: 'avatars.githubusercontent.com',
+        protocol: "https",
+        hostname: "avatars.githubusercontent.com",
       },
     ],
   },
   async headers() {
     return [
       {
-        source: '/(.*)',
+        source: "/(.*)",
         headers: [
           {
-            key: 'X-Frame-Options',
-            value: 'SAMEORIGIN',
+            key: "X-Frame-Options",
+            value: "SAMEORIGIN",
           },
           {
-            key: 'X-Content-Type-Options',
-            value: 'nosniff',
+            key: "X-Content-Type-Options",
+            value: "nosniff",
           },
           {
-            key: 'Referrer-Policy',
-            value: 'strict-origin-when-cross-origin',
+            key: "Referrer-Policy",
+            value: "strict-origin-when-cross-origin",
           },
           {
-            key: 'Permissions-Policy',
-            value: 'camera=(), microphone=(), geolocation=()',
+            key: "Permissions-Policy",
+            value: "camera=(), microphone=(), geolocation=()",
           },
           {
-            key: 'Strict-Transport-Security',
-            value: 'max-age=31536000; includeSubDomains',
+            key: "Strict-Transport-Security",
+            value: "max-age=31536000; includeSubDomains",
           },
           {
-            key: 'Content-Security-Policy',
+            key: "Content-Security-Policy",
             value: [
               "default-src 'self'",
               `script-src ${scriptSrc}`,
@@ -67,55 +67,55 @@ const nextConfig: NextConfig = {
               "object-src 'none'",
               "base-uri 'self'",
               "form-action 'self'",
-            ].join('; '),
+            ].join("; "),
           },
         ],
       },
       {
-        source: '/embed/(.*)',
+        source: "/embed/(.*)",
         headers: [
           {
-            key: 'Content-Security-Policy',
+            key: "Content-Security-Policy",
             value: "frame-ancestors 'self'",
           },
         ],
       },
       {
-        source: '/api/(.*)',
+        source: "/api/(.*)",
         headers: [
           {
-            key: 'Access-Control-Allow-Methods',
-            value: 'GET, POST, PUT, DELETE, OPTIONS',
+            key: "Access-Control-Allow-Methods",
+            value: "GET, POST, PUT, DELETE, OPTIONS",
           },
           {
-            key: 'Access-Control-Allow-Headers',
-            value: 'Content-Type, Authorization, X-CSRF-Token',
+            key: "Access-Control-Allow-Headers",
+            value: "Content-Type, Authorization, X-CSRF-Token",
           },
           {
-            key: 'Access-Control-Allow-Credentials',
-            value: 'true',
+            key: "Access-Control-Allow-Credentials",
+            value: "true",
           },
           {
-            key: 'Access-Control-Max-Age',
-            value: '86400',
+            key: "Access-Control-Max-Age",
+            value: "86400",
           },
         ],
       },
-    ]
+    ];
   },
   async redirects() {
     return [
       {
-        source: '/app',
-        destination: '/dashboard',
+        source: "/app",
+        destination: "/dashboard",
         permanent: true,
       },
       {
-        source: '/register',
-        destination: '/signup',
+        source: "/register",
+        destination: "/signup",
         permanent: true,
       },
-    ]
+    ];
   },
 };
 

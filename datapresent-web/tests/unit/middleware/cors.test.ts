@@ -9,252 +9,244 @@
 // - No origin header returns no CORS headers
 // - Development mode allows all origins
 
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from "vitest";
 
 // ---------------------------------------------------------------------------
 // Mock next-intl/middleware (required by middleware.ts)
 // ---------------------------------------------------------------------------
-vi.mock('next-intl/middleware', () => ({
+vi.mock("next-intl/middleware", () => ({
   default: vi.fn(() => (request: any) => {
-    return new Response(null, { status: 200 })
+    return new Response(null, { status: 200 });
   }),
-}))
+}));
 
 // ---------------------------------------------------------------------------
 // Mock i18n/routing to avoid import errors
 // ---------------------------------------------------------------------------
-vi.mock('@/i18n/routing', () => ({
-  routing: { locales: ['en', 'fr'], defaultLocale: 'en' },
-}))
+vi.mock("@/i18n/routing", () => ({
+  routing: { locales: ["en", "fr"], defaultLocale: "en" },
+}));
 
 // ---------------------------------------------------------------------------
 // Mock next/server — NextResponse as a real constructor
 // ---------------------------------------------------------------------------
-vi.mock('next/server', () => {
+vi.mock("next/server", () => {
   class MockNextResponse {
-    public status: number
-    public headers: Headers
-    public body: string | null
+    public status: number;
+    public headers: Headers;
+    public body: string | null;
 
     constructor(body: BodyInit | null, init?: ResponseInit) {
-      this.status = init?.status ?? 200
-      this.headers = new Headers(init?.headers)
-      this.body = body as string | null
+      this.status = init?.status ?? 200;
+      this.headers = new Headers(init?.headers);
+      this.body = body as string | null;
     }
 
-    static next = vi.fn(() => new MockNextResponse(null, { status: 200 }))
+    static next = vi.fn(() => new MockNextResponse(null, { status: 200 }));
     static json = vi.fn((body: object, init?: ResponseInit) => {
-      const headers = new Headers(init?.headers)
-      return new MockNextResponse(null, { status: init?.status ?? 200, headers })
-    })
+      const headers = new Headers(init?.headers);
+      return new MockNextResponse(null, { status: init?.status ?? 200, headers });
+    });
   }
 
   return {
     NextResponse: MockNextResponse,
     NextRequest: vi.fn(),
-  }
-})
+  };
+});
 
 // ---------------------------------------------------------------------------
 // Import after mocks
 // ---------------------------------------------------------------------------
-import { middleware } from '@/middleware'
-import type { NextRequest } from 'next/server'
+import { middleware } from "@/middleware";
+import type { NextRequest } from "next/server";
 
 /**
  * Create a minimal mock NextRequest for CORS testing
  */
 function createMockRequest({
-  method = 'GET',
-  pathname = '/api/test',
-  origin = '',
+  method = "GET",
+  pathname = "/api/test",
+  origin = "",
 }: {
-  method?: string
-  pathname?: string
-  origin?: string
+  method?: string;
+  pathname?: string;
+  origin?: string;
 } = {}): NextRequest {
-  const headers = new Headers()
+  const headers = new Headers();
   if (origin) {
-    headers.set('origin', origin)
+    headers.set("origin", origin);
   }
   return {
     method,
     nextUrl: { pathname },
     headers,
-  } as unknown as NextRequest
+  } as unknown as NextRequest;
 }
 
-describe('CORS Middleware', () => {
+describe("CORS Middleware", () => {
   beforeEach(() => {
-    vi.clearAllMocks()
-  })
+    vi.clearAllMocks();
+  });
 
-  describe('valid origin', () => {
-    it('should reflect valid origin in Access-Control-Allow-Origin', () => {
+  describe("valid origin", () => {
+    it("should reflect valid origin in Access-Control-Allow-Origin", () => {
       const req = createMockRequest({
-        method: 'GET',
-        pathname: '/api/reports',
-        origin: 'https://datapresent.com',
-      })
-      const response = middleware(req)
-      expect(response!.headers.get('Access-Control-Allow-Origin')).toBe(
-        'https://datapresent.com'
-      )
-    })
+        method: "GET",
+        pathname: "/api/reports",
+        origin: "https://datapresent.com",
+      });
+      const response = middleware(req);
+      expect(response!.headers.get("Access-Control-Allow-Origin")).toBe("https://datapresent.com");
+    });
 
-    it('should include CORS headers for valid app origin', () => {
+    it("should include CORS headers for valid app origin", () => {
       const req = createMockRequest({
-        method: 'POST',
-        pathname: '/api/reports',
-        origin: 'https://app.datapresent.com',
-      })
-      const response = middleware(req)
-      expect(response!.headers.get('Access-Control-Allow-Origin')).toBe(
-        'https://app.datapresent.com'
-      )
-      expect(response!.headers.get('Access-Control-Allow-Methods')).toBeTruthy()
-      expect(response!.headers.get('Access-Control-Allow-Headers')).toBeTruthy()
-      expect(response!.headers.get('Access-Control-Allow-Credentials')).toBe('true')
-    })
+        method: "POST",
+        pathname: "/api/reports",
+        origin: "https://app.datapresent.com",
+      });
+      const response = middleware(req);
+      expect(response!.headers.get("Access-Control-Allow-Origin")).toBe(
+        "https://app.datapresent.com",
+      );
+      expect(response!.headers.get("Access-Control-Allow-Methods")).toBeTruthy();
+      expect(response!.headers.get("Access-Control-Allow-Headers")).toBeTruthy();
+      expect(response!.headers.get("Access-Control-Allow-Credentials")).toBe("true");
+    });
 
-    it('should include Access-Control-Max-Age header', () => {
+    it("should include Access-Control-Max-Age header", () => {
       const req = createMockRequest({
-        method: 'GET',
-        pathname: '/api/reports',
-        origin: 'https://datapresent.com',
-      })
-      const response = middleware(req)
-      expect(response!.headers.get('Access-Control-Max-Age')).toBe('86400')
-    })
-  })
+        method: "GET",
+        pathname: "/api/reports",
+        origin: "https://datapresent.com",
+      });
+      const response = middleware(req);
+      expect(response!.headers.get("Access-Control-Max-Age")).toBe("86400");
+    });
+  });
 
-  describe('invalid origin', () => {
-    it('should NOT reflect origin that is not in the allowed list', () => {
+  describe("invalid origin", () => {
+    it("should NOT reflect origin that is not in the allowed list", () => {
       const req = createMockRequest({
-        method: 'GET',
-        pathname: '/api/reports',
-        origin: 'https://evil-site.com',
-      })
-      const response = middleware(req)
-      expect(response!.headers.get('Access-Control-Allow-Origin')).toBeNull()
-    })
+        method: "GET",
+        pathname: "/api/reports",
+        origin: "https://evil-site.com",
+      });
+      const response = middleware(req);
+      expect(response!.headers.get("Access-Control-Allow-Origin")).toBeNull();
+    });
 
-    it('should not return any CORS headers for disallowed origin', () => {
+    it("should not return any CORS headers for disallowed origin", () => {
       const req = createMockRequest({
-        method: 'POST',
-        pathname: '/api/reports',
-        origin: 'https://attacker.com',
-      })
-      const response = middleware(req)
-      expect(response!.headers.get('Access-Control-Allow-Methods')).toBeNull()
-      expect(response!.headers.get('Access-Control-Allow-Headers')).toBeNull()
-    })
-  })
+        method: "POST",
+        pathname: "/api/reports",
+        origin: "https://attacker.com",
+      });
+      const response = middleware(req);
+      expect(response!.headers.get("Access-Control-Allow-Methods")).toBeNull();
+      expect(response!.headers.get("Access-Control-Allow-Headers")).toBeNull();
+    });
+  });
 
-  describe('OPTIONS preflight', () => {
-    it('should return 204 status for OPTIONS requests', () => {
+  describe("OPTIONS preflight", () => {
+    it("should return 204 status for OPTIONS requests", () => {
       const req = createMockRequest({
-        method: 'OPTIONS',
-        pathname: '/api/reports',
-        origin: 'https://datapresent.com',
-      })
-      const response = middleware(req)
-      expect(response!.status).toBe(204)
-    })
+        method: "OPTIONS",
+        pathname: "/api/reports",
+        origin: "https://datapresent.com",
+      });
+      const response = middleware(req);
+      expect(response!.status).toBe(204);
+    });
 
-    it('should include CORS headers on OPTIONS response', () => {
+    it("should include CORS headers on OPTIONS response", () => {
       const req = createMockRequest({
-        method: 'OPTIONS',
-        pathname: '/api/reports',
-        origin: 'https://datapresent.com',
-      })
-      const response = middleware(req)
-      expect(response!.headers.get('Access-Control-Allow-Origin')).toBe(
-        'https://datapresent.com'
-      )
-      expect(response!.headers.get('Access-Control-Allow-Methods')).toBeTruthy()
-      expect(response!.headers.get('Access-Control-Allow-Headers')).toBeTruthy()
-      expect(response!.headers.get('Access-Control-Allow-Credentials')).toBe('true')
-      expect(response!.headers.get('Access-Control-Max-Age')).toBe('86400')
-    })
+        method: "OPTIONS",
+        pathname: "/api/reports",
+        origin: "https://datapresent.com",
+      });
+      const response = middleware(req);
+      expect(response!.headers.get("Access-Control-Allow-Origin")).toBe("https://datapresent.com");
+      expect(response!.headers.get("Access-Control-Allow-Methods")).toBeTruthy();
+      expect(response!.headers.get("Access-Control-Allow-Headers")).toBeTruthy();
+      expect(response!.headers.get("Access-Control-Allow-Credentials")).toBe("true");
+      expect(response!.headers.get("Access-Control-Max-Age")).toBe("86400");
+    });
 
-    it('should NOT reflect disallowed origins on OPTIONS', () => {
+    it("should NOT reflect disallowed origins on OPTIONS", () => {
       const req = createMockRequest({
-        method: 'OPTIONS',
-        pathname: '/api/reports',
-        origin: 'https://evil-site.com',
-      })
-      const response = middleware(req)
-      expect(response!.status).toBe(204)
-      expect(response!.headers.get('Access-Control-Allow-Origin')).toBeNull()
-    })
-  })
+        method: "OPTIONS",
+        pathname: "/api/reports",
+        origin: "https://evil-site.com",
+      });
+      const response = middleware(req);
+      expect(response!.status).toBe(204);
+      expect(response!.headers.get("Access-Control-Allow-Origin")).toBeNull();
+    });
+  });
 
-  describe('no origin header', () => {
-    it('should not set any CORS headers when no origin is present', () => {
+  describe("no origin header", () => {
+    it("should not set any CORS headers when no origin is present", () => {
       const req = createMockRequest({
-        method: 'GET',
-        pathname: '/api/reports',
+        method: "GET",
+        pathname: "/api/reports",
         // no origin
-      })
-      const response = middleware(req)
-      expect(response!.headers.get('Access-Control-Allow-Origin')).toBeNull()
-      expect(response!.headers.get('Access-Control-Allow-Methods')).toBeNull()
-    })
-  })
+      });
+      const response = middleware(req);
+      expect(response!.headers.get("Access-Control-Allow-Origin")).toBeNull();
+      expect(response!.headers.get("Access-Control-Allow-Methods")).toBeNull();
+    });
+  });
 
-  describe('development mode', () => {
-    const ORIGINAL_NODE_ENV = process.env.NODE_ENV
+  describe("development mode", () => {
+    const ORIGINAL_NODE_ENV = process.env.NODE_ENV;
 
     beforeEach(() => {
       // Set development mode
-      process.env.NODE_ENV = 'development'
-    })
+      process.env.NODE_ENV = "development";
+    });
 
     afterEach(() => {
-      process.env.NODE_ENV = ORIGINAL_NODE_ENV
-    })
+      process.env.NODE_ENV = ORIGINAL_NODE_ENV;
+    });
 
-    it('should allow localhost:3000 in development mode (restricted to allowed ports)', () => {
+    it("should allow localhost:3000 in development mode (restricted to allowed ports)", () => {
       const req = createMockRequest({
-        method: 'GET',
-        pathname: '/api/reports',
-        origin: 'http://localhost:3000',
-      })
-      const response = middleware(req)
-      expect(response!.headers.get('Access-Control-Allow-Origin')).toBe(
-        'http://localhost:3000'
-      )
-    })
+        method: "GET",
+        pathname: "/api/reports",
+        origin: "http://localhost:3000",
+      });
+      const response = middleware(req);
+      expect(response!.headers.get("Access-Control-Allow-Origin")).toBe("http://localhost:3000");
+    });
 
-    it('should include all CORS headers for allowed dev origin on OPTIONS', () => {
+    it("should include all CORS headers for allowed dev origin on OPTIONS", () => {
       const req = createMockRequest({
-        method: 'OPTIONS',
-        pathname: '/api/reports',
-        origin: 'http://localhost:3000',
-      })
-      const response = middleware(req)
-      expect(response!.status).toBe(204)
-      expect(response!.headers.get('Access-Control-Allow-Origin')).toBe(
-        'http://localhost:3000'
-      )
-      expect(response!.headers.get('Access-Control-Allow-Methods')).toBeTruthy()
-      expect(response!.headers.get('Access-Control-Allow-Headers')).toBeTruthy()
-      expect(response!.headers.get('Access-Control-Allow-Credentials')).toBe('true')
-      expect(response!.headers.get('Access-Control-Max-Age')).toBe('86400')
-    })
-  })
+        method: "OPTIONS",
+        pathname: "/api/reports",
+        origin: "http://localhost:3000",
+      });
+      const response = middleware(req);
+      expect(response!.status).toBe(204);
+      expect(response!.headers.get("Access-Control-Allow-Origin")).toBe("http://localhost:3000");
+      expect(response!.headers.get("Access-Control-Allow-Methods")).toBeTruthy();
+      expect(response!.headers.get("Access-Control-Allow-Headers")).toBeTruthy();
+      expect(response!.headers.get("Access-Control-Allow-Credentials")).toBe("true");
+      expect(response!.headers.get("Access-Control-Max-Age")).toBe("86400");
+    });
+  });
 
-  describe('non-API routes', () => {
-    it('should not set CORS headers on non-API routes', () => {
+  describe("non-API routes", () => {
+    it("should not set CORS headers on non-API routes", () => {
       const req = createMockRequest({
-        method: 'GET',
-        pathname: '/dashboard',
-        origin: 'https://datapresent.com',
-      })
-      const response = middleware(req)
+        method: "GET",
+        pathname: "/dashboard",
+        origin: "https://datapresent.com",
+      });
+      const response = middleware(req);
       // Non-API routes go through i18n middleware, not CORS
-      expect(response).toBeTruthy()
-    })
-  })
-})
+      expect(response).toBeTruthy();
+    });
+  });
+});

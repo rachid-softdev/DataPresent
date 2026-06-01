@@ -1,1 +1,1 @@
-export { Switch } from '@datapresent/ui'
+export { Switch } from "@datapresent/ui";

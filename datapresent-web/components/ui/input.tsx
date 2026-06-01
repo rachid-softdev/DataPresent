@@ -1,1 +1,1 @@
-export { Input } from '@datapresent/ui'
+export { Input } from "@datapresent/ui";
