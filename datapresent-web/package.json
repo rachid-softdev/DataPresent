@@ -36,7 +36,7 @@
     "blog:generate": "npx tsx scripts/generate-blog-posts.ts"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.92.0",
+    "@anthropic-ai/sdk": "^0.100.1",
     "@auth/prisma-adapter": "^2.11.2",
     "@aws-sdk/client-s3": "^3.1041.0",
     "@aws-sdk/s3-request-presigner": "^3.1057.0",
@@ -71,8 +71,8 @@
     "pptxgenjs": "^4.0.1",
     "prisma": "^5.22.0",
     "puppeteer-core": "^22.0.0",
-    "react": "19.2.4",
-    "react-dom": "19.2.4",
+    "react": "19.2.6",
+    "react-dom": "19.2.6",
     "react-hook-form": "^7.75.0",
     "recharts": "^3.8.1",
     "resend": "^6.12.2",
