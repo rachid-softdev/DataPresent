@@ -23,7 +23,12 @@
     "web:lint": "pnpm --filter datapresent-web lint",
     "web:typecheck": "pnpm --filter datapresent-web typecheck",
     "check-env": "pnpm --filter datapresent-web check-env",
-    "push-env": "pnpm --filter datapresent-web push-env"
+    "push-env": "pnpm --filter datapresent-web push-env",
+    "workers:dev": "pnpm --filter workers dev",
+    "workers:build": "pnpm --filter workers build",
+    "workers:start": "pnpm --filter workers start",
+    "workers:typecheck": "pnpm --filter workers typecheck",
+    "workers:prisma-generate": "pnpm --filter workers prisma:generate"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.15",

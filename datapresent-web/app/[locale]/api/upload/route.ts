@@ -4,7 +4,8 @@ import { prisma } from '@/lib/prisma'
 import { uploadToR2 } from '@/lib/r2'
 import { isValidSector, VALID_SECTORS } from '@/lib/sector'
 import { getGenerateQueue } from '@/lib/queue'
-import { canCreateReport, canHaveSlideCount, getUserPlan } from '@/lib/entitlements/compat'
+import { canCreateReport } from '@/lib/entitlements/compat'
+import { getLimit } from '@/lib/entitlements/feature-gate'
 import { checkRateLimit } from '@/lib/rate-limit'
 import { signJobData } from '@/lib/queue/job-security'
 import { ERROR_CODES, unauthorized, badRequest } from '@/lib/errors'
@@ -75,16 +76,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Fichier trop volumineux (max 50 MB)' }, { status: 400 })
     }
 
-    // Validate slide count against plan
-    const { plan } = await getUserPlan(session.user.id)
-    const { allowed: slideLimitOk, maxSlides } = canHaveSlideCount(plan, slideCount)
-    if (!slideLimitOk) {
-      return NextResponse.json(
-        { error: `Limite de ${maxSlides} slides atteinte pour ce rapport.` },
-        { status: 403 }
-      )
-    }
-
     const user = await prisma.user.findUnique({
       where: { id: session.user.id },
       include: { membership: { include: { org: true } } },
@@ -93,6 +84,15 @@ export async function POST(req: NextRequest) {
     const org = user?.membership[0]?.org
     if (!org) {
       return badRequest(ERROR_CODES.ERR_RESOURCE_NO_ORGANIZATION)
+    }
+
+    // Validate slide count against plan
+    const maxSlides = await getLimit(org.id, 'maxSlides')
+    if (maxSlides !== null && slideCount > maxSlides) {
+      return NextResponse.json(
+        { error: `Limite de ${maxSlides} slides atteinte pour ce rapport.` },
+        { status: 403 }
+      )
     }
 
     const buffer = Buffer.from(await file.arrayBuffer())

@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { withCsrfProtection } from "@/lib/security";
 import { unauthorized, forbidden, notFound } from "@/lib/errors";
 import { hashPassword } from "@/lib/password";
+import { checkRateLimit } from "@/lib/rate-limit";
 import { ShareCreateSchema, ShareUpdateSchema } from "@/lib/validation-schemas";
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -69,6 +70,12 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   const csrfResponse = await withCsrfProtection(req, session.user.id);
   if (csrfResponse) return csrfResponse;
 
+  // Rate limiting: 20 share CRUD operations per minute per user
+  const rateLimitAllowed = await checkRateLimit(`share-crud:${session.user.id}`, { limit: 20, windowMs: 60000 });
+  if (!rateLimitAllowed) {
+    return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
+  }
+
   const report = await prisma.report.findUnique({
     where: { id },
     include: { org: { include: { members: true } } },
@@ -127,6 +134,12 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
   const csrfResponse = await withCsrfProtection(req, session.user.id);
   if (csrfResponse) return csrfResponse;
+
+  // Rate limiting: 20 share CRUD operations per minute per user
+  const rateLimitAllowed = await checkRateLimit(`share-crud:${session.user.id}`, { limit: 20, windowMs: 60000 });
+  if (!rateLimitAllowed) {
+    return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
+  }
 
   const report = await prisma.report.findUnique({
     where: { id },

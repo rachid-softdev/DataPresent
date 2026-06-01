@@ -15,7 +15,7 @@
 // The CSRF middleware itself is tested in lib/security/csrf-middleware.test.ts.
 // These verify route-level integration.
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
 // ---------------------------------------------------------------------------
 // Mock setup — all mock variables must use vi.hoisted
@@ -39,8 +39,8 @@ const mockGenerateQueue = vi.hoisted(() => ({
 const mockValidateMagicBytes = vi.hoisted(() => vi.fn());
 const mockLogApiError = vi.hoisted(() => vi.fn());
 const mockCanCreateReport = vi.hoisted(() => vi.fn());
-const mockCanHaveSlideCount = vi.hoisted(() => vi.fn());
 const mockGetUserPlan = vi.hoisted(() => vi.fn());
+const mockGetLimit = vi.hoisted(() => vi.fn());
 
 // Stub VALID_SECTORS — must be hoisted for vi.mock factory
 const MOCK_VALID_SECTORS = vi.hoisted(() => ["retail", "finance", "healthcare"]);
@@ -82,8 +82,11 @@ vi.mock("@/lib/queue", () => ({
 
 vi.mock("@/lib/entitlements/compat", () => ({
   canCreateReport: mockCanCreateReport,
-  canHaveSlideCount: mockCanHaveSlideCount,
   getUserPlan: mockGetUserPlan,
+}));
+
+vi.mock("@/lib/entitlements/feature-gate", () => ({
+  getLimit: mockGetLimit,
 }));
 
 vi.mock("@/lib/rate-limit", () => ({
@@ -256,7 +259,6 @@ describe("Upload Route — CSRF Protection & Validation", () => {
       mockCheckRateLimit.mockResolvedValue(true);
       mockCanCreateReport.mockResolvedValue({ allowed: true });
       mockGetUserPlan.mockResolvedValue({ plan: "pro" });
-      mockCanHaveSlideCount.mockReturnValue({ allowed: true, maxSlides: 20 });
       mockPrisma.user.findUnique.mockResolvedValue({
         id: "user-123",
         membership: [{ org: { id: "org-123" } }],
@@ -285,7 +287,6 @@ describe("Upload Route — CSRF Protection & Validation", () => {
       mockCheckRateLimit.mockResolvedValue(true);
       mockCanCreateReport.mockResolvedValue({ allowed: true });
       mockGetUserPlan.mockResolvedValue({ plan: "pro" });
-      mockCanHaveSlideCount.mockReturnValue({ allowed: true, maxSlides: 20 });
       mockPrisma.user.findUnique.mockResolvedValue({
         id: "user-123",
         membership: [{ org: { id: "org-123" } }],
@@ -426,7 +427,7 @@ describe("Upload Route — CSRF Protection & Validation", () => {
     // A proper integration test would require a true 50+ MB file, which
     // is impractical in unit tests.
 
-    it("should return 403 when slide count exceeds plan limit", async () => {
+    it("should return 403 when slide count exceeds plan limit via getLimit(orgId, 'maxSlides')", async () => {
       mockAuth.mockResolvedValue({
         user: { id: "user-123", email: "test@example.com" },
         expires: new Date(Date.now() + 86400).toISOString(),
@@ -434,13 +435,48 @@ describe("Upload Route — CSRF Protection & Validation", () => {
       mockWithCsrfProtection.mockResolvedValue(null);
       mockCheckRateLimit.mockResolvedValue(true);
       mockCanCreateReport.mockResolvedValue({ allowed: true });
-      mockGetUserPlan.mockResolvedValue({ plan: "free" });
-      mockCanHaveSlideCount.mockReturnValue({ allowed: false, maxSlides: 5 });
+      mockPrisma.user.findUnique.mockResolvedValue({
+        id: "user-123",
+        membership: [{ org: { id: "org-123" } }],
+      });
+      mockGetLimit.mockResolvedValue(5);
 
       const req = createUploadRequest({ file: makeValidFile(), slideCount: "10" });
       const result = await POST(req);
 
       expect(result.status).toBe(403);
+      // Verify getLimit was called with the correct orgId and feature name
+      expect(mockGetLimit).toHaveBeenCalledWith("org-123", "maxSlides");
+      // Verify error message includes the limit
+      const data = await result.json();
+      expect(data.error).toContain("5");
+    });
+
+    it("should allow upload when getLimit returns null (unlimited slides)", async () => {
+      mockAuth.mockResolvedValue({
+        user: { id: "user-123", email: "test@example.com" },
+        expires: new Date(Date.now() + 86400).toISOString(),
+      });
+      mockWithCsrfProtection.mockResolvedValue(null);
+      mockCheckRateLimit.mockResolvedValue(true);
+      mockCanCreateReport.mockResolvedValue({ allowed: true });
+      mockPrisma.user.findUnique.mockResolvedValue({
+        id: "user-123",
+        membership: [{ org: { id: "org-123" } }],
+      });
+      // null = unlimited
+      mockGetLimit.mockResolvedValue(null);
+      mockValidateMagicBytes.mockReturnValue(true);
+      mockUploadToR2.mockResolvedValue(undefined);
+      mockPrisma.report.create.mockResolvedValue({ id: "report-unlimited" });
+      mockSignJobData.mockReturnValue({ signed: "job-data" });
+      mockGenerateQueue.add.mockResolvedValue(undefined);
+
+      const req = createUploadRequest({ file: makeValidFile(), slideCount: "9999" });
+      const result = await POST(req);
+
+      expect(result.status).toBe(200);
+      expect(mockGetLimit).toHaveBeenCalledWith("org-123", "maxSlides");
     });
 
     it("should return 400 when user has no organization", async () => {
@@ -451,8 +487,6 @@ describe("Upload Route — CSRF Protection & Validation", () => {
       mockWithCsrfProtection.mockResolvedValue(null);
       mockCheckRateLimit.mockResolvedValue(true);
       mockCanCreateReport.mockResolvedValue({ allowed: true });
-      mockGetUserPlan.mockResolvedValue({ plan: "pro" });
-      mockCanHaveSlideCount.mockReturnValue({ allowed: true, maxSlides: 20 });
       mockPrisma.user.findUnique.mockResolvedValue({
         id: "user-123",
         membership: [], // No org
@@ -472,12 +506,11 @@ describe("Upload Route — CSRF Protection & Validation", () => {
       mockWithCsrfProtection.mockResolvedValue(null);
       mockCheckRateLimit.mockResolvedValue(true);
       mockCanCreateReport.mockResolvedValue({ allowed: true });
-      mockGetUserPlan.mockResolvedValue({ plan: "pro" });
-      mockCanHaveSlideCount.mockReturnValue({ allowed: true, maxSlides: 20 });
       mockPrisma.user.findUnique.mockResolvedValue({
         id: "user-123",
         membership: [{ org: { id: "org-123" } }],
       });
+      mockGetLimit.mockResolvedValue(20);
       mockValidateMagicBytes.mockReturnValue(false);
 
       const req = createUploadRequest({ file: makeValidFile() });
@@ -501,12 +534,11 @@ describe("Upload Route — CSRF Protection & Validation", () => {
       mockWithCsrfProtection.mockResolvedValue(null);
       mockCheckRateLimit.mockResolvedValue(true);
       mockCanCreateReport.mockResolvedValue({ allowed: true });
-      mockGetUserPlan.mockResolvedValue({ plan: "pro" });
-      mockCanHaveSlideCount.mockReturnValue({ allowed: true, maxSlides: 20 });
       mockPrisma.user.findUnique.mockResolvedValue({
         id: "user-123",
         membership: [{ org: { id: "org-123" } }],
       });
+      mockGetLimit.mockResolvedValue(20);
       mockValidateMagicBytes.mockReturnValue(true);
       mockUploadToR2.mockResolvedValue(undefined);
       mockPrisma.report.create.mockResolvedValue({ id: "report-456" });
@@ -551,12 +583,11 @@ describe("Upload Route — CSRF Protection & Validation", () => {
       mockWithCsrfProtection.mockResolvedValue(null);
       mockCheckRateLimit.mockResolvedValue(true);
       mockCanCreateReport.mockResolvedValue({ allowed: true });
-      mockGetUserPlan.mockResolvedValue({ plan: "pro" });
-      mockCanHaveSlideCount.mockReturnValue({ allowed: true, maxSlides: 20 });
       mockPrisma.user.findUnique.mockResolvedValue({
         id: "user-123",
         membership: [{ org: { id: "org-123" } }],
       });
+      mockGetLimit.mockResolvedValue(20);
       mockValidateMagicBytes.mockReturnValue(true);
       mockUploadToR2.mockResolvedValue(undefined);
       mockPrisma.report.create.mockResolvedValue({ id: "report-789" });

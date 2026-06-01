@@ -66,7 +66,7 @@ vi.mock("@/lib/prisma", () => ({
 }));
 
 vi.mock("@/lib/queue", () => ({
-  generateQueue: mockGenerateQueue,
+  getGenerateQueue: vi.fn().mockResolvedValue(mockGenerateQueue),
 }));
 
 vi.mock("@/lib/queue/job-security", () => ({
