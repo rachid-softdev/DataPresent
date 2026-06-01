@@ -1,1 +1,1 @@
-export { Accordion } from '@datapresent/ui'
+export { Accordion } from "@datapresent/ui";

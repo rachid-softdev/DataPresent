@@ -1,140 +1,143 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { useTranslations } from 'next-intl'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
-import { Avatar } from '@/components/ui/avatar'
-import { Badge } from '@/components/ui/badge'
-import { Separator } from '@/components/ui/separator'
-import { toast } from 'sonner'
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Avatar } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { toast } from "sonner";
 
 interface Organization {
-  id: string
-  name: string
-  slug: string
-  role: 'OWNER' | 'ADMIN' | 'MEMBER'
-  plan?: string
-  memberCount?: number
-  reportCount?: number
+  id: string;
+  name: string;
+  slug: string;
+  role: "OWNER" | "ADMIN" | "MEMBER";
+  plan?: string;
+  memberCount?: number;
+  reportCount?: number;
 }
 
 interface Member {
-  id: string
-  name: string | null
-  email: string
-  image: string | null
-  role: string
+  id: string;
+  name: string | null;
+  email: string;
+  image: string | null;
+  role: string;
 }
 
 export default function OrganizationSettingsPage() {
-  const router = useRouter()
-  const t = useTranslations('settings')
-  const [orgs, setOrgs] = useState<Organization[]>([])
-  const [selectedOrg, setSelectedOrg] = useState<string | null>(null)
-  const [members, setMembers] = useState<Member[]>([])
-  const [loading, setLoading] = useState(true)
-  const [saving, setSaving] = useState(false)
-  const [newOrgName, setNewOrgName] = useState('')
-  const [inviteEmail, setInviteEmail] = useState('')
-  const [newOrgSlug, setNewOrgSlug] = useState('')
+  const router = useRouter();
+  const t = useTranslations("settings");
+  const [orgs, setOrgs] = useState<Organization[]>([]);
+  const [selectedOrg, setSelectedOrg] = useState<string | null>(null);
+  const [members, setMembers] = useState<Member[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [newOrgName, setNewOrgName] = useState("");
+  const [inviteEmail, setInviteEmail] = useState("");
+  const [newOrgSlug, setNewOrgSlug] = useState("");
 
   useEffect(() => {
-    fetch('/api/organizations')
-      .then(res => res.json())
-      .then(data => {
-        setOrgs(data.organizations || [])
+    fetch("/api/organizations")
+      .then((res) => res.json())
+      .then((data) => {
+        setOrgs(data.organizations || []);
         if (data.organizations?.length > 0) {
-          setSelectedOrg(data.organizations[0].id)
+          setSelectedOrg(data.organizations[0].id);
         }
       })
-      .finally(() => setLoading(false))
-  }, [])
+      .finally(() => setLoading(false));
+  }, []);
 
   useEffect(() => {
     if (selectedOrg) {
       fetch(`/api/organizations/${selectedOrg}/members`)
-        .then(res => res.json())
-        .then(data => setMembers(data.members || []))
+        .then((res) => res.json())
+        .then((data) => setMembers(data.members || []));
     }
-  }, [selectedOrg])
+  }, [selectedOrg]);
 
   const handleCreateOrg = async () => {
     if (!newOrgName || !newOrgSlug) {
-      toast.error('Veuillez remplir tous les champs')
-      return
+      toast.error("Veuillez remplir tous les champs");
+      return;
     }
 
-    setSaving(true)
-    const res = await fetch('/api/organizations', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: newOrgName, slug: newOrgSlug })
-    })
+    setSaving(true);
+    const res = await fetch("/api/organizations", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: newOrgName, slug: newOrgSlug }),
+    });
 
     if (res.ok) {
-      const data = await res.json()
-      setOrgs([...orgs, data.organization])
-      setSelectedOrg(data.organization.id)
-      setNewOrgName('')
-      setNewOrgSlug('')
-      toast.success('Organisation créée')
-      router.push(`/?org=${data.organization.id}`)
+      const data = await res.json();
+      setOrgs([...orgs, data.organization]);
+      setSelectedOrg(data.organization.id);
+      setNewOrgName("");
+      setNewOrgSlug("");
+      toast.success("Organisation créée");
+      router.push(`/?org=${data.organization.id}`);
     } else {
-      const error = await res.json()
-      toast.error(error.error || 'Erreur lors de la création')
+      const error = await res.json();
+      toast.error(error.error || "Erreur lors de la création");
     }
-    setSaving(false)
-  }
+    setSaving(false);
+  };
 
   const handleInvite = async () => {
-    if (!inviteEmail || !selectedOrg) return
+    if (!inviteEmail || !selectedOrg) return;
 
-    setSaving(true)
+    setSaving(true);
     const res = await fetch(`/api/organizations/${selectedOrg}/members`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: inviteEmail })
-    })
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: inviteEmail }),
+    });
 
     if (res.ok) {
-      const data = await res.json()
-      setInviteEmail('')
-      const membersRes = await fetch(`/api/organizations/${selectedOrg}/members`)
-      const membersData = await membersRes.json()
-      setMembers(membersData.members || [])
-      toast.success('Membre invité')
+      const data = await res.json();
+      setInviteEmail("");
+      const membersRes = await fetch(`/api/organizations/${selectedOrg}/members`);
+      const membersData = await membersRes.json();
+      setMembers(membersData.members || []);
+      toast.success("Membre invité");
     } else {
-      const error = await res.json()
-      toast.error(error.error || 'Erreur lors de l\'invitation')
+      const error = await res.json();
+      toast.error(error.error || "Erreur lors de l'invitation");
     }
-    setSaving(false)
-  }
+    setSaving(false);
+  };
 
   const handleRemoveMember = async (userId: string) => {
-    if (!selectedOrg) return
+    if (!selectedOrg) return;
 
     const res = await fetch(`/api/organizations/${selectedOrg}/members`, {
-      method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId })
-    })
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId }),
+    });
 
     if (res.ok) {
-      setMembers(members.filter(m => m.id !== userId))
-      toast.success('Membre supprimé')
+      setMembers(members.filter((m) => m.id !== userId));
+      toast.success("Membre supprimé");
     }
-  }
+  };
 
   const generateSlug = (name: string) => {
-    return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
-  }
+    return name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)/g, "");
+  };
 
   if (loading) {
-    return <div className="p-8">Chargement...</div>
+    return <div className="p-8">Chargement...</div>;
   }
 
   return (
@@ -151,10 +154,10 @@ export default function OrganizationSettingsPage() {
 
         <TabsContent value="organizations">
           <div className="grid md:grid-cols-2 gap-6">
-            {orgs.map(org => (
-              <Card 
-                key={org.id} 
-                className={`cursor-pointer transition-all ${selectedOrg === org.id ? 'ring-2 ring-primary' : ''}`}
+            {orgs.map((org) => (
+              <Card
+                key={org.id}
+                className={`cursor-pointer transition-all ${selectedOrg === org.id ? "ring-2 ring-primary" : ""}`}
                 onClick={() => setSelectedOrg(org.id)}
               >
                 <CardHeader>
@@ -163,7 +166,7 @@ export default function OrganizationSettingsPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="flex gap-2">
-                    <Badge variant={org.role === 'OWNER' ? 'default' : 'secondary'}>
+                    <Badge variant={org.role === "OWNER" ? "default" : "secondary"}>
                       {org.role}
                     </Badge>
                     <Badge variant="outline">{org.plan}</Badge>
@@ -184,8 +187,8 @@ export default function OrganizationSettingsPage() {
                     placeholder="Ma Société"
                     value={newOrgName}
                     onChange={(e) => {
-                      setNewOrgName(e.target.value)
-                      setNewOrgSlug(generateSlug(e.target.value))
+                      setNewOrgName(e.target.value);
+                      setNewOrgSlug(generateSlug(e.target.value));
                     }}
                   />
                 </div>
@@ -196,10 +199,12 @@ export default function OrganizationSettingsPage() {
                     value={newOrgSlug}
                     onChange={(e) => setNewOrgSlug(generateSlug(e.target.value))}
                   />
-                  <p className="text-xs text-muted-foreground mt-1">datapresent.com/{newOrgSlug || '...'}</p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    datapresent.com/{newOrgSlug || "..."}
+                  </p>
                 </div>
                 <Button onClick={handleCreateOrg} disabled={saving}>
-                  {saving ? 'Création...' : 'Créer'}
+                  {saving ? "Création..." : "Créer"}
                 </Button>
               </CardContent>
             </Card>
@@ -226,18 +231,21 @@ export default function OrganizationSettingsPage() {
                 </div>
                 <Separator />
                 <div className="space-y-2">
-                  {members.map(member => (
-                    <div key={member.id} className="flex items-center justify-between p-3 border rounded-lg">
+                  {members.map((member) => (
+                    <div
+                      key={member.id}
+                      className="flex items-center justify-between p-3 border rounded-lg"
+                    >
                       <div className="flex items-center gap-3">
                         <Avatar src={member.image} fallback={member.name || member.email} />
                         <div>
-                          <p className="font-medium">{member.name || 'Sans nom'}</p>
+                          <p className="font-medium">{member.name || "Sans nom"}</p>
                           <p className="text-sm text-muted-foreground">{member.email}</p>
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
                         <Badge>{member.role}</Badge>
-                        {member.role !== 'OWNER' && (
+                        {member.role !== "OWNER" && (
                           <Button
                             variant="ghost"
                             size="sm"
@@ -256,5 +264,5 @@ export default function OrganizationSettingsPage() {
         </TabsContent>
       </Tabs>
     </div>
-  )
+  );
 }

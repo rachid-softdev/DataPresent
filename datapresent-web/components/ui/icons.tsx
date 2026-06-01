@@ -1,1 +1,1 @@
-export { GoogleIcon } from '@datapresent/ui'
+export { GoogleIcon } from "@datapresent/ui";

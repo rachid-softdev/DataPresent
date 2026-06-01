@@ -50,5 +50,5 @@ export default function ArticleLoading() {
         </article>
       </main>
     </div>
-  )
+  );
 }

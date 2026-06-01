@@ -1,167 +1,167 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
-import { useTranslations } from 'next-intl'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Badge } from '@/components/ui/badge'
-import { Avatar } from '@/components/ui/avatar'
-import { Select } from '@/components/ui/select'
-import { Loader2, UserPlus, Trash2 } from 'lucide-react'
+import { useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Avatar } from "@/components/ui/avatar";
+import { Select } from "@/components/ui/select";
+import { Loader2, UserPlus, Trash2 } from "lucide-react";
 
 interface TeamMember {
-  id: string
-  name: string | null
-  email: string | null
-  image: string | null
-  role: 'OWNER' | 'ADMIN' | 'MEMBER'
+  id: string;
+  name: string | null;
+  email: string | null;
+  image: string | null;
+  role: "OWNER" | "ADMIN" | "MEMBER";
 }
 
 const ROLE_LABELS = {
-  OWNER: 'Propriétaire',
-  ADMIN: 'Admin',
-  MEMBER: 'Membre',
-}
+  OWNER: "Propriétaire",
+  ADMIN: "Admin",
+  MEMBER: "Membre",
+};
 
 const ROLE_COLORS = {
-  OWNER: 'bg-purple-100 text-purple-700',
-  ADMIN: 'bg-blue-100 text-blue-700',
-  MEMBER: 'bg-gray-100 text-gray-700',
-}
+  OWNER: "bg-purple-100 text-purple-700",
+  ADMIN: "bg-blue-100 text-blue-700",
+  MEMBER: "bg-gray-100 text-gray-700",
+};
 
 function getInitials(name: string | null, email: string | null): string {
   if (name) {
     return name
-      .split(' ')
+      .split(" ")
       .map((n) => n[0])
-      .join('')
+      .join("")
       .toUpperCase()
-      .slice(0, 2)
+      .slice(0, 2);
   }
   if (email) {
-    return email[0].toUpperCase()
+    return email[0].toUpperCase();
   }
-  return '?'
+  return "?";
 }
 
 export default function TeamPage() {
-  const t = useTranslations('settings')
-  const [currentUserId, setCurrentUserId] = useState<string | null>(null)
-  const [currentUserRole, setCurrentUserRole] = useState<string>('MEMBER')
-  const [members, setMembers] = useState<TeamMember[]>([])
-  const [loading, setLoading] = useState(true)
-  const [orgId, setOrgId] = useState<string | null>(null)
+  const t = useTranslations("settings");
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [currentUserRole, setCurrentUserRole] = useState<string>("MEMBER");
+  const [members, setMembers] = useState<TeamMember[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [orgId, setOrgId] = useState<string | null>(null);
 
-  const [showInviteForm, setShowInviteForm] = useState(false)
-  const [inviteEmail, setInviteEmail] = useState('')
-  const [inviteRole, setInviteRole] = useState<'ADMIN' | 'MEMBER'>('MEMBER')
-  const [inviting, setInviting] = useState(false)
-  const [inviteError, setInviteError] = useState('')
+  const [showInviteForm, setShowInviteForm] = useState(false);
+  const [inviteEmail, setInviteEmail] = useState("");
+  const [inviteRole, setInviteRole] = useState<"ADMIN" | "MEMBER">("MEMBER");
+  const [inviting, setInviting] = useState(false);
+  const [inviteError, setInviteError] = useState("");
 
   useEffect(() => {
     async function fetchData() {
       try {
-        const sessionRes = await fetch('/api/user')
+        const sessionRes = await fetch("/api/user");
         if (sessionRes.ok) {
-          const userData = await sessionRes.json()
-          setCurrentUserId(userData.id)
+          const userData = await sessionRes.json();
+          setCurrentUserId(userData.id);
 
           // Extract orgId from user's first membership
           if (userData.membership && userData.membership.length > 0) {
-            setOrgId(userData.membership[0].orgId)
+            setOrgId(userData.membership[0].orgId);
           }
         }
       } catch (error) {
-        console.error('Failed to fetch session:', error)
+        console.error("Failed to fetch session:", error);
       }
     }
-    fetchData()
-  }, [])
+    fetchData();
+  }, []);
 
   useEffect(() => {
-    if (!orgId) return
+    if (!orgId) return;
 
     async function fetchMembers() {
       try {
-        const res = await fetch(`/api/organizations/${orgId}/members`)
+        const res = await fetch(`/api/organizations/${orgId}/members`);
         if (res.ok) {
-          const data = await res.json()
-          setMembers(data.members)
+          const data = await res.json();
+          setMembers(data.members);
 
-          const currentMember = data.members.find((m: TeamMember) => m.id === currentUserId)
+          const currentMember = data.members.find((m: TeamMember) => m.id === currentUserId);
           if (currentMember) {
-            setCurrentUserRole(currentMember.role)
+            setCurrentUserRole(currentMember.role);
           }
         }
       } catch (error) {
-        console.error('Failed to fetch members:', error)
+        console.error("Failed to fetch members:", error);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
     }
 
-    fetchMembers()
-  }, [orgId, currentUserId])
+    fetchMembers();
+  }, [orgId, currentUserId]);
 
   const handleInvite = async () => {
-    if (!inviteEmail.trim() || !orgId) return
+    if (!inviteEmail.trim() || !orgId) return;
 
-    setInviting(true)
-    setInviteError('')
+    setInviting(true);
+    setInviteError("");
 
     try {
       const res = await fetch(`/api/organizations/${orgId}/members`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: inviteEmail, role: inviteRole }),
-      })
+      });
 
       if (res.ok) {
-        const res = await fetch(`/api/organizations/${orgId}/members`)
+        const res = await fetch(`/api/organizations/${orgId}/members`);
         if (res.ok) {
-          const data = await res.json()
-          setMembers(data.members)
+          const data = await res.json();
+          setMembers(data.members);
         }
-        setInviteEmail('')
-        setShowInviteForm(false)
+        setInviteEmail("");
+        setShowInviteForm(false);
       } else {
-        const error = await res.json()
-        setInviteError(error.error || "Erreur lors de l'invitation")
+        const error = await res.json();
+        setInviteError(error.error || "Erreur lors de l'invitation");
       }
     } catch (error) {
-      setInviteError("Erreur lors de l'invitation")
+      setInviteError("Erreur lors de l'invitation");
     } finally {
-      setInviting(false)
+      setInviting(false);
     }
-  }
+  };
 
   const handleRemove = async (memberId: string) => {
-    if (!orgId || !confirm('Êtes-vous sûr de vouloir supprimer ce membre ?')) return
+    if (!orgId || !confirm("Êtes-vous sûr de vouloir supprimer ce membre ?")) return;
 
     try {
       const res = await fetch(`/api/organizations/${orgId}/members`, {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId: memberId }),
-      })
+      });
 
       if (res.ok) {
-        setMembers((prev) => prev.filter((m) => m.id !== memberId))
+        setMembers((prev) => prev.filter((m) => m.id !== memberId));
       }
     } catch (error) {
-      console.error('Failed to remove member:', error)
+      console.error("Failed to remove member:", error);
     }
-  }
+  };
 
-  const canManageTeam = currentUserRole === 'OWNER' || currentUserRole === 'ADMIN'
+  const canManageTeam = currentUserRole === "OWNER" || currentUserRole === "ADMIN";
 
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
         <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
       </div>
-    )
+    );
   }
 
   return (
@@ -201,7 +201,7 @@ export default function TeamPage() {
                 <label className="text-sm font-medium mb-2 block">Rôle</label>
                 <Select
                   value={inviteRole}
-                  onValueChange={(v: string) => setInviteRole(v as 'ADMIN' | 'MEMBER')}
+                  onValueChange={(v: string) => setInviteRole(v as "ADMIN" | "MEMBER")}
                 >
                   <option value="MEMBER">Membre</option>
                   <option value="ADMIN">Admin</option>
@@ -242,7 +242,7 @@ export default function TeamPage() {
                   <div className="flex items-center gap-4">
                     <Avatar src={member.image} fallback={getInitials(member.name, member.email)} />
                     <div>
-                      <p className="font-medium">{member.name || member.email || 'Utilisateur'}</p>
+                      <p className="font-medium">{member.name || member.email || "Utilisateur"}</p>
                       <p className="text-sm text-muted-foreground">{member.email}</p>
                     </div>
                   </div>
@@ -254,7 +254,7 @@ export default function TeamPage() {
                       {ROLE_LABELS[member.role]}
                     </span>
 
-                    {canManageTeam && member.role !== 'OWNER' && member.id !== currentUserId && (
+                    {canManageTeam && member.role !== "OWNER" && member.id !== currentUserId && (
                       <Button
                         variant="ghost"
                         size="icon"
@@ -272,5 +272,5 @@ export default function TeamPage() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

@@ -8,6 +8,6 @@
  * Idempotent: normalizeEmail(x) === normalizeEmail(normalizeEmail(x))
  */
 export function normalizeEmail(email: string): string {
-  if (typeof email !== 'string' || !email) return ''
-  return email.normalize('NFKC').toLowerCase().trim()
+  if (typeof email !== "string" || !email) return "";
+  return email.normalize("NFKC").toLowerCase().trim();
 }

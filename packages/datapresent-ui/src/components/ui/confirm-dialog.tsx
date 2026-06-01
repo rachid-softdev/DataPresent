@@ -1,17 +1,17 @@
-'use client'
+"use client";
 
-import { Button } from './button'
-import { X } from 'lucide-react'
+import { Button } from "./button";
+import { X } from "lucide-react";
 
 interface ConfirmDialogProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  title: string
-  description: string
-  confirmLabel?: string
-  cancelLabel?: string
-  variant?: 'default' | 'destructive'
-  onConfirm: () => void
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  title: string;
+  description: string;
+  confirmLabel?: string;
+  cancelLabel?: string;
+  variant?: "default" | "destructive";
+  onConfirm: () => void;
 }
 
 export function ConfirmDialog({
@@ -19,12 +19,12 @@ export function ConfirmDialog({
   onOpenChange,
   title,
   description,
-  confirmLabel = 'Confirmer',
-  cancelLabel = 'Annuler',
-  variant = 'default',
+  confirmLabel = "Confirmer",
+  cancelLabel = "Annuler",
+  variant = "default",
   onConfirm,
 }: ConfirmDialogProps) {
-  if (!open) return null
+  if (!open) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
@@ -55,8 +55,8 @@ export function ConfirmDialog({
           <Button
             variant={variant}
             onClick={() => {
-              onConfirm()
-              onOpenChange(false)
+              onConfirm();
+              onOpenChange(false);
             }}
           >
             {confirmLabel}
@@ -64,5 +64,5 @@ export function ConfirmDialog({
         </div>
       </div>
     </div>
-  )
+  );
 }

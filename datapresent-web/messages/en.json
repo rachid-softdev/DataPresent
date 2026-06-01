@@ -104,21 +104,21 @@
       "signupSuccess": "Check your email to complete account creation.",
       "signupSuccessDesc": "We've sent you a verification link."
     },
-  "upload": {
-    "title": "Upload your data",
-    "dragDrop": "Drag and drop your Excel, CSV, or PDF file",
-    "uploading": "Uploading",
-    "processing": "Processing report...",
-    "sector": {
-      "title": "Select your sector",
-      "description": "Choose the industry that best matches your data"
+    "upload": {
+      "title": "Upload your data",
+      "dragDrop": "Drag and drop your Excel, CSV, or PDF file",
+      "uploading": "Uploading",
+      "processing": "Processing report...",
+      "sector": {
+        "title": "Select your sector",
+        "description": "Choose the industry that best matches your data"
+      },
+      "slideCount": {
+        "title": "Number of slides",
+        "description": "Choose how many slides to generate"
+      }
     },
-    "slideCount": {
-      "title": "Number of slides",
-      "description": "Choose how many slides to generate"
-    }
-  },
-  "reports": {
+    "reports": {
       "generated": "Report generated successfully",
       "deleted": "Report deleted",
       "exported": "Report exported"

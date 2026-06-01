@@ -1,44 +1,44 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { Button } from '@/components/ui/button'
-import { Textarea } from '@/components/ui/textarea'
-import { Send } from 'lucide-react'
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Send } from "lucide-react";
 
 interface CommentInputProps {
-  onSubmit: (body: string) => Promise<void>
-  placeholder?: string
-  autoFocus?: boolean
+  onSubmit: (body: string) => Promise<void>;
+  placeholder?: string;
+  autoFocus?: boolean;
 }
 
 export function CommentInput({
   onSubmit,
-  placeholder = 'Ajouter un commentaire...',
-  autoFocus = false
+  placeholder = "Ajouter un commentaire...",
+  autoFocus = false,
 }: CommentInputProps) {
-  const [body, setBody] = useState('')
-  const [loading, setLoading] = useState(false)
+  const [body, setBody] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
-    if (!body.trim() || loading) return
+    if (!body.trim() || loading) return;
 
-    setLoading(true)
+    setLoading(true);
     try {
-      await onSubmit(body.trim())
-      setBody('')
+      await onSubmit(body.trim());
+      setBody("");
     } catch (error) {
-      console.error('Failed to submit comment:', error)
+      console.error("Failed to submit comment:", error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
-      e.preventDefault()
-      handleSubmit()
+    if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
+      e.preventDefault();
+      handleSubmit();
     }
-  }
+  };
 
   return (
     <div className="space-y-3">
@@ -52,18 +52,12 @@ export function CommentInput({
         disabled={loading}
       />
       <div className="flex justify-between items-center">
-        <span className="text-xs text-muted-foreground">
-          Cmd+Entrée pour envoyer
-        </span>
-        <Button
-          onClick={handleSubmit}
-          disabled={!body.trim() || loading}
-          size="sm"
-        >
+        <span className="text-xs text-muted-foreground">Cmd+Entrée pour envoyer</span>
+        <Button onClick={handleSubmit} disabled={!body.trim() || loading} size="sm">
           <Send className="w-4 h-4 mr-2" />
           Envoyer
         </Button>
       </div>
     </div>
-  )
+  );
 }

@@ -1,21 +1,21 @@
-'use client'
+"use client";
 
-import { useEffect } from 'react'
-import Link from 'next/link'
-import { AlertTriangle, RefreshCw, Home } from 'lucide-react'
-import { Header } from '@/components/layout/header'
-import { Footer } from '@/components/layout/footer'
+import { useEffect } from "react";
+import Link from "next/link";
+import { AlertTriangle, RefreshCw, Home } from "lucide-react";
+import { Header } from "@/components/layout/header";
+import { Footer } from "@/components/layout/footer";
 
 export default function Error({
   error,
   reset,
 }: {
-  error: Error & { digest?: string }
-  reset: () => void
+  error: Error & { digest?: string };
+  reset: () => void;
 }) {
   useEffect(() => {
-    console.error('Application error:', error)
-  }, [error])
+    console.error("Application error:", error);
+  }, [error]);
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
@@ -31,33 +31,25 @@ export default function Error({
             <div className="absolute -top-2 -right-2 w-8 h-8 bg-destructive/20 rounded-full blur-xl animate-pulse" />
           </div>
 
-          <h1 className="app-heading app-heading-xl mb-3">
-            Une erreur est survenue
-          </h1>
+          <h1 className="app-heading app-heading-xl mb-3">Une erreur est survenue</h1>
           <p className="text-muted-foreground text-lg mb-4 max-w-sm mx-auto">
             Désolé, une erreur inattendue s&apos;est produite. Veuillez réessayer.
           </p>
 
-          {process.env.NODE_ENV === 'development' && (
+          {process.env.NODE_ENV === "development" && (
             <div className="mb-6 p-4 bg-muted rounded-xl text-left text-sm overflow-auto max-h-32 border border-border">
               <p className="font-mono text-destructive break-words">
-                {error.message || 'Unknown error'}
+                {error.message || "Unknown error"}
               </p>
             </div>
           )}
 
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <button
-              onClick={reset}
-              className="app-btn app-btn-primary app-btn-lg"
-            >
+            <button onClick={reset} className="app-btn app-btn-primary app-btn-lg">
               <RefreshCw className="w-4 h-4" />
               Réessayer
             </button>
-            <Link
-              href="/"
-              className="app-btn app-btn-outline app-btn-lg"
-            >
+            <Link href="/" className="app-btn app-btn-outline app-btn-lg">
               <Home className="w-4 h-4" />
               Retour à l&apos;accueil
             </Link>
@@ -72,5 +64,5 @@ export default function Error({
 
       <Footer />
     </div>
-  )
+  );
 }

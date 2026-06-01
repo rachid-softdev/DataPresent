@@ -8,31 +8,31 @@
  * 3. .env.local or .env.production.local (secrets - highest priority)
  */
 
-import dotenv from 'dotenv'
-import path from 'path'
+import dotenv from "dotenv";
+import path from "path";
 
-const cwd = process.cwd()
+const cwd = process.cwd();
 
 // Determine environment from NODE_ENV or default to development
-const nodeEnv = process.env.NODE_ENV || 'development'
-console.log(`📋 Environment: ${nodeEnv}`)
+const nodeEnv = process.env.NODE_ENV || "development";
+console.log(`📋 Environment: ${nodeEnv}`);
 
 // Load .env first (base configuration - shared non-sensitive values)
-console.log('  Loading .env (base config)...')
-dotenv.config({ path: path.resolve(cwd, '.env') })
+console.log("  Loading .env (base config)...");
+dotenv.config({ path: path.resolve(cwd, ".env") });
 
 // Load environment-specific non-sensitive values
-const envFile = nodeEnv === 'production' ? '.env.production' : '.env.development'
-console.log(`  Loading ${envFile} (environment-specific)...`)
-dotenv.config({ path: path.resolve(cwd, envFile) })
+const envFile = nodeEnv === "production" ? ".env.production" : ".env.development";
+console.log(`  Loading ${envFile} (environment-specific)...`);
+dotenv.config({ path: path.resolve(cwd, envFile) });
 
 // Load secrets (highest priority - ignored by git)
-const localEnvFile = nodeEnv === 'production' ? '.env.production.local' : '.env.local'
-console.log(`  Loading ${localEnvFile} (secrets)...`)
-dotenv.config({ path: path.resolve(cwd, localEnvFile) })
+const localEnvFile = nodeEnv === "production" ? ".env.production.local" : ".env.local";
+console.log(`  Loading ${localEnvFile} (secrets)...`);
+dotenv.config({ path: path.resolve(cwd, localEnvFile) });
 
 // Import env.ts to trigger Zod validation
 // This will throw if validation fails
-const { env: _env } = await import('../env.ts')
+const { env: _env } = await import("../env.ts");
 
-console.log('✅ Environment variables are valid')
+console.log("✅ Environment variables are valid");

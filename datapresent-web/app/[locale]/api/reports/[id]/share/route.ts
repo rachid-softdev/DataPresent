@@ -71,9 +71,12 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   if (csrfResponse) return csrfResponse;
 
   // Rate limiting: 20 share CRUD operations per minute per user
-  const rateLimitAllowed = await checkRateLimit(`share-crud:${session.user.id}`, { limit: 20, windowMs: 60000 });
+  const rateLimitAllowed = await checkRateLimit(`share-crud:${session.user.id}`, {
+    limit: 20,
+    windowMs: 60000,
+  });
   if (!rateLimitAllowed) {
-    return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
+    return NextResponse.json({ error: "Too many requests" }, { status: 429 });
   }
 
   const report = await prisma.report.findUnique({
@@ -136,9 +139,12 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   if (csrfResponse) return csrfResponse;
 
   // Rate limiting: 20 share CRUD operations per minute per user
-  const rateLimitAllowed = await checkRateLimit(`share-crud:${session.user.id}`, { limit: 20, windowMs: 60000 });
+  const rateLimitAllowed = await checkRateLimit(`share-crud:${session.user.id}`, {
+    limit: 20,
+    windowMs: 60000,
+  });
   if (!rateLimitAllowed) {
-    return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
+    return NextResponse.json({ error: "Too many requests" }, { status: 429 });
   }
 
   const report = await prisma.report.findUnique({
@@ -174,7 +180,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   // Only update password when explicitly provided (undefined = no change).
   // '' = remove existing password, non-empty string = hash and set new password.
   let passwordUpdate: string | null | undefined = undefined;
-  if (typeof password !== 'undefined') {
+  if (typeof password !== "undefined") {
     passwordUpdate = password === "" ? null : await hashPassword(password);
   }
 
