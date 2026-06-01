@@ -1,5 +1,12 @@
 #!/bin/sh
-# Pre-push hook: check formatting on files changed since origin/main
+# Pre-push hook: check formatting on code files changed since origin/main
 # (lint is handled by lint-staged on pre-commit)
+
+# Check if there are actually any biome-checkable files changed
+changed_files=$(git diff --name-only origin/main...HEAD -- '*.ts' '*.tsx' '*.js' '*.jsx' '*.json' '*.css' '*.mjs' '*.cjs' '*.html' 2>/dev/null || true)
+if [ -z "$changed_files" ]; then
+  echo "No biome-checkable files changed — skipping format check"
+  exit 0
+fi
 
 pnpm exec biome format --changed --since=origin/main . 2>&1 || exit 1
