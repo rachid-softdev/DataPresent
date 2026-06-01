@@ -1,1 +1,1 @@
-export { ConfirmDialog } from '@datapresent/ui'
+export { ConfirmDialog } from "@datapresent/ui";

@@ -49,5 +49,5 @@ export default function ReportsLoading() {
         </table>
       </div>
     </div>
-  )
+  );
 }

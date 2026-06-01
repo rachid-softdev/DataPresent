@@ -1,24 +1,40 @@
 interface LandingFormatsProps {
-  label: string
-  title: string
+  label: string;
+  title: string;
 }
 
 const FORMATS = [
   {
-    name: 'Excel',
-    ext: '.xlsx, .xls',
+    name: "Excel",
+    ext: ".xlsx, .xls",
     icon: (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" color="var(--accent)">
+      <svg
+        width="22"
+        height="22"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        color="var(--accent)"
+      >
         <rect x="3" y="3" width="18" height="18" rx="2" />
         <path d="M3 9h18M9 21V9" />
       </svg>
     ),
   },
   {
-    name: 'CSV',
-    ext: '.csv, .tsv',
+    name: "CSV",
+    ext: ".csv, .tsv",
     icon: (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" color="var(--accent)">
+      <svg
+        width="22"
+        height="22"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        color="var(--accent)"
+      >
         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
         <polyline points="14 2 14 8 20 8" />
         <line x1="8" y1="13" x2="16" y2="13" />
@@ -27,10 +43,18 @@ const FORMATS = [
     ),
   },
   {
-    name: 'PDF',
-    ext: '.pdf',
+    name: "PDF",
+    ext: ".pdf",
     icon: (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" color="var(--accent)">
+      <svg
+        width="22"
+        height="22"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        color="var(--accent)"
+      >
         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
         <polyline points="14 2 14 8 20 8" />
         <path d="M9 13h6M9 17h6" />
@@ -38,16 +62,24 @@ const FORMATS = [
     ),
   },
   {
-    name: 'Google Sheets',
-    ext: 'Connexion directe',
+    name: "Google Sheets",
+    ext: "Connexion directe",
     icon: (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" color="var(--accent)">
+      <svg
+        width="22"
+        height="22"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        color="var(--accent)"
+      >
         <path d="M3 3v18h18" />
         <path d="M7 16l4-8 4 4 4-6" />
       </svg>
     ),
   },
-]
+];
 
 export function LandingFormats({ label, title }: LandingFormatsProps) {
   return (
@@ -70,5 +102,5 @@ export function LandingFormats({ label, title }: LandingFormatsProps) {
         </div>
       </div>
     </section>
-  )
+  );
 }

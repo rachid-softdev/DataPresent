@@ -1,12 +1,12 @@
-import Image from 'next/image'
-import { cn } from '@/lib/utils'
-import { type ContentSection, type CalloutVariant } from '@/lib/blog/types'
-import { Card, CardContent } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { CheckCircle2, AlertTriangle, Info, XCircle, Quote } from 'lucide-react'
+import Image from "next/image";
+import { cn } from "@/lib/utils";
+import { type ContentSection, type CalloutVariant } from "@/lib/blog/types";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { CheckCircle2, AlertTriangle, Info, XCircle, Quote } from "lucide-react";
 
 interface BlogRendererProps {
-  sections: ContentSection[]
+  sections: ContentSection[];
 }
 
 const calloutIcons: Record<CalloutVariant, React.ReactNode> = {
@@ -14,54 +14,52 @@ const calloutIcons: Record<CalloutVariant, React.ReactNode> = {
   warning: <AlertTriangle className="w-5 h-5 text-amber-500" />,
   info: <Info className="w-5 h-5 text-blue-500" />,
   error: <XCircle className="w-5 h-5 text-red-500" />,
-}
+};
 
 const calloutStyles: Record<CalloutVariant, string> = {
-  tip: 'border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/50',
-  warning: 'border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/50',
-  info: 'border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-950/50',
-  error: 'border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950/50',
-}
+  tip: "border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/50",
+  warning: "border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/50",
+  info: "border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-950/50",
+  error: "border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950/50",
+};
 
 export function BlogRenderer({ sections }: BlogRendererProps) {
   return (
     <div className="prose prose-neutral dark:prose-invert max-w-none">
       {sections.map((section, index) => {
         switch (section.type) {
-          case 'heading':
-            const HeadingTag = `h${section.level}` as keyof JSX.IntrinsicElements
+          case "heading":
+            const HeadingTag = `h${section.level}` as keyof JSX.IntrinsicElements;
             return (
               <HeadingTag
                 key={index}
                 className={cn(
-                  'scroll-mt-24',
+                  "scroll-mt-24",
                   section.level === 2
-                    ? 'text-2xl md:text-3xl font-bold mt-12 mb-4'
-                    : 'text-xl md:text-2xl font-semibold mt-8 mb-3'
+                    ? "text-2xl md:text-3xl font-bold mt-12 mb-4"
+                    : "text-xl md:text-2xl font-semibold mt-8 mb-3",
                 )}
               >
                 {section.text}
               </HeadingTag>
-            )
+            );
 
-          case 'paragraph':
+          case "paragraph":
             return (
-              <p key={index} className="text-base md:text-lg leading-relaxed mb-4 text-foreground/90">
+              <p
+                key={index}
+                className="text-base md:text-lg leading-relaxed mb-4 text-foreground/90"
+              >
                 {section.text}
               </p>
-            )
+            );
 
-          case 'callout':
+          case "callout":
             return (
-              <Card
-                key={index}
-                className={cn('my-6 border-l-4', calloutStyles[section.variant])}
-              >
+              <Card key={index} className={cn("my-6 border-l-4", calloutStyles[section.variant])}>
                 <CardContent className="pt-4">
                   <div className="flex items-start gap-3">
-                    <div className="mt-0.5 shrink-0">
-                      {calloutIcons[section.variant]}
-                    </div>
+                    <div className="mt-0.5 shrink-0">{calloutIcons[section.variant]}</div>
                     <div>
                       <p className="font-semibold mb-1">{section.title}</p>
                       <p className="text-sm text-muted-foreground">{section.text}</p>
@@ -69,9 +67,9 @@ export function BlogRenderer({ sections }: BlogRendererProps) {
                   </div>
                 </CardContent>
               </Card>
-            )
+            );
 
-          case 'image':
+          case "image":
             return (
               <figure key={index} className="my-8">
                 <div className="relative aspect-video rounded-lg overflow-hidden bg-muted">
@@ -89,9 +87,9 @@ export function BlogRenderer({ sections }: BlogRendererProps) {
                   </figcaption>
                 )}
               </figure>
-            )
+            );
 
-          case 'code':
+          case "code":
             return (
               <div key={index} className="my-6 rounded-lg overflow-hidden border">
                 <div className="bg-muted px-4 py-2 text-xs font-medium text-muted-foreground border-b">
@@ -101,16 +99,16 @@ export function BlogRenderer({ sections }: BlogRendererProps) {
                   <code className="text-sm font-mono">{section.code}</code>
                 </pre>
               </div>
-            )
+            );
 
-          case 'list':
-            const ListTag = section.ordered ? 'ol' : 'ul'
+          case "list":
+            const ListTag = section.ordered ? "ol" : "ul";
             return (
               <ListTag
                 key={index}
                 className={cn(
-                  'my-6 ml-6 space-y-2',
-                  section.ordered ? 'list-decimal' : 'list-disc'
+                  "my-6 ml-6 space-y-2",
+                  section.ordered ? "list-decimal" : "list-disc",
                 )}
               >
                 {section.items.map((item, i) => (
@@ -119,14 +117,11 @@ export function BlogRenderer({ sections }: BlogRendererProps) {
                   </li>
                 ))}
               </ListTag>
-            )
+            );
 
-          case 'quote':
+          case "quote":
             return (
-              <blockquote
-                key={index}
-                className="my-8 pl-6 border-l-4 border-primary italic"
-              >
+              <blockquote key={index} className="my-8 pl-6 border-l-4 border-primary italic">
                 <p className="text-lg md:text-xl text-foreground/80 mb-2">
                   <Quote className="w-6 h-6 inline-block mr-2 text-primary/50" />
                   {section.text}
@@ -137,12 +132,12 @@ export function BlogRenderer({ sections }: BlogRendererProps) {
                   </cite>
                 )}
               </blockquote>
-            )
+            );
 
           default:
-            return null
+            return null;
         }
       })}
     </div>
-  )
+  );
 }

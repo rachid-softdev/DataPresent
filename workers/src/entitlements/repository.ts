@@ -2,8 +2,8 @@
 // Entitlement Repository - Interface & Implementation
 // ==========================================
 
-import { prisma } from '../prisma.js'
-import { Prisma } from '@prisma/client'
+import { prisma } from "../prisma.js";
+import { Prisma } from "@prisma/client";
 import type {
   Plan,
   Subscription,
@@ -12,9 +12,9 @@ import type {
   EntitlementOverride,
   UsageTracking,
   WebhookEvent,
-} from '@prisma/client'
-import type { FeatureKey, ExperimentConfig } from './types'
-import type { ConsumeResult, ConsumeSuccess } from './types'
+} from "@prisma/client";
+import type { FeatureKey, ExperimentConfig } from "./types";
+import type { ConsumeResult, ConsumeSuccess } from "./types";
 
 // ==========================================
 // Interface
@@ -22,59 +22,59 @@ import type { ConsumeResult, ConsumeSuccess } from './types'
 
 export interface IEntitlementRepository {
   // Subscription
-  getActiveSubscription(orgId: string): Promise<Subscription | null>
+  getActiveSubscription(orgId: string): Promise<Subscription | null>;
 
   // Features & Plans
-  getFeature(key: string): Promise<Feature | null>
-  getPlanFeatures(plan: Plan): Promise<PlanFeature[]>
-  getAllPlanFeatures(): Promise<PlanFeature[]>
+  getFeature(key: string): Promise<Feature | null>;
+  getPlanFeatures(plan: Plan): Promise<PlanFeature[]>;
+  getAllPlanFeatures(): Promise<PlanFeature[]>;
 
   // Overrides
-  getUserOverride(userId: string, featureKey: string): Promise<EntitlementOverride | null>
-  getOrgOverrides(orgId: string): Promise<EntitlementOverride[]>
-  getAllOverrides(orgId: string, userId?: string): Promise<EntitlementOverride[]>
+  getUserOverride(userId: string, featureKey: string): Promise<EntitlementOverride | null>;
+  getOrgOverrides(orgId: string): Promise<EntitlementOverride[]>;
+  getAllOverrides(orgId: string, userId?: string): Promise<EntitlementOverride[]>;
 
   // Usage
-  getUsage(orgId: string, featureKey: string): Promise<UsageTracking | null>
-  getAllUsage(orgId: string): Promise<UsageTracking[]>
+  getUsage(orgId: string, featureKey: string): Promise<UsageTracking | null>;
+  getAllUsage(orgId: string): Promise<UsageTracking[]>;
 
   // Atomic consume with RETURNING
   consumeUsage(
     orgId: string,
     featureKey: string,
     amount: number,
-    limit: number | null
-  ): Promise<ConsumeResult>
+    limit: number | null,
+  ): Promise<ConsumeResult>;
 
   // Idempotency
-  isEventProcessed(eventId: string): Promise<boolean>
-  markEventProcessed(eventId: string, eventType: string): Promise<void>
+  isEventProcessed(eventId: string): Promise<boolean>;
+  markEventProcessed(eventId: string, eventType: string): Promise<void>;
 
   // Create/Update overrides
   createOverride(data: {
-    scope: 'USER' | 'ORG'
-    scopeId: string
-    featureKey: string
-    enabled: boolean
-    limitValue?: number | null
-    expiresAt?: Date | null
-    reason: string
-    createdById: string
-  }): Promise<EntitlementOverride>
+    scope: "USER" | "ORG";
+    scopeId: string;
+    featureKey: string;
+    enabled: boolean;
+    limitValue?: number | null;
+    expiresAt?: Date | null;
+    reason: string;
+    createdById: string;
+  }): Promise<EntitlementOverride>;
 
-  deleteOverride(id: string): Promise<void>
+  deleteOverride(id: string): Promise<void>;
 
   // Update subscription (for Stripe webhooks)
   updateSubscription(
     orgId: string,
     data: {
-      plan?: Plan
-      status?: 'ACTIVE' | 'PAST_DUE' | 'CANCELED' | 'TRIALING'
-      stripeSubscriptionId?: string | null
-      stripePriceId?: string | null
-      currentPeriodEnd?: Date | null
-    }
-  ): Promise<Subscription>
+      plan?: Plan;
+      status?: "ACTIVE" | "PAST_DUE" | "CANCELED" | "TRIALING";
+      stripeSubscriptionId?: string | null;
+      stripePriceId?: string | null;
+      currentPeriodEnd?: Date | null;
+    },
+  ): Promise<Subscription>;
 }
 
 // ==========================================
@@ -88,14 +88,14 @@ export class PrismaEntitlementRepository implements IEntitlementRepository {
   async getActiveSubscription(orgId: string): Promise<Subscription | null> {
     const subscription = await prisma.subscription.findUnique({
       where: { orgId },
-    })
+    });
 
-    if (!subscription) return null
+    if (!subscription) return null;
 
     // Check if subscription is active
-    const isActive = ['ACTIVE', 'TRIALING'].includes(subscription.status)
+    const isActive = ["ACTIVE", "TRIALING"].includes(subscription.status);
 
-    return isActive ? subscription : null
+    return isActive ? subscription : null;
   }
 
   /**
@@ -104,7 +104,7 @@ export class PrismaEntitlementRepository implements IEntitlementRepository {
   async getFeature(key: string): Promise<Feature | null> {
     return prisma.feature.findUnique({
       where: { key },
-    })
+    });
   }
 
   /**
@@ -114,7 +114,7 @@ export class PrismaEntitlementRepository implements IEntitlementRepository {
     return prisma.planFeature.findMany({
       where: { plan },
       include: { feature: true },
-    })
+    });
   }
 
   /**
@@ -123,84 +123,84 @@ export class PrismaEntitlementRepository implements IEntitlementRepository {
   async getAllPlanFeatures(): Promise<PlanFeature[]> {
     return prisma.planFeature.findMany({
       include: { feature: true },
-    })
+    });
   }
 
   /**
    * Get user-level override (non-expired)
    */
   async getUserOverride(userId: string, featureKey: string): Promise<EntitlementOverride | null> {
-    const now = new Date()
+    const now = new Date();
     return prisma.entitlementOverride.findFirst({
       where: {
-        scope: 'USER',
+        scope: "USER",
         scopeId: userId,
         featureKey,
         OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
       },
-      orderBy: { createdAt: 'desc' },
-    })
+      orderBy: { createdAt: "desc" },
+    });
   }
 
   /**
    * Get all org-level overrides (non-expired)
    */
   async getOrgOverrides(orgId: string): Promise<EntitlementOverride[]> {
-    const now = new Date()
+    const now = new Date();
     return prisma.entitlementOverride.findMany({
       where: {
-        scope: 'ORG',
+        scope: "ORG",
         scopeId: orgId,
         OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
       },
-    })
+    });
   }
 
   /**
    * Get all overrides for org and optionally user
    */
   async getAllOverrides(orgId: string, userId?: string): Promise<EntitlementOverride[]> {
-    const now = new Date()
+    const now = new Date();
     return prisma.entitlementOverride.findMany({
       where: {
         OR: [
           // Org-level overrides
-          { scope: 'ORG', scopeId: orgId },
+          { scope: "ORG", scopeId: orgId },
           // User-level overrides
-          ...(userId ? [{ scope: 'USER', scopeId: userId }] : []),
+          ...(userId ? [{ scope: "USER", scopeId: userId }] : []),
         ],
         OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
       },
-    })
+    });
   }
 
   /**
    * Get usage for a specific feature
    */
   async getUsage(orgId: string, featureKey: string): Promise<UsageTracking | null> {
-    const now = new Date()
+    const now = new Date();
     return prisma.usageTracking.findFirst({
       where: {
         orgId,
         featureKey,
         periodEnd: { gt: now },
       },
-      orderBy: { periodEnd: 'desc' },
-    })
+      orderBy: { periodEnd: "desc" },
+    });
   }
 
   /**
    * Get all usage records for an org
    */
   async getAllUsage(orgId: string): Promise<UsageTracking[]> {
-    const now = new Date()
+    const now = new Date();
     return prisma.usageTracking.findMany({
       where: {
         orgId,
         periodEnd: { gt: now },
       },
-      orderBy: { featureKey: 'asc' },
-    })
+      orderBy: { featureKey: "asc" },
+    });
   }
 
   /**
@@ -211,18 +211,17 @@ export class PrismaEntitlementRepository implements IEntitlementRepository {
     orgId: string,
     featureKey: string,
     amount: number,
-    limit: number | null
+    limit: number | null,
   ): Promise<ConsumeResult> {
-    const now = new Date()
+    const now = new Date();
 
     // Get start and end of current month
-    const periodStart = new Date(now.getFullYear(), now.getMonth(), 1)
-    const periodEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59)
+    const periodStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    const periodEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
 
     // Build conditional SQL for limit check
-    const limitCondition = limit !== null
-      ? Prisma.sql`AND "usageCount" + ${amount} <= ${limit}`
-      : Prisma.empty
+    const limitCondition =
+      limit !== null ? Prisma.sql`AND "usageCount" + ${amount} <= ${limit}` : Prisma.empty;
 
     let result = (await prisma.$queryRaw`
       UPDATE "UsageTracking"
@@ -233,29 +232,29 @@ export class PrismaEntitlementRepository implements IEntitlementRepository {
         AND "periodEnd" > NOW()
       ${limitCondition}
       RETURNING "usageCount"
-    `) as unknown as { usageCount: number } | { usageCount: number }[]
+    `) as unknown as { usageCount: number } | { usageCount: number }[];
 
     // If no row was updated, create new tracking or limit was reached
     if (!result || (Array.isArray(result) && result.length === 0)) {
       // Check if there's existing tracking to determine if limit was reached
-      const existing = await this.getUsage(orgId, featureKey)
+      const existing = await this.getUsage(orgId, featureKey);
 
       if (existing) {
         // Limit was reached or period expired
-        const currentUsage = existing.usageCount
-        const wouldExceed = limit !== null && currentUsage + amount > limit
+        const currentUsage = existing.usageCount;
+        const wouldExceed = limit !== null && currentUsage + amount > limit;
 
         if (wouldExceed || limit === 0) {
           return {
             success: false,
-            error: 'LIMIT_REACHED',
+            error: "LIMIT_REACHED",
             featureKey,
             limit,
             used: currentUsage,
             resetAt: existing.periodEnd,
-          }
+          };
         }
-        
+
         // Period expired but limit not reached — this shouldn't happen normally
         // Update the existing record for the new period
         await prisma.usageTracking.update({
@@ -265,8 +264,8 @@ export class PrismaEntitlementRepository implements IEntitlementRepository {
             periodStart,
             periodEnd,
           },
-        })
-        
+        });
+
         return {
           success: true,
           featureKey,
@@ -274,19 +273,19 @@ export class PrismaEntitlementRepository implements IEntitlementRepository {
           newUsage: existing.usageCount + amount,
           limit,
           remaining: limit !== null ? limit - (existing.usageCount + amount) : null,
-        }
+        };
       }
 
       // No existing tracking — check limit BEFORE creating
       if (limit !== null && amount > limit) {
         return {
           success: false,
-          error: 'LIMIT_REACHED',
+          error: "LIMIT_REACHED",
           featureKey,
           limit,
           used: 0,
           resetAt: periodEnd,
-        }
+        };
       }
 
       // Create new usage tracking for new period
@@ -299,12 +298,12 @@ export class PrismaEntitlementRepository implements IEntitlementRepository {
             periodStart,
             periodEnd,
           },
-        })
+        });
       } catch (err: any) {
         // Handle unique constraint violation (race condition — another request created the row)
-        if (err?.code === 'P2002') {
+        if (err?.code === "P2002") {
           // Retry the UPDATE
-          const updateResult = await prisma.$queryRaw`
+          const updateResult = (await prisma.$queryRaw`
             UPDATE "UsageTracking"
             SET "usageCount" = "usageCount" + ${amount},
                 "updatedAt" = NOW()
@@ -312,10 +311,10 @@ export class PrismaEntitlementRepository implements IEntitlementRepository {
               AND "featureKey" = ${featureKey}
               AND "periodEnd" > NOW()
             RETURNING "usageCount"
-          ` as unknown as { usageCount: number }[]
-          
+          `) as unknown as { usageCount: number }[];
+
           if (updateResult && updateResult.length > 0) {
-            const newUsage = updateResult[0].usageCount
+            const newUsage = updateResult[0].usageCount;
             return {
               success: true,
               featureKey,
@@ -323,19 +322,19 @@ export class PrismaEntitlementRepository implements IEntitlementRepository {
               newUsage,
               limit,
               remaining: limit !== null ? limit - newUsage : null,
-            }
+            };
           }
-          
+
           return {
             success: false,
-            error: 'LIMIT_REACHED',
+            error: "LIMIT_REACHED",
             featureKey,
             limit,
             used: 0,
             resetAt: periodEnd,
-          }
+          };
         }
-        throw err
+        throw err;
       }
 
       return {
@@ -345,11 +344,11 @@ export class PrismaEntitlementRepository implements IEntitlementRepository {
         newUsage: amount,
         limit,
         remaining: limit !== null ? limit - amount : null,
-      }
+      };
     }
 
-    const resultArray = Array.isArray(result) ? result : [result]
-    const newUsage = resultArray[0]?.usageCount ?? amount
+    const resultArray = Array.isArray(result) ? result : [result];
+    const newUsage = resultArray[0]?.usageCount ?? amount;
 
     return {
       success: true,
@@ -358,7 +357,7 @@ export class PrismaEntitlementRepository implements IEntitlementRepository {
       newUsage,
       limit,
       remaining: limit !== null ? limit - newUsage : null,
-    }
+    };
   }
 
   /**
@@ -367,8 +366,8 @@ export class PrismaEntitlementRepository implements IEntitlementRepository {
   async isEventProcessed(eventId: string): Promise<boolean> {
     const event = await prisma.webhookEvent.findUnique({
       where: { eventId },
-    })
-    return event !== null
+    });
+    return event !== null;
   }
 
   /**
@@ -384,21 +383,21 @@ export class PrismaEntitlementRepository implements IEntitlementRepository {
       update: {
         processedAt: new Date(),
       },
-    })
+    });
   }
 
   /**
    * Create an entitlement override
    */
   async createOverride(data: {
-    scope: 'USER' | 'ORG'
-    scopeId: string
-    featureKey: string
-    enabled: boolean
-    limitValue?: number | null
-    expiresAt?: Date | null
-    reason: string
-    createdById: string
+    scope: "USER" | "ORG";
+    scopeId: string;
+    featureKey: string;
+    enabled: boolean;
+    limitValue?: number | null;
+    expiresAt?: Date | null;
+    reason: string;
+    createdById: string;
   }): Promise<EntitlementOverride> {
     return prisma.entitlementOverride.create({
       data: {
@@ -411,7 +410,7 @@ export class PrismaEntitlementRepository implements IEntitlementRepository {
         reason: data.reason,
         createdById: data.createdById,
       },
-    })
+    });
   }
 
   /**
@@ -420,7 +419,7 @@ export class PrismaEntitlementRepository implements IEntitlementRepository {
   async deleteOverride(id: string): Promise<void> {
     await prisma.entitlementOverride.delete({
       where: { id },
-    })
+    });
   }
 
   /**
@@ -429,12 +428,12 @@ export class PrismaEntitlementRepository implements IEntitlementRepository {
   async updateSubscription(
     orgId: string,
     data: {
-      plan?: Plan
-      status?: 'ACTIVE' | 'PAST_DUE' | 'CANCELED' | 'TRIALING'
-      stripeSubscriptionId?: string | null
-      stripePriceId?: string | null
-      currentPeriodEnd?: Date | null
-    }
+      plan?: Plan;
+      status?: "ACTIVE" | "PAST_DUE" | "CANCELED" | "TRIALING";
+      stripeSubscriptionId?: string | null;
+      stripePriceId?: string | null;
+      currentPeriodEnd?: Date | null;
+    },
   ): Promise<Subscription> {
     return prisma.subscription.update({
       where: { orgId },
@@ -447,7 +446,7 @@ export class PrismaEntitlementRepository implements IEntitlementRepository {
         ...(data.stripePriceId !== undefined && { stripePriceId: data.stripePriceId }),
         ...(data.currentPeriodEnd !== undefined && { currentPeriodEnd: data.currentPeriodEnd }),
       },
-    })
+    });
   }
 }
 
@@ -455,4 +454,4 @@ export class PrismaEntitlementRepository implements IEntitlementRepository {
 // Singleton Instance
 // ==========================================
 
-export const entitlementRepository = new PrismaEntitlementRepository()
+export const entitlementRepository = new PrismaEntitlementRepository();

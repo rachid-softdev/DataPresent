@@ -1,1 +1,1 @@
-export { Skeleton } from '@datapresent/ui'
+export { Skeleton } from "@datapresent/ui";

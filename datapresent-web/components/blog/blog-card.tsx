@@ -1,29 +1,29 @@
-'use client'
+"use client";
 
-import { memo, useMemo } from 'react'
-import Link from 'next/link'
-import Image from 'next/image'
-import { format } from 'date-fns'
-import { fr, enUS } from 'date-fns/locale'
-import { Clock } from 'lucide-react'
-import { Card, CardContent, CardFooter } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { type BlogPost } from '@/lib/blog/types'
+import { memo, useMemo } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { format } from "date-fns";
+import { fr, enUS } from "date-fns/locale";
+import { Clock } from "lucide-react";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { type BlogPost } from "@/lib/blog/types";
 
 interface BlogCardProps {
-  post: BlogPost
-  locale: string
+  post: BlogPost;
+  locale: string;
 }
 
 export const BlogCard = memo(function BlogCard({ post, locale }: BlogCardProps) {
   const formattedDate = useMemo(() => {
-    const dateLocale = locale === 'fr' ? fr : enUS
-    return format(new Date(post.publishedAt), 'd MMMM yyyy', {
+    const dateLocale = locale === "fr" ? fr : enUS;
+    return format(new Date(post.publishedAt), "d MMMM yyyy", {
       locale: dateLocale,
-    })
-  }, [locale, post.publishedAt])
+    });
+  }, [locale, post.publishedAt]);
 
-  const tags = useMemo(() => post.tags.slice(0, 3), [post.tags])
+  const tags = useMemo(() => post.tags.slice(0, 3), [post.tags]);
 
   return (
     <Link href={`/${locale}/blog/${post.slug}`}>
@@ -58,9 +58,7 @@ export const BlogCard = memo(function BlogCard({ post, locale }: BlogCardProps) 
           </h3>
 
           {/* Description */}
-          <p className="text-muted-foreground text-sm line-clamp-3">
-            {post.description}
-          </p>
+          <p className="text-muted-foreground text-sm line-clamp-3">{post.description}</p>
         </CardContent>
 
         <CardFooter className="flex items-center justify-between text-xs text-muted-foreground border-t pt-4">
@@ -72,5 +70,5 @@ export const BlogCard = memo(function BlogCard({ post, locale }: BlogCardProps) 
         </CardFooter>
       </Card>
     </Link>
-  )
-})
+  );
+});

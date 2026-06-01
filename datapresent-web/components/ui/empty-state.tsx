@@ -1,1 +1,1 @@
-export { EmptyState } from '@datapresent/ui'
+export { EmptyState } from "@datapresent/ui";

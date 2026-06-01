@@ -1,1 +1,5 @@
-pnpm run check
+#!/bin/sh
+# Pre-push hook: check formatting on files changed since origin/main
+# (lint is handled by lint-staged on pre-commit)
+
+pnpm exec biome format --changed --since=origin/main . 2>&1 || exit 1
