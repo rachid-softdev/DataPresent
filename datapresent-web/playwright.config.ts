@@ -1,4 +1,9 @@
 import { defineConfig, devices } from "@playwright/test";
+import dotenv from "dotenv";
+import path from "path";
+
+// Load E2E-specific test env vars from .env.test (safe for forks)
+dotenv.config({ path: path.resolve(__dirname, "tests", "e2e", ".env.test") });
 
 export default defineConfig({
   testDir: "./tests/e2e",
