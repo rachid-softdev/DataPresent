@@ -31,6 +31,8 @@
     "test:unit": "vitest run",
     "test:unit:watch": "vitest",
     "test:coverage": "vitest run --coverage",
+    "test:integration": "vitest run --config vitest.integration.config.ts",
+    "test:integration:watch": "vitest --config vitest.integration.config.ts",
     "format": "prettier --write \"app/**/*.{ts,tsx,js,jsx,json,css}\" \"components/**/*.{ts,tsx,js,jsx}\"",
     "format:check": "prettier --check \"app/**/*.{ts,tsx,js,jsx,json,css}\" \"components/**/*.{ts,tsx,js,jsx}\"",
     "blog:generate": "npx tsx scripts/generate-blog-posts.ts"

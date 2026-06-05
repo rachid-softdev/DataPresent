@@ -2,6 +2,8 @@
 
 > Transformez vos données en présentations professionnelles grâce à l'IA.
 
+[![CI Pipeline](https://github.com/rachid-softdev/DataPresent/actions/workflows/ci.yml/badge.svg)](https://github.com/rachid-softdev/DataPresent/actions/workflows/ci.yml)
+
 Monorepo pnpm contenant l'application DataPresent — un SaaS qui convertit vos fichiers de données (Excel, CSV, PDF, Google Sheets) en présentations professionnelles générées par IA.
 
 ---
