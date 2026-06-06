@@ -204,8 +204,8 @@ export class PrismaEntitlementRepository implements IEntitlementRepository {
   }
 
   /**
-   * Atomic consume with PostgreSQL RETURNING clause
-   * Prevents race conditions by using conditional UPDATE
+   * Atomic consume using INSERT ... ON CONFLICT DO UPDATE
+   * Eliminates race condition from read-then-write by using a single atomic SQL statement.
    */
   async consumeUsage(
     orgId: string,
@@ -219,65 +219,11 @@ export class PrismaEntitlementRepository implements IEntitlementRepository {
     const periodStart = new Date(now.getFullYear(), now.getMonth(), 1);
     const periodEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
 
-    // Build conditional SQL for limit check
-    const limitCondition =
-      limit !== null ? Prisma.sql`AND "usageCount" + ${amount} <= ${limit}` : Prisma.empty;
-
-    let result = (await prisma.$queryRaw`
-      UPDATE "UsageTracking"
-      SET "usageCount" = "usageCount" + ${amount},
-          "updatedAt" = NOW()
-      WHERE "orgId" = ${orgId}
-        AND "featureKey" = ${featureKey}
-        AND "periodEnd" > NOW()
-      ${limitCondition}
-      RETURNING "usageCount"
-    `) as unknown as { usageCount: number } | { usageCount: number }[];
-
-    // If no row was updated, create new tracking or limit was reached
-    if (!result || (Array.isArray(result) && result.length === 0)) {
-      // Check if there's existing tracking to determine if limit was reached
+    // Pre-check: if no existing usage row and amount already exceeds limit, reject early.
+    // This is a safety net; the ON CONFLICT WHERE clause handles the race on UPDATE path.
+    if (limit !== null && amount > limit) {
       const existing = await this.getUsage(orgId, featureKey);
-
-      if (existing) {
-        // Limit was reached or period expired
-        const currentUsage = existing.usageCount;
-        const wouldExceed = limit !== null && currentUsage + amount > limit;
-
-        if (wouldExceed || limit === 0) {
-          return {
-            success: false,
-            error: "LIMIT_REACHED",
-            featureKey,
-            limit,
-            used: currentUsage,
-            resetAt: existing.periodEnd,
-          };
-        }
-
-        // Period expired but limit not reached — this shouldn't happen normally
-        // Update the existing record for the new period
-        await prisma.usageTracking.update({
-          where: { id: existing.id },
-          data: {
-            usageCount: existing.usageCount + amount,
-            periodStart,
-            periodEnd,
-          },
-        });
-
-        return {
-          success: true,
-          featureKey,
-          previousUsage: existing.usageCount,
-          newUsage: existing.usageCount + amount,
-          limit,
-          remaining: limit !== null ? limit - (existing.usageCount + amount) : null,
-        };
-      }
-
-      // No existing tracking — check limit BEFORE creating
-      if (limit !== null && amount > limit) {
+      if (!existing) {
         return {
           success: false,
           error: "LIMIT_REACHED",
@@ -287,76 +233,50 @@ export class PrismaEntitlementRepository implements IEntitlementRepository {
           resetAt: periodEnd,
         };
       }
+    }
 
-      // Create new usage tracking for new period
-      try {
-        await prisma.usageTracking.create({
-          data: {
-            orgId,
-            featureKey,
-            usageCount: amount,
-            periodStart,
-            periodEnd,
-          },
-        });
-      } catch (err: any) {
-        // Handle unique constraint violation (race condition — another request created the row)
-        if (err?.code === "P2002") {
-          // Retry the UPDATE
-          const updateResult = (await prisma.$queryRaw`
-            UPDATE "UsageTracking"
-            SET "usageCount" = "usageCount" + ${amount},
-                "updatedAt" = NOW()
-            WHERE "orgId" = ${orgId}
-              AND "featureKey" = ${featureKey}
-              AND "periodEnd" > NOW()
-            RETURNING "usageCount"
-          `) as unknown as { usageCount: number }[];
+    // Build optional WHERE clause for limit check on DO UPDATE path
+    const limitCondition =
+      limit !== null
+        ? Prisma.sql`WHERE "UsageTracking"."usageCount" + ${amount} <= ${limit}`
+        : Prisma.empty;
 
-          if (updateResult && updateResult.length > 0) {
-            const newUsage = updateResult[0].usageCount;
-            return {
-              success: true,
-              featureKey,
-              previousUsage: newUsage - amount,
-              newUsage,
-              limit,
-              remaining: limit !== null ? limit - newUsage : null,
-            };
-          }
+    // Atomic INSERT ... ON CONFLICT DO UPDATE
+    // - No existing row → INSERT succeeds (with the full amount)
+    // - Existing row → UPDATE increments usageCount, WHERE clause enforces limit
+    // - Row-level locking prevents concurrent INSERT/UPDATE races
+    const rows = await prisma.$queryRaw<Array<{ usageCount: number }>>`
+      INSERT INTO "UsageTracking" ("orgId", "featureKey", "usageCount", "periodStart", "periodEnd", "createdAt", "updatedAt")
+      VALUES (${orgId}, ${featureKey}, ${amount}, ${periodStart}, ${periodEnd}, NOW(), NOW())
+      ON CONFLICT ("orgId", "featureKey", "periodEnd")
+      DO UPDATE SET
+        "usageCount" = "UsageTracking"."usageCount" + ${amount},
+        "updatedAt" = NOW()
+      ${limitCondition}
+      RETURNING "usageCount"
+    `;
 
-          return {
-            success: false,
-            error: "LIMIT_REACHED",
-            featureKey,
-            limit,
-            used: 0,
-            resetAt: periodEnd,
-          };
-        }
-        throw err;
-      }
-
+    if (rows.length > 0) {
+      const newUsage = rows[0].usageCount;
       return {
         success: true,
         featureKey,
-        previousUsage: 0,
-        newUsage: amount,
+        previousUsage: newUsage - amount,
+        newUsage,
         limit,
-        remaining: limit !== null ? limit - amount : null,
+        remaining: limit !== null ? limit - newUsage : null,
       };
     }
 
-    const resultArray = Array.isArray(result) ? result : [result];
-    const newUsage = resultArray[0]?.usageCount ?? amount;
-
+    // No row returned — DO UPDATE was blocked by WHERE clause (limit exceeded)
+    const existing = await this.getUsage(orgId, featureKey);
     return {
-      success: true,
+      success: false,
+      error: "LIMIT_REACHED",
       featureKey,
-      previousUsage: newUsage - amount,
-      newUsage,
       limit,
-      remaining: limit !== null ? limit - newUsage : null,
+      used: existing?.usageCount ?? 0,
+      resetAt: existing?.periodEnd ?? periodEnd,
     };
   }
 

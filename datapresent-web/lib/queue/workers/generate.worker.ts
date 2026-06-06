@@ -97,17 +97,22 @@ export async function getGenerateWorker(): Promise<Worker<unknown>> {
           language: language || "fr",
         });
 
-        // Create a version before regenerating
-        const latestVersion = await prisma.reportVersion.findFirst({
-          where: { reportId },
-          orderBy: { version: "desc" },
-        });
+        // Atomic version increment with interactive transaction + row lock
+        // Prevents race condition where two concurrent jobs get the same latestVersion
+        await prisma.$transaction(async (tx) => {
+          const [versionResult] = await tx.$queryRaw<Array<{ nextVersion: number }>>`
+            SELECT COALESCE(MAX(version), 0) + 1 as "nextVersion"
+            FROM "ReportVersion"
+            WHERE "reportId" = ${reportId}
+            FOR UPDATE
+          `;
 
-        await prisma.$transaction([
-          prisma.reportVersion.create({
+          const nextVersion = versionResult?.nextVersion ?? 1;
+
+          await tx.reportVersion.create({
             data: {
               reportId,
-              version: (latestVersion?.version || 0) + 1,
+              version: nextVersion,
               title: report.title,
               slideData: {
                 slides: report.slides.map((s) => ({
@@ -121,9 +126,11 @@ export async function getGenerateWorker(): Promise<Worker<unknown>> {
               },
               createdById: userId,
             },
-          }),
-          prisma.slide.deleteMany({ where: { reportId } }),
-          prisma.slide.createMany({
+          });
+
+          await tx.slide.deleteMany({ where: { reportId } });
+
+          await tx.slide.createMany({
             data: result.slides.map((s) => ({
               reportId,
               position: s.position,
@@ -133,12 +140,13 @@ export async function getGenerateWorker(): Promise<Worker<unknown>> {
               contentJson: s.content as any,
               speakerNotes: s.speakerNotes || null,
             })),
-          }),
-          prisma.report.update({
+          });
+
+          await tx.report.update({
             where: { id: reportId },
             data: { title: result.title, status: "DONE" },
-          }),
-        ]);
+          });
+        });
 
         captureMessage(`Report ${reportId} generated successfully`, "info", {
           slideCount: result.slides.length,

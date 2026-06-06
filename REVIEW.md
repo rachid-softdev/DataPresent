@@ -17,7 +17,8 @@ Le REVIEW.md original a été créé comme **analyse de référence** avant l'ex
 | **Sprint 1.5** — Sécurité & Tests | ✅ Terminé | 103 tests, audit sécurité, Dependabot, CSRF auth, rate limiting auth |
 | **Sprint 2** — Stabilisation | ✅ Terminé | Health checks, polling reports, chart colors CSS vars, quotas, downgrade detection |
 | **Sprint 3** — Amélioration | ✅ Terminé | Workers Phase 1, CI pipeline rewrite, integration tests |
-| **Sprint 4+** — Reste à faire | ⏳ En cours | Responsive dashboard, compat.ts migration, upload progress, logs structurés |
+| **Sprint 4** — Correctifs résiduels | ✅ Terminé | Exports quota (consume), slideCount validation, JWT isVerified cache, DB indexes, race conditions consumeUsage + version |
+| **Sprint 5+** — Reste à faire | ⏳ En cours | Responsive dashboard, compat.ts migration, upload progress, logs structurés |
 
 **Ce document reflète l'état ACTUEL du codebase après ces sprints.**
 
@@ -487,21 +488,22 @@ datapresent/                          ← Monorepo racine (pnpm workspace)
 | Sprint 1.5 — Sécurité & Tests | ~80% | 103 tests ✅, CSRF auth ✅, rate limiting auth ✅, Dependabot ✅ |
 | Sprint 2 — Stabilisation | ~70% | Health checks ✅, polling reports ✅, chart colors ✅, downgrade detection ✅ |
 | Sprint 3 — Workers & CI | ~60% | CI pipeline ✅, Workers Phase 1 ✅, integration tests ✅ |
-| **Reste à faire (Sprint 4+)** | **~50 items** | Voir plan ci-dessous |
+| **Sprint 4 — Correctifs résiduels** | **✅ 100%** | Exports quota ✅, slideCount validation ✅, JWT isVerified cache ✅, DB indexes ✅, race conditions ✅ |
+| **Reste à faire (Sprint 5+)** | **~24 items** | Voir plan ci-dessous |
 
 ### Top 20 Problèmes (état actuel)
 
 | Rang | Domaine | Problème | Impact | Effort | Statut |
-|---|---|---|---|---|---|
-| 1 | **Métier** | Exports non limités (FREE peut exporter à l'infini) | Coût R2 qui explose | S | ❌ |
+|---|---|---|---|---|---|---|
+| 1 | **Métier** | Exports non limités (FREE peut exporter à l'infini) | Coût R2 qui explose | S | ✅ Corrigé (déjà présent) |
 | 2 | **Métier** | Double source de vérité plans (compat.ts vs DB PlanFeature) | Bugs feature flags | M | ❌ |
-| 3 | **Back-End** | DB query dans session callback auth.ts (isVerified) | +3ms/req, pas de cache | XS | ❌ |
+| 3 | **Back-End** | DB query dans session callback auth.ts (isVerified) | +3ms/req, pas de cache | XS | ✅ Corrigé (stocké dans JWT) |
 | 4 | **Front-End** | Dashboard non-responsive (sidebar fixe, pas de breakpoint) | 30%+ trafic mobile perdu | L | ❌ |
-| 5 | **Data/DB** | Index manquants : `used` sur tokens, `status` sur Subscription | Perf dégradée | S | ❌ |
-| 6 | **Métier** | FREE plan maxSlides=8 vs default slideCount=10 | Crash silencieux | S | ❌ |
+| 5 | **Data/DB** | Index manquants : `used` sur tokens, `status` sur Subscription | Perf dégradée | S | ✅ Partiel (tokens faits, Subscription reste) |
+| 6 | **Métier** | FREE plan maxSlides=8 vs default slideCount=10 | Crash silencieux | S | ✅ Corrigé (validateurs + slider dynamique) |
 | 7 | **Infra** | Workers BullMQ incompatibles Vercel serverless (timeout) | Jobs de fond non exécutés | L | ❌ |
-| 8 | **Métier** | Race condition consumeUsage sous charge (P2002 catch) | Perte de quota | M | ❌ |
-| 9 | **Métier** | Race condition version increment generate.worker (non atomique) | Perte génération | M | ❌ |
+| 8 | **Métier** | Race condition consumeUsage sous charge (P2002 catch) | Perte de quota | M | ✅ Corrigé (INSERT ON CONFLICT atomique) |
+| 9 | **Métier** | Race condition version increment generate.worker (non atomique) | Perte génération | M | ✅ Corrigé (FOR UPDATE + transaction) |
 | 10 | **Data/DB** | RateLimit table non nettoyée | Accumulation, perf | S | ❌ |
 | 11 | **Front-End** | Upload progression indicator absent | Mauvaise UX | M | ❌ |
 | 12 | **Infra** | Aucun log structuré (console.log) | Debugging impossible | S | ❌ |
@@ -535,16 +537,16 @@ datapresent/                          ← Monorepo racine (pnpm workspace)
 
 ### 📅 Plan d'action priorisé (Sprint 4+)
 
-#### Sprint 4 — Correctifs résiduels (semaine 1-2)
+#### Sprint 4 — Correctifs résiduels ✅ TERMINÉ
 
-| # | Priorité | Action | Effort |
-|---|---|---|---|
-| 1 | 🔴 **CRITIQUE** | Ajouter `consume('exportsPerMonth')` dans export.worker | S |
-| 2 | 🔴 **CRITIQUE** | Valider slideCount ≤ plan.maxSlides avant génération | S |
-| 3 | 🔴 **HAUT** | Stoker `isVerified` dans JWT token (supprimer query DB session callback) | XS |
-| 4 | 🔴 **HAUT** | Ajouter index `used` sur tokens + cleanup job | S |
-| 5 | 🔴 **HAUT** | Fix race condition consumeUsage (INSERT ON CONFLICT atomique) | M |
-| 6 | 🔴 **HAUT** | Fix race condition version increment (atomic UPDATE RETURNING) | M |
+| # | Priorité | Action | Effort | Statut |
+|---|---|---|---|---|
+| 1 | 🔴 **CRITIQUE** | Ajouter `consume('exportsPerMonth')` dans export.worker | S | ✅ Déjà présent (vérifié) |
+| 2 | 🔴 **CRITIQUE** | Valider slideCount ≤ plan.maxSlides avant génération | S | ✅ Validateurs existants + slider UI dynamique |
+| 3 | 🔴 **HAUT** | Stoker `isVerified` dans JWT token (supprimer query DB session callback) | XS | ✅ `session` callback lit du token, plus de DB query |
+| 4 | 🔴 **HAUT** | Ajouter index `used` sur tokens + cleanup job | S | ✅ Index ajoutés + `cleanupExpiredTokens()` worker |
+| 5 | 🔴 **HAUT** | Fix race condition consumeUsage (INSERT ON CONFLICT atomique) | M | ✅ Atomic `INSERT ... ON CONFLICT DO UPDATE` |
+| 6 | 🔴 **HAUT** | Fix race condition version increment (atomic UPDATE RETURNING) | M | ✅ Interactive transaction + `SELECT ... FOR UPDATE` |
 
 #### Sprint 5 — Stabilisation (semaine 3-6)
 
