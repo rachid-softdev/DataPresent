@@ -1,12 +1,12 @@
-import NextAuth from "next-auth";
 import { PrismaAdapter } from "@auth/prisma-adapter";
-import GoogleProvider from "next-auth/providers/google";
+import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { prisma } from "@/lib/prisma";
+import GoogleProvider from "next-auth/providers/google";
 import { env } from "@/env";
+import { extractTokenPrefix, verifyToken } from "@/lib/crypto";
 import { normalizeEmail } from "@/lib/email-normalize";
-import { verifyToken, extractTokenPrefix } from "@/lib/crypto";
 import { verifyPassword } from "@/lib/password";
+import { prisma } from "@/lib/prisma";
 
 const googleConfigured = !!(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET);
 
@@ -102,28 +102,39 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (session.user && token.sub) {
         session.user.id = token.sub;
 
-        // Get user verification status
-        const user = await prisma.user.findUnique({
-          where: { id: token.sub },
-          select: { isVerified: true, emailVerified: true },
-        });
-
-        if (user) {
-          (session.user as Record<string, unknown>).isVerified =
-            user.isVerified || !!user.emailVerified;
-        }
+        // Read isVerified from the JWT token (set in jwt callback)
+        (session.user as Record<string, unknown>).isVerified =
+          (token as Record<string, unknown>).isVerified ?? false;
       }
       return session;
     },
-    async jwt({ token, user, trigger, session }) {
+    async jwt({ token, user, trigger }) {
       if (user) {
         token.sub = user.id;
         token.iat = Math.floor(Date.now() / 1000);
+
+        // Fetch verification status on first login
+        const dbUser = await prisma.user.findUnique({
+          where: { id: user.id },
+          select: { isVerified: true, emailVerified: true },
+        });
+
+        if (dbUser) {
+          (token as Record<string, unknown>).isVerified =
+            dbUser.isVerified || !!dbUser.emailVerified;
+        }
       }
 
-      // Handle session updates
-      if (trigger === "update" && session?.expires) {
-        token.expires = session.expires;
+      // Handle session updates — re-fetch isVerified from DB, never trust client data
+      if (trigger === "update") {
+        const dbUser = await prisma.user.findUnique({
+          where: { id: token.sub },
+          select: { isVerified: true, emailVerified: true },
+        });
+        if (dbUser) {
+          (token as Record<string, unknown>).isVerified =
+            dbUser.isVerified || !!dbUser.emailVerified;
+        }
       }
 
       // Check token age for rotation (24 hours)

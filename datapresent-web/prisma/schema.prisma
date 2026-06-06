@@ -53,6 +53,8 @@ model MagicLinkToken {
   @@index([email, createdAt])
   @@index([expires])
   @@index([tokenPrefix])
+  @@index([tokenPrefix, used, expires])
+  @@index([used])
 }
 
 model PasswordResetToken {
@@ -67,6 +69,8 @@ model PasswordResetToken {
   @@index([email])
   @@index([expires])
   @@index([tokenPrefix])
+  @@index([tokenPrefix, used, expires])
+  @@index([used])
 }
 
 model InviteToken {
@@ -88,6 +92,8 @@ model InviteToken {
   @@index([orgId])
   @@index([expires])
   @@index([tokenPrefix])
+  @@index([tokenPrefix, used, expires])
+  @@index([used])
 }
 
 model ReportVersion {
