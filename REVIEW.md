@@ -1,8 +1,25 @@
 # Code Review — DataPresent
 
-> **Date :** 31 mai 2026
+> **Date :** 6 juin 2026
 > **Projet :** DataPresent — Générateur de présentations IA à partir de données (Excel, CSV, PDF, Google Sheets)
-> **Scope :** Codebase complet (`datapresent-web` + `@datapresent/ui` + projets satellites)
+> **Scope :** Codebase complet (`datapresent-web` + `@datapresent/ui` + workers)
+> **État :** Post-Sprints 1-3 — Revue de l'existant et mise à jour
+
+---
+
+## 📋 Résumé exécutif — Où en sommes-nous ?
+
+Le REVIEW.md original a été créé comme **analyse de référence** avant l'exécution des Sprints 1, 1.5, 2 et 3. Depuis :
+
+| Sprint | Statut | Correctifs appliqués |
+|---|---|---|
+| **Sprint 1** — Correctifs critiques | ✅ Terminé | XSS PDF, BullMQ lazy init, JWT needsRefresh, modulo bias, dépendance circulaire |
+| **Sprint 1.5** — Sécurité & Tests | ✅ Terminé | 103 tests, audit sécurité, Dependabot, CSRF auth, rate limiting auth |
+| **Sprint 2** — Stabilisation | ✅ Terminé | Health checks, polling reports, chart colors CSS vars, quotas, downgrade detection |
+| **Sprint 3** — Amélioration | ✅ Terminé | Workers Phase 1, CI pipeline rewrite, integration tests |
+| **Sprint 4+** — Reste à faire | ⏳ En cours | Responsive dashboard, compat.ts migration, upload progress, logs structurés |
+
+**Ce document reflète l'état ACTUEL du codebase après ces sprints.**
 
 ---
 
@@ -13,21 +30,21 @@
 | Couche | Technologie | Version |
 |---|---|---|
 | **Framework** | Next.js (App Router) | 16.2.6 |
-| **Langage** | TypeScript | ^5 |
+| **Langage** | TypeScript | ^5 (web), ^6 (workers) |
 | **UI** | Tailwind CSS | v4 |
 | **UI Components** | shadcn/ui (surcouche locale `@datapresent/ui`) | workspace:* |
-| **Auth** | NextAuth.js | v5 (beta) |
-| **ORM** | Prisma | 5.22.0 |
+| **Auth** | NextAuth.js | v5 (beta 31) |
+| **ORM** | Prisma | 5.22.0 (client), 7.8.0 (web) |
 | **Base de données** | PostgreSQL | — |
-| **IA** | Anthropic Claude SDK | 0.92.0 |
+| **IA** | Anthropic Claude SDK | 0.100.1 |
 | **Queue** | BullMQ + ioredis | 5.76.5 / 5.10.1 |
-| **Stockage** | AWS SDK S3 (Cloudflare R2) | 3.1041.0 |
+| **Stockage** | AWS SDK S3 (Cloudflare R2) | 3.1041.0+ |
 | **Paiement** | Stripe | 22.1.0 |
-| **Email** | Nodemailer (dev) / Resend (prod) | 8.0.5 / 6.12.2 |
+| **Email** | Nodemailer (dev) / Resend (prod) | 7.0.7 / 6.12.2 |
 | **Monitoring** | Sentry | 10.53.1 |
 | **Tests** | Playwright (e2e) + Vitest (unit) | 1.59.1 / 4.1.6 |
-| **Linting** | ESLint + Biome + Prettier | — |
-| **Internationalisation** | next-intl | 4.11.0 |
+| **Linting** | ESLint 9 + Biome + Prettier | — |
+| **Internationalisation** | next-intl | 4.13.0 |
 | **Runtime** | Node.js (via .nvmrc) | — |
 
 ### 📁 Arborescence des modules clés
@@ -35,787 +52,559 @@
 ```
 datapresent/                          ← Monorepo racine (pnpm workspace)
 ├── packages/
-│   └── datapresent-ui/               ← Package UI partagé
-│       └── src/
-│           ├── index.ts
-│           ├── utils.ts
-│           └── components/ui/        ← 24 composants (button, dialog, input, etc.)
-├── datapresent-web/                  ← Application principale (Next.js)
-│   ├── app/                          ← Routes & pages
-│   │   ├── layout.tsx                ← Root layout (fonts, providers, theme)
-│   │   ├── globals.css               ← Styles globaux Tailwind
-│   │   ├── page.tsx                  ← Landing page (redirige vers [locale])
-│   │   ├── sitemap.ts / robots.ts    ← SEO
-│   │   ├── api/                      ← API routes non-localisées
-│   │   │   ├── admin/                ← Routes admin
-│   │   │   ├── csrf-token/           ← CSRF token endpoint
-│   │   │   ├── debug/                ← Debug
-│   │   │   ├── me/                   ← User info
-│   │   │   ├── og-image/             ← OG image generation
-│   │   │   ├── og-html/              ← OG HTML
-│   │   │   └── og/                   ← OG generic
+│   └── datapresent-ui/               ← Package UI partagé (26 fichiers src)
+├── datapresent-web/                  ← Application principale (Next.js) ~390 fichiers
+│   ├── app/                          ← Routes & pages (102 fichiers)
+│   │   ├── layout.tsx / page.tsx     ← Layout racine + landing
+│   │   ├── api/                      ← API routes non-localisées (admin, health, CSRF, OG)
 │   │   └── [locale]/                 ← Routes localisées (fr/en)
-│   │       ├── layout.tsx
-│   │       ├── (auth)/               ← Auth group
-│   │       │   ├── login/            ← Page de connexion
-│   │       │   └── signup/           ← Page d'inscription
-│   │       ├── (dashboard)/          ← Dashboard (authentifié)
-│   │       │   ├── layout.tsx        ← Sidebar + nav
-│   │       │   ├── page.tsx          ← Liste des rapports
-│   │       │   ├── new/              ← Upload + création
-│   │       │   ├── reports/[id]/     ← Viewer slides + partage
-│   │       │   ├── templates/        ← Galerie templates
-│   │       │   └── settings/         ← Settings (account, billing, team, etc.)
+│   │       ├── (auth)/               ← Auth group (login, signup)
+│   │       ├── (dashboard)/          ← Dashboard (reports, new, settings/, templates)
 │   │       ├── share/[shareToken]/   ← Vue publique partagée
 │   │       ├── embed/[shareToken]/   ← Vue embed (iframe)
 │   │       ├── blog/                 ← Blog
-│   │       ├── api/                  ← API routes localisées
-│   │       │   ├── auth/             ← Auth endpoints
-│   │       │   ├── upload/           ← Upload fichier
-│   │       │   ├── reports/          ← CRUD reports
-│   │       │   ├── organizations/    ← CRUD organisations
-│   │       │   ├── user/             ← Profil utilisateur
-│   │       │   ├── share/            ← Partage
-│   │       │   ├── comments/         ← Commentaires
-│   │       │   ├── api-keys/         ← API keys
-│   │       │   └── stripe/           ← Paiement (checkout, portal, webhook)
-│   │       ├── forgot-password/
-│   │       ├── reset-password/
-│   │       ├── accept-invite/
-│   │       ├── help/
-│   │       ├── privacy/
-│   │       └── terms/
-│   ├── components/                   ← Composants React
-│   │   ├── ui/                       ← 24 composants UI (shadcn-like)
+│   │       └── api/                  ← API routes localisées
+│   │           ├── auth/             ← 7 endpoints (nextauth, magic-link, signup, forgot-password, etc.)
+│   │           ├── upload/           ← Upload fichier
+│   │           ├── reports/          ← CRUD reports
+│   │           ├── organizations/    ← CRUD organisations
+│   │           ├── stripe/           ← Paiement (checkout, portal, webhook)
+│   │           ├── share/            ← Partage (meta, verify-password)
+│   │           ├── comments/         ← Commentaires
+│   │           ├── api-keys/         ← API keys
+│   │           └── user/             ← Profil utilisateur
+│   ├── components/                   ← Composants React (77 fichiers)
+│   │   ├── ui/                       ← 24 composants UI (button, dialog, card, etc.)
 │   │   ├── layout/                   ← Header, Footer
-│   │   ├── landing/                  ← Landing page (hero, features, pricing...)
-│   │   ├── reports/                  ← ReportActions
-│   │   ├── slides/                   ← SlideViewer, SlideCard, layouts/
-│   │   │   └── layouts/              ← 7 layouts (KpiGrid, BarChart, etc.)
-│   │   ├── upload/                   ← DropZone, DataPreview, SectorSelector
+│   │   ├── landing/                  ← Landing page (9 composants)
+│   │   ├── slides/                   ← SlideViewer, SlideCard, 7 layouts (BarChart, PieChart, etc.)
+│   │   ├── upload/                   ← DropZone, DataPreview, SectorSelector, SlideCountSlider
 │   │   ├── comments/                 ← CommentThread, CommentInput, CommentItem
 │   │   ├── billing/                  ← PricingTable, PlanBadge, PlanSelector
-│   │   ├── share/                    ← ShareModal
 │   │   ├── org/                      ← DashboardNav, OrgSwitcher
-│   │   ├── onboarding/              ← OnboardingTour, DashboardWithOnboarding
+│   │   ├── onboarding/              ← OnboardingTour
+│   │   ├── reports/                  ← ReportActions, ReportsPoller, ReportDetailPoller
 │   │   ├── blog/                     ← blog-card, blog-header, blog-renderer
-│   │   ├── error/                    ← Error boundary
-│   │   ├── usage/                    ← UsageCard
-│   │   ├── watermark/                ← Watermark
-│   │   ├── i18n/                     ← LocaleSwitcher
-│   │   ├── hooks/                    ← HydrationGuard
-│   │   ├── theme-provider.tsx
 │   │   └── providers.tsx             ← Providers root
-│   ├── lib/                          ← Logique métier & infrastructure
-│   │   ├── auth.ts                   ← NextAuth config
+│   ├── lib/                          ← Logique métier & infrastructure (62 fichiers)
+│   │   ├── auth.ts                   ← NextAuth config (NextAuth v5)
 │   │   ├── prisma.ts                 ← Prisma singleton
-│   │   ├── stripe.ts                 ← Stripe client
-│   │   ├── r2.ts                     ← Cloudflare R2 client
-│   │   ├── redis.ts                  ← Redis/ioredis client
-│   │   ├── cache.ts                  ← LRU cache
-│   │   ├── crypto.ts                 ← Cryptographie (tokens, hash)
+│   │   ├── stripe.ts / stripe-webhook-handler.ts
+│   │   ├── rate-limit.ts             ← Rate limiting (PostgreSQL + Redis fallback)
+│   │   ├── cache.ts                  ← LRU cache + Next.js unstable_cache
+│   │   ├── crypto.ts                 ← Cryptographie (tokens, hash HMAC)
 │   │   ├── password.ts               ← Argon2 password hashing
-│   │   ├── password-service.ts       ← Password management service
 │   │   ├── email.ts                  ← Email service
-│   │   ├── email-normalize.ts        ← Email normalization
-│   │   ├── api-client.ts             ← API client utilities
-│   │   ├── api-keys.ts               ← API keys management
-│   │   ├── rate-limit.ts             ← Rate limiting
-│   │   ├── sentry.ts                 ← Sentry config
-│   │   ├── sanitize.ts               ← HTML sanitization
-│   │   ├── client-ip.ts              ← Client IP detection
-│   │   ├── sector.ts                 ← Sector utilities
-│   │   ├── upload-validation.ts      ← Upload validation
-│   │   ├── validation-schemas.ts     ← Zod schemas
-│   │   ├── utils.ts                  ← Utilitaires généraux
-│   │   ├── errors.ts                 ← Codes d'erreur uniformes
-│   │   ├── org.ts                    ← Organization helpers
-│   │   ├── templates.tsx             ← Templates
-│   │   ├── toast.ts                  ← Toast notifications
-│   │   ├── plans.ts                  ← Plans definitions
-│   │   ├── admin.ts                  ← Admin utilities
-│   │   ├── ai/                       ← Couche IA
-│   │   │   ├── index.ts
-│   │   │   ├── analyze.ts            ← Appel Claude
-│   │   │   ├── prompts.ts            ← Prompts par secteur
-│   │   │   └── schemas.ts            ← Zod schemas réponse Claude
-│   │   ├── parsers/                  ← Parsing fichiers
-│   │   │   ├── index.ts
-│   │   │   ├── csv.ts
-│   │   │   ├── xlsx.ts
-│   │   │   ├── pdf.ts
-│   │   │   └── gsheets.ts
-│   │   ├── exporters/                ← Export presentations
-│   │   │   ├── index.ts
-│   │   │   ├── pptx.ts
-│   │   │   ├── pdf.ts
-│   │   │   └── docx.ts
-│   │   ├── queue/                    ← BullMQ queue
-│   │   │   ├── index.ts
-│   │   │   ├── client.ts
-│   │   │   ├── job-security.ts
-│   │   │   └── workers/
-│   │   │       ├── generate.worker.ts
-│   │   │       └── export.worker.ts
-│   │   ├── security/                 ← Sécurité
-│   │   │   ├── index.ts
-│   │   │   ├── csrf.ts
-│   │   │   ├── csrf-middleware.ts
-│   │   │   └── error-logger.ts
-│   │   ├── entitlements/             ← Feature flags & quotas
-│   │   │   ├── index.ts
-│   │   │   ├── cache.ts
-│   │   │   ├── compat.ts
-│   │   │   ├── downgrade.ts
-│   │   │   ├── experiments.ts
-│   │   │   ├── feature-gate.ts
-│   │   │   ├── middleware.ts
-│   │   │   ├── repository.ts
-│   │   │   └── types.ts
-│   │   ├── email-templates/          ← Templates email
-│   │   ├── blog/                     ← Blog types
-│   │   ├── stripe-webhook-handler.ts
-│   │   └── i18n-client.ts
-│   ├── hooks/                        ← React hooks
-│   │   └── use-entitlements.tsx
-│   ├── i18n/                         ← Internationalisation
-│   │   ├── request.ts
-│   │   └── routing.ts
-│   ├── messages/                     ← Traductions
-│   │   ├── en.json
-│   │   └── fr.json
-│   ├── prisma/                       ← Schéma BDD
-│   │   └── schema.prisma             ← 18 modèles, 466 lignes
-│   ├── middleware.ts                 ← Middleware (CORS, i18n, sécurité)
-│   ├── env.ts                        ← Validation env avec Zod
-│   ├── next.config.ts                ← Config Next.js
-│   ├── vitest.config.ts              ← Config Vitest
-│   ├── playwright.config.ts          ← Config Playwright
-│   └── scripts/                      ← Scripts utilitaires (13 fichiers)
-│       ├── start-workers.ts
-│       ├── create-stripe-products.ts
-│       ├── generate-blog-posts.ts
-│       ├── check-env.ts / push-env.ts
-│       └── ... (MailHog, Stripe CLI setup)
-├── DataPresent-mobile/               ← Projet mobile (placeholder)
-├── DataPresent-desktop/              ← Projet desktop (placeholder)
-├── DataPresent-extension/            ← Extension navigateur (placeholder)
-├── .github/                          ← GitHub workflows
-├── .husky/                           ← Git hooks
-├── security-audit/                   ← Rapports d'audit sécurité
-├── package.json                      ← Root package.json
-├── pnpm-workspace.yaml
-├── pnpm-lock.yaml
-└── AGENTS.md / PLAN.md / README.md   ← Documentation
+│   │   ├── security/                 ← CSRF middleware + CSRF tokens
+│   │   ├── ai/                       ← Couche IA (analyze, prompts, schemas)
+│   │   ├── parsers/                  ← Parsing fichiers (csv, xlsx, pdf, gsheets)
+│   │   ├── exporters/                ← Export PPTX/PDF/DOCX
+│   │   ├── queue/                    ← BullMQ (client, workers: generate + export)
+│   │   ├── entitlements/             ← Feature flags, quotas, plans (10 fichiers)
+│   │   └── sentry.ts                 ← Sentry config
+│   ├── hooks/                        ← use-entitlements
+│   ├── i18n/                         ← next-intl routing + request
+│   ├── prisma/                       ← Schéma BDD (18 modèles, 466 lignes)
+│   ├── middleware.ts                 ← CORS + i18n routing + security headers
+│   ├── env.ts                        ← Validation Zod stricte
+│   └── tests/                        ← 109 fichiers test (unit + integration + e2e)
+├── workers/                          ← Cloudflare Workers (29 fichiers)
+│   └── src/
+│       ├── index.ts                  ← Entry point
+│       ├── parsers/                  ← CSV, XLSX, PDF, GSheets
+│       ├── exporters/                ← PPTX, PDF, DOCX
+│       ├── ai/                       ← Analyze, prompts, schemas
+│       ├── entitlements/             ← Feature gates (cache, repository)
+│       ├── redis.ts / r2.ts / prisma.ts / sentry.ts / crypto.ts
+│       └── workers/                  ← generate.worker, export.worker
+├── .github/                          ← Workflows CI/CD
+├── security-audit/                   ← Rapports d'audit
+└── docs/                             ← Architecture & gap analysis
 ```
 
 ### 📊 Volume estimé
 
-| Catégorie | Fichiers | Lignes estimées |
+| Module | Fichiers | Type |
 |---|---|---|
-| Pages & Routes (`app/`) | ~97 | ~9 200 |
-| Composants (`components/`) | ~74 | ~7 500 |
-| Logique métier (`lib/`) | ~61 | ~6 800 |
-| Tests (`tests/`) | ~87 | ~4 500 |
-| Scripts (`scripts/`) | ~12 | ~800 |
-| Package UI (`packages/`) | ~26 | ~1 200 |
-| Hooks, i18n, config | ~10 | ~500 |
-| **Total (source app)** | **~360** | **~30 000** |
+| `datapresent-web/app/` | 102 | Pages & API routes |
+| `datapresent-web/components/` | 77 | Composants React |
+| `datapresent-web/lib/` | 62 | Logique métier |
+| `datapresent-web/tests/` | 109 | Tests (unit, integration, e2e) |
+| `datapresent-web/scripts/` | 14 | Scripts utilitaires |
+| `packages/datapresent-ui/src/` | 26 | Package UI partagé |
+| `workers/src/` | 29 | Background workers |
+| **Total** | **~419** | **~35 000+ lignes estimées** |
 
-### 🏗️ Découpage en couches identifié
+### 🏗️ Découpage en couches
 
 ```
 ┌──────────────────────────────────────────────┐
-│                PRESENTATION                    │
-│  app/[locale]/*.tsx  +  components/*          │
-│  (Pages, Layouts, Composants UI)              │
+│               PRESENTATION                     │
+│  app/[locale]/*.tsx + components/*             │
 ├──────────────────────────────────────────────┤
 │               CANAL (API)                      │
-│  app/[locale]/api/*/route.ts  +  app/api/*    │
-│  (Route handlers Next.js)                     │
+│  app/[locale]/api/*/route.ts + app/api/*      │
 ├──────────────────────────────────────────────┤
-│           APPLICATION / USE CASES              │
-│  lib/* (auth, org, email, upload-validation)  │
-│  lib/ai/, lib/exporters/, lib/parsers/        │
+│          APPLICATION / USE CASES               │
+│  lib/auth, lib/org, lib/email                 │
+│  lib/ai/, lib/parsers/, lib/exporters/        │
 │  lib/queue/workers/                           │
 ├──────────────────────────────────────────────┤
-│               DOMAIN / MÉTIER                  │
+│              DOMAIN / MÉTIER                   │
 │  lib/entitlements/ (feature flags, quotas)    │
 │  lib/security/, lib/errors.ts                 │
-│  prisma/schema.prisma (modèles)              │
+│  prisma/schema.prisma                         │
 ├──────────────────────────────────────────────┤
-│            DATA ACCESS (Repositories)          │
+│           DATA ACCESS (Repositories)           │
 │  lib/prisma.ts (PrismaClient)                 │
-│  lib/cache.ts (LRU Cache)                    │
-│  lib/entitlements/repository.ts              │
+│  lib/cache.ts (LRU + unstable_cache)          │
+│  lib/entitlements/repository.ts               │
 ├──────────────────────────────────────────────┤
-│              INFRASTRUCTURE                    │
-│  lib/stripe.ts, lib/r2.ts, lib/redis.ts      │
-│  lib/queue/client.ts                         │
-│  lib/email.ts, lib/sentry.ts                 │
-│  middleware.ts, next.config.ts               │
+│             INFRASTRUCTURE                     │
+│  lib/stripe.ts, lib/r2.ts, lib/redis.ts       │
+│  lib/queue/client.ts                          │
+│  lib/email.ts, lib/sentry.ts                  │
+│  middleware.ts, next.config.ts                │
+│  workers/src/                                 │
 └──────────────────────────────────────────────┘
 ```
 
 ### 🚪 Points d'entrée principaux
 
-#### Pages (Front-End)
+**Pages (Front-End) :**
 | Route | Fichier | Type |
 |---|---|---|
 | `/` | `app/page.tsx` | Landing page |
 | `/fr/` ou `/en/` | `app/[locale]/page.tsx` | Landing localisée |
 | `/fr/login` | `app/[locale]/(auth)/login/page.tsx` | Connexion |
 | `/fr/signup` | `app/[locale]/(auth)/signup/page.tsx` | Inscription |
-| `/fr/dashboard` | `app/[locale]/(dashboard)/page.tsx` | Dashboard |
+| `/fr/dashboard` | `app/[locale]/(dashboard)/page.tsx` | Dashboard (take:5) |
 | `/fr/dashboard/new` | `app/[locale]/(dashboard)/new/page.tsx` | Nouveau rapport |
-| `/fr/dashboard/reports/[id]` | `app/[locale]/(dashboard)/reports/[id]/page.tsx` | Viewer |
-| `/fr/dashboard/settings` | `app/[locale]/(dashboard)/settings/page.tsx` | Paramètres |
-| `/fr/share/[shareToken]` | `app/[locale]/share/[shareToken]/page.tsx` | Partagé |
-| `/fr/embed/[shareToken]` | `app/[locale]/embed/[shareToken]/page.tsx` | Embed |
-| `/fr/blog` | `app/[locale]/blog/page.tsx` | Blog |
+| `/fr/dashboard/reports/[id]` | `app/[locale]/(dashboard)/reports/[id]/page.tsx` | Viewer slides |
+| `/fr/dashboard/settings/*` | settings/{account,billing,organization,team,api-keys,profile} | Paramètres |
+| `/fr/share/[shareToken]` | `app/[locale]/share/[shareToken]` | Vue publique |
+| `/fr/embed/[shareToken]` | `app/[locale]/embed/[shareToken]` | Embed iframe |
+| `/fr/blog` | `app/[locale]/blog` | Blog |
+| `/api/health` | `app/api/health/route.ts` | Health check |
 
-#### API Routes (Back-End)
-| Endpoint | Méthodes | Fichier |
-|---|---|---|
-| `/api/auth/*` | GET/POST | `app/[locale]/api/auth/[...nextauth]/route.ts` |
-| `/api/upload` | POST | `app/[locale]/api/upload/route.ts` |
-| `/api/reports/*` | GET/POST/PUT/DELETE | `app/[locale]/api/reports/*/route.ts` |
-| `/api/organizations/*` | GET/POST/PUT | `app/[locale]/api/organizations/*/route.ts` |
-| `/api/user/*` | GET/PUT | `app/[locale]/api/user/*/route.ts` |
-| `/api/stripe/webhook` | POST | `app/[locale]/api/stripe/webhook/route.ts` |
-| `/api/stripe/checkout` | POST | `app/[locale]/api/stripe/checkout/route.ts` |
-| `/api/stripe/portal` | POST | `app/[locale]/api/stripe/portal/route.ts` |
-| `/api/share/*` | GET/POST | `app/[locale]/api/share/*/route.ts` |
-| `/api/comments/*` | GET/POST | `app/[locale]/api/comments/*/route.ts` |
-| `/api/api-keys/*` | GET/POST/DELETE | `app/[locale]/api/api-keys/*/route.ts` |
-| `/api/csrf-token` | GET | `app/api/csrf-token/route.ts` |
-| `/api/og-image` | GET | `app/api/og-image/route.ts` |
-| `/api/admin/*` | GET/POST | `app/api/admin/*/route.ts` |
+**API Routes (Back-End) :**
+| Endpoint | Méthodes |
+|---|---|
+| `/api/health` | GET |
+| `/api/auth/*` | GET/POST |
+| `/api/upload` | POST |
+| `/api/reports/*` | GET/POST/PUT/DELETE |
+| `/api/organizations/*` | GET/POST/PUT |
+| `/api/stripe/webhook` | POST |
+| `/api/stripe/checkout` | POST |
+| `/api/stripe/portal` | POST |
+| `/api/share/*` | GET/POST |
+| `/api/comments/*` | GET/POST |
+| `/api/api-keys/*` | GET/POST/DELETE |
+| `/api/admin/*` | GET/POST |
+| `/api/csrf-token` | GET |
 
 ### 🧪 Tests
 
-| Type | Framework | Fichiers | Couverture |
-|---|---|---|---|
-| **Unitaires** | Vitest | ~65 | auth, crypto, validation, parsers, ai, rate-limit, security, cache, etc. |
-| **E2E** | Playwright | ~5 | auth, home, navigation, report-creation, share, pages |
-| **Setup** | — | `setup.ts` | Global test setup |
-
-### 📦 Dépendances externes principales
-
-**Runtime (dependencies) :**
-- `next@16.2.6` — Framework
-- `react@19.2.4`, `react-dom@19.2.4` — UI
-- `@prisma/client@^5.22.0` + `prisma@^5.22.0` — ORM/DB
-- `next-auth@^5.0.0-beta.31` — Auth
-- `@auth/prisma-adapter@^2.11.2` — Auth DB adapter
-- `@anthropic-ai/sdk@^0.92.0` — IA Claude
-- `@aws-sdk/client-s3@^3.1041.0` — R2/S3 Storage
-- `stripe@^22.1.0`, `@stripe/stripe-js@^9.4.0` — Paiement
-- `bullmq@^5.76.5`, `ioredis@^5.10.1` — Queue/Redis
-- `next-intl@^4.11.0` — i18n
-- `zod@^4.4.2` — Validation
-- `zod@^4.4.2` (double)
-- `react-hook-form@^7.75.0` + `@hookform/resolvers@^5.2.2` — Forms
-- `zustand@^5.0.12` — State management
-- `recharts@^3.8.1` — Graphiques
-- `framer-motion@^12.38.0` — Animations
-- `@dnd-kit/*` — Drag & drop
-- `lucide-react@^1.14.0` — Icônes
-- `sonner@^2.0.7` — Toasts
-- `sentry/nextjs@^10.53.1` — Monitoring
-- `exceljs`, `docx`, `pptxgenjs`, `pdf-parse` — Parsing/export
-- `puppeteer-core@^22.0.0` — PDF generation
-- `nodemailer@8.0.5`, `resend@^6.12.2` — Email
-- `@node-rs/argon2@^2.0.2` — Password hashing
-
-**Dev dependencies :**
-- TypeScript ^5, ESLint 9, Prettier, Biome
-- Playwright, Vitest, Testing Library
-- Husky, commitlint, lint-staged
-- Tailwind CSS v4, PostCSS
+| Type | Framework | Stats |
+|---|---|---|
+| **Unitaires** | Vitest | ~90+ tests (auth, crypto, validation, parsers, ai, rate-limit, security, cache) |
+| **Intégration** | Vitest | Config dédiée (vitest.integration.config.ts) |
+| **E2E** | Playwright | auth, home, navigation, report-creation, share |
+| **Couverture** | Vitest + c8 | Configuré via `@vitest/coverage-v8` |
 
 ---
 
-> **Fin de l'ÉTAPE 0 — Cartographie.**
-> Ce rapport est fourni en contexte à tous les agents spécialisés ci-dessous.
+## 🖥️ ÉTAPE 1 — Analyse Front-End (Mise à jour post-sprints)
 
----
+### Statut des correctifs
 
-## 🖥️ ÉTAPE 1 — Analyse Front-End (Terminée)
+| Correctif | Statut | Note |
+|---|---|---|
+| Chart colors → CSS variables (`--chart-1` à `--chart-6`) | ✅ **Corrigé** | `chart-colors.ts` lit les vars CSS avec fallback |
+| Dashboard responsive (sidebar < 768px) | ❌ **Non corrigé** | DashboardNav n'a pas de breakpoint mobile |
+| Upload progression indicator | ❌ **Non corrigé** | DropZone.tsx sans listener `onprogress` |
+| Polling auto reports en génération | ✅ **Corrigé** | `ReportDetailPoller.tsx` + `ReportsPoller.tsx` existent |
+| Pagination dashboard (take:5) | ❌ **Non corrigé** | Toujours `take: 5` sans "Voir tout" |
+| Design tokens dupliqués (landing CSS) | ⚠️ **Partiel** | 119 lignes `landing-` dans globals.css (vs 500+ initialement) |
+| Theme toggle icônes inversées | ⚠️ **Discutable** | Affiche l'icône du thème actuel (convention UX : les deux existent) |
 
 ### 🚨 Problèmes critiques
 
 | Agent | Composant/Fichier | Description | Impact | Solution |
 |---|---|---|---|---|
-| **Agent 6** | `globals.css` (lignes 3-57 + 154-189) | **Design tokens dupliqués.** Les variables CSS de la landing page recréent les tokens globaux. | Toute modification couleur nécessite 2 changements. Risque de dérive landing/app. | Supprimer les tokens landing, utiliser les tokens globaux partout. |
-| **Agent 5** | `globals.css` (lignes 152-739) | **~500+ lignes CSS landing dans le fichier global.** Styles `.landing-*` chargés sur toutes les pages. | L'app entière charge des styles landing inutiles. | Extraire vers `app/landing.css` importé conditionnellement. |
-| **Agent 6** | `components/slides/layouts/Comparison.tsx` | **Couleurs Tailwind hardcodées.** `text-gray-900`, `bg-gray-50`, etc. ignorent le design system clair/sombre. | Cassé en mode dark : texte invisible. | Remplacer par `text-foreground`, `bg-muted`. |
-| **Agent 6** | `components/slides/layouts/{BarChart,PieChart,LineChart}.tsx` | **Palettes Recharts hardcodées.** `['#6366f1', '#8b5cf6', '#ec4899', ...]` — violets/roses hors thème DataPresent (verts). | Incohérence marque. Dark mode ignoré. | Utiliser `var(--chart-1)` à `var(--chart-5)`. |
-| **Agent 3** | `app/[locale]/(dashboard)/layout.tsx` (DashboardNav) | **Dashboard non-responsive.** Sidebar 240px fixe, pas de breakpoint mobile. | Impossible d'utiliser le dashboard sur mobile. | Ajouter sidebar hamburger/collapsible < 768px + nav mobile. |
-| **Agent 2** | `app/[locale]/(dashboard)/new/page.tsx` | **Aucun retour de progression upload.** `fetch()` sans listener de progression. | L'utilisateur ne voit pas l'avancement pour fichiers > 5MB. | Ajouter `xhr.upload.onprogress` ou équivalent. |
+| **Agent 3** | `DashboardNav.tsx` | **Dashboard non-responsive.** Sidebar non adaptée mobile. | Impossible d'utiliser le dashboard sur mobile. 30%+ trafic perdu. | Ajouter sidebar hamburger/collapsible < 768px |
+| **Agent 2** | `DropZone.tsx` | **Aucun retour de progression upload.** `fetch()` sans listener. | L'utilisateur ne voit pas l'avancement pour fichiers > 5MB. | Ajouter `xhr.upload.onprogress` ou équivalent |
+| **Agent 5** | `globals.css` | **~119 lignes CSS landing dans le fichier global.** Styles `.landing-*` chargés sur toutes les pages. | Bundle CSS inutile sur pages connectées. | Extraire vers `app/landing.css` importé conditionnellement |
 
 ### ⚠️ Améliorations importantes
 
 | Agent | Composant/Fichier | Description | Solution |
 |---|---|---|---|
-| **Agent 1** | `components/ui/theme-toggle.tsx` | Icônes inversées (Lune en mode sombre → devrait être Soleil). | Intervertir `isDark ? <Sun/> : <Moon/>`. |
-| **Agent 4** | `components/slides/SlideViewer.tsx:227-229` | Overlay commentaire non accessible clavier : div sans rôle/tabIndex. | Ajouter `role="presentation"` + Escape handler. |
-| **Agent 4** | `components/slides/layouts/*.tsx` | Graphiques sans alternatives textuelles (SVG sans aria-labels). | Ajouter `aria-label` descriptif sur conteneurs SVG. |
-| **Agent 3** | `components/slides/SlideViewer.tsx:99-118` | Sidebar slides animée 240px, overlap < 768px. | Remplacer par bottom sheet sur mobile. |
-| **Agent 5** | `components/landing/landing-{features,how-it-works}.tsx` | SVG inline (50+ lignes) au lieu d'icônes Lucide. | Remplacer par composants Lucide. |
-| **Agent 2** | `app/[locale]/(dashboard)/page.tsx` | Pagination manquante : seulement `take: 5` sans "Voir tout". | Ajouter pagination ou lien vers liste complète. |
-| **Agent 2** | `app/[locale]/(dashboard)/reports/[id]/page.tsx` | Pas de polling auto pour les reports en génération. | Ajouter polling ou SSE pour mise à jour live. |
+| **Agent 1** | `theme-toggle.tsx` | Icône montre état actuel vs état cible (convention discutable). | Adopter convention "afficher ce qu'on va obtenir" (Soleil en dark → texte clair) |
+| **Agent 4** | `SlideViewer.tsx` | Overlay commentaire non accessible clavier. | Ajouter `role="presentation"` + Escape handler |
+| **Agent 4** | `slides/layouts/*.tsx` | Graphiques sans alternatives textuelles (SVG sans aria-labels). | Ajouter `aria-label` descriptif sur conteneurs SVG |
+| **Agent 2** | Dashboard `page.tsx` | Pagination absente : `take: 5` sans "Voir tout". | Ajouter pagination ou lien vers liste complète |
+| **Agent 5** | `landing-*.tsx` | SVG inline (50+ lignes) au lieu d'icônes Lucide. | Remplacer par composants Lucide |
+| **Agent 6** | `Comparison.tsx` | Couleurs `text-gray-900` peuvent casser en dark mode. | Remplacer par `text-foreground` |
 
 ### ✨ Détails de finition (polish)
 
 | Description | Fichier | Effort |
 |---|---|---|
-| `.app-page-header` flex-wrap manquant pour longs titres | `globals.css:1009` | XS |
-| SVG inline dans `landing-hero.tsx` pourraient être Lucide | `components/landing/landing-hero.tsx` | XS |
-| `.app-table` pas de variante responsive horizontale | `globals.css:844` | S |
-| `.landing-hero::before` glow peut causer scroll horizontal | `globals.css:362-372` | XS |
-| `Comparison.tsx` couleurs `text-gray-900` break dark mode | `components/slides/layouts/Comparison.tsx` | XS |
-| `.landing-steps-grid::before` ligne cassée < 900px | `globals.css:483-491` | XS |
+| `.app-page-header` flex-wrap manquant pour longs titres | `globals.css` | XS |
 | Logo SVG dupliqué dans landing, app-nav, auth | multiples fichiers | S |
-| Pas de `loading="lazy"` sur images landing | `app/layout.tsx:49` | XS |
-| `.landing-cta-section` background `#0D1F06` hardcodé | `globals.css:649` | XS |
+| Pas de `loading="lazy"` sur images landing | `app/layout.tsx` | XS |
+| `.landing-hero::before` glow peut causer scroll horizontal | `globals.css` | XS |
 
-### Score global Front-End
+### Score global Front-End (mis à jour)
 
-| Catégorie | Score |
-|---|---|
-| **Design** | 7/10 |
-| **UX** | 6.5/10 |
-| **Responsive** | 4/10 |
-| **Accessibilité** | 4/10 |
-| **Maintenabilité** | 5/10 |
+| Catégorie | Score | Δ vs baseline |
+|---|---|---|
+| **Design** | 7/10 | = |
+| **UX** | 7/10 | +0.5 (polling ajouté) |
+| **Responsive** | 4/10 | = (toujours pas corrigé) |
+| **Accessibilité** | 4.5/10 | +0.5 |
+| **Maintenabilité** | 5.5/10 | +0.5 (chart colors unifiés) |
 
 ---
 
-## ⚙️ ÉTAPE 2 — Analyse Back-End (Terminée)
+## ⚙️ ÉTAPE 2 — Analyse Back-End (Mise à jour post-sprints)
+
+### Statut des correctifs
+
+| Correctif | Statut | Note |
+|---|---|---|
+| XSS dans PDF export (escapeHtml) | ✅ **Corrigé** | `escapeHtml()` existe et est utilisé partout dans `pdf.ts` |
+| BullMQ eager connection (module level) | ✅ **Corrigé** | `queue/client.ts` utilise des factory functions asynchrones lazy |
+| JWT `needsRefresh` jamais reset | ✅ **Corrigé** | `delete token.needsRefresh` présent ligne 138 |
+| Dépendance circulaire entitlements → stripe | ✅ **Corrigé** | Vérifié : pas de dépendance cyclique directe |
+| Modulo bias dans `generateSecureKey` | ✅ **Corrigé** | Utilise `crypto.randomBytes` |
+| Race condition status ERROR (double écriture) | ⚠️ **Partiel** | Logique de retry présente |
+| DB query dans session callback auth.ts | ❌ **Non corrigé** | Toujours 1 query DB par requête pour `isVerified` |
+| Rate limiting PostgreSQL contention | ✅ **Amélioré** | Migration vers Redis `INCR+EXPIRE` avec fallback PostgreSQL |
+| Compat.ts dual plan system | ❌ **Non corrigé** | Toujours présent, marqué "compatibility adapter" avec migration planifiée |
+| As any dans stripe-webhook-handler | ❌ **Non corrigé** | Toujours présent (ligne 97, 121) |
+| Health check endpoint | ✅ **Corrigé** | `/api/health` opérationnel (DB + Redis check) |
+| Auth rate limiting | ✅ **Corrigé** | `authRateLimit()` avec Redis (3/min par email, 10/min par IP) |
+| Stripe webhook retry + idempotency | ✅ **Corrigé** | Exponential backoff + idempotency check |
+| Downgrade PRO→FREE détection | ✅ **Corrigé** | `isDowngrade` check présent dans webhook handler |
+| Ci pipeline rewrite | ✅ **Corrigé** | GitHub Actions CI complète |
 
 ### 🚨 Critiques (corriger immédiatement)
 
 | Agent | Fichier/module | Description | Impact | Risque | Solution |
 |---|---|---|---|---|---|
-| **3** | `lib/exporters/pdf.ts:80` | **XSS dans PDF export.** `JSON.stringify(slide.content)` injecté dans HTML Puppeteer sans échappement. | XSS dans PDF exporté | Critical | Remplacer par `escapeHtml()` |
-| **8** | `lib/queue/client.ts:4` | **Connexion BullMQ créée à l'import** (module level), pas lazy. Si Redis down au démarrage, le serveur crash. | Crash au startup, SPOF | High | Remplacer par factory lazy |
-| **2** | `lib/auth.ts:126-133` | **`token.needsRefresh` jamais reset.** Après 24h, rotation infinie à chaque requête. | Perf dégradée, bug de refresh | High | Ajouter `delete token.needsRefresh` après rotation |
-| **1** | `lib/entitlements/index.ts:61-68` | **Dépendance circulaire potentielle.** `entitlements/index` réexporte `handleWebhookEvent` de stripe-webhook-handler. | Couplage fort, risque d'import cyclique | High | Déplacer les réexports webhook dans module dédié |
-| **3** | `lib/api-keys.ts:156` | **Modulo bias** dans `generateSecureKey` : distribution non-uniforme. | Clés API prévisibles | Medium | Utiliser `crypto.randomInt()` |
-| **7** | `lib/queue/workers/generate.worker.ts:165-171` | **Race condition sur status ERROR.** Le `failed` event ET le `catch` mettent tous deux status ERROR. | Double écriture concurrente | Medium | Supprimer la MAJ status du `catch` |
+| **4** | `auth.ts:106` | **DB query dans session callback** — `findUnique` sur CHAQUE requête HTTP | +3ms/req, pas scalable | High | Stocker `isVerified` dans le JWT token |
+| **2** | `entitlements/compat.ts` | **Double source de vérité plans** — statique + DB PlanFeature | Bugs feature flags quand les deux divergent | High | Supprimer compat.ts après migration |
+| **5** | Prisma schema | **Pas d'index `used` sur tokens** — MagicLinkToken, PasswordResetToken, InviteToken | Accumulation infinie, perf dégradée | Medium | `@@index([used])` + cleanup job |
+| **6** | `stripe-webhook-handler.ts:97` | **`as any`** sur Stripe items.data[0] | Perte type safety, risque si API Stripe change | Medium | Typer correctement |
+| **7** | `app/api/health/route.ts` | **console.error** dans health check | Pas de monitoring Sentry sur échec health | Low | Remplacer par Sentry `captureException` |
 
-### ⚠️ Problèmes importants
-| Agent | Description | Solution |
-|---|---|---|
-| **4** | DB query dans `auth.ts` session callback à chaque requête (isVerified) | Cache Redis 60s ou stocker dans JWT |
-| **5** | Pas d'index `used` sur MagicLinkToken → accumulation infinie | `@@index([used])` + cleanup job mensuel |
-| **6** | Routes API sans versioning (`/api/v1/`) | Ajouter versioning avant scalabilité |
-| **3** | CSRF absent sur routes `auth/magic-link`, `signup`, `forgot-password` | Ajouter `withCsrfProtection` |
-| **3** | Magic link token dans URL → leak via Referer/logs | Utiliser POST body pour callback |
-| **4** | Rate limiting sur PostgreSQL → contention >100 req/s | Migrer vers Redis INCR+EXPIRE |
-| **2** | `entitlements/compat.ts` — PLAN_FEATURES statique dupliqué avec DB | Supprimer compat.ts à terme |
-| **7** | Aucun endpoint `/api/health` ou `/api/ready` | Ajouter health checks |
-| **8** | `tokenPrefix` collision : 48 bits → ~50% collision à 10k tokens | Augmenter à 16+ hex chars |
+### 🔒 Sécurité (mis à jour)
 
-### 🔒 Sécurité
-| Vulnérabilité | OWASP ref | Criticité | Solution |
+| Vulnérabilité | OWASP ref | Criticité | Statut |
 |---|---|---|---|
-| XSS dans PDF export | A03:2021-Injection | Critical | `escapeHtml()` dans generateHtmlFromSlides |
-| Modulo bias clés API | A02:2021-Crypto Failures | High | `crypto.randomInt(chars.length)` |
-| CSRF absent routes auth | A01:2021-Broken Access Control | Medium | `withCsrfProtection()` |
-| Token magic link dans URL | A04:2021-Insecure Design | Medium | POST body au lieu de query param |
-| Rate limiting auth absent | A04:2021-Insecure Design | Low | Limiter signIn par IP/minute |
-| CSP 'unsafe-eval' en dev exposé | A05:2021-Misconfiguration | Medium | Restreindre en dev aussi |
+| XSS dans PDF export | A03:2021 | Critical | ✅ **Corrigé** (escapeHtml) |
+| Modulo bias clés API | A02:2021 | High | ✅ **Corrigé** |
+| CSRF absent routes auth | A01:2021 | Medium | ✅ **Corrigé** |
+| Rate limiting auth absent | A04:2021 | Low->Medium | ✅ **Corrigé** (Redis INCR + EXPIRE) |
+| CSP 'unsafe-eval' en dev exposé | A05:2021 | Medium | ❌ **Non corrigé** |
+| Magic link token dans URL | A04:2021 | Medium | ❌ **Non corrigé** |
+| `GOOGLE_SHEETS_PRIVATE_KEY` multi-lignes corrompu | A05:2021 | High | ❌ **Non corrigé** |
 
 ### ⚡ Performance
-| Problème | Impact estimé | Solution |
-|---|---|---|
-| DB query dans session callback auth.ts | +3ms par requête HTTP authentifiée | Cache Redis 60s |
-| PostgreSQL rate limiting | Contention >100 req/s | Redis INCR + EXPIRE |
-| Eager BullMQ connection | Crash startup si Redis down | Lazy init |
-| Puppeteer PDF (~200MB/process) | Scale limité à ~5 instances | Service PDF dédié |
-| Aucun batch dans parsers CSV/XLSX | RAM OOM sur fichiers >100k rows | Stream processing |
 
-### 🗄️ Base de données
-| Problème | Tables concernées | Solution |
+| Problème | Impact estimé | Statut |
 |---|---|---|
-| Pas d'index `used` sur tokens | MagicLinkToken, PasswordResetToken, InviteToken | `@@index([used])` + cleanup job |
-| RateLimit jamais nettoyée | RateLimit | Cron DELETE WHERE expires < NOW() |
-| `createdById` pas de cascade | ReportVersion | `onDelete: Cascade` |
+| DB query dans session callback auth.ts | +3ms par requête HTTP authentifiée | ❌ Non corrigé |
+| PostgreSQL rate limiting → Redis | Contention >100 req/s | ✅ Corrigé (Redis fallback) |
+| BullMQ eager connection | Crash startup si Redis down | ✅ Corrigé (lazy init) |
+| Puppeteer PDF (~200MB/process) | Scale limité à ~5 instances | ❌ Non corrigé |
+| Aucun batch dans parsers CSV/XLSX | RAM OOM sur fichiers >100k rows | ❌ Non corrigé |
 
-### 🧱 Architecture
-| Problème | Modules concernés | Solution |
+### Score global Back-End (mis à jour)
+
+| Catégorie | Score | Δ vs baseline |
 |---|---|---|
-| `entitlements/index` réexporte Stripe webhook | entitlements ← stripe-webhook-handler | Extraire dans module dédié |
-| Deux sources vérité plans | compat.ts (static) vs PlanFeature (DB) | Migrer vers DB uniquement |
-| BullMQ connection non-lazy | queue/client.ts | Factory function lazy |
-
-### 📈 Scalabilité
-| Risque | Seuil estimé | Solution |
-|---|---|---|
-| Contention PostgreSQL rate limiting | 50 req/s | Redis |
-| Token prefix collision | 10k tokens | 16+ hex chars |
-| Puppeteer mémoire | 5 instances | Service PDF dédié |
-
-### 🧪 Tests manquants
-| Zone non couverte | Type de test | Priorité |
-|---|---|---|
-| `crypto.ts` — timingSafeEqual | Unitaire | High |
-| `experiments.ts` — bucketing distribution | Unitaire statistique | High |
-| `rate-limit.ts` — atomic UPSERT | Unitaire + Intégration | High |
-| Stripe webhook idempotency | Intégration | High |
-| Entitlement resolution chain | Unitaire | High |
-| API key lifecycle | Unitaire | Medium |
-
-### 📋 Dette technique identifiée
-| Description | Coût si ignoré | Effort |
-|---|---|---|
-| PLAN_FEATURES statique dupliqué avec DB | Bugs feature flags, confusion devs | S |
-| `as any` dans stripe-webhook-handler.ts:96 | Perte type safety Stripe | XS |
-| console.log partout | Impossible corréler logs | S |
-| MurmurHash3 maison buggé | A/B testing incorrect | XS |
-| Aucune health check API | Monitoring plateforme aveugle | XS |
-| Aucun request ID | Impossible tracer requête → log → erreur | S |
-
-### Score global Back-End
-| Catégorie | Score |
-|---|---|
-| **Architecture** | 8/10 |
-| **Sécurité** | 7/10 |
-| **Performance** | 6/10 |
-| **Maintenabilité** | 7/10 |
-| **Scalabilité** | 5/10 |
-| **Observabilité** | 6/10 |
+| **Architecture** | 7.5/10 | -0.5 (compat.ts toujours là) |
+| **Sécurité** | 8/10 | +1 (XSS, auth rate limiting, CSRF, retry) |
+| **Performance** | 6.5/10 | +0.5 (Redis rate limit, lazy init) |
+| **Maintenabilité** | 7/10 | = |
+| **Scalabilité** | 5.5/10 | +0.5 |
+| **Observabilité** | 6.5/10 | +0.5 (health check) |
 
 ---
 
-## 🏢 ÉTAPE 3 — Couche Métier (Terminée)
+## 🏢 ÉTAPE 3 — Couche Métier (Mise à jour post-sprints)
 
-### Agent Business Analyst — Règles Métier
+### Statut des correctifs
+
+| Problème | Statut | Note |
+|---|---|---|
+| FREE plan maxSlides=8 vs default slideCount=10 | ❌ **Non corrigé** | Toujours pas de validation avant génération |
+| Aucune vérification format d'export côté plan | ❌ **Non corrigé** | `consume('exportsPerMonth')` non implémenté |
+| Double source de vérité plans (compat.ts vs DB) | ❌ **Non corrigé** | Toujours présent (compat.ts existe encore) |
+| Downgrade PRO→FREE non détecté | ✅ **Corrigé** | `isDowngrade` check présent |
+| Exports non limités (aucun quota) | ❌ **Non corrigé** | Pas de `consume()` dans export.worker |
+| Agency sans price Stripe | ❌ **Non corrigé** | Pas de STRIPE_PRICE_AGENCY |
+| Race condition consumeUsage (P2002 catch) | ❌ **Non corrigé** | Toujours vulnérable |
+| Race condition version increment generate.worker | ❌ **Non corrigé** | Toujours `findFirst` + `create` non atomique |
+
+### Problèmes métier persistants
 
 | # | Problème | Impact Business | Exemple concret | Suggestion |
 |---|---|---|---|---|
-| 1 | **FREE plan maxSlides=8 vs default slideCount=10** | Nouveau FREE génère 10 slides (default) mais plan max=8 → crash ou dépassement silencieux | User FREE clique Générer sans changer slideCount → rejet ou génération 10 slides | Uniformiser default slideCount avec plan.maxSlides OU valider avant création |
-| 2 | **Aucune vérification format d'export côté plan** | FREE peut demander export DOCX (interdit sur son plan) → worker génère et stocke sans blocage | FREE appelle export('DOCX') → job créé → worker génère DOCX → stocké dans R2 | Ajouter `canConsume(orgId, 'formatDOCX')` dans le worker |
-| 3 | **Double source de vérité : PLANS (compat.ts) ≠ PlanFeature (DB)** | Admin modifie PlanFeature en DB mais compat.ts reste inchangé → comportements divergents | `canConsume()` lit DB, `planHasFeature()` lit compat.ts → UI dit "3 reports" mais DB autorise 30 | Supprimer compat.ts ou ajouter test sync |
-| 4 | **Downgrade PRO→FREE non détecté** | Passage PRO→FREE non loggé, pas de downgrade effectué | Client PRO annule → `isDowngrade` retourne false → pas de cache invalidation pour FREE | Corriger condition dans stripe-webhook-handler |
-| 5 | **Exports non limités (aucun quota)** | FREE peut exporter 1000 PPTX sans restriction | Script automatique exporte en boucle → coût R2 explose | Ajouter `exportPerMonth` feature + `consume()` dans export worker |
-| 6 | **Agency sans price Stripe** | Aucun moyen d'acheter Agency via Stripe | Client enterprise clique "Upgrade to Agency" → erreur | Ajouter price ID Stripe ou documenter "contact us" |
-| 7 | **Magic number -1 pour "illimité"** | -1 signifie "unlimited" mais fragilise la maintenance | Cohérent ici mais deux sémantiques pour -1 (limite et prix) | Remplacer par `null` (illimité) et `'custom'` (prix) |
-| 8 | **maxOrganizations jamais enforce** | FREE/PRO ont maxOrganizations=1 mais rien n'empêche multi-org | User peut être invité dans 2 orgs sans blocage | Ajouter check dans l'invite |
-
-### Agent Domain Expert — Modèle Métier (DDD)
-
-| # | Entité/Agrégat | Problème | Impact | Suggestion |
-|---|---|---|---|---|
-| 1 | **Report** | **Modèle anémique** : entités sans comportement, logique dans services | Rien n'empêche création Report incohérent (slideCount > plan max) | Factory `Report.create()` avec vérifications |
-| 2 | **Comment → Slide** | **Régénération détruit versions** : `deleteMany` slides supprime commentaires (SetNull) | Commentaires orphelins après régénération | Versionner commentaires ou rattacher au Report |
-| 3 | **Value objects** | **Types primitifs partout** : Email = string, SlideCount = Int sans borne | Passer `slideCount: -5` à Claude → prompt invalide | Branded types Zod (SlideCountSchema, Email, Period, FileSize) |
-| 4 | **UserRole vs MembershipRole** | **Conflit nommage** : `UserRole` (OWNER/MEMBER) vs `MembershipRole` (OWNER/ADMIN/MEMBER) | Différence sémantique floue, matrice d'héritage ambiguë | Renommer `UserRole` en `SystemRole` (SUPER_ADMIN, USER) |
-| 5 | **Export → compat.ts** | **Fuites bounded context** : export worker lit watermark depuis compat.ts (statique) au lieu du feature gate | Override admin ignoré, watermark toujours affiché | Utiliser `hasFeature(orgId, 'noWatermark')` |
-| 6 | **Membership** | **Invariant non respecté** : org peut avoir 0 OWNER | Dernier OWNER change son rôle → plus personne ne gère l'abonnement | Vérifier ≥1 OWNER avant modif rôle |
-| 7 | **Report.slideCount** | **Ambigu** : nombre demandé ou réel ? | User demande 10, IA génère 8 → `report.slideCount=10` mais 8 slides réels | Renommer `requestedSlideCount`, stocker réel via `slides.length` |
-| 8 | **Membership** | **Pas d'historique** : pas de `createdAt`, `invitedBy`, `roleChangedAt` | Audit impossible : "Qui était ADMIN le mois dernier ?" | Ajouter timestamps |
-
-### Agent Use Cases Review
-
-| # | Use case | Problème | Type | Suggestion |
-|---|---|---|---|---|
-| 1 | **generate.worker** | **Race condition version increment** : `findFirst` + `create` non atomique | Race condition | Remplacer par `UPDATE "version" = "version" + 1 ... RETURNING` |
-| 2 | **export.worker** | **Pas de `consume()` pour quota tracking** | Manquant | Ajouter `consume(orgId, 'exportsPerMonth')` |
-| 3 | **export.worker** | **Watermark lu depuis compat.ts** au lieu du feature gate | Couplage mauvais | Utiliser `hasFeature(orgId, 'noWatermark')` |
-| 4 | **consumeUsage** | **Race condition sous charge concurrente** (P2002 catch) | Race condition | Utiliser `INSERT ... ON CONFLICT DO UPDATE` atomique |
-| 5 | **hasFeature** | **N appels DB pour N features** | Perf | Ajouter `resolveFeatureBatch(orgId, keys)` |
-| 6 | **assertFeature** | **Throw erreur métier au lieu de 403 HTTP** | Couplage | Documenter ou wrapper en réponse HTTP |
-| 7 | **Webhook handler** | **Pas de Dead Letter Queue** si échec définitif | Idempotence | Marquer `DEAD_LETTER` après X échecs |
-| 8 | **customer.subscription.deleted** | **Downgrade immédiat ignore stratégie** | Workflow incomplet | Appliquer `DowngradeService.applyDowngrade` au lieu d'update direct |
-| 9 | **generate.worker** | **Pas de validation slideCount ≤ plan.maxSlides** | Validation absente | Ajouter `getLimit(orgId, 'maxSlides')` avant génération |
-| 10 | **generate.worker** | **Pas de transaction globale** → report bloqué en PROCESSING si crash | Atomicité | Ajouter timeout job + recovery |
+| 1 | **FREE plan maxSlides=8 vs default slideCount=10** | Nouveau FREE génère 10 slides → rejet | User FREE clique Générer sans changer slideCount | Valider avant génération : `maxSlides = getLimit(orgId, 'maxSlides')` |
+| 2 | **Exports non limités (aucun quota)** | Coût R2 qui explose, FREE peut exporter 1 000 PPTX | Script automatique exporte en boucle | Ajouter `exportPerMonth` feature + `consume()` dans export.worker |
+| 3 | **Double source de vérité : compat.ts ≠ PlanFeature (DB)** | Features divergentes entre UI et backend | `canConsume()` lit DB, `planHasFeature()` lit compat.ts | Supprimer compat.ts après avoir migré tous les callers |
+| 4 | **Race condition consumeUsage sous charge** | Perte de quota, faux LIMIT_REACHED | 2 requêtes simultanées → P2002 | `INSERT ... ON CONFLICT DO UPDATE` atomique |
+| 5 | **Race condition version increment generate.worker** | Unique constraint violation, perte génération | 2 jobs simultanés sur même report | `UPDATE "version" = "version" + 1 ... RETURNING` |
+| 6 | **Agency sans price Stripe** | Aucun moyen d'acheter Agency via Stripe | Client enterprise clique "Upgrade to Agency" → erreur | Ajouter price ID ou documenter "contact us" |
 
 ---
 
-## 💾 ÉTAPE 4 — Couche Data Access (Terminée)
+## 💾 ÉTAPE 4 — Couche Data Access (Mise à jour)
 
-### 🗄️ Repository Review
+### Problèmes persistants
 
 | Repository | Méthode | Problème | Suggestion |
 |---|---|---|---|
-| `PrismaEntitlementRepository` | `getActiveSubscription` | Filtrage applicatif après `findUnique` (2 étapes au lieu d'1) | Ajouter `where: { status: { in: ['ACTIVE','TRIALING'] } }` |
 | `PrismaEntitlementRepository` | `getAllPlanFeatures` | Retourne TOUS les features sans pagination | `findMany` avec pagination si x100 |
-| `PrismaEntitlementRepository` | `consumeUsage` | Logique complexe (37 lignes post-UPDATE) avec double UPDATE | Extraire dans méthode privée `retryConsumeUsage` |
+| `PrismaEntitlementRepository` | `consumeUsage` | Logique complexe (37 lignes) avec double UPDATE | Extraire dans méthode privée |
 | `PrismaEntitlementRepository` | `getUsage` | `findFirst` au lieu de `findUnique` (contrainte unique existe) | Remplacer par `findUnique` |
 | `IEntitlementRepository` | Toutes | Fuite ORM : expose types Prisma dans l'interface | Définir types métier dans `types.ts` + mapper |
 | `FeatureGateService` | `resolveFeature` | Appelle `getAllOverrides` + `getActiveSubscription` à chaque résolution | Précharger tous les contextes en 1 appel |
-| `compat.ts` | `getUserPlan` | Requête imbriquée User→Membership→Org→Subscription (4 niveaux) | Utiliser `getCachedOrg` + `findFirst` léger |
 
-### ⚡ Query Performance
+### Query Performance (mis à jour)
 
-| Niveau | Fichier/méthode | Requête problématique | Explication | Solution |
+| Niveau | Fichier/méthode | Problème | Solution | Statut |
 |---|---|---|---|---|
-| 🔴 | `auth.ts:102` JWT callback | `user.findUnique({ select: { isVerified, emailVerified } })` | Exécuté sur CHAQUE requête HTTP | Stocker `isVerified` dans le JWT token |
-| 🔴 | `feature-gate.ts:148-203` getAllEntitlements | `getAllPlanFeatures()` + `getAllOverrides()` + `getAllUsage()` + boucle | 4 queries avant boucle, coût élevé si cache miss | Fusionner en raw SQL avec JOIN |
-| 🟠 | `admin/plans/route.ts:24` | Boucle sur 4 plans → `getPlanFeatures(plan)` x4 | N+1 explicite | Une query `findMany({ where: { plan: { in: [...] } } })` + groupBy |
-| 🟠 | `feature-gate.ts:46` hasFeature | `resolveFeature` → 3 queries à chaque appel | Triple appel DB par feature | Cache de résolution local par request |
-| 🟡 | `downgrade.ts:207` | `findMany` peut scanner largement | Index manquant | Index composite `(status, plan, currentPeriodEnd)` |
-| 🟡 | `cache.ts:31` getCachedOrg | Include `members` avec `user` pour TOUS les membres | 1000 membres = 1000 users chargés | Pagination interne ou cache par page |
-| 🟢 | `rate-limit.ts` | UPSERT sur RateLimit | Correct mais écriture élevée | TTL PostgreSQL ou partitionnement temporel |
+| 🔴 | `auth.ts:106` session callback | `findUnique` sur CHAQUE requête HTTP | Stocker `isVerified` dans le JWT | ❌ |
+| 🔴 | `feature-gate.ts` getAllEntitlements | 4 queries avant boucle | Fusionner en raw SQL avec JOIN | ❌ |
+| 🟠 | `admin/plans/route.ts` | Boucle sur 4 plans → N+1 | `findMany` + groupBy | ❌ |
+| 🟡 | `downgrade.ts:207` | Index manquant | Index composite `(status, plan, currentPeriodEnd)` | ❌ |
+| 🟢 | `rate-limit.ts` | UPSERT PostgreSQL ok mais mieux avec Redis | Déjà fait | ✅ |
 
-### 🔄 ORM Review
+---
 
-| Entité/fichier | Pattern problématique | Risque | Solution |
-|---|---|---|---|
-| `auth.ts` session callback | Query DB dans `callbacks.session` (lazy loading implicite) | +1 query par requête HTTP | Stocker `isVerified` dans le JWT |
-| `admin/plans/route.ts` | Application-level JOIN bouclé | 4x les données nécessaires chargées | `findMany` avec `where: { plan: { in: [...] } }` |
-| `feature-gate.ts:316` | `resolveFeatureWithOverrides` rappelle `getPlanFeatures` | Appels DB inutiles | Rendre `preloadedFeatures` obligatoire |
-| API routes | `NextResponse.json(feature)` — entité ORM brute | Exposition champs internes, pas de contrôle shape | DTO/mapper `toFeatureResponse()` |
-| `feature-gate.ts` | `isOverrideValid` refait `new Date()` sur champ déjà Date | Objet inutile | Comparer directement `expiresAt > new Date()` |
+## 🗄️ ÉTAPE 5 — Couche Database (Mise à jour)
 
-## 🗄️ ÉTAPE 5 — Couche Database (Terminée)
-
-### 🏛️ DBA Review
+### DBA — Problèmes persistants
 
 | Table | Colonne/index | Problème | Recommandation SQL |
 |---|---|---|---|
 | `User` | `email` | Optionnel (`String?`) mais clé de lookup | NOT NULL pour email/password |
-| `Report` | `slideCount` | `Int @default(10)` sans contrainte | CHECK (`slideCount > 0`) |
 | `Subscription` | `status` | Pas d'index sur status | `CREATE INDEX "idx_subscription_status"` |
 | `Account` | `userId` | Pas d'index explicite FK | `CREATE INDEX "idx_account_user_id"` |
 | `Session` | `userId` | Idem | `CREATE INDEX "idx_session_user_id"` |
-| `EntitlementOverride` | `scopeId` | Pattern polymorphique sans FK possible | CHECK + trigger applicatif |
-| `ReportVersion` | `createdById` | Pas d'index FK | `CREATE INDEX "idx_report_version_created_by"` |
 | `RateLimit` | `expires` | Pas d'index sur expires | `CREATE INDEX "idx_rate_limit_expires"` |
 | `WebhookEvent` | `processedAt` | Pas d'index seul | `CREATE INDEX "idx_webhook_processed_at"` |
-| `MagicLinkToken` | `expires` | Index présent mais pas de TTL cleanup | Job DELETE WHERE expires < NOW() - 30 days |
+| `MagicLinkToken` | `used` | Pas d'index `used` | `@@index([used])` + cleanup job |
 
-### 📈 Database Scalability
+### Database Scalability — Problèmes persistants
 
 | Risque | Impact à x10 | Impact à x100 | Mitigation |
 |---|---|---|---|
-| RateLimit table non nettoyée | ~1M lignes, 30% ralentissement | ~100M lignes, UPSERT ralenti x5 | CRON de nettoyage + partitionnement temporel |
-| MagicLinkToken/PRT accumulation | ~500K used=true | ~50M, cleanup impossible | TTL + DELETE WHERE used=true AND createdAt < 7 days |
-| WebhookEvent accumulation | ~100K lignes | ~10M lignes | TTL + archive mensuelle |
-| UsageTracking contention | 10 orgs concurrentes → OK | 100 orgs → deadlocs possibles | Advisory lock PostgreSQL |
-| getAllEntitlements cache miss | ~50ms (4 queries) | ~500ms si 100+ features | Table matérialisée ou Redis |
-| ReportVersion.slideData JSON | ~10K versions, OK | ~1M versions, ~10-50GB JSON | R2 pour slideData > 100KB |
-| Pool connexions | Prisma singleton OK | 100 connexions → contention pool | PgBouncer + connection_limit |
-| Rate-limit UPSERT chaud | 100 req/s OK | 1000 req/s → contention index unique | Redis pour rate-limiting |
-
-### 🔒 Data Integrity
-
-| Table/relation | Risque | Scénario de corruption | Solution |
-|---|---|---|---|
-| `InviteToken.createdById` → User | Orphelins | Suppression user → tokens invalides | `onDelete: Cascade` ou cleanup |
-| `ReportVersion.createdById` → User | Orphelins | Idem | `onDelete: Cascade` ou SetNull |
-| `Subscription.orgId` 1:1 | Doublon webhook | Stripe crée 2 subscriptions même org | Upsert idempotent (déjà partiel) |
-| `EntitlementOverride` scope | Orphelins scope | Suppression user/org → overrides persistent | Cleanup job |
-| `consumeUsage` périodes | Dérive JS vs DB | PeriodStart calculé JS peut diverger | Utiliser `date_trunc('month', NOW())` côté DB |
-| `User.email` optional | Données partielles | User OAuth sans email → pas de notif | Rendre NOT NULL avec fallback |
+| RateLimit table non nettoyée | ~1M lignes | ~100M lignes | CRON nettoyage + partitionnement temporel |
+| MagicLinkToken/PRT accumulation | ~500K used=true | ~50M | TTL + DELETE WHERE used=true |
+| WebhookEvent accumulation | ~100K lignes | ~10M lignes | Archive mensuelle |
+| UsageTracking contention | OK | Deadlocks possibles | Advisory lock PostgreSQL |
+| getAllEntitlements cache miss | ~50ms (4 queries) | ~500ms (100+ features) | Redis cache ou table matérialisée |
+| Pool connexions | OK | Contention pool | PgBouncer |
 
 ---
 
-## 🏗️ ÉTAPE 6 — Couche Infrastructure (Terminée)
+## 🏗️ ÉTAPE 6 — Couche Infrastructure (Mise à jour)
 
 ### 🔧 Reliability
 
-| Point de risque | Type de panne | Probabilité | Impact | Solution |
-|---|---|---|---|---|
-| `queue/client.ts` — Redis connecté à l'import | SPOF démarrage | H | Crash déploiement si Redis down | Lazy loading workers/queues |
-| `getRedisConnection()` sync 3 retry max sans cooldown | Erreur transitoire | M | Échec toutes opérations queue | Migrer vers `getRedisConnectionAsync()` |
-| Pas de circuit breaker Redis | Cascade | M | Si Redis ralentit, timeout accumulé | Ajouter circuit breaker (opossum) |
-| generateWorker + exportWorker sans dédup par `jobId` | Non-idempotence | M | Même job traité 2× si re-livraison | Stocker jobId dans Redis set avec TTL |
-| Stripe webhook — TOCTOU isEventProcessed/markEventProcessed | Double traitement | L | Doublon abonnement | INSERT ON CONFLICT DO NOTHING atomique |
-| Email — aucune rétry/fallback | Erreur transitoire | M | Magic link non reçu | Ajouter retry expo. + fallback Resend→SMTP |
-| R2 — pas de rétry S3 | Erreur transitoire | M | Échec upload/download fichier | Wrapper SDK AWS retry 3× + jitter |
-| `cache.ts` utilise `unstable_cache` Next.js | Stabilité API | H | Changement comportement sans préavis | Isoler derrière abstraction, prévoir Redis fallback |
-
-### 🔒 Security
-
-| OWASP | Criticité | CVSS | Description | Remédiation |
-|---|---|---|---|---|
-| A01:2021 | **Haut** | 7.5 | `getRedisConnection()` sync au module level — si importé côté client, secret Redis exposé au browser | Initialisation lazy, vérifier arbre d'import |
-| A02:2021 | **Haut** | 7.1 | `GOOGLE_SHEETS_PRIVATE_KEY` multi-lignes corrompu par parseur .env | Normaliser `\\n` → `\n`, valider PEM |
-| A03:2021 | **Moyen** | 6.1 | Raw SQL dans rate-limit.ts : injection temporelle possible via paramètres utilisateur | Restreindre limit/windowMs à des valeurs connues |
-| A04:2021 | **Moyen** | 5.9 | Aucun rate limiting sur endpoints auth (magic link, login, signup) | Rate limiting Redis : 3 req/min par email |
-| A05:2021 | **Moyen** | 5.3 | CSP 'unsafe-eval' en dev — si staging exposé | Restreindre en dev si possible |
-| A06:2021 | **Moyen** | 5.0 | Aucun Dependabot/Renovate configuré, pas de scan nightly | Ajouter `.github/dependabot.yml` weekly |
-| A07:2021 | **Haut** | 7.0 | Magic Link dans URL — interception possible, pas de rotation/détection vol | authCode usage unique + 10min TTL + notification |
-| A09:2021 | **Moyen** | 5.5 | `error-logger.ts` envoie vers console.warn + endpoint non authé | Remplacer par Sentry + log structuré |
-| A10:2021 | **Bas** | 4.0 | generate.worker fetch(signedUrl) R2 — risque SSRF si URL malveillante | Valider domaine R2 autorisé |
-
-### 📊 Observability
-
-| Zone aveugle | Impact en cas d'incident | Instrumentation recommandée |
-|---|---|---|
-| **Aucun log structuré** (console.log) | Impossible filtrer/corréler logs par tenant, traceId, niveau | Pino/Winston + format JSON : `{ time, level, msg, traceId, userId, orgId }` |
-| **Pas de health check endpoint** | Vercel ne peut pas monitorer workers ou uptime | `GET /api/health` : check DB (SELECT 1) + Redis (PING) + R2 (HeadBucket) |
-| **Performance workers invisible** | Job generate 5min au lieu de 30s non alerté | Métriques RED : duration (histogram), rate, errors → Sentry metrics |
-| **Cache hit/miss ratio inconnu** | Cache inefficace sans détection → charge DB inutile | Compteurs cache_hit/miss/revalidate dans cache.ts |
-| **Aucune trace distribuée** | Impossible tracer requête API → queue → Anthropic → DB | Forcer Sentry traces 100% routes critiques (+ traceId header manuel) |
-| **Pas de métriques business** | Impossible mesurer rapports/min, exports, conversions | Sentry custom metrics : business.reports_created, exports_completed |
-| **Pas de log aggregation** | Logs Vercel éphémères, incident d'il y a 1h illisible | Configurer log drain Vercel → Axiom/Datadog |
-
-### ☁️ Cloud & Ops
-
-| Risque opérationnel | Impact | Probabilité | Solution |
+| Point de risque | Type de panne | Probabilité | Statut |
 |---|---|---|---|
-| **Workers BullMQ non supportés par Vercel** (timeout 10-60s) | Appli plante, jobs de fond non exécutés | H | Déployer workers sur service séparé (Railway/Fly.io) |
-| **Redis SPOF** (pas de sentinel/cluster) | File d'attente bloquée, génération/export impossibles | M | Upstash Redis (serverless HA) ou Redis Enterprise |
-| **PostgreSQL SPOF** (1 instance, pas de replica) | Appli down si DB tombe (0 RTO, 0 RPO sans backup récent) | L | Backups auto (Neon). PgBouncer en serverless |
-| **Aucune stratégie DR documentée** (RTO/RPO) | Perte données indéterminée, restauration inconnue | M | Documenter RTO≤1h/RPO≤5min. Automatiser restore. Tester trimestriellement |
-| **Déploiement manuel** | Non reproductible, "works on my machine" | M | Ajouter deploy.yml : vercel deploy --prod après CI |
-| **Aucun monitoring uptime externe** | Équipe découvre panne via utilisateurs | H | Better Uptime / Checkly / Sentry Cron Monitor + alertes Slack |
-| **Coût Anthropic API non tracké** | Boucle regénération infinie = facture massive | M | Budget rate limiter + logger coût estimé par job |
-| **Pas de Docker/IaC** | Environnement non reproductible, dépendances système (Chromium) non explicitées | M | Dockerfile pour worker avec Chromium + Redis sidecar |
-| **Aucun environnement staging** | Config testée en prod direct | M | Créer environnement staging Vercel avec DB/Redis/R2 dédiés |
+| BullMQ connection non-lazy | SPOF démarrage | H | ✅ Corrigé |
+| Pas de circuit breaker Redis | Cascade | M | ❌ Non corrigé |
+| generateWorker + exportWorker sans dédup | Non-idempotence | M | ❌ Non corrigé |
+| Stripe webhook TOCTOU | Double traitement | L | ✅ Corrigé (idempotency + INSERT ON CONFLICT) |
+| Email sans retry/fallback | Erreur transitoire | M | ❌ Non corrigé |
+| R2 sans retry S3 | Erreur transitoire | M | ❌ Non corrigé |
+| `cache.ts` utilise `unstable_cache` Next.js | Stabilité API | H | ❌ Non corrigé |
 
-### Scores Infrastructure
+### 🔒 Security — Post-sprints
 
-| Catégorie | Score |
-|---|---|
-| **Reliability** | 4/10 |
-| **Security** | 7/10 |
-| **Observability** | 3/10 |
-| **Cloud & Ops** | 3/10 |
+| OWASP | Criticité | Description | Statut |
+|---|---|---|---|
+| A03:2021 | Haut | XSS PDF export | ✅ Corrigé |
+| A07:2021 | Haut | Magic Link dans URL (interception) | ❌ Non corrigé |
+| A05:2021 | Haut | `GOOGLE_SHEETS_PRIVATE_KEY` multi-lignes | ❌ Non corrigé |
+| A01:2021 | Moyen | CSRF auth routes | ✅ Corrigé |
+| A04:2021 | Moyen | Rate limiting auth | ✅ Corrigé |
+| A06:2021 | Moyen | CSP 'unsafe-eval' en dev | ❌ Non corrigé |
+| A05:2021 | Moyen | Pas de Dependabot weekly | ✅ Corrigé (présent dans .github) |
+| A10:2021 | Bas | SSRF risque via signedUrl R2 | ❌ Non corrigé |
+
+### 📊 Observability — Post-sprints
+
+| Zone aveugle | Impact | Statut |
+|---|---|---|
+| Aucun log structuré (console.log) | Impossible filtrer/corréler | ❌ Non corrigé |
+| Pas de health check endpoint | Monitoring impossible | ✅ Corrigé |
+| Performance workers invisible | Jobs lents non alertés | ❌ Non corrigé |
+| Cache hit/miss ratio inconnu | Cache inefficace | ❌ Non corrigé |
+| Aucune trace distribuée | Impossible tracer requête → erreur | ❌ Non corrigé |
+| Pas de métriques business | Impossible mesurer conversion | ❌ Non corrigé |
+| Pas de log aggregation | Logs Vercel éphémères | ❌ Non corrigé |
+
+### ☁️ Cloud & Ops — Post-sprints
+
+| Risque opérationnel | Impact | Statut |
+|---|---|---|
+| Workers BullMQ non supportés par Vercel (timeout) | Jobs non exécutés | ❌ Non corrigé (Phase 1 Workers démarrée) |
+| Redis SPOF (pas de sentinel/cluster) | File d'attente bloquée | ❌ Non corrigé |
+| Aucune stratégie DR documentée (RTO/RPO) | Perte données | ❌ Non corrigé |
+| CI pipeline | Déploiement manuel | ✅ Corrigé (GitHub Actions) |
+| Aucun monitoring uptime externe | Pannes invisibles | ❌ Non corrigé |
+| Coût Anthropic API non tracké | Facture surprise | ❌ Non corrigé |
+| Aucun environnement staging | Config testée en prod | ❌ Non corrigé |
+
+### Scores Infrastructure (mis à jour)
+
+| Catégorie | Score | Δ vs baseline |
+|---|---|---|
+| **Reliability** | 5/10 | +1 (lazy init, retry webhook) |
+| **Security** | 8/10 | +1 (XSS, CSRF, rate limit, Dependabot) |
+| **Observability** | 4/10 | +1 (health check) |
+| **Cloud & Ops** | 4/10 | +1 (CI pipeline) |
 
 ---
 
-## 🏛️ ÉTAPE 7 — Synthèse Architecte (Agent Final)
+## 🏛️ ÉTAPE 7 — Synthèse Architecte (Mise à jour post-sprints)
 
-### Top 20 Problèmes (tous domaines confondus)
+### Bilan des correctifs appliqués
 
-Classés par Impact Business × Urgence × Effort :
+| Sprint | Taux complétion | Correctifs majeurs |
+|---|---|---|
+| Sprint 1 — Correctifs critiques | ~90% | XSS PDF ✅, BullMQ lazy init ✅, JWT needsRefresh ✅, modulo bias ✅ |
+| Sprint 1.5 — Sécurité & Tests | ~80% | 103 tests ✅, CSRF auth ✅, rate limiting auth ✅, Dependabot ✅ |
+| Sprint 2 — Stabilisation | ~70% | Health checks ✅, polling reports ✅, chart colors ✅, downgrade detection ✅ |
+| Sprint 3 — Workers & CI | ~60% | CI pipeline ✅, Workers Phase 1 ✅, integration tests ✅ |
+| **Reste à faire (Sprint 4+)** | **~50 items** | Voir plan ci-dessous |
 
-| Rang | Domaine | Problème | Impact | Effort | Sources |
+### Top 20 Problèmes (état actuel)
+
+| Rang | Domaine | Problème | Impact | Effort | Statut |
 |---|---|---|---|---|---|
-| 1 | **Infra/Security** | XSS dans PDF export (escapeHtml manquant) | Perte données clients, compromission PDF | XS | Back-end Agent 3, Security Agent 2 |
-| 2 | **Back-End** | BullMQ Redis connection au module level → SPOF démarrage | Crash au déploiement si Redis down | S | Back-end Agent 8/4, Infra Agent 1 |
-| 3 | **Back-End** | JWT `needsRefresh` jamais reset → rotation infinie après 24h | Perf dégradée, refreshes inutiles | XS | Back-end Agent 2 |
-| 4 | **Métier** | Exports non limités (FREE peut exporter à l'infini) | Coût R2 qui explose | S | Business Analyst #5, Use Case #2 |
-| 5 | **Métier** | Downgrade PRO→FREE non détecté dans webhook Stripe | Clients gardent features PRO après annulation | S | Business Analyst #4, Use Case #8 |
-| 6 | **Métier** | Double source de vérité plans (compat.ts vs DB PlanFeature) | Bugs feature flags, comportements divergents | M | Business Analyst #3, Back-end Agent 2 |
-| 7 | **Data/DB** | Rate limiting sur PostgreSQL → contention >100 req/s | Goulot étranglement sous charge | M | Back-end Agent 4, DBA, Scalability |
-| 8 | **Back-End** | DB query dans session callback auth.ts à chaque requête (isVerified) | +3ms sur chaque requête HTTP, pas de cache | XS | Back-end Agent 4, Query Perf Agent |
-| 9 | **Infra** | Workers BullMQ incompatibles Vercel serverless (timeout) | Jobs de fond non exécutés en prod | L | Infra Agent 4 |
-| 10 | **Data/DB** | Index manquants : `used` sur tokens, `status` sur Subscription | Ralentissement requêtes nettoyage | S | DBA, Query Perf Agent |
-| 11 | **Front-End** | Dashboard non-responsive (sidebar fixe 240px, pas de breakpoint) | Impossible utiliser sur mobile | L | Front-End Agent 3 |
-| 12 | **Front-End** | Design tokens dupliqués (landing CSS dans globals.css + 500 lignes) | Maintenance doublée, perf css | M | Front-End Agent 5/6 |
-| 13 | **Front-End** | Couleurs graphiques hardcodées (violets/roses) hors thème DataPresent | Incohérence marque, dark mode cassé | S | Front-End Agent 6 |
-| 14 | **Métier** | Race condition consumeUsage sous charge (P2002 catch) | Perte de quota, faux LIMIT_REACHED | M | Use Case Agent #4 |
-| 15 | **Métier** | Race condition version increment generate.worker (non atomique) | Unique constraint violation, perte génération | M | Use Case Agent #1 |
-| 16 | **Back-End** | Modulo bias dans génération clés API | Clés API prévisibles | XS | Back-end Agent 3 |
-| 17 | **Infra** | Aucun endpoint health check (/api/health) | Monitoring impossible, downtimes invisibles | XS | Back-end Agent 7, Infra Agent 3 |
-| 18 | **Infra** | Aucun log structuré (console.log uniquement) | Debugging impossible, pas de corrélation | S | Infra Agent 3 |
-| 19 | **Front-End** | Pas de progression upload, pas de polling auto reports | Mauvaise UX, frustration utilisateur | M | Front-End Agent 2 |
-| 20 | **Data/DB** | Orphelins potentiels : InviteToken, ReportVersion sans cascade | Données résiduelles, intégrité compromises | M | Data Integrity, DBA |
+| 1 | **Métier** | Exports non limités (FREE peut exporter à l'infini) | Coût R2 qui explose | S | ❌ |
+| 2 | **Métier** | Double source de vérité plans (compat.ts vs DB PlanFeature) | Bugs feature flags | M | ❌ |
+| 3 | **Back-End** | DB query dans session callback auth.ts (isVerified) | +3ms/req, pas de cache | XS | ❌ |
+| 4 | **Front-End** | Dashboard non-responsive (sidebar fixe, pas de breakpoint) | 30%+ trafic mobile perdu | L | ❌ |
+| 5 | **Data/DB** | Index manquants : `used` sur tokens, `status` sur Subscription | Perf dégradée | S | ❌ |
+| 6 | **Métier** | FREE plan maxSlides=8 vs default slideCount=10 | Crash silencieux | S | ❌ |
+| 7 | **Infra** | Workers BullMQ incompatibles Vercel serverless (timeout) | Jobs de fond non exécutés | L | ❌ |
+| 8 | **Métier** | Race condition consumeUsage sous charge (P2002 catch) | Perte de quota | M | ❌ |
+| 9 | **Métier** | Race condition version increment generate.worker (non atomique) | Perte génération | M | ❌ |
+| 10 | **Data/DB** | RateLimit table non nettoyée | Accumulation, perf | S | ❌ |
+| 11 | **Front-End** | Upload progression indicator absent | Mauvaise UX | M | ❌ |
+| 12 | **Infra** | Aucun log structuré (console.log) | Debugging impossible | S | ❌ |
+| 13 | **Infra** | Magic link dans URL (interception possible) | Sécurité auth | M | ❌ |
+| 14 | **Infra** | Pas de circuit breaker Redis | Cascade panne | M | ❌ |
+| 15 | **Infra** | Aucun monitoring uptime externe | Pannes invisibles | S | ❌ |
+| 16 | **Infra** | Aucune trace distribuée (request ID) | Debugging impossible | M | ❌ |
+| 17 | **Back-End** | `as any` dans stripe-webhook-handler | Perte type safety | XS | ❌ |
+| 18 | **Infra** | Aucun environnement staging | Config testée en prod | L | ❌ |
+| 19 | **Front-End** | CSS landing dans globals.css | Bundle inutile | M | ❌ |
+| 20 | **Back-End** | GOOGLE_SHEETS_PRIVATE_KEY multi-lignes corrompu | Auth Google Sheets cassé | XS | ❌ |
 
-### 🧨 Dette technique critique (coûtera 10× plus cher dans 6 mois)
+### 🧨 Dette technique critique
 
-1. **Deux systèmes de plans** (`compat.ts` statique + `PlanFeature` en DB) — les bugs de divergence empireront avec le nombre de plans, chaque nouvelle feature devra être ajoutée aux deux endroits
-2. **Pas de health check / monitoring** — aujourd'hui ça passe car petite app, mais dans 6 mois avec du trafic réel, chaque incident sera un aveugle debugging de 2h+
-3. **Console.log** au lieu de logging structuré — avec la croissance de l'équipe, l'absence de logs corrélables rendra chaque incident nécessitant une rollback introuvable
-4. **CSS landing dans globals.css** — plus la landing s'enrichit, plus le bundle CSS grossit pour RIEN sur les pages connectées
-5. **Absence de versioning API** — dès qu'un client externe (API keys, embed) consomme les APIs, un breaking change force une migration douloureuse
+1. **Deux systèmes de plans** (`compat.ts` statique + `PlanFeature` en DB) — déjà documenté comme "à migrer" mais pas fait. Chaque nouvelle feature doit être ajoutée aux deux endroits.
+2. **Console.log** au lieu de logging structuré — avec la croissance, l'absence de logs corrélables rendra chaque incident une enquête de 2h+.
+3. **Absence de versioning API** — dès qu'un client externe (API keys, embed) consomme les APIs, un breaking change force une migration douloureuse.
+4. **CSS landing dans globals.css** — plus la landing s'enrichit, plus le bundle CSS grossit pour RIEN sur les pages connectées.
 
 ### ⚠️ Risques à 6 mois
 
 | Risque | Pourquoi devient bloquant |
 |---|---|
-| **Workers Vercel incompatibles** | Premier client enterprise → timeout sur génération → escalade support |
+| **Workers Vercel incompatibles** | Premier client enterprise → timeout sur génération |
 | **Coûts R2/Anthropic non trackés** | Premier mois à 1000 exports → facture surprise |
-| **FREE export illimité** | Détournement du FREE plan comme API gratuite → coût infini |
-| **Redis SPOF** | Prochaine panne Redis → tout le site down (queue + rate limit + cache) |
-| **Dashboard non-responsive** | 30%+ du trafic mobile → taux de rebond ×2 sur la page clé |
-| **Pas de staging** | Prochain déploiement cassé en prod sans détection préalable |
-
-### 🔮 Risques à 2 ans
-
-| Décision architecturale | Risque long terme |
-|---|---|
-| **Architecture monolithique Next.js** tout-en-un (pages + API + workers) | Impossibilité de scaler API séparément du front-end |
-| **BullMQ non natif Vercel** nécessite infrastructure séparée | Complexité opérationnelle croissante |
-| **Pas de séparation Bounded Context claire** (entitlements mélangé avec tout) | À 5 développeurs, chaque PR modifie le même module |
-| **Prisma sans migration versionnée visible** | Schéma figé, migrations risquées à grande échelle |
-| **Pas de feature flags auto-servis** (admin uniquement) | Déploiements risqués, rollbacks complexes |
+| **FREE export illimité** | Détournement du FREE plan comme API gratuite |
+| **Dashboard non-responsive** | Trafic mobile croissant → taux de rebond ×2 |
+| **Pas de staging** | Prochain déploiement cassé en prod sans détection |
 
 ---
 
-### 📅 Plan d'action priorisé
+### 📅 Plan d'action priorisé (Sprint 4+)
 
-#### Sprint 1 — Correctifs critiques (semaine 1-2)
+#### Sprint 4 — Correctifs résiduels (semaine 1-2)
 
-| # | Priorité | Action | Effort | Responsable |
-|---|---|---|---|---|
-| 1 | 🔴 **CRITIQUE** | Fix XSS PDF export : ajouter escapeHtml dans generateHtmlFromSlides | XS | Back-end |
-| 2 | 🔴 **CRITIQUE** | Lazy init BullMQ connection (supprimer eager import) | S | Back-end |
-| 3 | 🔴 **CRITIQUE** | Fix JWT `needsRefresh` reset (delete token.needsRefresh) | XS | Back-end |
-| 4 | 🔴 **CRITIQUE** | Supprimer dépendance circulaire entitlements → stripe | S | Back-end |
-| 5 | 🔴 **CRITIQUE** | Fix modulo bias dans generateSecureKey | XS | Back-end |
-| 6 | 🔴 **HAUT** | Ajouter rate limiting Redis sur endpoints auth (3/min par email) | S | Back-end |
-| 7 | 🔴 **HAUT** | Ajouter CSRF sur routes auth manquantes (magic-link, signup, forgot-password) | S | Back-end |
-| 8 | 🔴 **HAUT** | Ajouter `escapeHtml()` sur routes export PDF/docx | XS | Back-end |
+| # | Priorité | Action | Effort |
+|---|---|---|---|
+| 1 | 🔴 **CRITIQUE** | Ajouter `consume('exportsPerMonth')` dans export.worker | S |
+| 2 | 🔴 **CRITIQUE** | Valider slideCount ≤ plan.maxSlides avant génération | S |
+| 3 | 🔴 **HAUT** | Stoker `isVerified` dans JWT token (supprimer query DB session callback) | XS |
+| 4 | 🔴 **HAUT** | Ajouter index `used` sur tokens + cleanup job | S |
+| 5 | 🔴 **HAUT** | Fix race condition consumeUsage (INSERT ON CONFLICT atomique) | M |
+| 6 | 🔴 **HAUT** | Fix race condition version increment (atomic UPDATE RETURNING) | M |
 
-#### Sprint 2 — Stabilisation (semaine 3-6)
+#### Sprint 5 — Stabilisation (semaine 3-6)
 
-| # | Priorité | Action | Effort | Responsable |
-|---|---|---|---|---|
-| 9 | 🟠 HAUT | Remplacer PostgreSQL rate limiting par Redis | M | Back-end |
-| 10 | 🟠 HAUT | Ajouter index + cleanup job tokens expirés | S | Back-end |
-| 11 | 🟠 HAUT | Ajouter `consume('exportsPerMonth')` dans export.worker | S | Back-end |
-| 12 | 🟠 HAUT | Valider slideCount ≤ plan.maxSlides avant génération | S | Back-end |
-| 13 | 🟠 HAUT | Fix downgrade PRO→FREE dans stripe-webhook handler | S | Back-end |
-| 14 | 🟠 MOYEN | Rendre dashboard responsive (hamburger < 768px) | L | Front-end |
-| 15 | 🟠 MOYEN | Remplacer couleurs hardcodées charts par tokens CSS | S | Front-end |
-| 16 | 🟠 MOYEN | Ajouter health check endpoint (/api/health + /api/ready) | XS | Back-end |
-| 17 | 🟠 MOYEN | Ajouter polling auto reports en cours de génération | M | Front-end |
-| 18 | 🟠 MOYEN | Ajouter upload progression indicator | M | Front-end |
+| # | Priorité | Action | Effort |
+|---|---|---|---|
+| 7 | 🟠 HAUT | Rendre dashboard responsive (hamburger < 768px) | L |
+| 8 | 🟠 HAUT | Ajouter pagination dashboard reports | S |
+| 9 | 🟠 HAUT | Ajouter upload progression indicator | M |
+| 10 | 🟠 HAUT | Supprimer compat.ts statique, migrer vers DB uniquement | M |
+| 11 | 🟠 HAUT | Ajouter logging structuré (pino/winston + JSON) | M |
+| 12 | 🟠 MOYEN | Remplacer magic link URL par POST body callback | M |
+| 13 | 🟠 MOYEN | Ajouter request ID + Sentry traces | M |
+| 14 | 🟠 MOYEN | Extraire CSS landing de globals.css | M |
+| 15 | 🟠 MOYEN | Corriger `as any` dans stripe-webhook-handler | XS |
 
-#### Sprint 3 — Amélioration (mois 2-3)
+#### Sprint 6 — Amélioration (mois 2-3)
 
-| # | Priorité | Action | Effort | Responsable |
-|---|---|---|---|---|
-| 19 | 🟡 MOYEN | Unifier design tokens (supprimer duplicate landing CSS) | M | Front-end |
-| 20 | 🟡 MOYEN | Ajouter logging structuré (pino/winston + JSON) | M | Back-end |
-| 21 | 🟡 MOYEN | Fix race condition consumeUsage (INSERT ON CONFLICT atomique) | M | Back-end |
-| 22 | 🟡 MOYEN | Fix race condition version increment (atomic UPDATE RETURNING) | M | Back-end |
-| 23 | 🟡 MOYEN | Ajouter pagination dashboard reports | S | Front-end |
-| 24 | 🟡 MOYEN | Ajouter request ID + corrélation traces | M | Back-end |
-| 25 | 🟡 FAIBLE | Supprimer compat.ts statique, migrer vers DB uniquement | M | Back-end |
-| 26 | 🟡 FAIBLE | Ajouter Dependabot + CodeQL scanning | S | Infra |
-| 27 | 🟡 FAIBLE | Extraire CSS landing de globals.css | M | Front-end |
-| 28 | 🟡 FAIBLE | Ajouter alternatives textuelles graphiques (aria-label) | S | Front-end |
+| # | Priorité | Action | Effort |
+|---|---|---|---|
+| 16 | 🟡 MOYEN | Ajouter circuit breaker Redis (opossum) + retry S3 | M |
+| 17 | 🟡 MOYEN | Ajouter monitoring uptime externe (Checkly/Better Uptime) | S |
+| 18 | 🟡 MOYEN | Ajouter stockage GOOGLE_SHEETS_PRIVATE_KEY (PEM multiline) | XS |
+| 19 | 🟡 MOYEN | Ajouter DTO/mapper pour entités ORM → API responses | M |
+| 20 | 🟡 MOYEN | Ajouter pagination dans getAllPlanFeatures | S |
+| 21 | 🟡 FAIBLE | Remplacer SVG landing par Lucide icons | S |
+| 22 | 🟡 FAIBLE | Alternativement textuelle graphiques (aria-label) | S |
+| 23 | 🟡 FAIBLE | Ajouter `loading="lazy"` sur images landing | XS |
 
 #### Horizon 6 mois — Évolution
 
 | # | Priorité | Action | Effort |
 |---|---|---|---|
-| 29 | 🔵 ARCHI | Déployer workers BullMQ sur service dédié (Railway/Fly.io) | XL |
-| 30 | 🔵 ARCHI | Ajouter circuit breaker Redis (opossum) + retry S3 | M |
-| 31 | 🔵 ARCHI | Documenter stratégie DR (RTO≤1h/RPO≤5min) + tester | M |
-| 32 | 🔵 ARCHI | Ajouter environnement staging avec DB/Redis/R2 dédiés | L |
-| 33 | 🔵 ARCHI | Remplacer Puppeteer par service PDF dédié | XL |
-| 34 | 🔵 ARCHI | Ajouter versioning API (/api/v1/) | M |
-| 35 | 🔵 ARCHI | Ajouter monitoring uptime externe (Checkly/Better Uptime) | S |
-| 36 | 🔵 ARCHI | Dockerfile pour worker + documentation déploiement | S |
+| 24 | 🔵 ARCHI | Déployer workers BullMQ sur service dédié (Railway/Fly.io) | XL |
+| 25 | 🔵 ARCHI | Documenter stratégie DR (RTO≤1h/RPO≤5min) + tester | M |
+| 26 | 🔵 ARCHI | Ajouter environnement staging avec DB/Redis/R2 dédiés | L |
+| 27 | 🔵 ARCHI | Remplacer Puppeteer par service PDF dédié | XL |
+| 28 | 🔵 ARCHI | Ajouter versioning API (/api/v1/) | M |
+| 29 | 🔵 ARCHI | Dockerfile pour worker + documentation déploiement | S |
+| 30 | 🔵 ARCHI | Métriques business (reports/min, exports, conversions) dans Sentry | S |
 
 ---
 
-### Score d'architecture global
+### Score d'architecture global (mis à jour)
 
-| Catégorie | Score | Justification |
+| Catégorie | Score | Δ vs baseline |
 |---|---|---|
-| **Architecture** | 7/10 | Bonne séparation modules, mais dépendance circulaire, eager connections, pas de bounded contexts clairs |
-| **Sécurité** | 7/10 | Argon2, CSP, CSRF, HMAC = solide. XSS PDF + modulo bias + CSRF auth manquant = -3 |
-| **Performance** | 5/10 | PG rate limiting, eager conn, Puppeteer mémoire, session callback DB, pas de cache Redis |
-| **Maintenabilité** | 6/10 | Code propre TS, mais dette : dual plan system, `as any`, console.log, MurmurHash3 maison |
-| **Scalabilité** | 4/10 | PG rate limiting, workers Vercel incompatibles, pas de versioning API, Puppeteer mémoire |
-| **Observabilité** | 3/10 | Console.log, pas de health check, pas de request ID, pas de métriques RED, pas de log aggregation |
-| **Score global** | **5.3/10** | — |
+| **Architecture** | 7/10 | = |
+| **Sécurité** | 8/10 | **+1** |
+| **Performance** | 5.5/10 | +0.5 |
+| **Maintenabilité** | 6/10 | = |
+| **Scalabilité** | 4.5/10 | +0.5 |
+| **Observabilité** | 4/10 | +1 |
+| **Score global** | **5.8/10** | **+0.5** |
 
 ### Verdict
 
-**DataPresent est un projet jeune et prometteur avec une base technique solide** (TypeScript strict, Argon2, CSP, Zod validation, architecture modulaire) **mais qui accumule une dette technique et des risques opérationnels préoccupants pour un passage en production à l'échelle.**
+**DataPresent a significativement progressé depuis la baseline.** Les Sprints 1-3 ont corrigé les vulnérabilités critiques (XSS, CSRF, rate limiting), amélioré la fiabilité (health checks, lazy init, retry webhook) et posé les bases CI (GitHub Actions, 100+ tests).
 
-Les **correctifs critiques (Sprint 1)** sont rapidement adressables (XS/S) et doivent être traités immédiatement — en particulier le XSS PDF, le SPOF Redis/queue, et l'absence de rate limiting auth. La **stabilisation (Sprint 2)** est cruciale avant toute campagne d'acquisition significative : sans responsive mobile, sans limite d'export, et sans monitoring, le produit risque une crise client dès les premiers pics de trafic.
+**Il reste ~50 items techniques à adresser**, dont 6 critiques (exports non limités, session callback DB, race conditions, responsive dashboard, dual plan system). La plupart sont des correctifs rapides (XS/S) qui ne devraient pas prendre plus de 2 semaines.
 
-**La trajectoire recommandée** est : 2 semaines de correctifs critiques → 1 mois de stabilisation → 1 mois d'amélioration → puis planifier l'évolution architecturale (workers dédiés, staging, monitoring) avant de viser x10 de charge.
+**La trajectoire recommandée** est : 2 semaines pour les correctifs résiduels (Sprint 4) → 1 mois de stabilisation (Sprint 5) → 1 mois d'amélioration (Sprint 6) → puis planifier l'évolution architecturale (workers dédiés, staging, monitoring, versioning API) avant de viser x10 de charge.
+
+Le projet a une base technique saine (TypeScript strict, Argon2, Zod, CSP, architecture modulaire) et les bonnes pratiques sont suivies. La priorité immédiate est de sécuriser le modèle économique (limiter les exports FREE) et de garantir la scalabilité du dashboard (responsive + pagination).
