@@ -8,7 +8,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { readFileSync, writeFileSync } from "fs";
 import { join } from "path";
 import { z } from "zod";
-import { type BlogPost } from "../src/lib/blog/types";
+import { type BlogPost } from "../lib/blog/types";
 
 // ============================================================
 // Schémas de validation

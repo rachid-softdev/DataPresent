@@ -44,5 +44,6 @@ export default defineConfig({
       "@": path.resolve(__dirname, "."),
       "@datapresent/worker-common": path.resolve(__dirname, "../packages/worker-common/src"),
     },
+    dedupe: ["react", "react-dom"],
   },
 });

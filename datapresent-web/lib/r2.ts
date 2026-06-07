@@ -62,5 +62,5 @@ export async function getSignedDownloadUrl(key: string) {
     Bucket: env.R2_BUCKET_NAME,
     Key: key,
   });
-  return getSignedUrl(getR2Client(), command, { expiresIn: 600 });
+  return getSignedUrl(getR2Client() as never, command, { expiresIn: 600 });
 }

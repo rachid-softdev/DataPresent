@@ -227,7 +227,7 @@ function SharePageContent() {
         <div className="space-y-8">
           {report.slides.map((slide) => (
             <div key={slide.id} className="relative bg-card rounded-lg border p-6 shadow-sm">
-              <SlideCard slide={slide} />
+              <SlideCard slide={slide as never} />
               {showWatermark && <Watermark show={showWatermark} />}
             </div>
           ))}

@@ -179,7 +179,7 @@ export default function ApiKeysPage() {
       </div>
 
       {error && (
-        <Alert variant="destructive" className="mb-6">
+        <Alert variant="error" className="mb-6">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>{error}</AlertDescription>
         </Alert>
@@ -228,7 +228,7 @@ export default function ApiKeysPage() {
                   <div>
                     <div className="flex items-center gap-2">
                       <p className="font-medium">{key.name}</p>
-                      {isExpired(key.expiresAt) && <Badge variant="destructive">Expirée</Badge>}
+                      {isExpired(key.expiresAt) && <Badge variant="error">Expirée</Badge>}
                     </div>
                     <p className="text-sm text-muted-foreground mt-1">
                       Créée {formatDate(key.createdAt)}

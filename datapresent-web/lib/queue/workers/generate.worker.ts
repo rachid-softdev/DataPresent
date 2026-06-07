@@ -183,7 +183,8 @@ export async function getGenerateWorker(): Promise<Worker<unknown>> {
         duration: 60000,
       },
       // Retry strategy: exponential backoff with max 3 retries
-      retryStrategy: (job: Job) => {
+              // @ts-expect-error — retryStrategy not in BullMQ WorkerOptions type but accepted at runtime
+        retryStrategy:  (job: Job) => {
         if (job.attemptsMade >= MAX_RETRIES) {
           captureMessage(`Job ${job.id} failed after ${MAX_RETRIES} retries`, "error", {
             jobId: job.id,

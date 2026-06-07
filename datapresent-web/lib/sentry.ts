@@ -31,14 +31,16 @@ export function initSentry() {
         }
 
         // Ignore 404s on certain paths
-        if (event.request?.url?.includes("/api/") && event.response?.status === 404) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const resp = (event as any).response as { status?: number } | undefined;
+        if (event.request?.url?.includes("/api/") && resp?.status === 404) {
           return null;
         }
 
         return event;
       },
       // Integration options
-      integrations: [Sentry.httpIntegration(), Sentry.moduleIntegration()],
+      integrations: [Sentry.httpIntegration(), Sentry.modulesIntegration()],
     });
   }
 }

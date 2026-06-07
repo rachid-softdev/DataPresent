@@ -159,7 +159,7 @@ export function getPlanPrice(plan: PlanType): string {
 }
 
 export function planSupportsFormat(plan: PlanType, format: "PPTX" | "PDF" | "DOCX"): boolean {
-  return PLANS[plan].formats.includes(format);
+  return (PLANS[plan].formats as unknown as string[]).includes(format);
 }
 
 export function canUseFormat(plan: PlanType, format: string): boolean {

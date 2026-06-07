@@ -3,7 +3,8 @@ import type { ParsedData } from "./index";
 
 export async function parseXlsx(buffer: Buffer, fileName: string): Promise<ParsedData> {
   const workbook = new ExcelJS.Workbook();
-  await workbook.xlsx.load(buffer);
+  // @ts-expect-error — TypeScript 6 Buffer<ArrayBufferLike> vs ExcelJS expected Buffer type
+  await workbook.xlsx.load(buffer as unknown as Buffer);
 
   const sheets: Record<string, Record<string, unknown>[]> = {};
   let totalRows = 0;

@@ -38,6 +38,7 @@ const mockGenerateQueue = vi.hoisted(() => ({
 }));
 const mockValidateMagicBytes = vi.hoisted(() => vi.fn());
 const mockLogApiError = vi.hoisted(() => vi.fn());
+const mockCanConsume = vi.hoisted(() => vi.fn());
 const mockCanCreateReport = vi.hoisted(() => vi.fn());
 const mockGetUserPlan = vi.hoisted(() => vi.fn());
 const mockGetLimit = vi.hoisted(() => vi.fn());
@@ -86,6 +87,7 @@ vi.mock("@/lib/entitlements/compat", () => ({
 }));
 
 vi.mock("@/lib/entitlements/feature-gate", () => ({
+  canConsume: mockCanConsume,
   getLimit: mockGetLimit,
 }));
 
@@ -192,6 +194,11 @@ describe("Upload Route — CSRF Protection & Validation", () => {
     mockBadRequest.mockReturnValue(
       new Response(JSON.stringify({ error: "errors.validation.required" }), { status: 400 }),
     );
+    mockCanConsume.mockResolvedValue(true);
+    mockPrisma.user.findUnique.mockResolvedValue({
+      id: "user-123",
+      membership: [{ org: { id: "org-123" } }],
+    });
   });
 
   // -----------------------------------------------------------------------
@@ -335,9 +342,9 @@ describe("Upload Route — CSRF Protection & Validation", () => {
       });
       mockWithCsrfProtection.mockResolvedValue(null);
       mockCheckRateLimit.mockResolvedValue(true);
-      mockCanCreateReport.mockResolvedValue({ allowed: false, reason: "limit", upgrade: "pro" });
+      mockCanConsume.mockResolvedValue(false);
 
-      const req = createUploadRequest();
+      const req = createUploadRequest({ file: makeValidFile() });
       const result = await POST(req);
 
       expect(result.status).toBe(403);
@@ -355,7 +362,6 @@ describe("Upload Route — CSRF Protection & Validation", () => {
       });
       mockWithCsrfProtection.mockResolvedValue(null);
       mockCheckRateLimit.mockResolvedValue(true);
-      mockCanCreateReport.mockResolvedValue({ allowed: true });
 
       // No file in request
       const req = createUploadRequest({ file: null });
@@ -625,9 +631,9 @@ describe("Upload Route — CSRF Protection & Validation", () => {
       });
       mockWithCsrfProtection.mockResolvedValue(null);
       mockCheckRateLimit.mockResolvedValue(true);
-      mockCanCreateReport.mockRejectedValue(new Error("DB connection failed"));
+      mockCanConsume.mockRejectedValue(new Error("DB connection failed"));
 
-      const req = createUploadRequest();
+      const req = createUploadRequest({ file: makeValidFile() });
       const result = await POST(req);
 
       expect(result.status).toBe(500);

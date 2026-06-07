@@ -1,3 +1,4 @@
+import * as React from "react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { type ContentSection, type CalloutVariant } from "@/lib/blog/types";
@@ -29,19 +30,19 @@ export function BlogRenderer({ sections }: BlogRendererProps) {
       {sections.map((section, index) => {
         switch (section.type) {
           case "heading":
-            const HeadingTag = `h${section.level}` as keyof JSX.IntrinsicElements;
-            return (
-              <HeadingTag
-                key={index}
-                className={cn(
+            const HeadingTag = `h${section.level}` as keyof React.JSX.IntrinsicElements;
+            return React.createElement(
+              HeadingTag,
+              {
+                key: index,
+                className: cn(
                   "scroll-mt-24",
                   section.level === 2
                     ? "text-2xl md:text-3xl font-bold mt-12 mb-4"
                     : "text-xl md:text-2xl font-semibold mt-8 mb-3",
-                )}
-              >
-                {section.text}
-              </HeadingTag>
+                ),
+              },
+              section.text,
             );
 
           case "paragraph":

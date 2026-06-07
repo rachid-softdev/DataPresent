@@ -50,11 +50,11 @@ export function DataPreview({ file }: DataPreviewProps) {
         // Convert ExcelJS rows to array format like sheet_to_json with header:1
         const jsonData: unknown[][] = [];
         const row1 = worksheet.getRow(1);
-        const headers: unknown[] = [];
+        const headerRow: unknown[] = [];
         row1.eachCell((cell) => {
-          headers.push(cell.value);
+          headerRow.push(cell.value);
         });
-        if (headers.length > 0) jsonData.push(headers);
+        if (headerRow.length > 0) jsonData.push(headerRow);
         worksheet.eachRow((row, rowNumber) => {
           if (rowNumber === 1) return;
           const rowArr: unknown[] = [];

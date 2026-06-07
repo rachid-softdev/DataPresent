@@ -20,14 +20,17 @@ import type { ConsumeResult, ConsumeSuccess } from "./types";
 // Interface
 // ==========================================
 
+// PlanFeature with the `feature` relation included (matching the `include: { feature: true }` query)
+export type PlanFeatureWithFeature = PlanFeature & { feature: Feature };
+
 export interface IEntitlementRepository {
   // Subscription
   getActiveSubscription(orgId: string): Promise<Subscription | null>;
 
   // Features & Plans
   getFeature(key: string): Promise<Feature | null>;
-  getPlanFeatures(plan: Plan): Promise<PlanFeature[]>;
-  getAllPlanFeatures(): Promise<PlanFeature[]>;
+  getPlanFeatures(plan: Plan): Promise<PlanFeatureWithFeature[]>;
+  getAllPlanFeatures(): Promise<PlanFeatureWithFeature[]>;
 
   // Overrides
   getUserOverride(userId: string, featureKey: string): Promise<EntitlementOverride | null>;
@@ -110,20 +113,22 @@ export class PrismaEntitlementRepository implements IEntitlementRepository {
   /**
    * Get all plan features for a specific plan
    */
-  async getPlanFeatures(plan: Plan): Promise<PlanFeature[]> {
-    return prisma.planFeature.findMany({
+  async getPlanFeatures(plan: Plan): Promise<PlanFeatureWithFeature[]> {
+    const result = await prisma.planFeature.findMany({
       where: { plan },
       include: { feature: true },
     });
+    return result as unknown as PlanFeatureWithFeature[];
   }
 
   /**
    * Get all plan features across all plans
    */
-  async getAllPlanFeatures(): Promise<PlanFeature[]> {
-    return prisma.planFeature.findMany({
+  async getAllPlanFeatures(): Promise<PlanFeatureWithFeature[]> {
+    const result = await prisma.planFeature.findMany({
       include: { feature: true },
     });
+    return result as unknown as PlanFeatureWithFeature[];
   }
 
   /**
@@ -163,13 +168,17 @@ export class PrismaEntitlementRepository implements IEntitlementRepository {
     const now = new Date();
     return prisma.entitlementOverride.findMany({
       where: {
-        OR: [
-          // Org-level overrides
-          { scope: "ORG", scopeId: orgId },
-          // User-level overrides
-          ...(userId ? [{ scope: "USER", scopeId: userId }] : []),
+        AND: [
+          {
+            OR: [
+              // Org-level overrides
+              { scope: "ORG" as const, scopeId: orgId },
+              // User-level overrides
+              ...(userId ? [{ scope: "USER" as const, scopeId: userId }] : []),
+            ],
+          },
+          { OR: [{ expiresAt: null }, { expiresAt: { gt: now } }] },
         ],
-        OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
       },
     });
   }

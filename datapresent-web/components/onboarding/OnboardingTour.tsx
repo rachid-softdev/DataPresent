@@ -112,6 +112,7 @@ function OnboardingOverlay() {
       }
     }
     setTargetRect(null);
+    return undefined;
   }, [currentStep, step.target]);
 
   const getTooltipPosition = () => {

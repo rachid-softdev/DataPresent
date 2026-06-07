@@ -33,6 +33,6 @@ dotenv.config({ path: path.resolve(cwd, localEnvFile) });
 
 // Import env.ts to trigger Zod validation
 // This will throw if validation fails
-const { env: _env } = await import("../env.ts");
+const { env: _env } = await import("../env");
 
 console.log("✅ Environment variables are valid");
