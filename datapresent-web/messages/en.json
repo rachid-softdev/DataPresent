@@ -116,7 +116,11 @@
       "slideCount": {
         "title": "Number of slides",
         "description": "Choose how many slides to generate"
-      }
+      },
+      "cancel": "Cancel upload",
+      "stallWarning": "Upload appears to be stalled. You may want to cancel and try again.",
+      "uploadError": "Upload failed due to a network error.",
+      "retry": "Try again"
     },
     "reports": {
       "generated": "Report generated successfully",
@@ -202,6 +206,9 @@
       "all": "All",
       "clear": "Clear filters"
     }
+  },
+  "dashboard": {
+    "seeAllReports": "See all reports"
   },
   "share": {
     "linkExpired": "This link has expired",

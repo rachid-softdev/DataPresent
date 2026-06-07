@@ -5,6 +5,36 @@ import { cookies } from "next/headers";
 import { randomUUID } from "crypto";
 import { verifyToken, extractTokenPrefix } from "@/lib/crypto";
 
+export async function POST(req: NextRequest) {
+  try {
+    const { token } = await req.json();
+
+    if (!token || typeof token !== "string") {
+      return NextResponse.json({ error: "errors.auth.invalidToken" }, { status: 400 });
+    }
+
+    const signInResult = await signIn("credentials", {
+      token,
+      redirect: false,
+    });
+
+    if (signInResult && typeof signInResult === "object" && "error" in signInResult) {
+      return NextResponse.json(
+        { error: signInResult.error || "errors.auth.failed" },
+        { status: 401 },
+      );
+    }
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error(
+      "Email callback POST error:",
+      error instanceof Error ? error.message : String(error),
+    );
+    return NextResponse.json({ error: "errors.auth.failed" }, { status: 500 });
+  }
+}
+
 export async function GET(req: NextRequest) {
   const searchParams = req.nextUrl.searchParams;
   const token = searchParams.get("token");
@@ -76,25 +106,26 @@ export async function GET(req: NextRequest) {
       });
     }
 
-    // Create a session via the credentials provider which handles cookie setting
+    // Create a session via the credentials provider
+    // NextAuth v5 sets session cookies via cookies() API which are
+    // automatically applied to the final response
     const signInResult = await signIn("credentials", {
       token,
       redirect: false,
     });
 
-    if (signInResult) {
-      // signIn returns the URL to redirect to on success, or an error URL
-      const redirectUrl = new URL("/", req.url);
-      const response = NextResponse.redirect(redirectUrl);
-
-      // Copy any set-cookie headers from the signIn result
-      if (typeof signInResult === "string") {
-        return NextResponse.redirect(new URL(signInResult, req.url));
-      }
+    if (!signInResult || signInResult.error) {
+      return NextResponse.redirect(
+        new URL(
+          `/login?error=${encodeURIComponent(signInResult?.error || "errors.auth.failed")}`,
+          req.url,
+        ),
+      );
     }
 
-    // Fallback: redirect to home and let the client-side session check handle auth
-    return NextResponse.redirect(new URL("/", req.url));
+    // Success: cookies are set, redirect to the URL from signIn or home
+    const redirectUrl = signInResult.url || "/";
+    return NextResponse.redirect(new URL(redirectUrl, req.url));
   } catch (error) {
     console.error("Email callback error:", error instanceof Error ? error.message : String(error));
     return NextResponse.redirect(new URL("/login?error=errors.auth.failed", req.url));

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
@@ -12,6 +12,8 @@ import { DropZone } from "@/components/upload/DropZone";
 import { DataPreview } from "@/components/upload/DataPreview";
 import { SectorSelector } from "@/components/upload/SectorSelector";
 import { SlideCountSlider } from "@/components/upload/SlideCountSlider";
+
+const STALL_TIMEOUT_MS = 30_000;
 
 interface NewReportFormProps {
   maxSlides: number;
@@ -25,8 +27,53 @@ export default function NewReportForm({ maxSlides }: NewReportFormProps) {
   const [slideCount, setSlideCount] = useState(10);
   const [loading, setLoading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [error, setError] = useState<string | null>(null);
+  const [stalled, setStalled] = useState(false);
   const xhrRef = useRef<XMLHttpRequest | null>(null);
+  const lastProgressRef = useRef<{ pct: number; time: number }>({ pct: 0, time: 0 });
+  const stallTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const router = useRouter();
+
+  // Clear stall timer on unmount
+  useEffect(() => {
+    return () => {
+      if (stallTimerRef.current) clearTimeout(stallTimerRef.current);
+    };
+  }, []);
+
+  const clearStallTimer = useCallback(() => {
+    if (stallTimerRef.current) {
+      clearTimeout(stallTimerRef.current);
+      stallTimerRef.current = null;
+    }
+    setStalled(false);
+  }, []);
+
+  const resetStallTimer = useCallback(() => {
+    clearStallTimer();
+    stallTimerRef.current = setTimeout(() => {
+      setStalled(true);
+    }, STALL_TIMEOUT_MS);
+  }, [clearStallTimer]);
+
+  const handleCancel = useCallback(() => {
+    if (xhrRef.current) {
+      xhrRef.current.abort();
+      xhrRef.current = null;
+    }
+    clearStallTimer();
+    setLoading(false);
+    setUploadProgress(0);
+    setError(null);
+  }, [clearStallTimer]);
+
+  const handleRetry = useCallback(() => {
+    setError(null);
+    setStalled(false);
+    setUploadProgress(0);
+    // Re-submit by dispatching submit on the form
+    // The form ref approach is cleaner; we'll just set error to null and let user re-click
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,6 +81,9 @@ export default function NewReportForm({ maxSlides }: NewReportFormProps) {
 
     setLoading(true);
     setUploadProgress(0);
+    setError(null);
+    setStalled(false);
+
     const formData = new FormData();
     formData.append("file", file);
     formData.append("sector", sector);
@@ -46,43 +96,64 @@ export default function NewReportForm({ maxSlides }: NewReportFormProps) {
       if (event.lengthComputable) {
         const pct = Math.round((event.loaded / event.total) * 100);
         setUploadProgress(pct);
+
+        // Stall detection: reset timer if progress advanced
+        const now = Date.now();
+        const last = lastProgressRef.current;
+        if (pct !== last.pct) {
+          lastProgressRef.current = { pct, time: now };
+          resetStallTimer();
+        }
       }
     };
 
     xhr.onload = () => {
       xhrRef.current = null;
+      clearStallTimer();
       if (xhr.status >= 200 && xhr.status < 300) {
         try {
           const data = JSON.parse(xhr.responseText);
           router.push(`/reports/${data.reportId}`);
         } catch {
           setLoading(false);
+          setError(t("errors.generic"));
           toast.error(t("errors.generic"));
         }
       } else {
         setLoading(false);
         try {
           const data = JSON.parse(xhr.responseText);
-          toast.error(t(data.error) || t("errors.generic"));
+          const msg = t(data.error) || t("errors.generic");
+          setError(msg);
+          toast.error(msg);
         } catch {
-          toast.error(t("errors.generic"));
+          const msg = t("errors.generic");
+          setError(msg);
+          toast.error(msg);
         }
       }
     };
 
     xhr.onerror = () => {
       xhrRef.current = null;
+      clearStallTimer();
       setLoading(false);
-      toast.error(t("errors.generic"));
+      const msg = t("upload.uploadError");
+      setError(msg);
+      toast.error(msg);
     };
 
     xhr.onabort = () => {
       xhrRef.current = null;
+      clearStallTimer();
       setLoading(false);
     };
 
     xhr.open("POST", "/api/upload");
     xhr.send(formData);
+
+    // Start stall timer on first send
+    resetStallTimer();
   };
 
   return (
@@ -138,15 +209,47 @@ export default function NewReportForm({ maxSlides }: NewReportFormProps) {
           </CardContent>
         </Card>
 
-        {/* Upload progress bar */}
+        {/* Upload progress bar + cancel + stall warning */}
         {loading && (
-          <div className="space-y-2">
+          <div className="space-y-3">
             <Progress value={uploadProgress} max={100} className="h-3" />
-            <p className="text-sm text-muted-foreground text-center">
-              {uploadProgress < 100
-                ? `${t("upload.uploading")} ${uploadProgress}%`
-                : t("upload.processing")}
-            </p>
+            <div className="flex items-center justify-between gap-4">
+              <p className="text-sm text-muted-foreground">
+                {uploadProgress < 100
+                  ? `${t("upload.uploading")} ${uploadProgress}%`
+                  : t("upload.processing")}
+              </p>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={handleCancel}
+                className="text-destructive hover:text-destructive"
+              >
+                {t("common.cancel")}
+              </Button>
+            </div>
+            {stalled && (
+              <p className="text-sm text-amber-600 dark:text-amber-400 text-center">
+                {t("upload.stallWarning")}
+              </p>
+            )}
+          </div>
+        )}
+
+        {/* Upload error state with retry */}
+        {error && !loading && (
+          <div className="space-y-3 p-4 border border-destructive/30 rounded-lg bg-destructive/5">
+            <p className="text-sm text-destructive text-center">{error}</p>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={handleRetry}
+              className="mx-auto block"
+            >
+              {t("upload.retry")}
+            </Button>
           </div>
         )}
 

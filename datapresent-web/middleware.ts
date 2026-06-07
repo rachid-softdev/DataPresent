@@ -1,3 +1,4 @@
+import { randomUUID } from "crypto";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import createIntlMiddleware from "next-intl/middleware";
@@ -65,18 +66,24 @@ function setCorsHeaders(response: NextResponse, requestOrigin: string | null): v
  */
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  const requestId = randomUUID();
+
+  // Set x-request-id on request headers for downstream usage
+  request.headers.set("x-request-id", requestId);
 
   // === API Routes: CORS handling ===
   if (pathname.startsWith("/api/")) {
     // Handle CORS preflight
     if (request.method === "OPTIONS") {
       const preflight = new NextResponse(null, { status: 204 });
+      preflight.headers.set("x-request-id", requestId);
       setCorsHeaders(preflight, request.headers.get("origin"));
       return preflight;
     }
 
     // Set CORS headers on actual requests
     const response = NextResponse.next();
+    response.headers.set("x-request-id", requestId);
     setCorsHeaders(response, request.headers.get("origin"));
 
     // Security headers
@@ -93,11 +100,15 @@ export function middleware(request: NextRequest) {
     !pathname.startsWith("/_vercel/") &&
     !pathname.match(/\.\w+$/)
   ) {
-    return intlMiddleware(request);
+    const intlResponse = intlMiddleware(request);
+    intlResponse.headers.set("x-request-id", requestId);
+    return intlResponse;
   }
 
   // === Static Assets: pass through ===
-  return NextResponse.next();
+  const response = NextResponse.next();
+  response.headers.set("x-request-id", requestId);
+  return response;
 }
 
 export const config = {

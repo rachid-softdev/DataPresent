@@ -119,7 +119,11 @@
       "slideCount": {
         "title": "Nombre de diapositives",
         "description": "Choisissez le nombre de diapositives à générer"
-      }
+      },
+      "cancel": "Annuler le téléversement",
+      "stallWarning": "Le téléversement semble bloqué. Vous pouvez annuler et réessayer.",
+      "uploadError": "Échec du téléversement dû à une erreur réseau.",
+      "retry": "Réessayer"
     },
     "reports": {
       "generated": "Rapport généré avec succès",
@@ -213,6 +217,9 @@
       "all": "Tous",
       "clear": "Effacer les filtres"
     }
+  },
+  "dashboard": {
+    "seeAllReports": "Voir tous les rapports"
   },
   "share": {
     "linkExpired": "Ce lien a expiré",

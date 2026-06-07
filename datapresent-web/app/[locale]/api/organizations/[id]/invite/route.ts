@@ -6,6 +6,7 @@ import { normalizeEmail } from "@/lib/email-normalize";
 import { logApiError, logSecurityEvent, withCsrfProtection } from "@/lib/security";
 import { unauthorized } from "@/lib/errors";
 import { generateToken, hashToken, extractTokenPrefix } from "@/lib/crypto";
+import { env } from "@/env";
 import { InviteSchema } from "@/lib/validation-schemas";
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -98,8 +99,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     });
 
     // Generate invite URL
-    const inviteUrl = `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/accept-invite?token=${rawToken}`;
-    console.log(`[Team Invite] Email: ${email}, Invite URL: ${inviteUrl}`);
+    const inviteUrl = `${env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000"}/accept-invite?token=${rawToken}`;
+    console.log(`[Team Invite] Invitation token generated for: ${email}`);
 
     // TODO: Send invitation email
     // await sendTeamInviteEmail(email, inviteUrl, orgName)

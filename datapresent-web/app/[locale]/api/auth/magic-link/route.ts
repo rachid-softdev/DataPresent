@@ -7,6 +7,7 @@ import { generateToken, hashToken, extractTokenPrefix } from "@/lib/crypto";
 import { extractClientIP } from "@/lib/client-ip";
 import { withCsrfProtection } from "@/lib/security/csrf-middleware";
 import { ERROR_CODES, SUCCESS_CODES, badRequest, apiSuccess } from "@/lib/errors";
+import { env } from "@/env";
 
 const TOKEN_EXPIRY = 10 * 60 * 1000; // 10 minutes
 
@@ -61,7 +62,7 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    const magicLink = `${process.env.NEXTAUTH_URL}/api/auth/callback/email?token=${rawToken}`;
+    const magicLink = `${env.NEXTAUTH_URL}/auth/callback?token=${rawToken}`;
 
     try {
       await sendMagicLinkEmail(normalizedEmail, magicLink);

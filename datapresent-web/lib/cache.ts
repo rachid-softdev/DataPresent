@@ -1,6 +1,5 @@
 import { unstable_cache, revalidateTag } from "next/cache";
 import { prisma } from "./prisma";
-import { PLANS } from "@/lib/entitlements/compat";
 
 // Cache tags for manual invalidation
 export const CACHE_TAGS = {
@@ -60,17 +59,6 @@ export function getCachedOrgBySlug(slug: string) {
     { ...CACHE_CONFIG.MEDIUM, tags: [CACHE_TAGS.ORG(slug)] },
   )();
 }
-
-/**
- * Get cached plans (static data)
- */
-export const getCachedPlans = unstable_cache(
-  async () => {
-    return PLANS;
-  },
-  ["plans"],
-  CACHE_CONFIG.LONG,
-);
 
 /**
  * Get cached user data

@@ -1,6 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { buildAnalysisPrompt } from "./prompts";
 import { AnalysisResponseSchema, AnalysisResponse } from "./schemas";
+import { logger } from "@/lib/logger";
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY!,
@@ -34,10 +35,9 @@ export async function analyzeWithClaude(params: {
     const parsed = JSON.parse(jsonStr);
     return AnalysisResponseSchema.parse(parsed);
   } catch (error) {
-    console.error(
-      "Failed to parse Claude response:",
-      error instanceof Error ? error.message : String(error),
-    );
+    logger.error("Failed to parse Claude response", {
+      error: error instanceof Error ? error.message : String(error),
+    });
     throw new Error("Invalid JSON response from Claude");
   }
 }

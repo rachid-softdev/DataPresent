@@ -1,9 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 import { listApiKeys, createApiKey, revokeApiKey } from "@/lib/api-keys";
 import { withCsrfProtection } from "@/lib/security";
-import { getUserPlan, PLANS } from "@/lib/entitlements/compat";
+import { hasFeature } from "@/lib/entitlements/feature-gate";
 import { checkRateLimit } from "@/lib/rate-limit";
+
+async function getOrgId(userId: string): Promise<string | null> {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    include: { membership: { include: { org: true } } },
+  });
+  return user?.membership[0]?.org?.id ?? null;
+}
 
 export async function GET(req: NextRequest) {
   try {
@@ -12,10 +21,14 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { orgId, plan, planConfig } = await getUserPlan(session.user.id);
+    const orgId = await getOrgId(session.user.id);
+    if (!orgId) {
+      return NextResponse.json({ error: "No organization found" }, { status: 400 });
+    }
 
     // Only Agency plan has API access
-    if (!planConfig.apiAccess) {
+    const hasApiAccess = await hasFeature(orgId, "apiAccess");
+    if (!hasApiAccess) {
       return NextResponse.json({ error: "API access not available on your plan" }, { status: 403 });
     }
 
@@ -23,7 +36,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({
       keys,
-      hasApiAccess: planConfig.apiAccess,
+      hasApiAccess,
     });
   } catch (error) {
     console.error("Failed to list API keys:", error);
@@ -41,10 +54,14 @@ export async function POST(req: NextRequest) {
   if (csrfResponse) return csrfResponse;
 
   try {
-    const { orgId, planConfig } = await getUserPlan(session.user.id);
+    const orgId = await getOrgId(session.user.id);
+    if (!orgId) {
+      return NextResponse.json({ error: "No organization found" }, { status: 400 });
+    }
 
     // Only Agency plan has API access
-    if (!planConfig.apiAccess) {
+    const hasApiAccess = await hasFeature(orgId, "apiAccess");
+    if (!hasApiAccess) {
       return NextResponse.json({ error: "API access not available on your plan" }, { status: 403 });
     }
 
@@ -97,9 +114,13 @@ export async function DELETE(req: NextRequest) {
   if (csrfResponse) return csrfResponse;
 
   try {
-    const { orgId, planConfig } = await getUserPlan(session.user.id);
+    const orgId = await getOrgId(session.user.id);
+    if (!orgId) {
+      return NextResponse.json({ error: "No organization found" }, { status: 400 });
+    }
 
-    if (!planConfig.apiAccess) {
+    const hasApiAccess = await hasFeature(orgId, "apiAccess");
+    if (!hasApiAccess) {
       return NextResponse.json({ error: "API access not available on your plan" }, { status: 403 });
     }
 
