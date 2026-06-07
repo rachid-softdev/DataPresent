@@ -6,7 +6,9 @@ export async function parseCsv(buffer: Buffer, fileName: string): Promise<Parsed
   // CSV files are loaded via workbook.csv.read(), NOT workbook.xlsx.load()
   // which expects the binary XLSX format
   // @ts-expect-error — TypeScript 6 Buffer<ArrayBufferLike> vs ExcelJS expected Buffer type
-  await workbook.csv.read(buffer as unknown as Buffer, { parserOptions: { quote: '"', delimiter: "," } });
+  await workbook.csv.read(buffer as unknown as Buffer, {
+    parserOptions: { quote: '"', delimiter: "," },
+  });
   const worksheet = workbook.worksheets[0];
   const sheetName = worksheet.name || "Sheet1";
   const json: Record<string, unknown>[] = [];

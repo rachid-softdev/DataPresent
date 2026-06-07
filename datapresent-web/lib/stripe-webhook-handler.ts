@@ -95,7 +95,9 @@ const eventHandlers: Record<string, EventHandler> = {
     const customerId = subscription.customer as string;
     const priceId = subscription.items.data[0]?.price?.id;
     const plan = getPlanFromPriceId(priceId);
-    const currentPeriodEnd = new Date((subscription as unknown as Record<string, unknown>).current_period_end as number * 1000);
+    const currentPeriodEnd = new Date(
+      ((subscription as unknown as Record<string, unknown>).current_period_end as number) * 1000,
+    );
 
     const orgId = await getOrgIdByCustomer(customerId);
 
@@ -138,7 +140,9 @@ const eventHandlers: Record<string, EventHandler> = {
     };
 
     const status = statusMap[subscription.status] ?? "ACTIVE";
-    const currentPeriodEnd = new Date((subscription as unknown as Record<string, unknown>).current_period_end as number * 1000);
+    const currentPeriodEnd = new Date(
+      ((subscription as unknown as Record<string, unknown>).current_period_end as number) * 1000,
+    );
 
     // Check for plan downgrade
     const currentSub = await prisma.subscription.findUnique({
