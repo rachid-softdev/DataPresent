@@ -74,7 +74,7 @@ describe("V1 Reports API route (/api/v1/reports)", () => {
     const data = await response.json();
 
     expect(response.status).toBe(401);
-    expect(data.error).toBe("Unauthorized");
+    expect(data.error).toBe("errors.auth.unauthorized");
   });
 
   it("should return 401 when session has no user id", async () => {
@@ -84,7 +84,7 @@ describe("V1 Reports API route (/api/v1/reports)", () => {
     const data = await response.json();
 
     expect(response.status).toBe(401);
-    expect(data.error).toBe("Unauthorized");
+    expect(data.error).toBe("errors.auth.unauthorized");
   });
 
   it("should not query membership when not authenticated", async () => {
@@ -107,7 +107,7 @@ describe("V1 Reports API route (/api/v1/reports)", () => {
     const data = await response.json();
 
     expect(response.status).toBe(404);
-    expect(data.error).toBe("No organization found");
+    expect(data.error).toBe("errors.resource.noOrganization");
   });
 
   it("should query membership with correct user ID", async () => {
@@ -293,12 +293,8 @@ describe("V1 Reports API route (/api/v1/reports)", () => {
     const response = await GET(new Request("http://localhost:3000/api/v1/reports"));
     const data = await response.json();
 
-    // Array.map passes (item, index, array) - verify first arg is the report
-    expect(mockToReportDTO).toHaveBeenCalledWith(
-      mockReports[0],
-      expect.any(Number),
-      expect.any(Array),
-    );
+    // The route's map callback only passes the item (not index/array)
+    expect(mockToReportDTO).toHaveBeenCalledWith(mockReports[0]);
     expect(data.items).toContainEqual(mockDTO);
   });
 

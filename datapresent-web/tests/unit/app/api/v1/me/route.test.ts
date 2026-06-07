@@ -65,7 +65,7 @@ describe("V1 Me API route (/api/v1/me)", () => {
     const data = await response.json();
 
     expect(response.status).toBe(401);
-    expect(data.error).toBe("Unauthorized");
+    expect(data.error).toBe("errors.auth.unauthorized");
   });
 
   it("should return 401 when session has no user id", async () => {
@@ -79,7 +79,7 @@ describe("V1 Me API route (/api/v1/me)", () => {
     const data = await response.json();
 
     expect(response.status).toBe(401);
-    expect(data.error).toBe("Unauthorized");
+    expect(data.error).toBe("errors.auth.unauthorized");
   });
 
   it("should not query DB when not authenticated", async () => {
@@ -102,7 +102,7 @@ describe("V1 Me API route (/api/v1/me)", () => {
     const data = await response.json();
 
     expect(response.status).toBe(404);
-    expect(data.error).toBe("User not found");
+    expect(data.error).toBe("errors.resource.notFound");
   });
 
   it("should query DB with correct user ID", async () => {

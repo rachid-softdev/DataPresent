@@ -88,6 +88,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Generate Prisma Client
+        run: pnpm run db:generate
+
       - name: Run Unit Tests
         run: pnpm run test:unit -- --reporter=junit --outputFile=test-results-unit.xml
         env:
@@ -264,6 +267,9 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma Client
+        run: pnpm run db:generate
 
       - name: Run Coverage
         run: pnpm run test:coverage
