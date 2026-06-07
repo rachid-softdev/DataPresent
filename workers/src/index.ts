@@ -2,6 +2,7 @@ import { createServer } from "node:http";
 import { initSentry } from "./sentry.js";
 import { getGenerateWorker } from "./workers/generate.worker.js";
 import { getExportWorker } from "./workers/export.worker.js";
+import { getPdfWorker } from "./workers/pdf.worker.js";
 
 const PORT = parseInt(process.env.PORT || "8080", 10);
 
@@ -12,9 +13,15 @@ async function main() {
   // Start BullMQ workers
   const generateWorker = await getGenerateWorker();
   const exportWorker = await getExportWorker();
+  const pdfWorker = await getPdfWorker();
 
   console.log("[workers] Generate worker ready");
   console.log("[workers] Export worker ready");
+  if (pdfWorker) {
+    console.log("[workers] PDF worker ready");
+  } else {
+    console.log("[workers] PDF worker is placeholder — exports handled by export worker");
+  }
 
   // Health HTTP server for Railway
   const server = createServer((req, res) => {
@@ -26,6 +33,7 @@ async function main() {
           workers: {
             generate: generateWorker ? "running" : "stopped",
             export: exportWorker ? "running" : "stopped",
+            pdf: pdfWorker ? "running" : "placeholder",
           },
           uptime: process.uptime(),
           timestamp: new Date().toISOString(),
@@ -55,6 +63,7 @@ async function main() {
     const closePromises: Promise<void>[] = [];
     if (generateWorker) closePromises.push(generateWorker.close());
     if (exportWorker) closePromises.push(exportWorker.close());
+    if (pdfWorker) closePromises.push(pdfWorker.close());
 
     const results = await Promise.allSettled(closePromises);
     for (const result of results) {

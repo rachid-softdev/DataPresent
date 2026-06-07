@@ -9,6 +9,7 @@ const scriptSrc = isDev
   : "'self' https://js.stripe.com";
 
 const nextConfig: NextConfig = {
+  output: "standalone",
   images: {
     remotePatterns: [
       {

@@ -1,3 +1,22 @@
+// ==========================================
+// PDF Export — Inline generation (legacy path)
+//
+// MIGRATION PATH (Horizon 6 — PDF Service Dédié):
+//   Phase 1: Add placeholder worker (done — see workers/src/workers/pdf.worker.ts)
+//   Phase 2: Move puppeteer/chromium dependency to dedicated worker service
+//   Phase 3: Replace inline generatePdf() with BullMQ job enqueue:
+//     import { getExportQueue } from "@/lib/queue";
+//     const queue = await getExportQueue();
+//     await queue.add("pdf-export", {
+//       exportId,
+//       reportId,
+//       userId,
+//       slides: [...],
+//       signature: signedPayload,
+//     });
+//   Phase 4: Remove puppeteer-core and @sparticuz/chromium from web dependencies
+// ==========================================
+
 let browserPromise: Promise<import("puppeteer-core").Browser> | null = null;
 
 async function getBrowser(): Promise<import("puppeteer-core").Browser> {
