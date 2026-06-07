@@ -1,77 +1,93 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getTranslations } from "next-intl/server";
-import { PLANS, PLAN_FEATURES } from "@/lib/entitlements/compat";
+import { PLAN_PRICING, getPlanPricing } from "@/lib/entitlements/plan-pricing";
+import { getAllEntitlements } from "@/lib/entitlements/feature-gate";
 import { PricingPlanFeature } from "@/components/billing/PricingTable";
 import { PlanSelector } from "@/components/billing/PlanSelector";
 
-function formatValue(key: string, value: number | boolean): string | boolean {
-  if (key === "reportsPerMonth") {
-    return value === -1 ? "Illimité" : value;
-  }
-  if (key === "maxSlides") {
-    return value === -1 ? "Illimité" : value;
-  }
-  if (key === "maxOrganizations") {
-    return value === -1 ? "Illimité" : value;
-  }
-  return value;
-}
-
-function buildFeatures(planKey: string): PricingPlanFeature[] {
-  const plan = PLANS[planKey as keyof typeof PLANS];
+async function buildFeatures(planKey: string, orgId?: string): Promise<PricingPlanFeature[]> {
   const features: PricingPlanFeature[] = [];
 
+  // If we have an orgId, fetch entitlement data from DB; otherwise use defaults
+  let entitlements = null;
+  if (orgId) {
+    entitlements = await getAllEntitlements(orgId);
+  }
+
+  // Helper to get a feature value
+  const getValue = (key: string, defaultValue: number | boolean): number | boolean => {
+    if (entitlements) {
+      if (key in entitlements.limits && entitlements.limits[key] !== null) {
+        return entitlements.limits[key]!;
+      }
+      if (key in entitlements.features) {
+        return entitlements.features[key];
+      }
+    }
+    return defaultValue;
+  };
+
   // Reports & Slides
-  for (const feature of PLAN_FEATURES.reports) {
-    const value = plan[feature.key as keyof typeof plan];
+  type ReportKey = "reportsPerMonth" | "maxSlides" | "maxOrganizations";
+  const reportKeys: { name: string; key: ReportKey }[] = [
+    { name: "Rapports/mois", key: "reportsPerMonth" },
+    { name: "Diapositives max", key: "maxSlides" },
+    { name: "Organisations", key: "maxOrganizations" },
+  ];
+  for (const f of reportKeys) {
+    const v = getValue(f.key, 0);
     features.push({
-      name: feature.name,
+      name: f.name,
       category: "reports",
-      value: formatValue(feature.key, value as number | boolean),
+      value: v === -1 || v === true ? "Illimité" : v,
     });
   }
 
   // Exports
-  for (const feature of PLAN_FEATURES.exports) {
-    const value = plan[feature.key as keyof typeof plan];
+  type ExportKey = "formatPPTX" | "formatPDF" | "formatDOCX";
+  const exportKeys: { name: string; key: ExportKey }[] = [
+    { name: "PPTX", key: "formatPPTX" },
+    { name: "PDF", key: "formatPDF" },
+    { name: "DOCX", key: "formatDOCX" },
+  ];
+  for (const f of exportKeys) {
     features.push({
-      name: feature.name,
+      name: f.name,
       category: "exports",
-      value: value as boolean,
+      value: Boolean(getValue(f.key, false)),
     });
   }
 
   // Collaboration
-  for (const feature of PLAN_FEATURES.collaboration) {
-    const value = plan[feature.key as keyof typeof plan];
-    features.push({
-      name: feature.name,
-      category: "collaboration",
-      value: value as boolean,
-    });
-  }
+  features.push({
+    name: "Collaboration équipe",
+    category: "collaboration",
+    value: Boolean(getValue("collaboration", false)),
+  });
 
   // Professional
-  for (const feature of PLAN_FEATURES.professional) {
-    const value = plan[feature.key as keyof typeof plan];
-    const displayValue = feature.inverse ? !value : value;
+  const profKeys: { name: string; key: string; inverse?: boolean }[] = [
+    { name: "Watermark", key: "watermark", inverse: true },
+    { name: "White-label", key: "whiteLabel" },
+    { name: "Domaine personnalisé", key: "customDomain" },
+    { name: "Accès API", key: "apiAccess" },
+  ];
+  for (const f of profKeys) {
+    const raw = Boolean(getValue(f.key, false));
     features.push({
-      name: feature.name,
+      name: f.name,
       category: "professional",
-      value: displayValue as boolean,
+      value: f.inverse ? !raw : raw,
     });
   }
 
   // Support
-  for (const feature of PLAN_FEATURES.support) {
-    const value = plan[feature.key as keyof typeof plan];
-    features.push({
-      name: feature.name,
-      category: "support",
-      value: value as boolean,
-    });
-  }
+  features.push({
+    name: "Support prioritaire",
+    category: "support",
+    value: Boolean(getValue("prioritySupport", false)),
+  });
 
   return features;
 }
@@ -86,23 +102,31 @@ export default async function BillingPage() {
     include: { membership: { include: { org: { include: { subscription: true } } } } },
   });
 
-  const subscription = user?.membership[0]?.org?.subscription;
+  const org = user?.membership[0]?.org;
+  const subscription = org?.subscription;
+  const orgId = org?.id;
 
-  const plans = (["FREE", "PRO", "TEAM", "AGENCY"] as const).map((plan) => ({
-    id: plan,
-    name: PLANS[plan].name,
-    price: PLANS[plan].price,
-    period: PLANS[plan].price === -1 ? undefined : t("perMonth"),
-    description:
-      plan === "AGENCY"
-        ? "Pour les agences et grandes organisations nécessitant des solutions personnalisées"
-        : t(`plans.${plan.toLowerCase()}.description`),
-    features: buildFeatures(plan),
-    popular: plan === "PRO",
-    cta: plan === "FREE" ? "Plan actuel" : plan === "AGENCY" ? "Contacter les ventes" : "Souscrire",
-    currentPlan: subscription?.plan === plan,
-    stripePriceId: PLANS[plan].stripePriceId || undefined,
-  }));
+  const plans = (["FREE", "PRO", "TEAM", "AGENCY"] as const).map(async (plan) => {
+    const pricing = getPlanPricing(plan);
+    return {
+      id: plan,
+      name: pricing.name,
+      price: pricing.price,
+      period: pricing.price === -1 ? undefined : t("perMonth"),
+      description:
+        plan === "AGENCY"
+          ? "Pour les agences et grandes organisations nécessitant des solutions personnalisées"
+          : t(`plans.${plan.toLowerCase()}.description`),
+      features: await buildFeatures(plan, orgId),
+      popular: plan === "PRO",
+      cta:
+        plan === "FREE" ? "Plan actuel" : plan === "AGENCY" ? "Contacter les ventes" : "Souscrire",
+      currentPlan: subscription?.plan === plan,
+      stripePriceId: pricing.stripePriceId || undefined,
+    };
+  });
+
+  const resolvedPlans = await Promise.all(plans);
 
   return (
     <div>
@@ -111,7 +135,7 @@ export default async function BillingPage() {
       {subscription?.plan && subscription.plan !== "FREE" && (
         <div className="mb-8 p-4 bg-muted rounded-lg">
           <p className="font-medium">
-            {t("plan")}: {PLANS[subscription.plan as keyof typeof PLANS].name}
+            {t("plan")}: {getPlanPricing(subscription.plan).name}
           </p>
           <p className="text-sm text-muted-foreground mt-1">
             {t("plan")}: {subscription.status}
@@ -122,7 +146,7 @@ export default async function BillingPage() {
         </div>
       )}
 
-      <PlanSelector plans={plans} />
+      <PlanSelector plans={resolvedPlans} />
     </div>
   );
 }

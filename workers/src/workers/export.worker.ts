@@ -2,10 +2,10 @@ import { Worker } from "bullmq";
 import { prisma } from "../prisma.js";
 import { generatePptx, generatePdf, generateDocx } from "../exporters/index.js";
 import { uploadToR2 } from "../r2.js";
-import { PLANS } from "../entitlements/compat.js";
 import { getRedisConnectionAsync } from "../redis.js";
 import { extractSignedJobData } from "../crypto.js";
-import { consume, LimitReachedError } from "../entitlements/feature-gate.js";
+import { hasFeature, consume, LimitReachedError } from "../entitlements/feature-gate.js";
+import { logger } from "../logger.js";
 
 let workerInstance: Worker | null = null;
 
@@ -70,9 +70,8 @@ export async function getExportWorker(): Promise<Worker> {
       }
 
       try {
-        const plan = exp.report.org.subscription?.plan || "FREE";
-        const planConfig = PLANS[plan as keyof typeof PLANS];
-        const showWatermark = planConfig?.watermark ?? plan === "FREE";
+        const orgIdLocal = exp.report.org.id;
+        const showWatermark = await hasFeature(orgIdLocal, "watermark");
 
         const slides = exp.report.slides.map((s) => ({
           title: s.title,
@@ -117,10 +116,10 @@ export async function getExportWorker(): Promise<Worker> {
           data: { status: "DONE", r2Key: `exports/${exp.id}.${format.toLowerCase()}` },
         });
       } catch (error) {
-        console.error(
-          "Export worker error:",
-          error instanceof Error ? error.message : String(error),
-        );
+        logger.error("Export worker error", {
+          error: error instanceof Error ? error.message : String(error),
+          exportId,
+        });
         await prisma.export.update({
           where: { id: exportId },
           data: { status: "ERROR" },

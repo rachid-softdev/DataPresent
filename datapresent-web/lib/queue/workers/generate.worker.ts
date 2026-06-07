@@ -7,6 +7,7 @@ import { getRedisConnectionAsync } from "@/lib/redis";
 import { extractSignedJobData } from "../job-security";
 import { captureException, captureMessage } from "@/lib/sentry";
 import { getLimit } from "@/lib/entitlements/feature-gate";
+import { logger } from "@/lib/logger";
 
 // Retry configuration
 const MAX_RETRIES = 3;
@@ -154,7 +155,7 @@ export async function getGenerateWorker(): Promise<Worker<unknown>> {
         });
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
-        console.error("Generate worker error:", errorMessage);
+        logger.error("Generate worker error", { error: errorMessage, reportId, jobId: job.id });
 
         await prisma.report.update({
           where: { id: reportId },

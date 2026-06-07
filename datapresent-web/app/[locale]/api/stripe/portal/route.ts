@@ -4,6 +4,7 @@ import { getStripe } from "@/lib/stripe";
 import { prisma } from "@/lib/prisma";
 import { withCsrfProtection } from "@/lib/security";
 import { ERROR_CODES, unauthorized, badRequest } from "@/lib/errors";
+import { env } from "@/env";
 
 export async function POST(req: NextRequest) {
   const session = await auth();
@@ -26,7 +27,7 @@ export async function POST(req: NextRequest) {
 
   const portalUrl = await getStripe().billingPortal.sessions.create({
     customer: org.subscription.stripeCustomerId,
-    return_url: `${process.env.NEXTAUTH_URL}/settings/billing`,
+    return_url: `${env.NEXTAUTH_URL}/settings/billing`,
   });
 
   return NextResponse.json({ url: portalUrl.url });

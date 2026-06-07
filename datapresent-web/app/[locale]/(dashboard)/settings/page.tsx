@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { PLANS } from "@/lib/entitlements/compat";
 import { MapPin, TrendingUp, FileText, ArrowRight } from "lucide-react";
 
 interface UsageStats {
@@ -14,6 +13,7 @@ interface UsageStats {
     remaining: number;
   };
   plan: string;
+  planName: string;
   members: number;
 }
 
@@ -64,7 +64,7 @@ export default function SettingsIndexPage() {
       description: t("billing.title"),
       href: "/settings/billing",
       icon: "billing",
-      badge: stats?.plan ? PLANS[stats.plan as keyof typeof PLANS]?.name : undefined,
+      badge: stats?.planName,
     },
     {
       title: t("account.title"),
@@ -82,9 +82,7 @@ export default function SettingsIndexPage() {
         <div className="grid md:grid-cols-3 gap-6 mb-8">
           <div className="app-stat-card">
             <CardDescription className="mb-1">{t("billing.plan")}</CardDescription>
-            <div className="app-stat-value text-xl">
-              {PLANS[stats.plan as keyof typeof PLANS]?.name || "Free"}
-            </div>
+            <div className="app-stat-value text-xl">{stats.planName || "Free"}</div>
             <div className="flex items-center gap-2 text-sm text-muted-foreground mt-2">
               <TrendingUp className="w-4 h-4" />
               {stats.reports.limit === -1

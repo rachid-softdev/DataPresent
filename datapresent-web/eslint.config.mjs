@@ -15,6 +15,13 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
   ]),
+  // Test files: allow `any` type for mocks, suppress unused-imports from test lifecycle hooks
+  {
+    files: ["**/*.test.*", "**/*.spec.*", "**/tests/**"],
+    rules: {
+      "@typescript-eslint/no-explicit-any": "off",
+    },
+  },
   {
     rules: {
       "security/detect-object-injection": "warn",

@@ -5,7 +5,7 @@ import { getExportQueue } from "@/lib/queue";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { signJobData } from "@/lib/queue/job-security";
 import { withCsrfProtection } from "@/lib/security";
-import { canUseFormat } from "@/lib/entitlements/compat";
+import { hasFeature } from "@/lib/entitlements/feature-gate";
 import { ExportFormat } from "@prisma/client";
 import { ERROR_CODES, unauthorized, notFound, forbidden, badRequest } from "@/lib/errors";
 
@@ -44,9 +44,9 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   }
 
   // SECURITY: Check format permissions based on plan
-  const plan = report.org.subscription?.plan || "FREE";
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- plan from subscription may be null
-  if (!canUseFormat(plan as any, format)) {
+  const formatFeatureKey = `format${format}`;
+  const hasFormat = await hasFeature(report.org.id, formatFeatureKey);
+  if (!hasFormat) {
     return badRequest(ERROR_CODES.ERR_VALIDATION_FORMAT_NOT_ALLOWED);
   }
 

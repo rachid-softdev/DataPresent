@@ -3,7 +3,7 @@ import { auth } from "@/lib/auth";
 import { env } from "@/env";
 import { getStripe } from "@/lib/stripe";
 import { prisma } from "@/lib/prisma";
-import { PLANS } from "@/lib/entitlements/compat";
+import { getPlanPricing } from "@/lib/entitlements/plan-pricing";
 import { withCsrfProtection } from "@/lib/security";
 import { ERROR_CODES, unauthorized, badRequest } from "@/lib/errors";
 
@@ -17,9 +17,9 @@ export async function POST(req: NextRequest) {
   if (csrfResponse) return csrfResponse;
 
   const { plan } = await req.json();
-  const planConfig = PLANS[plan as keyof typeof PLANS];
+  const planPricing = getPlanPricing(plan);
 
-  if (!planConfig?.stripePriceId) {
+  if (!planPricing?.stripePriceId) {
     return badRequest(ERROR_CODES.ERR_VALIDATION_INVALID_PLAN);
   }
 
@@ -51,10 +51,10 @@ export async function POST(req: NextRequest) {
   const sessionUrl = await getStripe().checkout.sessions.create({
     customer: customerId,
     mode: "subscription",
-    line_items: [{ price: planConfig.stripePriceId, quantity: 1 }],
+    line_items: [{ price: planPricing.stripePriceId, quantity: 1 }],
     success_url: `${env.NEXTAUTH_URL}/settings/billing?success=true`,
     cancel_url: `${env.NEXTAUTH_URL}/settings/billing?canceled=true`,
-    metadata: { orgId: org.id, priceId: planConfig.stripePriceId },
+    metadata: { orgId: org.id, priceId: planPricing.stripePriceId },
   });
 
   return NextResponse.json({ url: sessionUrl.url });

@@ -1,3 +1,4 @@
+import type { NextRequest } from "next/server";
 import * as Sentry from "@sentry/nextjs";
 
 /**
@@ -143,6 +144,26 @@ export function withSentryCapture(handler: (request: Request) => Promise<Respons
       throw error;
     }
   };
+}
+
+/**
+ * Set the request ID on the current Sentry scope for correlation
+ */
+export function setRequestId(requestId: string) {
+  if (process.env.NODE_ENV === "production") {
+    Sentry.setTag("request_id", requestId);
+  }
+}
+
+/**
+ * Configure Sentry scope from a NextRequest — sets request_id tag
+ * for correlating errors with specific requests across services.
+ */
+export function configureRequestScope(request: NextRequest) {
+  const requestId = request.headers.get("x-request-id");
+  if (requestId) {
+    setRequestId(requestId);
+  }
 }
 
 // Export Sentry for direct access if needed

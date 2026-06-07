@@ -4,8 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { uploadToR2 } from "@/lib/r2";
 import { isValidSector, VALID_SECTORS } from "@/lib/sector";
 import { getGenerateQueue } from "@/lib/queue";
-import { canCreateReport } from "@/lib/entitlements/compat";
-import { getLimit } from "@/lib/entitlements/feature-gate";
+import { canConsume, getLimit } from "@/lib/entitlements/feature-gate";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { signJobData } from "@/lib/queue/job-security";
 import { ERROR_CODES, unauthorized, badRequest } from "@/lib/errors";
@@ -31,14 +30,6 @@ export async function POST(req: NextRequest) {
     });
     if (!rateLimitAllowed) {
       return NextResponse.json({ error: ERROR_CODES.ERR_VALIDATION_RATE_LIMIT }, { status: 429 });
-    }
-
-    const { allowed, upgrade } = await canCreateReport(session.user.id);
-    if (!allowed) {
-      return NextResponse.json(
-        { error: ERROR_CODES.ERR_RESOURCE_NOT_FOUND, upgrade },
-        { status: 403 },
-      );
     }
 
     const formData = await req.formData();
@@ -87,6 +78,15 @@ export async function POST(req: NextRequest) {
     const org = user?.membership[0]?.org;
     if (!org) {
       return badRequest(ERROR_CODES.ERR_RESOURCE_NO_ORGANIZATION);
+    }
+
+    // Check report quota
+    const canConsumeReport = await canConsume(org.id, "reportsPerMonth", 1);
+    if (!canConsumeReport) {
+      return NextResponse.json(
+        { error: ERROR_CODES.ERR_RESOURCE_NOT_FOUND, upgrade: true },
+        { status: 403 },
+      );
     }
 
     // Validate slide count against plan

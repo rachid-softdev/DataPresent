@@ -1,14 +1,28 @@
 // ==========================================
-// Compatibility Adapter - Legacy Plan Utils
+// Compatibility Adapter - Legacy Plan Utils [DEPRECATED]
 // ==========================================
-// This file provides backwards compatibility for code that imports from
-// @/lib/plans or @/lib/plan-utils. New code should use the entitlement
-// system directly via @/lib/entitlements.
-// Once all consumers have been migrated, this file can be removed.
+// This file is kept for backward compatibility only.
+// All new code should use the DB-backed entitlement system directly:
+//   - featureGateService.hasFeature(orgId, key)
+//   - getLimit(orgId, key)
+//   - getAllEntitlements(orgId)
+//   - getPlanPricing(plan) from @/lib/entitlements/plan-pricing
+//
+// Once all consumers have been fully migrated, this file can be removed.
+// ==========================================
+// DEPRECATION WARNING: Importing from this file will log a warning.
+// ==========================================
 
 import { prisma } from "@/lib/prisma";
 import { env } from "@/env";
 import { featureGateService } from "./feature-gate";
+
+// Emit deprecation warning once at module load time
+if (typeof process !== "undefined" && process.env?.NODE_ENV !== "test") {
+  console.warn(
+    "[DEPRECATED] compat.ts is deprecated. Use featureGateService or plan-pricing instead.",
+  );
+}
 
 // ==========================================
 // Static Plan Configuration
@@ -149,7 +163,7 @@ export function planSupportsFormat(plan: PlanType, format: "PPTX" | "PDF" | "DOC
 }
 
 export function canUseFormat(plan: PlanType, format: string): boolean {
-  return PLANS[plan].formats.includes(format as any);
+  return (PLANS[plan].formats as unknown as string[]).includes(format);
 }
 
 export function canHaveSlideCount(

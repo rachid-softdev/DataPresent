@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { PLANS } from "@/lib/entitlements/compat";
+import { getLimit } from "@/lib/entitlements/feature-gate";
+import { getPlanPricing } from "@/lib/entitlements/plan-pricing";
 import { ERROR_CODES, unauthorized, badRequest } from "@/lib/errors";
 
 export async function GET() {
@@ -33,7 +34,6 @@ export async function GET() {
   const org = user.membership[0].org;
   const subscription = org.subscription;
   const plan = subscription?.plan || "FREE";
-  const planConfig = PLANS[plan as keyof typeof PLANS];
 
   const now = new Date();
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -45,14 +45,15 @@ export async function GET() {
     },
   });
 
-  const reportsLimit = planConfig.reportsPerMonth === -1 ? -1 : planConfig.reportsPerMonth;
+  const reportsLimit = await getLimit(org.id, "reportsPerMonth");
 
   return NextResponse.json({
     plan,
+    planName: getPlanPricing(plan).name,
     reports: {
       used: reportsCount,
-      limit: reportsLimit,
-      remaining: reportsLimit === -1 ? -1 : Math.max(0, reportsLimit - reportsCount),
+      limit: reportsLimit === null ? -1 : reportsLimit,
+      remaining: reportsLimit === null ? -1 : Math.max(0, reportsLimit - reportsCount),
     },
     members: org.members.length,
     exports: {

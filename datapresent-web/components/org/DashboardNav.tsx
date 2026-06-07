@@ -48,7 +48,7 @@ export function DashboardNav() {
         </div>
         <div className="flex items-center gap-2">
           {/* Desktop nav links */}
-          <nav className="hidden lg:flex items-center gap-2">
+          <nav className="hidden md:flex items-center gap-2">
             {links.map((link) => (
               <Link
                 key={link.href}
@@ -62,13 +62,13 @@ export function DashboardNav() {
               </Link>
             ))}
           </nav>
-          <div className="hidden lg:block app-nav-divider" />
+          <div className="hidden md:block app-nav-divider" />
           <LocaleSwitcher />
           <ThemeToggle />
-          {/* Hamburger button — visible below lg */}
+          {/* Hamburger button — visible below md */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="lg:hidden p-2 rounded-lg hover:bg-muted transition-colors"
+            className="md:hidden p-2 rounded-lg hover:bg-muted transition-colors"
             aria-label={mobileMenuOpen ? "Fermer le menu" : "Ouvrir le menu"}
             aria-expanded={mobileMenuOpen}
           >
@@ -79,7 +79,7 @@ export function DashboardNav() {
 
       {/* Mobile menu panel */}
       {mobileMenuOpen && (
-        <div className="lg:hidden border-t border-border">
+        <div className="md:hidden border-t border-border">
           <nav className="max-w-7xl mx-auto px-4 py-3 space-y-1">
             {links.map((link) => (
               <Link

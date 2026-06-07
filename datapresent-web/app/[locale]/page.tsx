@@ -1,3 +1,5 @@
+import "../landing.css";
+
 import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
