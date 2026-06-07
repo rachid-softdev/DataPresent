@@ -201,7 +201,7 @@ export async function getExperimentConfig(
     return { percentage: 50, seed: experimentKey };
   }
 
-  return planFeature.configJson as ExperimentConfig;
+  return planFeature.configJson as unknown as ExperimentConfig;
 }
 
 /**

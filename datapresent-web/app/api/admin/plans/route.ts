@@ -77,7 +77,7 @@ export const POST = withAdmin(
     // Upsert plan feature
     const planFeature = await prisma.planFeature.upsert({
       where: {
-        plan_feature: {
+        plan_featureId: {
           plan: planKey as Plan,
           featureId: feature.id,
         },

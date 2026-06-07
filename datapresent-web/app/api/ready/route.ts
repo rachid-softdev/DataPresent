@@ -41,8 +41,8 @@ export async function GET() {
     const exportQueue = await getExportQueue();
     // BullMQ queues are backed by Redis; a successful instantiation with
     // the same connection implies the queue system is operational
-    await generateQueue.client.ping();
-    await exportQueue.client.ping();
+    await (await generateQueue.client).ping();
+    await (await exportQueue.client).ping();
     checks.queue = "ok";
   } catch (error) {
     console.error("[ready] Queue check failed:", error);

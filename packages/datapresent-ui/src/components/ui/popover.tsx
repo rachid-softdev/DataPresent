@@ -23,6 +23,7 @@ export function Popover({ open, onOpenChange, children, content }: PopoverProps)
       document.addEventListener("mousedown", handleClickOutside);
       return () => document.removeEventListener("mousedown", handleClickOutside);
     }
+    return undefined;
   }, [open, onOpenChange]);
 
   return (

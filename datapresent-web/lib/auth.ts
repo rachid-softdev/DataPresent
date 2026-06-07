@@ -103,7 +103,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         session.user.id = token.sub;
 
         // Read isVerified from the JWT token (set in jwt callback)
-        (session.user as Record<string, unknown>).isVerified =
+        (session.user as unknown as Record<string, unknown>).isVerified =
           (token as Record<string, unknown>).isVerified ?? false;
       }
       return session;

@@ -29,7 +29,7 @@ function generateOgImage(params: {
   type: string;
 }): Response {
   // Create an ImageResponse with the design
-  const response = new ImageResponse(
+  const response = new (ImageResponse as any)(
     {
       type: "div",
       props: {

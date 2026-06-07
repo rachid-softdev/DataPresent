@@ -3,6 +3,7 @@
  * Prevents cross-site scripting attacks by sanitizing user input
  */
 
+// @ts-expect-error — jsdom has no declaration file for v29
 import { JSDOM } from "jsdom";
 import DOMPurify from "dompurify";
 import { env } from "@/env";

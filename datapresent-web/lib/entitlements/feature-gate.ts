@@ -7,10 +7,10 @@ import type {
   SubscriptionStatus,
   FeatureType,
   Feature,
-  PlanFeature,
   EntitlementOverride,
   UsageTracking,
 } from "@prisma/client";
+import type { PlanFeatureWithFeature } from "./repository";
 import type {
   EntitlementMap,
   DebugTrace,
@@ -275,7 +275,7 @@ export class FeatureGateService {
     userId: string | undefined,
     overrides: EntitlementOverride[] | undefined,
     plan: Plan | undefined,
-    preloadedFeatures?: PlanFeature[],
+    preloadedFeatures?: PlanFeatureWithFeature[],
   ): Promise<{
     value: boolean | number | null;
     resolvedVia: ResolutionSource;
@@ -324,7 +324,7 @@ export class FeatureGateService {
       // Handle experiments differently
       if (planFeature.feature.type === "EXPERIMENT" && planFeature.configJson) {
         // If no userId, return based on config percentage (org-level)
-        const experimentConfig = planFeature.configJson as ExperimentConfig;
+        const experimentConfig = planFeature.configJson as unknown as ExperimentConfig;
 
         // For limit type, return the limit value
         if (planFeature.limitValue !== null) {

@@ -27,6 +27,8 @@ interface ShareSettings {
   allowEmbed: boolean;
   expiresAt: string | null;
   hasPassword: boolean;
+  /** Transient — used by the form, not persisted in settings state */
+  password?: string;
 }
 
 export function ShareModal({ reportId }: ShareModalProps) {

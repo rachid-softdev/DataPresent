@@ -38,7 +38,7 @@ interface SlideCardProps {
   slide: Slide;
 }
 
-const layoutComponents: Record<SlideLayout, React.FC<{ content: any }>> = {
+const layoutComponents: Record<SlideLayout, React.ComponentType<{ content: any }>> = {
   TITLE_SLIDE: TitleSlide,
   KPI_GRID: KpiGrid,
   BAR_CHART: BarChartSlide,

@@ -6,7 +6,8 @@
 export * from "./types";
 
 // Repository
-export { entitlementRepository, IEntitlementRepository } from "./repository";
+export { entitlementRepository } from "./repository";
+export type { IEntitlementRepository } from "./repository";
 
 // Cache
 export {
