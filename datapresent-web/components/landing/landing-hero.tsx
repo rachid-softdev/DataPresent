@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ArrowRight, Check } from "lucide-react";
 
 interface Stat {
   value: string;
@@ -41,28 +42,10 @@ export function LandingHero({
         <div className="landing-hero-cta anim-up-3">
           <Link href="/signup" className="landing-btn landing-btn-primary landing-btn-xl">
             {cta}
-            <svg
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-            >
-              <path d="M5 12h14M12 5l7 7-7 7" />
-            </svg>
+            <ArrowRight className="w-[18px] h-[18px]" aria-hidden="true" />
           </Link>
           <span className="landing-hero-note">
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.5"
-            >
-              <path d="M20 6L9 17l-5-5" />
-            </svg>
+            <Check className="w-[14px] h-[14px]" aria-hidden="true" />
             {note}
           </span>
         </div>

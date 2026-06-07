@@ -190,7 +190,12 @@ export default function SharePage({ params }: { params: { id: string } }) {
                 <Label className="mb-2 block">Lien de partage</Label>
                 <div className="flex gap-2">
                   <Input readOnly value={shareUrl} className="flex-1 font-mono text-sm" />
-                  <Button onClick={copyLink} variant="outline" size="icon">
+                  <Button
+                    onClick={copyLink}
+                    variant="outline"
+                    size="icon"
+                    aria-label="Copier le lien"
+                  >
                     {copied ? (
                       <Check className="w-4 h-4 text-green-500" />
                     ) : (
@@ -215,6 +220,7 @@ export default function SharePage({ params }: { params: { id: string } }) {
                     }}
                     variant="outline"
                     size="icon"
+                    aria-label="Copier le code d'intégration"
                   >
                     <Copy className="w-4 h-4" />
                   </Button>

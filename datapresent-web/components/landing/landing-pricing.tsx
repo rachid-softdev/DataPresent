@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Check } from "lucide-react";
 
 interface LandingPricingProps {
   label: string;
@@ -92,16 +93,7 @@ export function LandingPricing({ label, title, subtitle }: LandingPricingProps) 
               <hr className="landing-price-divider" />
               {plan.features.map((feat) => (
                 <div key={feat} className="landing-price-feature">
-                  <svg
-                    width="15"
-                    height="15"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
-                  >
-                    <path d="M20 6L9 17l-5-5" />
-                  </svg>
+                  <Check className="w-[15px] h-[15px]" aria-hidden="true" />
                   {feat}
                 </div>
               ))}

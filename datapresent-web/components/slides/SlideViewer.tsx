@@ -108,6 +108,7 @@ export function SlideViewer({ slides: initialSlides, reportId }: SlideViewerProp
                 size="icon"
                 className="h-6 w-6"
                 onClick={() => setShowSidebar(false)}
+                aria-label="Fermer la liste des slides"
               >
                 <X className="w-4 h-4" />
               </Button>

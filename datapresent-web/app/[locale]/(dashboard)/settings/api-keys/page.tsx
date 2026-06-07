@@ -246,6 +246,7 @@ export default function ApiKeysPage() {
                     size="icon"
                     className="text-red-500 hover:text-red-600"
                     onClick={() => handleRevoke(key.id)}
+                    aria-label={`Révoquer la clé ${key.name}`}
                   >
                     <Trash2 className="w-4 h-4" />
                   </Button>

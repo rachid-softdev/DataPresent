@@ -2,11 +2,20 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
+import dynamic from "next/dynamic";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
-import { SlideViewer } from "@/components/slides/SlideViewer";
 import { ReportActions } from "@/components/reports/ReportActions";
 import { ReportDetailPoller } from "@/components/reports/ReportDetailPoller";
+
+const SlideViewer = dynamic(
+  () => import("@/components/slides/SlideViewer").then((m) => ({ default: m.SlideViewer })),
+  {
+    ssr: false,
+    loading: () => <Skeleton className="h-96 w-full rounded-lg" />,
+  },
+);
 
 export default async function ReportPage({ params }: { params: Promise<{ id: string }> }) {
   const t = await getTranslations();

@@ -121,6 +121,7 @@ const envSchema = z.object({
   // =========================
   GOOGLE_SHEETS_CLIENT_EMAIL: z.string().optional(),
   GOOGLE_SHEETS_PRIVATE_KEY: z.string().optional(),
+  GOOGLE_SHEETS_PRIVATE_KEY_BASE64: z.string().optional(),
 
   // =========================
   // VERCEL
@@ -162,7 +163,10 @@ export function isFeatureEnabled(
     case "redis":
       return Boolean(env.REDIS_URL);
     case "googleSheets":
-      return Boolean(env.GOOGLE_SHEETS_CLIENT_EMAIL && env.GOOGLE_SHEETS_PRIVATE_KEY);
+      return Boolean(
+        env.GOOGLE_SHEETS_CLIENT_EMAIL &&
+          (env.GOOGLE_SHEETS_PRIVATE_KEY || env.GOOGLE_SHEETS_PRIVATE_KEY_BASE64),
+      );
     default:
       return false;
   }
