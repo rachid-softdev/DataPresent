@@ -30,6 +30,8 @@ export const ERROR_CODES = {
   ERR_RESOURCE_NO_SOURCE_FILE: "errors.resource.noSourceFile",
   ERR_RESOURCE_INVALID_SIGNATURE: "errors.resource.invalidSignature",
   ERR_RESOURCE_EXPIRED: "errors.resource.expired",
+
+  ERR_CIRCUIT_OPEN: "errors.circuit.open",
 } as const;
 
 export const SUCCESS_CODES = {

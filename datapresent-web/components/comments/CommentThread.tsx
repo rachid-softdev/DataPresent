@@ -153,7 +153,12 @@ export const CommentThread = memo(function CommentThread({
           <span className="text-xs text-muted-foreground">({comments.length})</span>
         </div>
         {onClose && (
-          <Button size="icon" variant="ghost" onClick={onClose}>
+          <Button
+            size="icon"
+            variant="ghost"
+            onClick={onClose}
+            aria-label="Fermer les commentaires"
+          >
             <X className="w-5 h-5" />
           </Button>
         )}

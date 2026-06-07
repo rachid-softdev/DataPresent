@@ -4,12 +4,21 @@ import { ensureUserHasOrganization } from "@/lib/org";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/empty-state";
-import { UsageCard } from "@/components/usage/UsageCard";
+import { Skeleton } from "@/components/ui/skeleton";
 import { PlusCircle } from "lucide-react";
+
+const UsageCard = dynamic(
+  () => import("@/components/usage/UsageCard").then((m) => ({ default: m.UsageCard })),
+  {
+    ssr: false,
+    loading: () => <Skeleton className="h-64 w-full rounded-lg" />,
+  },
+);
 
 export default async function DashboardPage() {
   const t = await getTranslations();

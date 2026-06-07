@@ -1,11 +1,12 @@
 // ==========================================
-// Health Check Endpoint Tests
+// Health Check API Route Tests (Sprint 6, Item 4)
 // ==========================================
 //
 // Tests the /api/health GET endpoint:
 // - Returns 200 when DB and Redis are both OK
-// - Returns 503 when DB or Redis is degraded
-// - Reports individual check statuses
+// - Returns 503 when DB or Redis is degraded/down
+// - Reports individual check statuses (objects with status/error)
+// - Response shape validation
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
@@ -15,6 +16,13 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 const mockQueryRaw = vi.hoisted(() => vi.fn());
 const mockRedisPing = vi.hoisted(() => vi.fn());
 const mockGetRedisConnectionAsync = vi.hoisted(() => vi.fn());
+const mockIsFeatureEnabled = vi.hoisted(() =>
+  vi.fn().mockImplementation((feature: string) => {
+    if (feature === "redis") return true;
+    return false;
+  }),
+);
+
 const mockJson = vi.hoisted(() => vi.fn());
 
 vi.mock("next/server", () => ({
@@ -33,6 +41,13 @@ vi.mock("@/lib/redis", () => ({
   getRedisConnectionAsync: mockGetRedisConnectionAsync,
 }));
 
+vi.mock("@/env", () => ({
+  isFeatureEnabled: mockIsFeatureEnabled,
+  env: {
+    REDIS_URL: "redis://localhost:6379",
+  },
+}));
+
 // ---------------------------------------------------------------------------
 // Import the module under test
 // ---------------------------------------------------------------------------
@@ -41,6 +56,11 @@ import { GET } from "@/app/api/health/route";
 describe("Health check endpoint", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    // Reset isFeatureEnabled to default
+    mockIsFeatureEnabled.mockImplementation((feature: string) => {
+      if (feature === "redis") return true;
+      return false;
+    });
     // Default mockJson to return a Response
     mockJson.mockImplementation((body: object, init?: ResponseInit) => {
       return new Response(JSON.stringify(body), {
@@ -67,8 +87,8 @@ describe("Health check endpoint", () => {
     // Assert
     expect(response.status).toBe(200);
     expect(data.status).toBe("ok");
-    expect(data.checks.database).toBe("ok");
-    expect(data.checks.redis).toBe("ok");
+    expect(data.checks.database).toEqual({ status: "ok" });
+    expect(data.checks.redis).toEqual({ status: "ok" });
     expect(data.timestamp).toBeDefined();
   });
 
@@ -89,8 +109,8 @@ describe("Health check endpoint", () => {
     // Assert
     expect(response.status).toBe(503);
     expect(data.status).toBe("degraded");
-    expect(data.checks.database).toBe("error");
-    expect(data.checks.redis).toBe("ok");
+    expect(data.checks.database).toEqual({ status: "fail", error: "Database connection failed" });
+    expect(data.checks.redis).toEqual({ status: "ok" });
   });
 
   // -----------------------------------------------------------------------
@@ -110,8 +130,8 @@ describe("Health check endpoint", () => {
     // Assert
     expect(response.status).toBe(503);
     expect(data.status).toBe("degraded");
-    expect(data.checks.database).toBe("ok");
-    expect(data.checks.redis).toBe("error");
+    expect(data.checks.database).toEqual({ status: "ok" });
+    expect(data.checks.redis).toEqual({ status: "fail", error: "Redis connection failed" });
   });
 
   // -----------------------------------------------------------------------
@@ -129,8 +149,8 @@ describe("Health check endpoint", () => {
     // Assert
     expect(response.status).toBe(503);
     expect(data.status).toBe("degraded");
-    expect(data.checks.database).toBe("ok");
-    expect(data.checks.redis).toBe("unavailable");
+    expect(data.checks.database).toEqual({ status: "ok" });
+    expect(data.checks.redis).toEqual({ status: "fail", error: "connection not available" });
   });
 
   // -----------------------------------------------------------------------
@@ -149,9 +169,9 @@ describe("Health check endpoint", () => {
 
     // Assert
     expect(response.status).toBe(503);
-    expect(data.status).toBe("degraded");
-    expect(data.checks.database).toBe("error");
-    expect(data.checks.redis).toBe("error");
+    expect(data.status).toBe("down");
+    expect(data.checks.database).toEqual({ status: "fail", error: "Database connection failed" });
+    expect(data.checks.redis).toEqual({ status: "fail", error: "Redis connection failed" });
   });
 
   // -----------------------------------------------------------------------
@@ -176,5 +196,24 @@ describe("Health check endpoint", () => {
     expect(data).toHaveProperty("timestamp");
     expect(typeof data.timestamp).toBe("string");
     expect(new Date(data.timestamp).toISOString()).toBe(data.timestamp);
+  });
+
+  // -----------------------------------------------------------------------
+  // Redis not configured → still ok
+  // -----------------------------------------------------------------------
+  it("should return 200 when redis is not configured", async () => {
+    // Arrange
+    mockQueryRaw.mockResolvedValue([{ "1": 1 }]);
+    mockIsFeatureEnabled.mockReturnValue(false);
+
+    // Act
+    const response = await GET();
+    const data = await response.json();
+
+    // Assert
+    expect(response.status).toBe(200);
+    expect(data.status).toBe("ok");
+    expect(data.checks.database).toEqual({ status: "ok" });
+    expect(data.checks.redis).toEqual({ status: "ok", error: "not configured" });
   });
 });

@@ -260,6 +260,7 @@ export default function TeamPage() {
                         size="icon"
                         className="text-red-500 hover:text-red-600"
                         onClick={() => handleRemove(member.id)}
+                        aria-label={`Supprimer ${member.name || member.email || "le membre"}`}
                       >
                         <Trash2 className="w-4 h-4" />
                       </Button>

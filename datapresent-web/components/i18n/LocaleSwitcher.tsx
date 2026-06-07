@@ -18,6 +18,7 @@ export function LocaleSwitcher() {
       value={locale}
       onChange={(e) => onChange(e.target.value)}
       className="select select-sm select-bordered"
+      aria-label="Changer de langue"
     >
       <option value="fr">Français</option>
       <option value="en">English</option>

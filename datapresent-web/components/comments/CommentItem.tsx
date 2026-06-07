@@ -119,6 +119,7 @@ export const CommentItem = memo(function CommentItem({
             variant="ghost"
             className="w-8 h-8"
             onClick={() => setIsEditing(true)}
+            aria-label="Modifier le commentaire"
           >
             <Pencil className="w-4 h-4" />
           </Button>
@@ -128,6 +129,7 @@ export const CommentItem = memo(function CommentItem({
             className="w-8 h-8 text-red-500 hover:text-red-600"
             onClick={handleDelete}
             disabled={isDeleting}
+            aria-label="Supprimer le commentaire"
           >
             <Trash2 className="w-4 h-4" />
           </Button>
