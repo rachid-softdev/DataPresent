@@ -93,10 +93,11 @@ vi.mock("@/lib/queue/job-security", () => ({
 }));
 
 // ---------------------------------------------------------------------------
-// Mock feature-gate consume and LimitReachedError
+// Mock feature-gate consume, hasFeature and LimitReachedError
 // ---------------------------------------------------------------------------
 vi.mock("@/lib/entitlements/feature-gate", () => ({
   consume: mockConsume,
+  hasFeature: vi.fn().mockResolvedValue(true),
   LimitReachedError: mockLimitReachedError,
 }));
 
