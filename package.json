@@ -14,7 +14,7 @@
     "db:push": "pnpm --filter datapresent-web db:push",
     "format": "biome format --write .",
     "format:check": "biome format .",
-    "check": "pnpm run format:check && pnpm run lint",
+    "check": "pnpm run format:check \u0026\u0026 pnpm run lint",
     "prepare": "husky",
     "web:dev": "pnpm --filter datapresent-web dev",
     "web:build": "pnpm --filter datapresent-web build",
@@ -28,14 +28,20 @@
     "workers:build": "pnpm --filter workers build",
     "workers:start": "pnpm --filter workers start",
     "workers:typecheck": "pnpm --filter workers typecheck",
-    "workers:prisma-generate": "pnpm --filter workers prisma:generate"
+    "workers:prisma-generate": "pnpm --filter workers prisma:generate",
+    "changeset": "changeset",
+    "version-packages": "changeset version",
+    "release": "changeset tag",
+    "ci:release": "pnpm changeset version \u0026\u0026 pnpm install --no-frozen-lockfile \u0026\u0026 pnpm build \u0026\u0026 pnpm changeset tag"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.15",
     "@commitlint/cli": "^21.0.0",
     "@commitlint/config-conventional": "^21.0.0",
     "husky": "^9.1.7",
-    "lint-staged": "^17.0.5"
+    "lint-staged": "^17.0.5",
+    "@changesets/cli": "^2.27.0",
+    "@changesets/changelog-github": "^0.5.0"
   },
   "lint-staged": {
     "*": [
