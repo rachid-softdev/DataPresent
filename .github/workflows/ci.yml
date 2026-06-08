@@ -98,7 +98,7 @@ jobs:
           DATABASE_URL: postgresql://datapresent:test@localhost:5432/datapresent_test
 
       - name: Upload Unit Test Results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: test-results-unit
@@ -168,7 +168,7 @@ jobs:
           STRIPE_SECRET_KEY: sk_test_placeholder
 
       - name: Upload Playwright Report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: playwright-report
@@ -238,7 +238,7 @@ jobs:
           STRIPE_SECRET_KEY: sk_test_placeholder
 
       - name: Upload Integration Test Results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: test-results-integration
@@ -278,7 +278,7 @@ jobs:
           DATABASE_URL: postgresql://datapresent:test@localhost:5432/datapresent_test
 
       - name: Upload Coverage Report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: coverage-report
