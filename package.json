@@ -1,7 +1,7 @@
 {
   "name": "datapresent",
   "version": "0.1.0",
-  "private": true,
+  "private": true, "packageManager": "pnpm@9.15.9",
   "scripts": {
     "dev": "pnpm --filter datapresent-web dev",
     "start-dev-complete": "pnpm --filter datapresent-web dev:complete",
@@ -52,3 +52,4 @@
     ]
   }
 }
+
