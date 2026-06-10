@@ -59,7 +59,7 @@ const PLANS = [
       "API & webhooks",
     ],
     cta: "Contacter l'équipe",
-    href: "/contact",
+    href: "/help",
     btnVariant: "outline" as const,
   },
 ];
