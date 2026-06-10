@@ -5,8 +5,8 @@ const withNextIntl = createNextIntlPlugin();
 
 const isDev = process.env.NODE_ENV === "development";
 const scriptSrc = isDev
-  ? "'self' 'unsafe-eval' https://js.stripe.com"
-  : "'self' https://js.stripe.com";
+  ? "'self' 'unsafe-eval' 'unsafe-inline' https://js.stripe.com"
+  : "'self' 'unsafe-inline' https://js.stripe.com";
 
 const nextConfig: NextConfig = {
   output: "standalone",
@@ -108,12 +108,22 @@ const nextConfig: NextConfig = {
     return [
       {
         source: "/app",
-        destination: "/dashboard",
+        destination: "/",
         permanent: true,
       },
       {
         source: "/register",
         destination: "/signup",
+        permanent: true,
+      },
+      {
+        source: "/contact",
+        destination: "/help",
+        permanent: true,
+      },
+      {
+        source: "/dashboard",
+        destination: "/",
         permanent: true,
       },
     ];

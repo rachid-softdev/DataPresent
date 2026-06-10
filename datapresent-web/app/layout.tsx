@@ -74,6 +74,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang={localeCookie} suppressHydrationWarning data-theme={themeCookie}>
       <body className={`${fraunces.variable} ${dmSans.variable} antialiased`}>
+        <a href="#main" className="skip-link">
+          Aller au contenu principal
+        </a>
         <Providers>{children}</Providers>
       </body>
     </html>
