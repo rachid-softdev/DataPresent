@@ -19,6 +19,7 @@ import { ArrowLeft, ArrowRight } from "lucide-react";
 import type { StepId } from "@/components/upload/Stepper";
 
 const STALL_TIMEOUT_MS = 30_000;
+const POLL_INTERVAL_MS = 3_000;
 
 interface NewReportFormProps {
   maxSlides: number;
@@ -51,13 +52,20 @@ export default function NewReportForm({ maxSlides }: NewReportFormProps) {
   const steps = useReportSteps(t);
   const subStages = useGenerationSubStages(t);
 
-  // Sub-stage progression simulation during processing
-  const subStageTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  // Polling timer for real report status after upload
+  const pollTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Tracks the report ID being polled after upload
+  const reportIdRef = useRef<string | null>(null);
+
+  // Visual sub-stage advancement timer while waiting for real status
+  const visualStageTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
     return () => {
       if (stallTimerRef.current) clearTimeout(stallTimerRef.current);
-      if (subStageTimerRef.current) clearInterval(subStageTimerRef.current);
+      if (pollTimerRef.current) clearInterval(pollTimerRef.current);
+      if (visualStageTimerRef.current) clearInterval(visualStageTimerRef.current);
     };
   }, []);
 
@@ -76,22 +84,74 @@ export default function NewReportForm({ maxSlides }: NewReportFormProps) {
     }, STALL_TIMEOUT_MS);
   }, [clearStallTimer]);
 
-  /** Advance sub-stage simulation while waiting for the final response */
-  const startSubStageSimulation = useCallback(() => {
-    setActiveSubStage(0);
-    subStageTimerRef.current = setInterval(() => {
-      setActiveSubStage((prev) => {
-        if (prev < subStages.length - 1) return prev + 1;
-        return prev;
-      });
-    }, 3500);
-  }, [subStages.length]);
+  /** Start polling for the report's real status */
+  const startPolling = useCallback(
+    (reportId: string) => {
+      reportIdRef.current = reportId;
 
-  const stopSubStageSimulation = useCallback(() => {
-    if (subStageTimerRef.current) {
-      clearInterval(subStageTimerRef.current);
-      subStageTimerRef.current = null;
+      // Reset visual sub-stages
+      setActiveSubStage(0);
+
+      // Advance visual sub-stages while polling
+      visualStageTimerRef.current = setInterval(() => {
+        setActiveSubStage((prev) => {
+          if (prev < subStages.length - 1) return prev + 1;
+          return prev;
+        });
+      }, 3500);
+
+      // Poll the report API every POLL_INTERVAL_MS
+      pollTimerRef.current = setInterval(async () => {
+        try {
+          const res = await fetch(`/api/reports/${reportId}`);
+          if (!res.ok) return;
+
+          const report = await res.json();
+
+          if (report.status === "DONE") {
+            // Generation complete
+            clearInterval(pollTimerRef.current!);
+            pollTimerRef.current = null;
+            clearInterval(visualStageTimerRef.current!);
+            visualStageTimerRef.current = null;
+            clearStallTimer();
+            setActiveSubStage(subStages.length - 1);
+            setResultStatus("success");
+            setResultReportId(reportId);
+            setCurrentStep("result");
+            toast.success(t("messages.reports.generated"));
+          } else if (report.status === "ERROR") {
+            // Generation failed
+            clearInterval(pollTimerRef.current!);
+            pollTimerRef.current = null;
+            clearInterval(visualStageTimerRef.current!);
+            visualStageTimerRef.current = null;
+            clearStallTimer();
+            setResultStatus("error");
+            setError(t("errors.generic"));
+            setCurrentStep("result");
+            toast.error(t("errors.generic"));
+          }
+          // PROCESSING or PENDING: keep polling, reset stall timer
+          resetStallTimer();
+        } catch {
+          // Silently retry on next interval
+        }
+      }, POLL_INTERVAL_MS);
+    },
+    [subStages.length, clearStallTimer, resetStallTimer, t],
+  );
+
+  const stopPolling = useCallback(() => {
+    if (pollTimerRef.current) {
+      clearInterval(pollTimerRef.current);
+      pollTimerRef.current = null;
     }
+    if (visualStageTimerRef.current) {
+      clearInterval(visualStageTimerRef.current);
+      visualStageTimerRef.current = null;
+    }
+    reportIdRef.current = null;
   }, []);
 
   /** Abort the current XHR request */
@@ -100,18 +160,18 @@ export default function NewReportForm({ maxSlides }: NewReportFormProps) {
       xhrRef.current.abort();
       xhrRef.current = null;
     }
-    stopSubStageSimulation();
+    stopPolling();
     clearStallTimer();
     setUploadProgress(0);
     setActiveSubStage(0);
     setError(null);
     setResultStatus(null);
     setCurrentStep("config");
-  }, [clearStallTimer, stopSubStageSimulation]);
+  }, [clearStallTimer, stopPolling]);
 
   /** Proper retry: go back to config so user can re-initiate */
   const handleRetry = useCallback(() => {
-    stopSubStageSimulation();
+    stopPolling();
     clearStallTimer();
     setUploadProgress(0);
     setActiveSubStage(0);
@@ -119,11 +179,11 @@ export default function NewReportForm({ maxSlides }: NewReportFormProps) {
     setResultStatus(null);
     setResultReportId(undefined);
     setCurrentStep("config");
-  }, [clearStallTimer, stopSubStageSimulation]);
+  }, [clearStallTimer, stopPolling]);
 
   /** Start over from upload */
   const handleDismiss = useCallback(() => {
-    stopSubStageSimulation();
+    stopPolling();
     clearStallTimer();
     setUploadProgress(0);
     setActiveSubStage(0);
@@ -132,7 +192,7 @@ export default function NewReportForm({ maxSlides }: NewReportFormProps) {
     setResultReportId(undefined);
     setFile(null);
     setCurrentStep("upload");
-  }, [clearStallTimer, stopSubStageSimulation]);
+  }, [clearStallTimer, stopPolling]);
 
   /** Submit: start the XHR upload */
   const handleSubmit = useCallback(() => {
@@ -170,23 +230,21 @@ export default function NewReportForm({ maxSlides }: NewReportFormProps) {
 
     xhr.onload = () => {
       xhrRef.current = null;
-      stopSubStageSimulation();
-      clearStallTimer();
       if (xhr.status >= 200 && xhr.status < 300) {
         try {
           const data = JSON.parse(xhr.responseText);
-          setResultStatus("success");
-          setResultReportId(data.reportId);
-          setCurrentStep("result");
-          toast.success(t("messages.reports.generated"));
+          // Upload succeeded — start polling for real report status
+          startPolling(data.reportId);
         } catch {
+          stopPolling();
+          clearStallTimer();
           setResultStatus("error");
           setError(t("errors.generic"));
           setCurrentStep("result");
           toast.error(t("errors.generic"));
         }
       } else {
-        stopSubStageSimulation();
+        stopPolling();
         clearStallTimer();
         setResultStatus("error");
         try {
@@ -205,7 +263,7 @@ export default function NewReportForm({ maxSlides }: NewReportFormProps) {
 
     xhr.onerror = () => {
       xhrRef.current = null;
-      stopSubStageSimulation();
+      stopPolling();
       clearStallTimer();
       setResultStatus("error");
       const msg = t("upload.uploadError");
@@ -216,7 +274,7 @@ export default function NewReportForm({ maxSlides }: NewReportFormProps) {
 
     xhr.onabort = () => {
       xhrRef.current = null;
-      stopSubStageSimulation();
+      stopPolling();
       clearStallTimer();
     };
 
@@ -224,17 +282,7 @@ export default function NewReportForm({ maxSlides }: NewReportFormProps) {
     xhr.send(formData);
 
     resetStallTimer();
-    startSubStageSimulation();
-  }, [
-    file,
-    sector,
-    slideCount,
-    t,
-    clearStallTimer,
-    resetStallTimer,
-    startSubStageSimulation,
-    stopSubStageSimulation,
-  ]);
+  }, [file, sector, slideCount, t, clearStallTimer, resetStallTimer, startPolling, stopPolling]);
 
   /** Render step content */
   const renderStepContent = () => {
