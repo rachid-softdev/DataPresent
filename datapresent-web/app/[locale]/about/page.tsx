@@ -1,7 +1,7 @@
-import "../landing.css";
+import "@/app/landing.css";
 
 import { Metadata } from "next";
-import { Link } from "@/i18n/routing";
+import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 

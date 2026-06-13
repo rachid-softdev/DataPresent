@@ -63,7 +63,7 @@ function setCorsHeaders(response: NextResponse, requestOrigin: string | null): v
  * CSRF protection is handled per-route via withCsrfProtection() decorator
  * from lib/security/csrf-middleware.ts for proper cryptographic validation.
  */
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const requestId = crypto.randomUUID();
 

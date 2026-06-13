@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import { Link } from "@/i18n/routing";
+import Link from "next/link";
 
 interface LegalPageProps {
   params: Promise<{ locale: string }>;
