@@ -1,5 +1,6 @@
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
+import { KeyboardShortcuts } from "@/components/layout/keyboard-shortcuts";
 
 export default async function LocaleLayout({
   children,
@@ -13,7 +14,7 @@ export default async function LocaleLayout({
 
   return (
     <NextIntlClientProvider messages={messages} locale={locale}>
-      {children}
+      <KeyboardShortcuts>{children}</KeyboardShortcuts>
     </NextIntlClientProvider>
   );
 }

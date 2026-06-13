@@ -103,34 +103,6 @@ const PLANS: Plan[] = [
       sla: false,
     },
   },
-  {
-    key: "agency",
-    price: "199€",
-    href: "/contact",
-    btnVariant: "outline",
-    popular: false,
-    features: {
-      reports: "unlimited",
-      exportPDF: true,
-      exportPPTX: true,
-      exportWord: true,
-      noWatermark: true,
-      aiBasic: true,
-      aiAdvanced: true,
-      premiumTemplates: true,
-      teamCollaboration: true,
-      sharedSpaces: true,
-      customRoles: true,
-      apiAccess: true,
-      apiFull: true,
-      whiteLabel: true,
-      supportEmail: true,
-      supportPriority: true,
-      supportDedicated: true,
-      accountManager: true,
-      sla: true,
-    },
-  },
 ];
 
 // ── Feature matrix for comparison table ──────────────────────────
@@ -341,6 +313,11 @@ export default async function PricingPage({ params }: PricingPageProps) {
       availability: "https://schema.org/InStock",
       url: `https://datapresent.com${plan.href}`,
     })),
+    // Agency plan available on request
+    brand: {
+      "@type": "Brand",
+      name: "DataPresent",
+    },
   };
 
   return (
@@ -377,8 +354,8 @@ export default async function PricingPage({ params }: PricingPageProps) {
 
         {/* ── Plan cards ──────────────────────────────────────── */}
         <section className="px-6 pb-8">
-          <div className="mx-auto max-w-6xl">
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mx-auto max-w-5xl">
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {PLANS.map((plan) => {
                 const planName = t(`pricing.plans.${plan.key}.name`);
                 const planDesc = t(`pricing.plans.${plan.key}.description`);
@@ -485,6 +462,18 @@ export default async function PricingPage({ params }: PricingPageProps) {
                   </div>
                 );
               })}
+            </div>
+
+            {/* ── Agency upsell ─────────────────────────────────── */}
+            <div className="mt-8 text-center">
+              <p className="text-sm text-muted-foreground mb-2">
+                {locale === "en"
+                  ? "Need more for your agency or enterprise?"
+                  : "Besoin de plus pour votre agence ou entreprise ?"}
+              </p>
+              <Link href="/contact" className="app-btn app-btn-outline">
+                {locale === "en" ? "Contact our team" : "Contacter notre équipe"}
+              </Link>
             </div>
           </div>
         </section>

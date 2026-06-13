@@ -14,6 +14,7 @@ import { Stepper, useReportSteps } from "@/components/upload/Stepper";
 import { FlowContainer } from "@/components/upload/FlowContainer";
 import { GenerationProgress, useGenerationSubStages } from "@/components/upload/GenerationProgress";
 import { ReportResult } from "@/components/upload/ReportResult";
+import { InlineHelp } from "@/components/ui/inline-help";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import type { StepId } from "@/components/upload/Stepper";
 
@@ -281,7 +282,10 @@ export default function NewReportForm({ maxSlides }: NewReportFormProps) {
           <div className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>{t("upload.sector.title")}</CardTitle>
+                <CardTitle className="flex items-center">
+                  {t("upload.sector.title")}
+                  <InlineHelp content="Le secteur permet à l'IA d'adapter le vocabulaire, les métriques et les graphiques à votre domaine d'activité." />
+                </CardTitle>
                 <CardDescription>{t("upload.sector.description")}</CardDescription>
               </CardHeader>
               <CardContent>

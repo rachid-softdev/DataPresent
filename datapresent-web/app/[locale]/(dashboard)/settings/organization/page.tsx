@@ -10,6 +10,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 interface Organization {
@@ -41,6 +42,7 @@ export default function OrganizationSettingsPage() {
   const [newOrgName, setNewOrgName] = useState("");
   const [inviteEmail, setInviteEmail] = useState("");
   const [newOrgSlug, setNewOrgSlug] = useState("");
+  const [removingMemberId, setRemovingMemberId] = useState<string | null>(null);
 
   useEffect(() => {
     fetch("/api/organizations")
@@ -115,8 +117,9 @@ export default function OrganizationSettingsPage() {
   };
 
   const handleRemoveMember = async (userId: string) => {
-    if (!selectedOrg) return;
+    if (!selectedOrg || removingMemberId) return;
 
+    setRemovingMemberId(userId);
     const res = await fetch(`/api/organizations/${selectedOrg}/members`, {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
@@ -127,6 +130,7 @@ export default function OrganizationSettingsPage() {
       setMembers(members.filter((m) => m.id !== userId));
       toast.success("Membre supprimé");
     }
+    setRemovingMemberId(null);
   };
 
   const generateSlug = (name: string) => {
@@ -193,7 +197,27 @@ export default function OrganizationSettingsPage() {
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium mb-1 block">Slug (URL)</label>
+                  <label className="text-sm font-medium mb-1 flex items-center">
+                    Slug (URL)
+                    <span
+                      className="inline-flex items-center cursor-help ml-1.5"
+                      title="Identifiant unique utilisé dans l'URL de votre organisation. Exemple : datapresent.com/ma-societe"
+                    >
+                      <svg
+                        className="w-3.5 h-3.5 text-muted-foreground/60"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <circle cx="12" cy="12" r="10" />
+                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+                        <path d="M12 17h.01" />
+                      </svg>
+                    </span>
+                  </label>
                   <Input
                     placeholder="ma-societe"
                     value={newOrgSlug}
@@ -250,8 +274,13 @@ export default function OrganizationSettingsPage() {
                             variant="ghost"
                             size="sm"
                             onClick={() => handleRemoveMember(member.id)}
+                            disabled={removingMemberId === member.id}
                           >
-                            Supprimer
+                            {removingMemberId === member.id ? (
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                            ) : (
+                              "Supprimer"
+                            )}
                           </Button>
                         )}
                       </div>

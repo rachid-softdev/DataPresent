@@ -1,7 +1,8 @@
 "use client";
 
-import { Check, X, Loader2 } from "lucide-react";
+import { Check, X, Loader2, HelpCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Tooltip } from "@/components/ui/tooltip";
 import {
   Card,
   CardContent,
@@ -87,9 +88,6 @@ function PricingCard({ plan, onSelect, isLoading }: PricingCardProps) {
           )}
         </div>
 
-        {/* Debug: Afficher le nombre de features */}
-        <div className="text-xs text-muted-foreground mb-2">{plan.features.length} features</div>
-
         {/* Reports & Slides */}
         <div className="mb-4">
           <p className="text-xs font-medium text-muted-foreground uppercase mb-2">
@@ -108,7 +106,7 @@ function PricingCard({ plan, onSelect, isLoading }: PricingCardProps) {
         {/* Exports */}
         <div className="mb-4">
           <p className="text-xs font-medium text-muted-foreground uppercase mb-2">
-            Formats d'export
+            Formats d&rsquo;export
           </p>
           {plan.features
             .filter((f) => f.category === "exports")
@@ -153,7 +151,29 @@ function PricingCard({ plan, onSelect, isLoading }: PricingCardProps) {
               .filter((f) => f.category === "professional")
               .map((f, i) => (
                 <div key={i} className="flex justify-between text-sm py-1">
-                  <span>{f.name}</span>
+                  <span className="flex items-center">
+                    {f.name}
+                    {f.name === "Watermark" && (
+                      <Tooltip
+                        content="Retire le logo DataPresent des diapositives exportées"
+                        side="top"
+                      >
+                        <span className="inline-flex items-center cursor-help ml-1">
+                          <HelpCircle className="w-3 h-3 text-muted-foreground/50" />
+                        </span>
+                      </Tooltip>
+                    )}
+                    {f.name === "White-label" && (
+                      <Tooltip
+                        content="Personnalisez les rapports avec votre propre marque (logo, couleurs, nom de domaine)"
+                        side="top"
+                      >
+                        <span className="inline-flex items-center cursor-help ml-1">
+                          <HelpCircle className="w-3 h-3 text-muted-foreground/50" />
+                        </span>
+                      </Tooltip>
+                    )}
+                  </span>
                   {f.value === true ? (
                     <Check className="w-4 h-4 text-green-500" />
                   ) : (

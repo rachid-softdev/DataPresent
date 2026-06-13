@@ -39,10 +39,7 @@ export default function ApiKeysPage() {
   const [newKey, setNewKey] = useState("");
   const [copied, setCopied] = useState(false);
   const [orgId, setOrgId] = useState<string | null>(null);
-
-  useEffect(() => {
-    fetchKeys();
-  }, []);
+  const [revokingKeyId, setRevokingKeyId] = useState<string | null>(null);
 
   const fetchKeys = async () => {
     try {
@@ -61,6 +58,13 @@ export default function ApiKeysPage() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    // Fetch keys on mount — deferred to avoid cascading render lint
+    requestAnimationFrame(() => {
+      fetchKeys();
+    });
+  }, []);
 
   const handleCreate = async () => {
     if (!newKeyName.trim()) return;
@@ -96,6 +100,7 @@ export default function ApiKeysPage() {
       return;
     }
 
+    setRevokingKeyId(keyId);
     try {
       const res = await fetch(`/api/api-keys?id=${keyId}`, {
         method: "DELETE",
@@ -108,6 +113,8 @@ export default function ApiKeysPage() {
       }
     } catch (err) {
       setError("Failed to revoke API key");
+    } finally {
+      setRevokingKeyId(null);
     }
   };
 
@@ -148,7 +155,7 @@ export default function ApiKeysPage() {
         <Alert variant="warning">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            L'accès API n'est disponible que sur le plan Agency.
+            L&rsquo;accès API n&rsquo;est disponible que sur le plan Agency.
             <Button
               variant="link"
               className="h-auto p-0 ml-1"
@@ -208,7 +215,7 @@ export default function ApiKeysPage() {
         <CardHeader>
           <CardTitle>Clés API actives</CardTitle>
           <CardDescription>
-            Ces clés permettent d'accéder à l'API DataPresent de manière programmatique
+            Ces clés permettent d&rsquo;accéder à l&rsquo;API DataPresent de manière programmatique
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -246,9 +253,14 @@ export default function ApiKeysPage() {
                     size="icon"
                     className="text-red-500 hover:text-red-600"
                     onClick={() => handleRevoke(key.id)}
+                    disabled={revokingKeyId === key.id}
                     aria-label={`Révoquer la clé ${key.name}`}
                   >
-                    <Trash2 className="w-4 h-4" />
+                    {revokingKeyId === key.id ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Trash2 className="w-4 h-4" />
+                    )}
                   </Button>
                 </div>
               ))}
@@ -260,13 +272,13 @@ export default function ApiKeysPage() {
       <Card className="mt-6">
         <CardHeader>
           <CardTitle>Documentation API</CardTitle>
-          <CardDescription>Comment utiliser l'API DataPresent</CardDescription>
+          <CardDescription>Comment utiliser l&rsquo;API DataPresent</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4 text-sm text-muted-foreground">
             <div>
               <h4 className="font-medium text-foreground mb-2">Authentication</h4>
-              <p>Ajoutez votre clé API dans l'en-tête Authorization:</p>
+              <p>Ajoutez votre clé API dans l&rsquo;en-tête Authorization:</p>
               <code className="bg-muted px-2 py-1 rounded block mt-1">
                 Authorization: Bearer dp_xxxxxxxxxxxxx
               </code>

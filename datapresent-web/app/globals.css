@@ -206,7 +206,7 @@ body {
   transition: transform 0.2s;
 }
 a:hover .app-logo-mark {
-  transform: scale(1.08) rotate(-3deg);
+  transform: scale(1.08) translateY(-1px);
 }
 .app-logo-text {
   font-family: var(--font-fraunces), "Fraunces", serif;
@@ -308,6 +308,52 @@ a:hover .app-logo-mark {
   background: var(--muted);
 }
 
+/* Custom checkbox for tables */
+.app-checkbox {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--border);
+  border-radius: 4px;
+  background: var(--surface);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.app-checkbox:checked {
+  background: hsl(142 76% 36%);
+  border-color: hsl(142 76% 36%);
+}
+.app-checkbox:indeterminate {
+  background: hsl(142 76% 36%);
+  border-color: hsl(142 76% 36%);
+}
+.app-checkbox:focus-visible {
+  outline: 2px solid hsl(142 76% 36%);
+  outline-offset: 2px;
+}
+.app-checkbox:checked::after {
+  content: "";
+  display: block;
+  width: 4px;
+  height: 8px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg) translateY(-1px);
+}
+.app-checkbox:indeterminate::after {
+  content: "";
+  display: block;
+  width: 8px;
+  height: 2px;
+  background: white;
+  border-radius: 1px;
+}
+
 /* Stats cards (dashboard overview) */
 .app-stat-card {
   background: var(--surface);
@@ -370,8 +416,7 @@ a:hover .app-logo-mark {
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 15%, transparent);
 }
 .app-input::placeholder {
-  color: var(--muted-foreground);
-  opacity: 0.6;
+  color: color-mix(in oklch, var(--foreground) 55%, transparent);
 }
 
 /* Empty state */

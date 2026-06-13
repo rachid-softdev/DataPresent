@@ -1,35 +1,15 @@
 import Link from "next/link";
 import { ArrowRight, Check } from "lucide-react";
 
-interface Stat {
-  value: string;
-  label: string;
-}
-
 interface LandingHeroProps {
   badge: string;
   title: React.ReactNode;
   body: string;
   cta: string;
   note: string;
-  stats?: Stat[];
 }
 
-const DEFAULT_STATS: Stat[] = [
-  { value: "10K+", label: "Présentations générées" },
-  { value: "< 30s", label: "Temps de génération" },
-  { value: "4", label: "Formats supportés" },
-  { value: "99.9%", label: "Disponibilité" },
-];
-
-export function LandingHero({
-  badge,
-  title,
-  body,
-  cta,
-  note,
-  stats = DEFAULT_STATS,
-}: LandingHeroProps) {
+export function LandingHero({ badge, title, body, cta, note }: LandingHeroProps) {
   return (
     <section className="landing-hero">
       <div className="landing-container">
@@ -64,14 +44,25 @@ export function LandingHero({
           </div>
         </div>
 
-        {/* Stats strip */}
-        <div className="landing-stats-strip anim-up-4">
-          {stats.map((stat) => (
-            <div key={stat.label} className="landing-stat-item">
-              <div className="landing-stat-num">{stat.value}</div>
-              <div className="landing-stat-label">{stat.label}</div>
-            </div>
-          ))}
+        {/* Proof bar — narrative, not a stat grid */}
+        <div
+          className="anim-up-4"
+          style={{
+            marginTop: 60,
+            padding: "16px 24px",
+            borderRadius: 12,
+            background: "color-mix(in srgb, var(--landing-primary) 6%, transparent)",
+            border: "1px solid color-mix(in srgb, var(--landing-primary) 12%, transparent)",
+            fontSize: "0.9rem",
+            color: "var(--landing-text2)",
+            textAlign: "center",
+            lineHeight: 1.6,
+          }}
+        >
+          <strong style={{ color: "var(--landing-text)", fontWeight: 600 }}>
+            Plus de 10 000 présentations
+          </strong>{" "}
+          générées en moins de 30 secondes chacune par des centaines d&apos;équipes.
         </div>
       </div>
     </section>
