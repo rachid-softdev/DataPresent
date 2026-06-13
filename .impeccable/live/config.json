@@ -1,0 +1,7 @@
+{
+  "files": ["datapresent-web/app/layout.tsx"],
+  "insertBefore": "</body>",
+  "commentSyntax": "jsx",
+  "cspChecked": true,
+  "framework": "nextjs-app-router"
+}

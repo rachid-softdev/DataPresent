@@ -1,0 +1,10 @@
+# DataPresent
+> Transformez vos données en présentations professionnelles avec l'IA
+
+## Docs
+- Landing: https://datapresent.com/fr
+- Pricing: https://datapresent.com/fr/pricing
+- Blog: https://datapresent.com/fr/blog
+
+## About
+DataPresent converts Excel, CSV, PDF, and Google Sheets data into professional AI-generated presentations in seconds.

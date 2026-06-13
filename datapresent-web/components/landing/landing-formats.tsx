@@ -1,6 +1,6 @@
 interface LandingFormatsProps {
-  label: string;
   title: string;
+  id?: string;
 }
 
 const FORMATS = [
@@ -81,12 +81,11 @@ const FORMATS = [
   },
 ];
 
-export function LandingFormats({ label, title }: LandingFormatsProps) {
+export function LandingFormats({ title, id }: LandingFormatsProps) {
   return (
-    <section className="landing-section landing-section-alt">
+    <section id={id} className="landing-section landing-section-alt">
       <div className="landing-container-sm">
         <div className="landing-section-header">
-          <span className="landing-label">{label}</span>
           <h2 className="landing-heading-lg">{title}</h2>
         </div>
         <div className="landing-formats-grid">

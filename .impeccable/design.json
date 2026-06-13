@@ -1,0 +1,225 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-06-12T17:24:00.000Z",
+  "title": "Design System: DataPresent",
+  "extensions": {
+    "colorMeta": {
+      "primary": {
+        "role": "primary",
+        "displayName": "Deep Forest",
+        "canonical": "oklch(35% 0.08 140)",
+        "tonalRamp": [
+          "oklch(15% 0.08 140)",
+          "oklch(22% 0.08 140)",
+          "oklch(28% 0.08 140)",
+          "oklch(35% 0.08 140)",
+          "oklch(42% 0.08 140)",
+          "oklch(50% 0.08 140)",
+          "oklch(60% 0.08 140)",
+          "oklch(72% 0.08 140)"
+        ]
+      },
+      "accent": {
+        "role": "accent",
+        "displayName": "Meadow",
+        "canonical": "oklch(62% 0.13 140)",
+        "tonalRamp": [
+          "oklch(28% 0.13 140)",
+          "oklch(36% 0.13 140)",
+          "oklch(45% 0.13 140)",
+          "oklch(53% 0.13 140)",
+          "oklch(62% 0.13 140)",
+          "oklch(70% 0.13 140)",
+          "oklch(80% 0.13 140)",
+          "oklch(90% 0.13 140)"
+        ]
+      },
+      "neutral-bg": {
+        "role": "background",
+        "displayName": "Pale Mist",
+        "canonical": "oklch(95% 0.015 140)",
+        "tonalRamp": null
+      },
+      "neutral-muted": {
+        "role": "surface-variant",
+        "displayName": "Soft Fern",
+        "canonical": "oklch(92% 0.015 140)",
+        "tonalRamp": null
+      },
+      "neutral-ink": {
+        "role": "on-surface",
+        "displayName": "Ink",
+        "canonical": "oklch(12% 0.01 140)",
+        "tonalRamp": null
+      },
+      "neutral-muted-ink": {
+        "role": "on-surface-variant",
+        "displayName": "Olive",
+        "canonical": "oklch(40% 0.03 140)",
+        "tonalRamp": null
+      }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Hero landing headlines only." },
+      "headline": { "displayName": "Headline", "purpose": "Section titles (landing and app)." },
+      "title": { "displayName": "Title", "purpose": "Card titles, report names." },
+      "body": { "displayName": "Body", "purpose": "Running text, descriptions, paragraphs." },
+      "label": { "displayName": "Label", "purpose": "Section kickers, uppercase labels." }
+    },
+    "shadows": [
+      {
+        "name": "card-hover",
+        "value": "0 4px 16px rgba(30, 77, 15, 0.06)",
+        "purpose": "Card hover state elevation."
+      },
+      {
+        "name": "card-hover-dark",
+        "value": "0 4px 16px rgba(0, 0, 0, 0.3)",
+        "purpose": "Card hover state elevation (dark)."
+      },
+      {
+        "name": "auth-card",
+        "value": "0 8px 32px rgba(30, 77, 15, 0.06)",
+        "purpose": "Auth card elevation."
+      },
+      {
+        "name": "button-hover",
+        "value": "0 6px 20px rgba(30, 77, 15, 0.25)",
+        "purpose": "Primary button hover glow."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-standard",
+        "value": "cubic-bezier(0.4, 0, 0.2, 1)",
+        "purpose": "Default easing for state transitions."
+      },
+      { "name": "duration-fast", "value": "150ms", "purpose": "Fast transitions (hover, focus)." },
+      { "name": "duration-standard", "value": "200ms", "purpose": "Standard state transitions." },
+      { "name": "duration-slow", "value": "300ms", "purpose": "Panel reveals, onboarding." },
+      {
+        "name": "ease-landing",
+        "value": "cubic-bezier(0.25, 0.1, 0.25, 1)",
+        "purpose": "Landing fade-up animations."
+      }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "md", "value": "768px" },
+      { "name": "lg", "value": "1024px" },
+      { "name": "xl", "value": "1280px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Primary call-to-action button. Used for main actions: create report, sign up, export.",
+      "html": "<button class=\"ds-btn-primary\">Créer un rapport</button>",
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 42px; padding: 0.6rem 1.4rem; border: none; border-radius: 8px; background: #1e4d0f; color: #fff; font-family: 'DM Sans', Helvetica, Arial, sans-serif; font-size: 0.95rem; font-weight: 500; cursor: pointer; white-space: nowrap; transition: background 0.2s, transform 0.2s, box-shadow 0.2s; } .ds-btn-primary:hover { background: #2e6e18; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(30, 77, 15, 0.25); } .ds-btn-primary:focus-visible { outline: 2px solid #1e4d0f; outline-offset: 2px; } .ds-btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }"
+    },
+    {
+      "name": "Ghost Button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Subtle secondary action. Used for cancel, back, non-primary actions.",
+      "html": "<button class=\"ds-btn-ghost\">Annuler</button>",
+      "css": ".ds-btn-ghost { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 36px; padding: 0.45rem 1rem; border: 1px solid transparent; border-radius: 8px; background: transparent; color: #4a5c3a; font-family: 'DM Sans', Helvetica, Arial, sans-serif; font-size: 0.875rem; font-weight: 500; cursor: pointer; white-space: nowrap; transition: background 0.2s, color 0.2s; } .ds-btn-ghost:hover { background: #ebf1e4; color: #111b09; } .ds-btn-ghost:focus-visible { outline: 2px solid #1e4d0f; outline-offset: 2px; } .ds-btn-ghost:disabled { opacity: 0.5; cursor: not-allowed; }"
+    },
+    {
+      "name": "Outline Button",
+      "kind": "button",
+      "refersTo": "button-outline",
+      "description": "Outlined secondary action. Used for non-primary CTAs in forms and dialogs.",
+      "html": "<button class=\"ds-btn-outline\">Enregistrer</button>",
+      "css": ".ds-btn-outline { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 40px; padding: 0.55rem 1.2rem; border: 1px solid #d4e2c4; border-radius: 8px; background: transparent; color: #111b09; font-family: 'DM Sans', Helvetica, Arial, sans-serif; font-size: 0.9rem; font-weight: 500; cursor: pointer; white-space: nowrap; transition: border-color 0.2s, color 0.2s; } .ds-btn-outline:hover { border-color: #1e4d0f; color: #1e4d0f; } .ds-btn-outline:focus-visible { outline: 2px solid #1e4d0f; outline-offset: 2px; } .ds-btn-outline:disabled { opacity: 0.5; cursor: not-allowed; }"
+    },
+    {
+      "name": "Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Content container for reports, dashboards, settings panels.",
+      "html": "<div class=\"ds-card\"><div class=\"ds-card-header\"><h3 class=\"ds-card-title\">Rapport mensuel</h3><p class=\"ds-card-desc\">Analyses et tendances du mois</p></div><div class=\"ds-card-body\"><p>Contenu de la carte...</p></div></div>",
+      "css": ".ds-card { background: #ffffff; border: 1px solid #d4e2c4; border-radius: 16px; transition: border-color 0.25s, box-shadow 0.25s; } .ds-card:hover { border-color: rgba(30, 77, 15, 0.7); box-shadow: 0 4px 16px rgba(30, 77, 15, 0.06); } .ds-card-header { padding: 1.5rem 1.5rem 0.5rem; } .ds-card-title { font-family: 'Fraunces', Georgia, serif; font-weight: 600; font-size: clamp(1.1rem, 1.8vw, 1.3rem); line-height: 1.25; text-wrap: balance; } .ds-card-desc { font-size: 0.875rem; color: #4a5c3a; margin-top: 0.25rem; } .ds-card-body { padding: 1rem 1.5rem 1.5rem; font-size: 0.9rem; line-height: 1.6; color: #111b09; }"
+    },
+    {
+      "name": "Text Input",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Standard text input for forms and search.",
+      "html": "<input class=\"ds-input\" type=\"text\" placeholder=\"Entrez votre email\" />",
+      "css": ".ds-input { display: flex; height: 40px; width: 100%; padding: 0.6rem 1rem; border: 1px solid #d4e2c4; border-radius: 10px; background: #ffffff; font-family: 'DM Sans', Helvetica, Arial, sans-serif; font-size: 0.9rem; color: #111b09; transition: border-color 0.2s, box-shadow 0.2s; outline: none; } .ds-input::placeholder { color: #4a5c3a; opacity: 0.6; } .ds-input:focus { border-color: #1e4d0f; box-shadow: 0 0 0 3px rgba(30, 77, 15, 0.15); } .ds-input:disabled { opacity: 0.5; cursor: not-allowed; }"
+    },
+    {
+      "name": "Navigation Sidebar Link",
+      "kind": "nav",
+      "refersTo": "nav-sidebar-link",
+      "description": "Sidebar navigation item with hover and active states.",
+      "html": "<nav style=\"width: 240px; padding: 8px;\"><a class=\"ds-nav-link\" href=\"#\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"3\" y=\"3\" width=\"7\" height=\"7\"/><rect x=\"14\" y=\"3\" width=\"7\" height=\"7\"/><rect x=\"3\" y=\"14\" width=\"7\" height=\"7\"/><rect x=\"14\" y=\"14\" width=\"7\" height=\"7\"/></svg>Tableau de bord</a><a class=\"ds-nav-link active\" href=\"#\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z\"/><polyline points=\"14 2 14 8 20 8\"/><line x1=\"16\" y1=\"13\" x2=\"8\" y2=\"13\"/><line x1=\"16\" y1=\"17\" x2=\"8\" y2=\"17\"/><polyline points=\"10 9 9 9 8 9\"/></svg>Rapports</a><a class=\"ds-nav-link\" href=\"#\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"12\" cy=\"12\" r=\"3\"/><path d=\"M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z\"/></svg>Paramètres</a></nav>",
+      "css": ".ds-nav-link { display: flex; align-items: center; gap: 10px; padding: 0.55rem 0.9rem; border-radius: 10px; font-family: 'DM Sans', Helvetica, Arial, sans-serif; font-size: 0.875rem; font-weight: 500; color: #4a5c3a; text-decoration: none; transition: background 0.2s, color 0.2s; } .ds-nav-link:hover { background: #ebf1e4; color: #111b09; } .ds-nav-link.active { background: rgba(30, 77, 15, 0.1); color: #1e4d0f; font-weight: 600; } .ds-nav-link svg { flex-shrink: 0; }"
+    },
+    {
+      "name": "Filter Pill",
+      "kind": "chip",
+      "refersTo": "filter-pill",
+      "description": "Toggleable filter chip used in report listing and dashboard filters.",
+      "html": "<div style=\"display: flex; gap: 8px;\"><button class=\"ds-filter-pill active\">Tous</button><button class=\"ds-filter-pill\">Récent</button><button class=\"ds-filter-pill\">Archivé</button></div>",
+      "css": ".ds-filter-pill { display: inline-flex; align-items: center; gap: 6px; padding: 0.4rem 1rem; border-radius: 999px; font-family: 'DM Sans', Helvetica, Arial, sans-serif; font-size: 0.8rem; font-weight: 500; border: 1px solid #d4e2c4; background: transparent; color: #4a5c3a; cursor: pointer; transition: all 0.2s; white-space: nowrap; } .ds-filter-pill:hover { border-color: #1e4d0f; color: #1e4d0f; } .ds-filter-pill.active { background: #1e4d0f; color: #ffffff; border-color: #1e4d0f; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "Le Tableau Vivant",
+    "overview": "DataPresent est un outil SaaS qui transforme des données brutes en présentations dynamiques. Son système de design reflète cette alchimie : des fondations solides (le vert profond, la typographie serif) qui laissent la place à des résultats qui respirent et communiquent. La métaphore est celle d'un jardin de données — structuré, naturel, en croissance. L'esthétique est confiante mais pas corporate, naturelle sans être rustique, précise sans être froide. La palette verte ancre l'identité dans la croissance et la vitalité. Le duo typographique Fraunces + DM Sans équilibre personnalité (le serif) et lisibilité utilitaire (le sans). L'élévation est plate par défaut — la profondeur vient de la stratification tonale (surface sur fond), pas des ombres.",
+    "keyCharacteristics": [
+      "Palette restreinte mais chaude : un vert profond comme ancre, des neutres vert-tintés, un unique accent",
+      "Typographie à deux voix : Fraunces pour l'identité et les titres, DM Sans pour le corps et l'UI utilitaire",
+      "Flat par défaut : la profondeur est tonale (surface ≠ background ≠ muted), les ombres sont réservées aux interactions",
+      "Coins généreux : 12–16px radius sur les conteneurs, 8–10px sur les boutons et inputs",
+      "Vert cohérent en light et dark : le vert domine les deux modes, pas de bascule vers du bleu nuit en dark"
+    ],
+    "rules": [
+      {
+        "name": "The One-Voice Rule",
+        "body": "Deep Forest et ses dérivés sont la seule voix couleur du système. Pas de second accent chaud ou froid — le vert porte l'identité, le contraste et les états.",
+        "section": "colors"
+      },
+      {
+        "name": "The Flat Neutral Rule",
+        "body": "Les neutres ne sont jamais gris purs. Chaque neutre est tinté vers la teinte du vert (hue 140, chroma 0.005–0.015).",
+        "section": "colors"
+      },
+      {
+        "name": "The Fraunces Ceiling Rule",
+        "body": "Fraunces est interdit dans les composants d'interface : boutons, inputs, labels, tableaux, navigation, données. Il est réservé aux titres et à l'identité.",
+        "section": "typography"
+      },
+      {
+        "name": "The Flat-By-Default Rule",
+        "body": "Les surfaces sont plates au repos. Les ombres apparaissent uniquement en réponse à un état (hover, focus, modal).",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do utiliser Deep Forest comme ancre visuelle principale — boutons primaires, liens, indicateurs actifs.",
+      "Do laisser Fraunces porter l'identité sur les titres, et DM Sans porter l'interface utilitaire.",
+      "Do privilégier la stratification tonale (surface ≠ muted ≠ bg) plutôt que les ombres pour créer de la profondeur.",
+      "Do utiliser les neutres vert-tintés (jamais des gris purs) pour que l'ambiance reste cohérente.",
+      "Do appliquer text-wrap: balance sur les h1–h3 et text-wrap: pretty sur les paragraphes longs.",
+      "Do réserver l'accent Meadow pour les micro-interactions, hover states et indicateurs — ≤ 10% de l'écran.",
+      "Do inclure les états complets pour chaque composant interactif : default, hover, focus, active, disabled, loading."
+    ],
+    "donts": [
+      "Don't utiliser Fraunces dans les composants d'interface (boutons, inputs, labels, tableaux, navigation).",
+      "Don't ajouter une seconde couleur d'accent — le vert est la seule voix couleur du système.",
+      "Don't utiliser des ombres décoratives. Les ombres sont réservées aux états interactifs et aux modaux.",
+      "Don't faire du green-tech-washing : pas de verts fluo, pas de feuilles décoratives, pas d'emojis de plantes.",
+      "Don't tomber dans le SaaS corporate générique : pas de bleu marine + or, pas de tableaux de bord surchargés.",
+      "Don't utiliser le display clamp sur les titres dans l'interface produit (dashboard, settings).",
+      "Don't créer de boîte noire IA — l'UI doit toujours montrer ce que l'IA fait, pas le cacher.",
+      "Don't utiliser de side-stripe borders (border-left > 1px coloré).",
+      "Don't utiliser de gradient text (background-clip: text).",
+      "Don't mettre un tiny uppercase eyebrow au-dessus de chaque section."
+    ]
+  }
+}

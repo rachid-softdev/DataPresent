@@ -1,8 +1,7 @@
 import Link from "next/link";
-import { Check } from "lucide-react";
+import { Check, ArrowRight } from "lucide-react";
 
 interface LandingPricingProps {
-  label: string;
   title: string;
   subtitle: string;
 }
@@ -22,7 +21,7 @@ const PLANS = [
       "Watermark DataPresent",
     ],
     cta: "Démarrer gratuitement",
-    href: "/signup",
+    href: "/pricing",
     btnVariant: "outline" as const,
   },
   {
@@ -41,7 +40,7 @@ const PLANS = [
       "Support email prioritaire",
     ],
     cta: "Essayer Pro",
-    href: "/signup",
+    href: "/pricing",
     btnVariant: "primary" as const,
   },
   {
@@ -59,17 +58,16 @@ const PLANS = [
       "API & webhooks",
     ],
     cta: "Contacter l'équipe",
-    href: "/help",
+    href: "/pricing",
     btnVariant: "outline" as const,
   },
 ];
 
-export function LandingPricing({ label, title, subtitle }: LandingPricingProps) {
+export function LandingPricing({ title, subtitle }: LandingPricingProps) {
   return (
-    <section id="pricing" className="landing-section">
+    <section id="pricing" className="landing-section landing-section-lg">
       <div className="landing-container-sm">
         <div className="landing-section-header">
-          <span className="landing-label">{label}</span>
           <h2 className="landing-heading-lg">{title}</h2>
           <p className="landing-body-md" style={{ maxWidth: 400, margin: "12px auto 0" }}>
             {subtitle}
@@ -111,6 +109,18 @@ export function LandingPricing({ label, title, subtitle }: LandingPricingProps) 
               </Link>
             </div>
           ))}
+        </div>
+
+        {/* ── Voir tous les forfaits ─────────────────────────────── */}
+        <div style={{ textAlign: "center", marginTop: "2.5rem" }}>
+          <Link
+            href="/pricing"
+            className="landing-btn landing-btn-outline landing-btn-md"
+            style={{ display: "inline-flex" }}
+          >
+            Voir tous les forfaits
+            <ArrowRight className="w-[16px] h-[16px]" aria-hidden="true" />
+          </Link>
         </div>
       </div>
     </section>

@@ -4,12 +4,15 @@ import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { HydrationGuard } from "@/components/hooks/hydration-guard";
+import { Reveal } from "@/components/landing/Reveal";
+import { LandingFaq } from "@/components/landing/landing-faq";
 import {
   LandingHero,
   LandingFormats,
   LandingHowItWorks,
   LandingFeatures,
   LandingPricing,
+  LandingTestimonials,
   LandingCta,
   LandingFooter,
 } from "@/components/landing";
@@ -20,6 +23,26 @@ export default async function RootPage() {
 
   return (
     <HydrationGuard>
+      {/* JSON-LD Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "SoftwareApplication",
+            name: "DataPresent",
+            applicationCategory: "BusinessApplication",
+            operatingSystem: "Web",
+            description: "Transformez vos données en présentations professionnelles avec l'IA",
+            offers: {
+              "@type": "Offer",
+              price: "0",
+              priceCurrency: "EUR",
+            },
+          }),
+        }}
+      />
+
       {/* ─── Nav ─── */}
       <header className="landing-nav">
         <div className="landing-container">
@@ -53,6 +76,28 @@ export default async function RootPage() {
         </div>
       </header>
 
+      {/* ─── Pain anchor ─── */}
+      <div className="landing-pain-band anim-up-1">
+        <p className="landing-pain-text">
+          <span className="landing-pain-icon">
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <path d="M12 6v6l4 2" />
+            </svg>
+          </span>
+          {t("hero.painText")}
+        </p>
+      </div>
+
       {/* ─── Hero ─── */}
       <LandingHero
         badge={t("hero.badge")}
@@ -64,42 +109,54 @@ export default async function RootPage() {
           </>
         }
         body={t("hero.body")}
-        cta={t("hero.cta")}
-        note={t("hero.note")}
+        cta="Générez votre présentation en 30s"
+        note="Gratuit · 3 rapports · Sans carte bancaire"
       />
 
       {/* ─── Formats ─── */}
-      <LandingFormats label={t("formats.label")} title={t("formats.title")} />
+      <Reveal>
+        <LandingFormats title={t("formats.title")} id="formats" />
+      </Reveal>
 
       {/* ─── How It Works ─── */}
-      <LandingHowItWorks
-        label={t("howItWorks.label")}
-        title={t("howItWorks.title")}
-        subtitle={t("howItWorks.subtitle")}
-      />
+      <Reveal delay={0.05}>
+        <LandingHowItWorks title={t("howItWorks.title")} subtitle={t("howItWorks.subtitle")} />
+      </Reveal>
 
       {/* ─── Features ─── */}
-      <LandingFeatures label={t("features.label")} title={t("features.title")} />
+      <Reveal delay={0.05}>
+        <LandingFeatures title={t("features.title")} />
+      </Reveal>
 
       {/* ─── Pricing ─── */}
-      <LandingPricing
-        label={t("pricing.label")}
-        title={t("pricing.title")}
-        subtitle={t("pricing.subtitle")}
-      />
+      <Reveal delay={0.05}>
+        <LandingPricing title={t("pricing.title")} subtitle={t("pricing.subtitle")} />
+      </Reveal>
+
+      {/* ─── Testimonials ─── */}
+      <Reveal>
+        <LandingTestimonials title={t("testimonials.title")} />
+      </Reveal>
+
+      {/* ─── FAQ ─── */}
+      <Reveal>
+        <LandingFaq />
+      </Reveal>
 
       {/* ─── CTA ─── */}
-      <LandingCta
-        title={
-          <>
-            {t("cta.title")}
-            <br />
-            <em>{t("cta.titleEm")}</em>
-          </>
-        }
-        body={t("cta.body")}
-        button={t("cta.button")}
-      />
+      <Reveal>
+        <LandingCta
+          title={
+            <>
+              {t("cta.title")}
+              <br />
+              <em>{t("cta.titleEm")}</em>
+            </>
+          }
+          body={t("cta.body")}
+          button={t("cta.button")}
+        />
+      </Reveal>
 
       {/* ─── Footer ─── */}
       <LandingFooter description={t("footer.description")} copyright={t("footer.copyright")} />

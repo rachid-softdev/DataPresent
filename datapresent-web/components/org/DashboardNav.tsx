@@ -49,18 +49,19 @@ export function DashboardNav() {
         <div className="flex items-center gap-2">
           {/* Desktop nav links */}
           <nav className="hidden md:flex items-center gap-2">
-            {links.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={cn(
-                  "app-nav-link",
-                  (pathname === link.href || pathname.startsWith(link.href + "/")) && "active",
-                )}
-              >
-                {link.label}
-              </Link>
-            ))}
+            {links.map((link) => {
+              const isActive = pathname === link.href || pathname.startsWith(link.href + "/");
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={cn("app-nav-link", isActive && "active")}
+                  aria-current={isActive ? "page" : undefined}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
           </nav>
           <div className="hidden md:block app-nav-divider" />
           <LocaleSwitcher />
@@ -68,7 +69,7 @@ export function DashboardNav() {
           {/* Hamburger button — visible below md */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden p-2 rounded-lg hover:bg-muted transition-colors"
+            className="md:hidden p-2.5 rounded-lg hover:bg-muted transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
             aria-label={mobileMenuOpen ? "Fermer le menu" : "Ouvrir le menu"}
             aria-expanded={mobileMenuOpen}
           >
@@ -81,21 +82,25 @@ export function DashboardNav() {
       {mobileMenuOpen && (
         <div className="md:hidden border-t border-border">
           <nav className="max-w-7xl mx-auto px-4 py-3 space-y-1">
-            {links.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                onClick={closeMenu}
-                className={cn(
-                  "block px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
-                  pathname === link.href || pathname.startsWith(link.href + "/")
-                    ? "bg-muted text-foreground"
-                    : "text-muted-foreground hover:bg-muted hover:text-foreground",
-                )}
-              >
-                {link.label}
-              </Link>
-            ))}
+            {links.map((link) => {
+              const isActive = pathname === link.href || pathname.startsWith(link.href + "/");
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  onClick={closeMenu}
+                  className={cn(
+                    "block px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
+                    isActive
+                      ? "bg-muted text-foreground"
+                      : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                  )}
+                  aria-current={isActive ? "page" : undefined}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
           </nav>
         </div>
       )}

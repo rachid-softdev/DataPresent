@@ -1,12 +1,32 @@
 "use client";
 
+import { useState } from "react";
 import {
   OnboardingProvider,
   DEFAULT_ONBOARDING_STEPS,
 } from "@/components/onboarding/OnboardingTour";
 import { DashboardNav } from "@/components/org/DashboardNav";
+import { WelcomeScreen } from "@/components/onboarding/WelcomeScreen";
+import { StartChecklist } from "@/components/onboarding/StartChecklist";
 
 export function DashboardWithOnboarding({ children }: { children: React.ReactNode }) {
+  const [showWelcome, setShowWelcome] = useState<boolean | null>(() => {
+    if (typeof window === "undefined") return null;
+    const seen = localStorage.getItem("datapresent-welcome-seen");
+    return !seen;
+  });
+
+  const handleWelcomeComplete = () => {
+    localStorage.setItem("datapresent-welcome-seen", "true");
+    setShowWelcome(false);
+  };
+
+  if (showWelcome === null) return null;
+
+  if (showWelcome) {
+    return <WelcomeScreen onComplete={handleWelcomeComplete} />;
+  }
+
   return (
     <OnboardingProvider steps={DEFAULT_ONBOARDING_STEPS} storageKey="datapresent_onboarding">
       <a
@@ -19,6 +39,9 @@ export function DashboardWithOnboarding({ children }: { children: React.ReactNod
         <DashboardNav />
         <main id="main-content" className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
           {children}
+          <div className="mt-8">
+            <StartChecklist />
+          </div>
         </main>
       </div>
     </OnboardingProvider>

@@ -3,6 +3,15 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { withCsrfProtection } from "@/lib/security";
 import { ERROR_CODES, unauthorized, forbidden, notFound, badRequest } from "@/lib/errors";
+interface MembershipWithUser {
+  role: string;
+  user: {
+    id: string;
+    name: string | null;
+    email: string | null;
+    image: string | null;
+  };
+}
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
@@ -29,7 +38,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   });
 
   return NextResponse.json({
-    members: members.map((m) => ({
+    members: (members as MembershipWithUser[]).map((m: MembershipWithUser) => ({
       id: m.user.id,
       name: m.user.name,
       email: m.user.email,
@@ -81,7 +90,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     data: {
       userId: user.id,
       orgId: id,
-      role: role as any,
+      role: role as "ADMIN" | "MEMBER",
     },
   });
 

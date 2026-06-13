@@ -1,21 +1,14 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
-import dynamic from "next/dynamic";
+import { ArrowLeft } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { ReportActions } from "@/components/reports/ReportActions";
 import { ReportDetailPoller } from "@/components/reports/ReportDetailPoller";
-
-const SlideViewer = dynamic(
-  () => import("@/components/slides/SlideViewer").then((m) => ({ default: m.SlideViewer })),
-  {
-    ssr: false,
-    loading: () => <Skeleton className="h-96 w-full rounded-lg" />,
-  },
-);
+import { SlideViewerWrapper } from "@/components/slides/SlideViewerWrapper";
 
 export default async function ReportPage({ params }: { params: Promise<{ id: string }> }) {
   const t = await getTranslations();
@@ -45,6 +38,13 @@ export default async function ReportPage({ params }: { params: Promise<{ id: str
 
   return (
     <div>
+      <Link
+        href="/reports"
+        className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-4"
+      >
+        <ArrowLeft className="w-4 h-4" />
+        Retour aux rapports
+      </Link>
       <div className="app-page-header">
         <div>
           <h1 className="app-heading app-heading-xl">{report.title}</h1>
@@ -74,7 +74,7 @@ export default async function ReportPage({ params }: { params: Promise<{ id: str
           <p className="text-muted-foreground">{t("reports.status.generating")}</p>
         </div>
       ) : (
-        <SlideViewer slides={report.slides} reportId={report.id} />
+        <SlideViewerWrapper slides={report.slides} reportId={report.id} />
       )}
     </div>
   );

@@ -1,4 +1,3 @@
-import { randomUUID } from "crypto";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import createIntlMiddleware from "next-intl/middleware";
@@ -66,7 +65,7 @@ function setCorsHeaders(response: NextResponse, requestOrigin: string | null): v
  */
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const requestId = randomUUID();
+  const requestId = crypto.randomUUID();
 
   // Set x-request-id on request headers for downstream usage
   request.headers.set("x-request-id", requestId);

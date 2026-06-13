@@ -120,7 +120,24 @@
       "cancel": "Cancel upload",
       "stallWarning": "Upload appears to be stalled. You may want to cancel and try again.",
       "uploadError": "Upload failed due to a network error.",
-      "retry": "Try again"
+      "retry": "Try again",
+      "generation": {
+        "title": "Generation",
+        "analyse": "Data analysis",
+        "charts": "Chart creation",
+        "layout": "Layout",
+        "finalize": "Report finalization"
+      },
+      "result": {
+        "title": "Result",
+        "success": "Report generated successfully",
+        "error": "Generation failed",
+        "seeReport": "View report",
+        "allReports": "All reports",
+        "newReport": "Generate another report",
+        "retry": "Try again",
+        "restart": "Start over"
+      }
     },
     "reports": {
       "generated": "Report generated successfully",
@@ -208,7 +225,12 @@
     }
   },
   "dashboard": {
-    "seeAllReports": "See all reports"
+    "newReport": "New report",
+    "seeAllReports": "See all reports",
+    "statsTotal": "Total reports",
+    "statsMonth": "This month",
+    "statsSuccessRate": "Success rate",
+    "statsTimeSaved": "Time saved"
   },
   "share": {
     "linkExpired": "This link has expired",
@@ -231,7 +253,8 @@
       "title": "Transform Your Data into Stunning Presentations",
       "subtitle": "Create professional, AI-powered presentations in minutes. Simply upload your data and let our AI generate beautiful slides automatically.",
       "cta": "Get Started for Free",
-      "badge": "AI-Powered · New",
+      "badge": "Analysis before formatting",
+      "painText": "Hours in PowerPoint formatting data? Take back control.",
       "titleLine1": "Your data becomes",
       "titleLine2": "impactful slides",
       "body": "Import Excel, CSV, PDF or Google Sheets. Our AI analyzes, structures and automatically generates professional presentations — in seconds.",
@@ -266,6 +289,9 @@
       "title": "Three steps, zero friction",
       "subtitle": "From raw data to an impeccable presentation, faster than you can imagine."
     },
+    "testimonials": {
+      "title": "What our users say"
+    },
     "cta": {
       "title": "Ready to transform",
       "titleEm": "your data?",
@@ -275,6 +301,129 @@
     "footer": {
       "description": "Transform your data into professional presentations with artificial intelligence.",
       "copyright": "© 2025 DataPresent · All rights reserved"
+    }
+  },
+  "pricing": {
+    "page": {
+      "title": "Pricing",
+      "subtitle": "Plans for every need. No hidden fees."
+    },
+    "plans": {
+      "free": {
+        "name": "Free",
+        "description": "Get started with DataPresent",
+        "price": "$0",
+        "cta": "Get started free"
+      },
+      "pro": {
+        "name": "Pro",
+        "description": "For professionals",
+        "price": "$29",
+        "cta": "Try Pro",
+        "badge": "Most popular"
+      },
+      "team": {
+        "name": "Team",
+        "description": "For teams",
+        "price": "$79",
+        "cta": "Contact team"
+      },
+      "agency": {
+        "name": "Agency",
+        "description": "For agencies",
+        "price": "$199",
+        "cta": "Contact sales"
+      }
+    },
+    "perMonth": "/month",
+    "features": {
+      "reports": "Reports",
+      "reportsPerMonth": "Reports per month",
+      "unlimited": "Unlimited",
+      "export": "Export",
+      "exportPDF": "PDF export",
+      "exportPPTX": "PPTX export",
+      "exportWord": "Word export",
+      "noWatermark": "No watermark",
+      "watermark": "DataPresent watermark",
+      "aiBasic": "Basic AI analysis",
+      "aiAdvanced": "Advanced AI analysis",
+      "premiumTemplates": "Premium templates",
+      "collaboration": "Collaboration",
+      "teamCollaboration": "Team collaboration",
+      "sharedSpaces": "Shared spaces",
+      "customRoles": "Custom roles",
+      "apiAccess": "API access",
+      "apiFull": "Full API",
+      "webhooks": "Webhooks",
+      "whiteLabel": "White-label",
+      "support": "Support",
+      "supportEmail": "Email support",
+      "supportPriority": "Priority support",
+      "supportDedicated": "Dedicated support",
+      "accountManager": "Account manager",
+      "sla": "SLA guarantee",
+      "reportsLimit": "{{count}} reports/month"
+    },
+    "table": {
+      "title": "Detailed comparison",
+      "subtitle": "All features, plan by plan.",
+      "feature": "Feature",
+      "included": "Included",
+      "notIncluded": "Not included"
+    },
+    "faq": {
+      "title": "Frequently asked questions",
+      "items": [
+        {
+          "q": "Can I change my plan at any time?",
+          "a": "Yes, you can upgrade or downgrade your plan at any time. Changes take effect immediately and you are billed pro-rata for the current month."
+        },
+        {
+          "q": "What payment methods do you accept?",
+          "a": "We accept credit cards (Visa, Mastercard), SEPA transfers, and invoice payment for Team and Agency plans."
+        },
+        {
+          "q": "Is there a minimum commitment?",
+          "a": "No commitment required. All plans are monthly and you can cancel anytime. Discounts are available for annual subscriptions."
+        },
+        {
+          "q": "What happens if I exceed my report quota?",
+          "a": "You will be notified when you reach 80% of your quota. If you exceed it, you can upgrade your plan or wait until the next month when your quota resets."
+        }
+      ]
+    },
+    "cta": {
+      "seeAll": "See all plans"
+    },
+    "jsonld": {
+      "name": "DataPresent",
+      "description": "Generate professional presentations from your data with AI",
+      "priceCurrency": "EUR"
+    }
+  },
+  "about": {
+    "badge": "Our story",
+    "title": "Bring your data to life, naturally",
+    "subtitle": "DataPresent was born from a simple frustration: spending hours aligning slides when the real value is in the data. We built the tool we wish we had.",
+    "story": {
+      "title": "A story of data and lost time",
+      "p1": "Alexandre spent 15 hours a week preparing presentations for his clients. Not analyzing data — formatting it. Adjusting charts, reformatting tables, hunting for the right font. The real value — the analysis, the story — was buried in layout work.",
+      "p2": "In 2024, he gathered a team of designers, AI engineers and analysts to build a radically different solution: a tool that understands your data and transforms it into clear slides, without friction, without compromising quality.",
+      "p3": "Today, DataPresent helps hundreds of professionals create impactful presentations in seconds, not hours. No black box. No generic template. Just your data, told with precision."
+    },
+    "values": {
+      "title": "Our values",
+      "subtitle": "Three pillars guide every decision we make"
+    },
+    "team": {
+      "title": "The team",
+      "subtitle": "Data, design and simplicity enthusiasts"
+    },
+    "cta": {
+      "title": "Ready to transform your data?",
+      "body": "Join hundreds of professionals saving time on their presentations.",
+      "button": "Try for free"
     }
   }
 }

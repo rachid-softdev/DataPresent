@@ -1,0 +1,287 @@
+[
+  {
+    "slug": "generer-rapports-pro-ia-5-min",
+    "locale": "fr",
+    "title": "Générez des rapports professionnels en 5 minutes avec l'IA",
+    "description": "Fini les heures passées sur PowerPoint. Découvrez comment transformer vos fichiers Excel, CSV et PDF en présentations percutantes grâce à l'intelligence artificielle.",
+    "publishedAt": "2026-06-10T08:00:00.000Z",
+    "updatedAt": "2026-06-10T08:00:00.000Z",
+    "readingTime": 5,
+    "tags": ["IA", "automatisation", "rapports", "productivité", "PowerPoint"],
+    "coverImage": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&h=630&fit=crop",
+    "content": {
+      "sections": [
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Pourquoi créer des rapports est encore si chronophage en 2026 ?"
+        },
+        {
+          "type": "paragraph",
+          "text": "La majorité des professionnels passent encore entre 2 et 4 heures par semaine à assembler manuellement des présentations à partir de données brutes. Entre l'export CSV, le copier-coller dans Excel, la mise en forme des graphiques et l'alignement des slides dans PowerPoint, le temps perdu est considérable. Pourtant, la valeur ajoutée ne réside pas dans la mise en page, mais dans l'analyse et les recommandations."
+        },
+        {
+          "type": "callout",
+          "variant": "tip",
+          "title": "Le saviez-vous ?",
+          "text": "Selon une étude Microsoft, 67 % du temps passé sur un rapport hebdomadaire est consacré à la mise en forme et à la manipulation des données — pas à l'analyse. C'est exactement là où l'IA peut intervenir."
+        },
+        {
+          "type": "paragraph",
+          "text": "DataPresent résout ce problème en une seule étape : importez votre fichier (Excel, CSV ou PDF), et l'IA génère automatiquement une présentation complète avec des slides structurées, des visuels pertinents et un storytelling adapté à votre audience."
+        },
+        {
+          "type": "list",
+          "ordered": true,
+          "items": [
+            "Importez votre fichier de données (glisser-déposer instantané)",
+            "L'IA analyse la structure et détecte les tendances clés",
+            "Choisissez un template de présentation adapté à votre contexte",
+            "Générez et téléchargez votre présentation PowerPoint ou Google Slides",
+            "Ajustez le contenu avec notre éditeur IA conversationnel"
+          ]
+        },
+        {
+          "type": "heading",
+          "level": 3,
+          "text": "Un exemple concret : le rapport mensuel commercial"
+        },
+        {
+          "type": "paragraph",
+          "text": "Imaginez votre fichier CSV d'une centaine de lignes avec les ventes du mois. DataPresent identifie automatiquement les meilleurs vendeurs, les produits sous-performants, l'évolution du chiffre d'affaires par région, et génère une slide dédiée à chaque insight — avec des graphiques et un commentaire rédigé. En 5 minutes, votre rapport est prêt à être présenté en comité de direction."
+        },
+        {
+          "type": "callout",
+          "variant": "info",
+          "title": "Résultat garanti",
+          "text": "Nos utilisateurs rapportent en moyenne 80 % de temps gagné sur la création de rapports récurrents. Certains passent de 3 heures à moins de 10 minutes."
+        }
+      ]
+    },
+    "seo": {
+      "metaTitle": "Créer des rapports pro avec l'IA en 5 minutes | DataPresent",
+      "metaDescription": "Transformez vos fichiers Excel, CSV et PDF en présentations PowerPoint avec l'IA. Gagnez 80 % de temps sur vos rapports mensuels.",
+      "ogImage": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&h=630&fit=crop"
+    }
+  },
+  {
+    "slug": "erreurs-presentation-donnees",
+    "locale": "fr",
+    "title": "Les erreurs courantes de présentation de données (et comment les éviter)",
+    "description": "Tableaux illisibles, graphiques trompeurs, slides surchargées… Identifiez les pièges les plus fréquents et adoptez les bonnes pratiques pour des présentations claires et impactantes.",
+    "publishedAt": "2026-06-10T08:00:00.000Z",
+    "updatedAt": "2026-06-10T08:00:00.000Z",
+    "readingTime": 6,
+    "tags": ["data visualisation", "présentation", "conseils", "productivité", "PowerPoint"],
+    "coverImage": "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&h=630&fit=crop",
+    "content": {
+      "sections": [
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Pourquoi vos présentations de données perdent votre audience"
+        },
+        {
+          "type": "paragraph",
+          "text": "Vous avez passé des heures à préparer vos slides. Pourtant, pendant votre présentation, vous sentez le regard de votre auditoire s'éteindre au bout de la troisième diapositive. Le problème n'est pas vos données — il est dans la manière dont vous les présentez. Voici les erreurs les plus fréquentes et comment les corriger avec les bons outils et réflexes."
+        },
+        {
+          "type": "callout",
+          "variant": "warning",
+          "title": "Piège fréquent",
+          "text": "Une slide contenant plus de 50 chiffres différents sera retenue à moins de 5 % par votre audience. Le cerveau humain ne peut traiter que 3 à 4 informations visuelles simultanément."
+        },
+        {
+          "type": "paragraph",
+          "text": "L'erreur numéro un ? Vouloir tout montrer. Trop de présentateurs noient leur message principal sous une avalanche de données. La règle d'or est simple : une slide = un message. Si vous devez présenter plusieurs indicateurs, répartissez-les sur plusieurs slides avec un titre qui annonce clairement ce qu'il faut retenir."
+        },
+        {
+          "type": "list",
+          "ordered": false,
+          "items": [
+            "Le piège du tableau Excel brut : copier-coller un tableau sans l'adapter au format présentation",
+            "L'abus de couleurs : utiliser 15 teintes différentes pour un seul graphique",
+            "L'absence de hiérarchie visuelle : tout est en gras, rien ne ressort",
+            "Les graphiques 3D : esthétiques mais trompeurs sur les proportions réelles",
+            "L'oubli du contexte : présenter des chiffres sans point de comparaison"
+          ]
+        },
+        {
+          "type": "heading",
+          "level": 3,
+          "text": "La solution : automatiser sans perdre en qualité"
+        },
+        {
+          "type": "paragraph",
+          "text": "DataPresent vous aide justement à éviter ces écueils. L'IA analyse vos données et sélectionne les visualisations les plus pertinentes selon le type d'information : courbes d'évolution, diagrammes en barres pour les comparaisons, camemberts pour les répartitions. Elle applique aussi les principes de design élémentaires : contraste suffisant, polices lisibles, espacement cohérent. Bref, elle fait le travail de mise en forme à votre place — et le fait bien."
+        },
+        {
+          "type": "quote",
+          "text": "Un bon graphique montre la vérité des données. Un mauvais graphique montre que vous avez cliqué sur le mauvais bouton dans Excel.",
+          "author": "Alberto Cairo, expert en visualisation de données"
+        },
+        {
+          "type": "paragraph",
+          "text": "En adoptant une approche structurée et en utilisant des outils qui appliquent automatiquement les bonnes pratiques, vous transformez vos présentations en véritables outils de décision. Votre audience retiendra l'essentiel : vos conclusions et vos recommandations."
+        }
+      ]
+    },
+    "seo": {
+      "metaTitle": "5 erreurs de présentation de données à éviter | DataPresent",
+      "metaDescription": "Évitez les pièges classiques des présentations de données : tableaux surchargés, mauvais graphiques, absence de hiérarchie visuelle. Conseils pratiques.",
+      "ogImage": "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&h=630&fit=crop"
+    }
+  },
+  {
+    "slug": "automate-monthly-reporting-ai",
+    "locale": "en",
+    "title": "How to Automate Your Monthly Reporting with AI",
+    "description": "Stop building monthly reports by hand. Learn how AI can transform your raw data into polished presentations in minutes — not hours.",
+    "publishedAt": "2026-06-11T08:00:00.000Z",
+    "updatedAt": "2026-06-11T08:00:00.000Z",
+    "readingTime": 6,
+    "tags": ["AI", "automation", "reporting", "productivity", "business intelligence"],
+    "coverImage": "https://images.unsplash.com/photo-1450100069169-0f6e9d4c3e7a?w=1200&h=630&fit=crop",
+    "content": {
+      "sections": [
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "The Monthly Reporting Problem That Nobody Talks About"
+        },
+        {
+          "type": "paragraph",
+          "text": "Every month, the same ritual: export data from your CRM, clean it in Excel, build charts, paste them into slides, format everything, and pray the alignment holds. According to a 2025 Gartner survey, knowledge workers spend an average of 14 hours per month on reporting tasks that could be fully automated. The cost? Less time for analysis, strategy, and actual decision-making."
+        },
+        {
+          "type": "callout",
+          "variant": "info",
+          "title": "The Real Cost of Manual Reporting",
+          "text": "For a company with 10 managers spending 14 hours each on monthly reports, that's 140 hours or roughly $18,000 in salary cost — every single month. Automation isn't just convenient, it's a direct bottom-line improvement."
+        },
+        {
+          "type": "paragraph",
+          "text": "DataPresent reimagines this workflow entirely. Instead of chaining together five different tools, you upload your data once and let AI handle the rest. The platform analyzes your dataset, identifies patterns, picks the right chart types, and generates a complete presentation — narrative included."
+        },
+        {
+          "type": "heading",
+          "level": 3,
+          "text": "Building a fully automated pipeline"
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "code": "1. Export raw data from any source (CRM, ERP, analytics)\n2. Upload CSV or connect directly via API\n3. AI analyzes structure and detects key metrics\n4. Select template and audience type\n5. Review AI-generated narrative and visuals\n6. Export to PowerPoint, Google Slides, or PDF\n7. Schedule recurring generation for next month"
+        },
+        {
+          "type": "paragraph",
+          "text": "The beauty of this pipeline is that step 7 is the real game-changer. Once you've configured your first report, DataPresent remembers your template preferences, metric selections, and narrative style. The following month, your report can be generated with a single click — or even automatically on a scheduled date."
+        },
+        {
+          "type": "callout",
+          "variant": "tip",
+          "title": "Pro Tip",
+          "text": "Start with your most painful report — the one you dread building every month. In our experience, sales dashboards and OKR reviews are the quickest wins, often reducing creation time from 3 hours to under 15 minutes."
+        },
+        {
+          "type": "list",
+          "ordered": false,
+          "items": [
+            "Eliminate repetitive copy-paste work between spreadsheet and presentation tools",
+            "Ensure consistent branding and formatting across all reports automatically",
+            "Free up your team to focus on insights rather than slide formatting",
+            "Reduce errors from manual data entry and chart creation",
+            "Scale reporting across departments without hiring additional analysts"
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "The future of reporting is not about building better slides — it's about eliminating the busywork so you can focus on what matters: understanding your data and making informed decisions. With AI-powered automation, monthly reports become a strategic asset rather than a dreaded chore."
+        }
+      ]
+    },
+    "seo": {
+      "metaTitle": "Automate Monthly Reporting with AI | DataPresent",
+      "metaDescription": "Learn how to automate your monthly reporting workflow with AI. Turn CSV exports into professional presentations in minutes. Save 80% of your time.",
+      "ogImage": "https://images.unsplash.com/photo-1450100069169-0f6e9d4c3e7a?w=1200&h=630&fit=crop"
+    }
+  },
+  {
+    "slug": "data-storytelling-101",
+    "locale": "en",
+    "title": "Data Storytelling 101: Turn Numbers into Narratives",
+    "description": "Master the art of data storytelling. Learn how to structure your data into compelling narratives that drive action and stick in your audience's memory.",
+    "publishedAt": "2026-06-11T08:00:00.000Z",
+    "updatedAt": "2026-06-11T08:00:00.000Z",
+    "readingTime": 7,
+    "tags": [
+      "data storytelling",
+      "presentation skills",
+      "narrative",
+      "communication",
+      "data visualization"
+    ],
+    "coverImage": "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=1200&h=630&fit=crop",
+    "content": {
+      "sections": [
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Why Your Data Needs a Story"
+        },
+        {
+          "type": "paragraph",
+          "text": "Data alone doesn't change minds — stories do. You can show a spreadsheet full of numbers proving that a strategy is working, but if you can't weave those numbers into a narrative, your audience will walk away unconvinced. Data storytelling is the missing bridge between raw information and real decisions."
+        },
+        {
+          "type": "callout",
+          "variant": "warning",
+          "title": "Common Mistake",
+          "text": "Leading with data instead of context. When you open a presentation with \"Revenue increased 23%,\" your audience has no framework to understand whether that's good, bad, or expected. Always lead with the context — then reveal the data."
+        },
+        {
+          "type": "paragraph",
+          "text": "The most effective data narratives follow a three-act structure borrowed from classic storytelling. First, establish the situation and the stakes. Second, introduce the conflict or challenge. Third, reveal the resolution — supported by your data. This structure taps into how our brains naturally process information and makes your insights memorable."
+        },
+        {
+          "type": "heading",
+          "level": 3,
+          "text": "The Three-Act Structure for Data"
+        },
+        {
+          "type": "list",
+          "ordered": false,
+          "items": [
+            "Act I — Context: Where we were, what we expected, what was at stake",
+            "Act II — Conflict: The problem we faced, the metric that was off, the challenge",
+            "Act III — Resolution: What the data reveals, what we did about it, what's next"
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Let's look at a real example. A SaaS company preparing for a board meeting could open with: \"Last quarter, our customer acquisition cost rose 40%. We were worried about profitability.\" That's Act I and II. Then: \"But the data shows these new customers have 2.5x higher lifetime value — we're actually buying more valuable users.\" That's Act III. Same numbers, but now they tell a story of strategic success rather than alarming cost increase."
+        },
+        {
+          "type": "quote",
+          "text": "The greatest value of a picture is when it forces us to notice what we never expected to see.",
+          "author": "John Tukey, statistician and data visualization pioneer"
+        },
+        {
+          "type": "paragraph",
+          "text": "Tools like DataPresent accelerate this process by automatically extracting the narrative from your dataset. Instead of manually scanning rows to find the story, the AI identifies trends, outliers, and correlations — then structures them into a presentation that follows sound storytelling principles. You bring the domain expertise; the AI handles the narrative structure."
+        },
+        {
+          "type": "callout",
+          "variant": "info",
+          "title": "Key Takeaway",
+          "text": "Numbers are the evidence, not the argument. Always ask yourself: \"What story do these numbers tell?\" before you build a single slide. The most impactful presentations are those where the audience remembers the insight — not the chart."
+        }
+      ]
+    },
+    "seo": {
+      "metaTitle": "Data Storytelling: Numbers into Narratives | DataPresent",
+      "metaDescription": "Master data storytelling: transform dry statistics into compelling business narratives. Learn the three-act structure for data presentations that drive action.",
+      "ogImage": "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=1200&h=630&fit=crop"
+    }
+  }
+]

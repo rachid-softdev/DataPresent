@@ -123,7 +123,24 @@
       "cancel": "Annuler le téléversement",
       "stallWarning": "Le téléversement semble bloqué. Vous pouvez annuler et réessayer.",
       "uploadError": "Échec du téléversement dû à une erreur réseau.",
-      "retry": "Réessayer"
+      "retry": "Réessayer",
+      "generation": {
+        "title": "Génération",
+        "analyse": "Analyse des données",
+        "charts": "Création des graphiques",
+        "layout": "Mise en page",
+        "finalize": "Finalisation du rapport"
+      },
+      "result": {
+        "title": "Résultat",
+        "success": "Rapport généré avec succès",
+        "error": "Échec de la génération",
+        "seeReport": "Voir le rapport",
+        "allReports": "Tous les rapports",
+        "newReport": "Générer un autre rapport",
+        "retry": "Réessayer",
+        "restart": "Recommencer"
+      }
     },
     "reports": {
       "generated": "Rapport généré avec succès",
@@ -219,7 +236,13 @@
     }
   },
   "dashboard": {
-    "seeAllReports": "Voir tous les rapports"
+    "newReport": "Nouveau rapport",
+    "seeAllReports": "Voir tous les rapports",
+
+    "statsTotal": "Rapports au total",
+    "statsMonth": "Ce mois-ci",
+    "statsSuccessRate": "Taux de réussite",
+    "statsTimeSaved": "Temps économisé"
   },
   "share": {
     "linkExpired": "Ce lien a expiré",
@@ -242,7 +265,8 @@
       "title": "Transformez Vos Données en Présentations Éblouissantes",
       "subtitle": "Créez des présentations professionnelles alimentées par l'IA en quelques minutes. Simply upload your data and let our AI generate beautiful slides automatically.",
       "cta": "Commencer Gratuitement",
-      "badge": "Propulsé par l'IA · Nouveau",
+      "badge": "L'analyse avant la mise en forme",
+      "painText": "Des heures sur PowerPoint à formater des données ? Reprenez le contrôle.",
       "titleLine1": "Vos données deviennent",
       "titleLine2": "des slides percutantes",
       "body": "Importez Excel, CSV, PDF ou Google Sheets. Notre IA analyse, structure et génère automatiquement des présentations professionnelles — en quelques secondes.",
@@ -277,6 +301,9 @@
       "title": "Trois étapes, zéro friction",
       "subtitle": "De vos données brutes à une présentation impeccable, plus vite que vous ne l'imaginez."
     },
+    "testimonials": {
+      "title": "Ce que disent nos utilisateurs"
+    },
     "cta": {
       "title": "Prêt à transformer",
       "titleEm": "vos données ?",
@@ -286,6 +313,129 @@
     "footer": {
       "description": "Transformez vos données en présentations professionnelles grâce à l'intelligence artificielle.",
       "copyright": "© 2025 DataPresent · Tous droits réservés"
+    }
+  },
+  "pricing": {
+    "page": {
+      "title": "Tarifs",
+      "subtitle": "Des forfaits adaptés à tous les besoins. Pas de frais cachés."
+    },
+    "plans": {
+      "free": {
+        "name": "Gratuit",
+        "description": "Pour découvrir DataPresent",
+        "price": "0€",
+        "cta": "Démarrer gratuitement"
+      },
+      "pro": {
+        "name": "Pro",
+        "description": "Pour les professionnels",
+        "price": "29€",
+        "cta": "Essayer Pro",
+        "badge": "Populaire"
+      },
+      "team": {
+        "name": "Team",
+        "description": "Pour les équipes",
+        "price": "79€",
+        "cta": "Contacter l'équipe"
+      },
+      "agency": {
+        "name": "Agency",
+        "description": "Pour les agences",
+        "price": "199€",
+        "cta": "Contacter les ventes"
+      }
+    },
+    "perMonth": "/mois",
+    "features": {
+      "reports": "Rapports",
+      "reportsPerMonth": "Rapports par mois",
+      "unlimited": "Illimité",
+      "export": "Export",
+      "exportPDF": "Export PDF",
+      "exportPPTX": "Export PPTX",
+      "exportWord": "Export Word",
+      "noWatermark": "Sans watermark",
+      "watermark": "Watermark DataPresent",
+      "aiBasic": "Analyse IA de base",
+      "aiAdvanced": "Analyse IA avancée",
+      "premiumTemplates": "Templates premium",
+      "collaboration": "Collaboration",
+      "teamCollaboration": "Collaboration équipe",
+      "sharedSpaces": "Espaces partagés",
+      "customRoles": "Rôles personnalisés",
+      "apiAccess": "Accès API",
+      "apiFull": "API complète",
+      "webhooks": "Webhooks",
+      "whiteLabel": "White-label",
+      "support": "Support",
+      "supportEmail": "Support email",
+      "supportPriority": "Support prioritaire",
+      "supportDedicated": "Support dédié",
+      "accountManager": "Gestionnaire de compte",
+      "sla": "SLA garantie",
+      "reportsLimit": "{{count}} rapports/mois"
+    },
+    "table": {
+      "title": "Comparaison détaillée",
+      "subtitle": "Toutes les fonctionnalités, plan par plan.",
+      "feature": "Fonctionnalité",
+      "included": "Inclus",
+      "notIncluded": "Non inclus"
+    },
+    "faq": {
+      "title": "Questions fréquentes",
+      "items": [
+        {
+          "q": "Puis-je changer de plan à tout moment ?",
+          "a": "Oui, vous pouvez passer à un plan supérieur ou inférieur à tout moment. Le changement est immédiat et vous êtes facturé au prorata du mois en cours."
+        },
+        {
+          "q": "Quels modes de paiement acceptez-vous ?",
+          "a": "Nous acceptons les cartes bancaires (Visa, Mastercard), les virements SEPA, et le paiement par facture pour les plans Team et Agency."
+        },
+        {
+          "q": "Y a-t-il un engagement de durée ?",
+          "a": "Aucun engagement. Tous nos forfaits sont mensuels et vous pouvez résilier à tout moment. Des remises sont disponibles pour les abonnements annuels."
+        },
+        {
+          "q": "Que se passe-t-il si je dépasse mon quota de rapports ?",
+          "a": "Vous serez notifié lorsque vous atteignez 80 % de votre quota. Si vous le dépassez, vous pouvez passer au plan supérieur ou attendre le mois suivant pour que le quota soit réinitialisé."
+        }
+      ]
+    },
+    "cta": {
+      "seeAll": "Voir tous les forfaits"
+    },
+    "jsonld": {
+      "name": "DataPresent",
+      "description": "Générez des présentations professionnelles à partir de vos données avec l'IA",
+      "priceCurrency": "EUR"
+    }
+  },
+  "about": {
+    "badge": "Notre histoire",
+    "title": "Donnez vie à vos données, naturellement",
+    "subtitle": "DataPresent est né d'une frustration simple : perdre des heures à aligner des slides alors que l'essentiel est dans les données. Nous avons construit l'outil que nous aurions aimé avoir.",
+    "story": {
+      "title": "Une histoire de données et de temps perdu",
+      "p1": "Alexandre passait 15 heures par semaine à préparer des présentations pour ses clients. Pas à analyser les données — à les mettre en forme. À ajuster des graphiques, à reformater des tableaux, à chercher la bonne police. La valeur réelle — l'analyse, l'histoire — était noyée dans la mise en page.",
+      "p2": "En 2024, il a réuni une équipe de designers, d'ingénieurs IA et d'analystes pour construire une solution radicalement différente : un outil qui comprend vos données et les transforme en slides claires, sans friction, sans compromis sur la qualité.",
+      "p3": "Aujourd'hui, DataPresent aide des centaines de professionnels à créer des présentations percutantes en secondes, pas en heures. Pas de boîte noire. Pas de template générique. Juste vos données, racontées avec précision."
+    },
+    "values": {
+      "title": "Nos valeurs",
+      "subtitle": "Trois piliers guident chaque décision que nous prenons"
+    },
+    "team": {
+      "title": "L'équipe",
+      "subtitle": "Des passionnés de données, de design et de simplicité"
+    },
+    "cta": {
+      "title": "Prêt à transformer vos données ?",
+      "body": "Rejoignez des centaines de professionnels qui gagnent du temps sur leurs présentations.",
+      "button": "Essayer gratuitement"
     }
   }
 }

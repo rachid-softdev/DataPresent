@@ -1,13 +1,10 @@
 interface LandingHowItWorksProps {
-  label: string;
   title: string;
   subtitle: string;
 }
 
 const STEPS = [
   {
-    num: "01",
-    label: "Import",
     title: "Importez vos données",
     body: "Glissez-déposez un fichier ou connectez Google Sheets. Formats multiples supportés sans configuration.",
     icon: (
@@ -27,8 +24,6 @@ const STEPS = [
     ),
   },
   {
-    num: "02",
-    label: "Analyse IA",
     title: "L'IA analyse & structure",
     body: "Détection automatique des KPIs, tendances et corrélations. Structure de slides créée intelligemment.",
     icon: (
@@ -47,8 +42,6 @@ const STEPS = [
     ),
   },
   {
-    num: "03",
-    label: "Export",
     title: "Exportez en un clic",
     body: "PowerPoint, PDF ou lien interactif partageable. Prêt à présenter en quelques secondes.",
     icon: (
@@ -69,12 +62,11 @@ const STEPS = [
   },
 ];
 
-export function LandingHowItWorks({ label, title, subtitle }: LandingHowItWorksProps) {
+export function LandingHowItWorks({ title, subtitle }: LandingHowItWorksProps) {
   return (
-    <section className="landing-section">
+    <section className="landing-section landing-section-sm">
       <div className="landing-container">
         <div className="landing-section-header">
-          <span className="landing-label">{label}</span>
           <h2 className="landing-heading-lg">{title}</h2>
           <p className="landing-body-md" style={{ maxWidth: 480, margin: "12px auto 0" }}>
             {subtitle}
@@ -82,14 +74,10 @@ export function LandingHowItWorks({ label, title, subtitle }: LandingHowItWorksP
         </div>
         <div className="landing-steps-grid">
           {STEPS.map((step) => (
-            <div key={step.num} className="landing-step">
-              <div className="landing-step-num-wrap">
-                <div className="landing-step-ring">{step.icon}</div>
-                <div className="landing-step-num">{step.num}</div>
+            <div key={step.title} className="landing-step">
+              <div className="landing-format-icon" style={{ margin: "0 auto 1.25rem" }}>
+                {step.icon}
               </div>
-              <span className="landing-label" style={{ display: "block", marginBottom: 8 }}>
-                {step.label}
-              </span>
               <h3 className="landing-heading-md" style={{ marginBottom: 10 }}>
                 {step.title}
               </h3>
