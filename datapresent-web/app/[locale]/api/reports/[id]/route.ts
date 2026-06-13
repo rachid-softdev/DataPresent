@@ -5,6 +5,50 @@ import { withCsrfProtection } from "@/lib/security";
 import { unauthorized, forbidden, notFound } from "@/lib/errors";
 
 /**
+ * GET /api/reports/[id]
+ * Returns the report status for progress polling during generation
+ */
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return unauthorized();
+  }
+
+  const { id } = await params;
+
+  const report = await prisma.report.findUnique({
+    where: { id },
+    select: {
+      id: true,
+      status: true,
+      title: true,
+      org: {
+        select: {
+          members: {
+            where: { userId: session.user.id },
+            select: { id: true },
+          },
+        },
+      },
+    },
+  });
+
+  if (!report) {
+    return notFound();
+  }
+
+  if (!report.org.members.length) {
+    return forbidden();
+  }
+
+  return NextResponse.json({
+    id: report.id,
+    status: report.status,
+    title: report.title,
+  });
+}
+
+/**
  * DELETE /api/reports/[id]
  * Delete a report and all associated data
  */

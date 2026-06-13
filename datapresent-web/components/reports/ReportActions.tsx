@@ -14,9 +14,12 @@ interface ReportActionsProps {
 
 export function ReportActions({ reportId, status }: ReportActionsProps) {
   const [regenerating, setRegenerating] = useState(false);
+  const [exportingFormat, setExportingFormat] = useState<string | null>(null);
   const [showRegenerateConfirm, setShowRegenerateConfirm] = useState(false);
 
   const handleExport = async (format: string) => {
+    if (exportingFormat) return;
+    setExportingFormat(format);
     try {
       const res = await fetch(`/api/reports/${reportId}/export`, {
         method: "POST",
@@ -31,8 +34,12 @@ export function ReportActions({ reportId, status }: ReportActionsProps) {
       }
     } catch {
       toast.error("Erreur lors de l'export");
+    } finally {
+      setExportingFormat(null);
     }
   };
+
+  const isExporting = exportingFormat !== null;
 
   const handleRegenerate = async () => {
     setRegenerating(true);
@@ -81,27 +88,42 @@ export function ReportActions({ reportId, status }: ReportActionsProps) {
           variant="outline"
           size="sm"
           onClick={() => handleExport("PPTX")}
+          disabled={isExporting}
           aria-label="Exporter en PPTX"
         >
-          <Download className="w-4 h-4 sm:mr-2" />
+          {exportingFormat === "PPTX" ? (
+            <Loader2 className="w-4 h-4 animate-spin sm:mr-2" />
+          ) : (
+            <Download className="w-4 h-4 sm:mr-2" />
+          )}
           <span className="hidden sm:inline">PPTX</span>
         </Button>
         <Button
           variant="outline"
           size="sm"
           onClick={() => handleExport("PDF")}
+          disabled={isExporting}
           aria-label="Exporter en PDF"
         >
-          <Download className="w-4 h-4 sm:mr-2" />
+          {exportingFormat === "PDF" ? (
+            <Loader2 className="w-4 h-4 animate-spin sm:mr-2" />
+          ) : (
+            <Download className="w-4 h-4 sm:mr-2" />
+          )}
           <span className="hidden sm:inline">PDF</span>
         </Button>
         <Button
           variant="outline"
           size="sm"
           onClick={() => handleExport("DOCX")}
+          disabled={isExporting}
           aria-label="Exporter en Word"
         >
-          <Download className="w-4 h-4 sm:mr-2" />
+          {exportingFormat === "DOCX" ? (
+            <Loader2 className="w-4 h-4 animate-spin sm:mr-2" />
+          ) : (
+            <Download className="w-4 h-4 sm:mr-2" />
+          )}
           <span className="hidden sm:inline">Word</span>
         </Button>
       </div>

@@ -1,8 +1,8 @@
-import { getTranslations } from "next-intl/server";
 import { Metadata } from "next";
-import { HelpCircle, Mail, MessageSquare, Phone, FileText, ChevronRight } from "lucide-react";
+import { HelpCircle, Mail, MessageSquare, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { HelpSearch } from "@/components/help/HelpSearch";
 
 interface HelpPageProps {
   params: Promise<{ locale: string }>;
@@ -29,7 +29,6 @@ export async function generateMetadata({ params }: HelpPageProps): Promise<Metad
 
 export default async function HelpPage({ params }: HelpPageProps) {
   const { locale } = await params;
-  const t = await getTranslations();
 
   const faqs = [
     {
@@ -159,16 +158,15 @@ export default async function HelpPage({ params }: HelpPageProps) {
               {locale === "fr" ? "Questions fréquentes" : "Frequently Asked Questions"}
             </h2>
 
-            <div className="space-y-4">
-              {faqs.map((faq, index) => (
-                <div key={index} className="app-card">
-                  <div className="app-card-body">
-                    <h3 className="app-heading app-heading-md mb-2">{faq.question}</h3>
-                    <p className="text-muted-foreground text-sm">{faq.answer}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <HelpSearch
+              faqs={faqs}
+              placeholder={locale === "fr" ? "Rechercher dans l'aide..." : "Search help..."}
+              noResultsLabel={
+                locale === "fr"
+                  ? "Aucun résultat trouvé. Essayez d'autres mots-clés."
+                  : "No results found. Try different keywords."
+              }
+            />
 
             <div className="mt-8 p-6 bg-muted rounded-lg">
               <div className="flex items-start gap-4">

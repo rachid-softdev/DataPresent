@@ -1,3 +1,5 @@
+import "../landing.css";
+
 import { Metadata } from "next";
 import { Link } from "@/i18n/routing";
 import { ArrowRight } from "lucide-react";
@@ -127,29 +129,30 @@ export default async function AboutPage({ params }: AboutPageProps) {
   const team = TEAM[locale as keyof typeof TEAM] || TEAM.en;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="landing-hero" style={{ paddingTop: 0 }}>
       {/* ═══ Hero ═══ */}
-      <section className="relative overflow-hidden py-24 md:py-32 px-6 border-b border-border">
-        <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent pointer-events-none" />
-        <div className="max-w-3xl mx-auto text-center relative z-10">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6 border border-primary/20">
-            <span className="w-2 h-2 rounded-full bg-primary" />
-            {t("badge")}
+      <section className="landing-section" style={{ paddingBottom: 0 }}>
+        <div className="landing-container landing-container-xs">
+          <div className="landing-hero-text" style={{ textAlign: "center", alignItems: "center" }}>
+            <div className="landing-hero-eyebrow" style={{ marginBottom: "1.5rem" }}>
+              <span className="landing-dot"></span>
+              {t("badge")}
+            </div>
+            <h1 className="landing-display landing-hero-display">{t("title")}</h1>
+            <p className="landing-body-lg landing-hero-body" style={{ maxWidth: 560 }}>
+              {t("subtitle")}
+            </p>
           </div>
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6">
-            {t("title")}
-          </h1>
-          <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            {t("subtitle")}
-          </p>
         </div>
       </section>
 
       {/* ═══ Story ═══ */}
-      <section className="py-20 md:py-28 px-6">
-        <div className="max-w-3xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-bold mb-8">{t("story.title")}</h2>
-          <div className="space-y-5 text-muted-foreground leading-relaxed text-base md:text-lg">
+      <section className="landing-section">
+        <div className="landing-container landing-container-xs">
+          <h2 className="landing-heading-lg" style={{ marginBottom: "1.5rem" }}>
+            {t("story.title")}
+          </h2>
+          <div className="space-y-5 landing-body-md" style={{ maxWidth: "65ch" }}>
             <p>{t("story.p1")}</p>
             <p>{t("story.p2")}</p>
             <p>{t("story.p3")}</p>
@@ -158,20 +161,24 @@ export default async function AboutPage({ params }: AboutPageProps) {
       </section>
 
       {/* ═══ Values ═══ */}
-      <section className="py-20 md:py-28 px-6 bg-muted/30 border-y border-border">
-        <div className="max-w-5xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4 text-center">{t("values.title")}</h2>
-          <p className="text-muted-foreground text-center mb-16 max-w-xl mx-auto">
-            {t("values.subtitle")}
-          </p>
+      <section className="landing-section landing-section-alt">
+        <div className="landing-container">
+          <div className="landing-section-header">
+            <h2 className="landing-heading-lg">{t("values.title")}</h2>
+            <p
+              className="landing-body-md"
+              style={{ marginTop: 12, maxWidth: 480, marginInline: "auto" }}
+            >
+              {t("values.subtitle")}
+            </p>
+          </div>
           <div className="grid md:grid-cols-3 gap-8">
             {values.map((v) => (
-              <div
-                key={v.title}
-                className="bg-card border border-border rounded-2xl p-8 text-center"
-              >
-                <h3 className="text-2xl font-bold mb-3">{v.title}</h3>
-                <p className="text-muted-foreground leading-relaxed">{v.desc}</p>
+              <div key={v.title} className="landing-feature-card" style={{ textAlign: "center" }}>
+                <h3 className="landing-feature-title" style={{ fontSize: "1.2rem" }}>
+                  {v.title}
+                </h3>
+                <p className="landing-body-md">{v.desc}</p>
               </div>
             ))}
           </div>
@@ -179,26 +186,47 @@ export default async function AboutPage({ params }: AboutPageProps) {
       </section>
 
       {/* ═══ Team ═══ */}
-      <section className="py-20 md:py-28 px-6">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4 text-center">{t("team.title")}</h2>
-          <p className="text-muted-foreground text-center mb-16 max-w-xl mx-auto">
-            {t("team.subtitle")}
-          </p>
-          <div className="grid md:grid-cols-3 gap-8">
+      <section className="landing-section">
+        <div className="landing-container">
+          <div className="landing-section-header">
+            <h2 className="landing-heading-lg">{t("team.title")}</h2>
+            <p
+              className="landing-body-md"
+              style={{ marginTop: 12, maxWidth: 480, marginInline: "auto" }}
+            >
+              {t("team.subtitle")}
+            </p>
+          </div>
+          <div
+            className="grid md:grid-cols-3 gap-8"
+            style={{ maxWidth: 800, marginInline: "auto" }}
+          >
             {team.map((member: TeamMember) => (
-              <div key={member.name} className="bg-card border border-border rounded-2xl p-6">
-                <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xl mb-4 mx-auto">
-                  {member.name
-                    .split(" ")
-                    .map((n: string) => n[0])
-                    .join("")}
+              <div
+                key={member.name}
+                className="landing-feature-card"
+                style={{ textAlign: "center" }}
+              >
+                <div className="landing-format-icon" style={{ margin: "0 auto 1rem" }}>
+                  <span
+                    style={{ fontWeight: 700, fontSize: "1rem", color: "var(--landing-primary)" }}
+                  >
+                    {member.name
+                      .split(" ")
+                      .map((n: string) => n[0])
+                      .join("")}
+                  </span>
                 </div>
-                <h3 className="text-lg font-bold text-center mb-1">{member.name}</h3>
-                <p className="text-sm text-primary font-medium text-center mb-3">{member.role}</p>
-                <p className="text-sm text-muted-foreground text-center leading-relaxed">
-                  {member.bio}
+                <h3 className="landing-feature-title" style={{ fontSize: "1.1rem" }}>
+                  {member.name}
+                </h3>
+                <p
+                  className="landing-text-primary"
+                  style={{ fontSize: "0.85rem", fontWeight: 500, marginBottom: 8 }}
+                >
+                  {member.role}
                 </p>
+                <p className="landing-body-md">{member.bio}</p>
               </div>
             ))}
           </div>
@@ -206,19 +234,16 @@ export default async function AboutPage({ params }: AboutPageProps) {
       </section>
 
       {/* ═══ CTA ═══ */}
-      <section className="py-20 px-6 bg-primary text-primary-foreground">
-        <div className="max-w-2xl mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">{t("cta.title")}</h2>
-          <p className="text-primary-foreground/80 mb-8 text-lg">{t("cta.body")}</p>
-          <Link
-            href="/signup"
-            className="inline-flex items-center gap-2 bg-white text-primary font-semibold px-8 py-4 rounded-xl hover:bg-white/90 transition-all"
-          >
+      <div className="landing-cta-section">
+        <div className="landing-cta-inner landing-container-xs">
+          <h2 className="landing-cta-title">{t("cta.title")}</h2>
+          <p className="landing-cta-body">{t("cta.body")}</p>
+          <Link href="/signup" className="landing-btn landing-btn-white landing-btn-xl">
             {t("cta.button")}
-            <ArrowRight className="w-5 h-5" />
+            <ArrowRight className="w-[18px] h-[18px]" aria-hidden="true" />
           </Link>
         </div>
-      </section>
+      </div>
     </div>
   );
 }

@@ -166,11 +166,11 @@ export function GenerationProgress({
 /**
  * Hook that returns a stable list of sub-stages for generation.
  */
-export function useGenerationSubStages(_t: (key: string) => string): SubStage[] {
+export function useGenerationSubStages(t: (key: string) => string): SubStage[] {
   return [
-    { id: "analyse", label: "Analyse des données" },
-    { id: "charts", label: "Création des graphiques" },
-    { id: "layout", label: "Mise en page" },
-    { id: "finalize", label: "Finalisation du rapport" },
+    { id: "analyse", label: t("upload.stages.analyse") || "Analyse des données" },
+    { id: "charts", label: t("upload.stages.charts") || "Création des graphiques" },
+    { id: "layout", label: t("upload.stages.layout") || "Mise en page" },
+    { id: "finalize", label: t("upload.stages.finalize") || "Finalisation du rapport" },
   ];
 }

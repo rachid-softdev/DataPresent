@@ -1,14 +1,31 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, X, ChevronLeft, ChevronRight, FileSpreadsheet } from "lucide-react";
+import {
+  Search,
+  X,
+  ChevronLeft,
+  ChevronRight,
+  FileSpreadsheet,
+  Trash2,
+  Download,
+  Loader2,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/empty-state";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
+import { toast } from "sonner";
 
 interface Report {
   id: string;
@@ -29,6 +46,8 @@ interface ReportsFilterProps {
 
 type StatusFilter = "ALL" | "DONE" | "PROCESSING" | "ERROR";
 
+const EXPORT_FORMATS = ["PPTX", "PDF", "DOCX"] as const;
+
 export function ReportsFilter({
   reports,
   page,
@@ -40,6 +59,10 @@ export function ReportsFilter({
   const t = useTranslations();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("ALL");
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [showBatchDeleteConfirm, setShowBatchDeleteConfirm] = useState(false);
+  const [batchDeleting, setBatchDeleting] = useState(false);
+  const [batchExporting, setBatchExporting] = useState<string | null>(null);
 
   const filtered = useMemo(() => {
     return reports.filter((r) => {
@@ -69,6 +92,106 @@ export function ReportsFilter({
   };
 
   const hasActiveFilters = search || statusFilter !== "ALL";
+  const filteredIds = useMemo(() => new Set(filtered.map((r) => r.id)), [filtered]);
+  const allSelected = filtered.length > 0 && filtered.every((r) => selectedIds.has(r.id));
+  const someSelected = filtered.some((r) => selectedIds.has(r.id));
+
+  const toggleSelect = useCallback((id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }, []);
+
+  const toggleSelectAll = useCallback(() => {
+    if (allSelected) {
+      // Deselect all visible
+      setSelectedIds((prev) => {
+        const next = new Set(prev);
+        for (const id of filteredIds) next.delete(id);
+        return next;
+      });
+    } else {
+      // Select all visible
+      setSelectedIds((prev) => {
+        const next = new Set(prev);
+        for (const id of filteredIds) next.add(id);
+        return next;
+      });
+    }
+  }, [allSelected, filteredIds]);
+
+  const handleBatchDelete = useCallback(async () => {
+    const ids = Array.from(selectedIds);
+    if (ids.length === 0) return;
+
+    setBatchDeleting(true);
+    try {
+      const res = await fetch("/api/reports/batch/delete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids }),
+      });
+
+      if (res.ok) {
+        toast.success(
+          `${ids.length} rapport${ids.length > 1 ? "s" : ""} supprimé${ids.length > 1 ? "s" : ""}`,
+        );
+        setSelectedIds(new Set());
+      } else {
+        const data = await res.json();
+        toast.error(data.error || "Erreur lors de la suppression");
+      }
+    } catch {
+      toast.error("Erreur lors de la suppression");
+    } finally {
+      setBatchDeleting(false);
+      setShowBatchDeleteConfirm(false);
+    }
+  }, [selectedIds]);
+
+  const handleBatchExport = useCallback(
+    async (format: string) => {
+      const ids = Array.from(selectedIds);
+      if (ids.length === 0) return;
+
+      setBatchExporting(format);
+      let successCount = 0;
+      let errorCount = 0;
+
+      for (const id of ids) {
+        try {
+          const res = await fetch(`/api/reports/${id}/export`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ format }),
+          });
+          if (res.ok) successCount++;
+          else errorCount++;
+        } catch {
+          errorCount++;
+        }
+      }
+
+      setBatchExporting(null);
+
+      if (successCount > 0) {
+        toast.success(
+          `${successCount} export${successCount > 1 ? "s" : ""} ${format} lancé${successCount > 1 ? "s" : ""}`,
+        );
+      }
+      if (errorCount > 0) {
+        toast.error(`${errorCount} export${errorCount > 1 ? "s" : ""} en échec`);
+      }
+    },
+    [selectedIds],
+  );
+
+  const clearSelection = useCallback(() => {
+    setSelectedIds(new Set());
+  }, []);
 
   const emptyMessage = hasActiveFilters
     ? {
@@ -153,6 +276,20 @@ export function ReportsFilter({
             <table className="app-table">
               <thead>
                 <tr>
+                  <th className="w-10">
+                    <label className="flex items-center justify-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={allSelected}
+                        ref={(el) => {
+                          if (el) el.indeterminate = someSelected && !allSelected;
+                        }}
+                        onChange={toggleSelectAll}
+                        className="app-checkbox"
+                        aria-label="Tout sélectionner"
+                      />
+                    </label>
+                  </th>
                   <th>{t("reports.columns.name")}</th>
                   <th>Secteur</th>
                   <th>{t("reports.columns.status")}</th>
@@ -170,8 +307,22 @@ export function ReportsFilter({
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: 20 }}
                       transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
-                      className="hover:bg-muted/30 transition-colors"
+                      className={`
+                        transition-colors
+                        ${selectedIds.has(report.id) ? "bg-primary/5" : "hover:bg-muted/30"}
+                      `}
                     >
+                      <td className="w-10">
+                        <label className="flex items-center justify-center cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={selectedIds.has(report.id)}
+                            onChange={() => toggleSelect(report.id)}
+                            className="app-checkbox"
+                            aria-label={`Sélectionner ${report.title}`}
+                          />
+                        </label>
+                      </td>
                       <td className="font-medium">{report.title}</td>
                       <td className="text-muted-foreground">{report.sector}</td>
                       <td>
@@ -202,6 +353,68 @@ export function ReportsFilter({
             </table>
           </div>
 
+          {/* Batch action toolbar */}
+          <AnimatePresence>
+            {selectedIds.size > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 8 }}
+                className="flex items-center gap-3 px-4 py-3 bg-muted/50 rounded-lg border mb-4"
+              >
+                <span className="text-sm text-muted-foreground whitespace-nowrap">
+                  {selectedIds.size} sélectionné{selectedIds.size > 1 ? "s" : ""}
+                </span>
+                <div className="flex-1" />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowBatchDeleteConfirm(true)}
+                  disabled={batchDeleting}
+                  className="text-destructive hover:text-destructive gap-2"
+                >
+                  {batchDeleting ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Trash2 className="w-4 h-4" />
+                  )}
+                  Supprimer
+                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={batchExporting !== null}
+                      className="gap-2"
+                    >
+                      {batchExporting ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <Download className="w-4 h-4" />
+                      )}
+                      Exporter
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    {EXPORT_FORMATS.map((fmt) => (
+                      <DropdownMenuItem
+                        key={fmt}
+                        onClick={() => handleBatchExport(fmt)}
+                        disabled={batchExporting !== null}
+                      >
+                        {fmt}
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+                <Button variant="ghost" size="sm" onClick={clearSelection}>
+                  Annuler
+                </Button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
           {/* Pagination */}
           {totalPages > 1 && (
             <div className="app-pagination">
@@ -230,6 +443,17 @@ export function ReportsFilter({
           )}
         </>
       )}
+      {/* Batch delete confirmation */}
+      <ConfirmDialog
+        open={showBatchDeleteConfirm}
+        onOpenChange={setShowBatchDeleteConfirm}
+        title={`Supprimer ${selectedIds.size} rapport${selectedIds.size > 1 ? "s" : ""} ?`}
+        description={`Les ${selectedIds.size} rapport${selectedIds.size > 1 ? "s" : ""} sélectionné${selectedIds.size > 1 ? "s" : ""} seront définitivement supprimés. Cette action est irréversible.`}
+        confirmLabel="Supprimer"
+        cancelLabel="Annuler"
+        variant="destructive"
+        onConfirm={handleBatchDelete}
+      />
     </div>
   );
 }

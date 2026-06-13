@@ -137,9 +137,10 @@
 .landing-display {
   font-family: var(--font-fraunces), "Fraunces", serif;
   font-weight: 700;
-  font-size: clamp(2.8rem, 6vw, 4.5rem);
+  font-size: clamp(3rem, 7vw, 5.5rem);
   line-height: 1;
   letter-spacing: -0.02em;
+  text-wrap: balance;
 }
 .landing-display em {
   font-style: italic;
@@ -209,7 +210,7 @@
   transition: transform 0.2s;
 }
 a:hover .landing-logo-mark {
-  transform: scale(1.08) rotate(-3deg);
+  transform: scale(1.08) translateY(-1px);
 }
 .landing-logo-text {
   font-family: var(--font-fraunces), "Fraunces", serif;
@@ -473,34 +474,7 @@ a:hover .landing-logo-mark {
   color: var(--landing-accent);
 }
 
-/* Stats strip */
-.landing-stats-strip {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1px;
-  background: var(--landing-border);
-  border: 1px solid var(--landing-border);
-  border-radius: 16px;
-  overflow: hidden;
-  margin-top: 60px;
-}
-.landing-stat-item {
-  background: var(--landing-surface);
-  padding: 1.5rem 1.25rem;
-  text-align: center;
-}
-.landing-stat-num {
-  font-family: var(--font-fraunces), "Fraunces", serif;
-  font-weight: 700;
-  font-size: 2rem;
-  color: var(--landing-primary);
-  line-height: 1;
-  margin-bottom: 6px;
-}
-.landing-stat-label {
-  font-size: 0.8rem;
-  color: var(--landing-text3);
-}
+/* (stats strip removed — replaced by narrative proof bar in component) */
 
 /* Section */
 .landing-section {
@@ -798,7 +772,7 @@ a:hover .landing-logo-mark {
 
 /* CTA section */
 .landing-cta-section {
-  background: #0d1f06;
+  background: color-mix(in srgb, var(--landing-primary) 25%, #000);
   padding: 100px 0;
   position: relative;
   overflow: hidden;
@@ -910,7 +884,7 @@ a:hover .landing-logo-mark {
 
 /* Footer */
 .landing-footer {
-  background: #0d1f06;
+  background: color-mix(in srgb, var(--landing-primary) 25%, #000);
   border-top: 1px solid rgba(255, 255, 255, 0.06);
   padding: 48px 0 32px;
   color: rgba(255, 255, 255, 0.5);
@@ -1084,9 +1058,6 @@ a:hover .landing-logo-mark {
   .landing-mockup-svg {
     max-width: 420px;
   }
-  .landing-stats-strip {
-    grid-template-columns: repeat(2, 1fr);
-  }
   .landing-formats-grid {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -1129,9 +1100,6 @@ a:hover .landing-logo-mark {
   }
 }
 @media (max-width: 480px) {
-  .landing-stats-strip {
-    grid-template-columns: 1fr;
-  }
   .landing-mockup-svg {
     max-width: 320px;
   }
