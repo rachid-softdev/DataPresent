@@ -1,0 +1,29 @@
+{
+  "manifest_version": 3,
+  "name": "DataPresent",
+  "version": "1.0.0",
+  "description": "Capture, analyze, and present data directly from your browser",
+  "permissions": ["storage", "activeTab", "scripting", "contextMenus", "clipboardWrite"],
+  "host_permissions": ["http://localhost:3000/*", "https://*.datapresent.com/*"],
+  "background": {
+    "service_worker": "background/service-worker.js",
+    "type": "module"
+  },
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_title": "DataPresent"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content/content-script.js"],
+      "css": ["content/content-script.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "icons": {
+    "16": "icons/icon-16.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  }
+}

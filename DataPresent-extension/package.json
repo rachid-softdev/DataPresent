@@ -2,9 +2,13 @@
   "name": "datapresent-extension",
   "version": "1.0.0",
   "description": "DataPresent Browser Extension",
-  "main": "index.js",
+  "private": true,
   "scripts": {
-    "dev": "echo 'Extension dev not configured'",
-    "build": "echo 'Extension build not configured'"
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.0"
   }
 }
