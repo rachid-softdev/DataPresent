@@ -1,181 +1,177 @@
-#!/usr/bin/env node
-
 /**
- * qa-web.js — Interactive QA session with Playwright (PromptBearer web:qa pattern)
- *
- * Launches or connects to a Next.js dev server, opens Playwright in headed mode,
- * and provides an interactive QA environment for manual / exploratory testing.
+ * qa-web.js — Launch interactive Playwright QA session
  *
  * Usage:
- *   node scripts/qa-web.js                          # default: http://localhost:3000
- *   node scripts/qa-web.js --url=http://localhost:3001
- *   node scripts/qa-web.js --headless
- *   npm run web:qa:headless                         # shortcut for headless
+ *   npm run qa                                          # http://localhost:3000
+ *   npm run qa -- --url https://example.com
+ *   npm run qa -- --headless                            # headless mode
  *
- * Requires: @playwright/cli (devDependency)
+ * Starts the Next.js dev server (detached) + Playwright browser in one go.
+ * Server process survives script exit on Windows.
  */
 
-const { execSync, spawn } = require("child_process");
+const { execSync } = require("child_process");
 const path = require("path");
 const fs = require("fs");
-const os = require("os");
 const net = require("net");
 
-// ─── Config ──────────────────────────────────────────────────────────────────
+// ── Parse args ──────────────────────────────────────────────────────────────
+const args = process.argv.slice(2);
+const urlArg = args.find((a) => a.startsWith("--url="));
+const BASE_URL = urlArg ? urlArg.split("=")[1] : "http://localhost:3000";
+const HEADED = !args.includes("--headless");
+const parsedUrl = new URL(BASE_URL);
+const PORT = parsedUrl.port || 3000;
 
-const DEFAULT_PORT = 3000;
-const DEFAULT_URL = `http://localhost:${DEFAULT_PORT}`;
-const PLAYWRIGHT_CLI = "npx --no-install playwright-cli";
+// ── Session variables ───────────────────────────────────────────────────────
+const SLUG = BASE_URL.replace(/^https?:\/\//, "")
+  .replace(/[/.:]/g, "-")
+  .slice(0, 30);
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
+const now = new Date();
+const pad = (n) => String(n).padStart(2, "0");
+const TIMESTAMP = `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}-${pad(now.getHours())}${pad(now.getMinutes())}`;
 
-/**
- * Check if a TCP port is accepting connections.
- * Returns true if the port is open.
- */
-function isServerRunning(host, port) {
+const REPORT_DIR = path.join(process.env.TEMP || "/tmp", `qa-${SLUG}-${TIMESTAMP}`);
+fs.mkdirSync(REPORT_DIR, { recursive: true });
+
+// ── Helpers ─────────────────────────────────────────────────────────────────
+const log = (msg) => console.log(`  ${msg}`);
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+const run = (cmd) => {
+  console.log(`\n> ${cmd}`);
+  try {
+    const out = execSync(cmd, { timeout: 30000, encoding: "utf8" });
+    console.log(out.trim());
+    return out.trim();
+  } catch (e) {
+    console.log(e.stdout?.trim() || e.message);
+    return e.stdout?.trim() || "";
+  }
+};
+
+const waitForServer = (port, host, timeoutMs = 45000) => {
+  return new Promise((resolve, reject) => {
+    const start = Date.now();
+    const check = () => {
+      const sock = new net.Socket();
+      sock.setTimeout(2000);
+      sock.on("connect", () => {
+        sock.destroy();
+        resolve(true);
+      });
+      sock.on("error", () => {
+        sock.destroy();
+        retry();
+      });
+      sock.on("timeout", () => {
+        sock.destroy();
+        retry();
+      });
+      sock.connect(port, host);
+      function retry() {
+        if (Date.now() - start > timeoutMs) reject(new Error(`Timeout after ${timeoutMs}ms`));
+        else setTimeout(check, 1000);
+      }
+    };
+    check();
+  });
+};
+
+const isServerRunning = (port, host) => {
   return new Promise((resolve) => {
-    const socket = new net.Socket();
-    socket.setTimeout(2000);
-
-    socket.on("connect", () => {
-      socket.destroy();
+    const sock = new net.Socket();
+    sock.setTimeout(1000);
+    sock.on("connect", () => {
+      sock.destroy();
       resolve(true);
     });
-
-    socket.on("timeout", () => {
-      socket.destroy();
+    sock.on("error", () => {
+      sock.destroy();
       resolve(false);
     });
-
-    socket.on("error", () => {
-      socket.destroy();
+    sock.on("timeout", () => {
+      sock.destroy();
       resolve(false);
     });
-
-    socket.connect(port, host);
+    sock.connect(port, host);
   });
-}
+};
 
-/**
- * Poll an HTTP URL until the server responds with a non-5xx status.
- * Returns true once the server is reachable, false on timeout.
- */
-async function waitForServer(url, timeoutMs = 60000) {
-  const start = Date.now();
+// ── Detached process launcher (Windows) ─────────────────────────────────────
+const startDetached = (command) => {
+  // Use PowerShell Start-Process to truly detach
+  const psCmd = `Start-Process -WindowStyle Hidden cmd.exe -ArgumentList '/c ${command}'`;
+  execSync(`powershell -Command "${psCmd}"`, { timeout: 10000, encoding: "utf8" });
+};
 
-  while (Date.now() - start < timeoutMs) {
-    try {
-      const res = await fetch(url);
-      if (res.ok || res.status < 500) return true;
-    } catch {
-      // Server not ready yet — keep polling
-    }
-
-    await new Promise((r) => setTimeout(r, 500));
-  }
-
-  return false;
-}
-
-/**
- * Start the Next.js dev server as a detached, headless process.
- * Windows-compatible via `windowsHide` and `unref()`.
- */
-function startDetached(cwd) {
-  const child = spawn("npx", ["next", "dev"], {
-    cwd,
-    stdio: "ignore",
-    detached: true,
-    windowsHide: true,
-    shell: true,
-  });
-
-  child.unref();
-  return child;
-}
-
-// ─── Main ────────────────────────────────────────────────────────────────────
-
+// ── Main ────────────────────────────────────────────────────────────────────
 async function main() {
-  // 1. Parse CLI arguments
-  const args = process.argv.slice(2);
-  const urlArg = args.find((a) => a.startsWith("--url="));
-  const targetUrl = urlArg ? urlArg.slice("--url=".length) : DEFAULT_URL;
-  const headless = args.includes("--headless");
+  console.log("=== QA Web Session Setup ===");
+  log(`BASE_URL   : ${BASE_URL}`);
+  log(`REPORT_DIR : ${REPORT_DIR}`);
+  log(`HEADED     : ${HEADED}`);
 
-  const parsedUrl = new URL(targetUrl);
-  const port = parseInt(parsedUrl.port, 10) || DEFAULT_PORT;
-  const host = parsedUrl.hostname || "localhost";
+  // 1. Start dev server (detached) if not running
+  const alreadyRunning = await isServerRunning(PORT, "127.0.0.1");
+  if (!alreadyRunning) {
+    log("Starting Next.js dev server (detached)...");
+    const logFile = path.join(REPORT_DIR, "dev-server.log");
+    const nextCli = path.resolve(__dirname, "..", "node_modules", "next", "dist", "bin", "next");
+    const cwd = path.resolve(__dirname, "..");
 
-  console.log(`🔍 QA session targeting: ${targetUrl}\n`);
+    // Run next dev detached
+    startDetached(`node "${nextCli}" dev --turbopack -p ${PORT} > "${logFile}" 2>&1`);
 
-  // 2. Create timestamped report directory in TEMP
-  const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
-  const reportDir = path.join(os.tmpdir(), `datapresent-qa-${timestamp}`);
-  fs.mkdirSync(reportDir, { recursive: true });
-  console.log(`📁 Report directory: ${reportDir}`);
-
-  // 3. Check if the dev server is already running; start it if not
-  const running = await isServerRunning(host, port);
-
-  if (!running) {
-    console.log("⚡ Dev server not detected. Starting Next.js dev server...");
-    startDetached(process.cwd());
-    console.log("⏳ Waiting for server to be ready (up to 60s)...");
-
-    const ready = await waitForServer(targetUrl);
-    if (!ready) {
-      console.error("❌ Dev server failed to start within 60 seconds.");
+    log(`Waiting for server on 127.0.0.1:${PORT} (up to 45s)...`);
+    try {
+      await waitForServer(PORT, "127.0.0.1", 45000);
+      log("✅ Server is ready.");
+    } catch (e) {
+      console.error(`❌ ${e.message}`);
+      log("Check dev server log:");
+      if (fs.existsSync(logFile)) {
+        console.log(fs.readFileSync(logFile, "utf8").split("\n").slice(-30).join("\n"));
+      }
       process.exit(1);
     }
-
-    console.log("✅ Dev server is ready!\n");
   } else {
-    console.log(`✅ Dev server is already running on ${targetUrl}\n`);
+    log("✅ Dev server already running.");
   }
 
-  // 4. Set headless mode via env var if requested
-  if (headless) {
-    process.env.PLAYWRIGHT_MCP_HEADLESS = "true";
-  }
+  // 2. Open Playwright browser (open without URL first — CLI arg parsing works better)
+  const headFlag = HEADED ? "--headed" : "";
+  run(`playwright-cli open --browser=chrome ${headFlag}`);
+  await sleep(3000); // wait for browser to be ready
+  run(`playwright-cli goto ${BASE_URL}`);
+  await sleep(2000); // wait for page to load
 
-  // 5. Open Playwright browser
-  const headlessLabel = headless ? "headless" : "headed";
-  console.log(`🌐 Opening Playwright browser (${headlessLabel})...`);
-  execSync(`${PLAYWRIGHT_CLI} open ${targetUrl} --browser=chrome`, {
-    stdio: "inherit",
-  });
+  // 3. Start video recording
+  run(`playwright-cli video-start ${REPORT_DIR.replace(/\\/g, "/")}/session.webm`);
 
-  // 6. Start video recording
-  const videoPath = path.join(reportDir, "session.webm");
-  console.log(`📹 Recording video to: ${videoPath}`);
-  execSync(`${PLAYWRIGHT_CLI} video-start ${videoPath}`, {
-    stdio: "inherit",
-  });
+  // 4. Resize to desktop viewport
+  run("playwright-cli resize 1440 900");
 
-  // 7. Resize viewport to 1440×900
-  console.log("📐 Resizing viewport to 1440×900...");
-  execSync(`${PLAYWRIGHT_CLI} resize 1440 900`, { stdio: "inherit" });
+  // ── Done ──
+  console.log("\n=== QA session ready ===");
+  console.log("\nSession variables for continuing:");
+  console.log(`$env:BASE_URL = "${BASE_URL}"`);
+  console.log(`$env:SLUG = "${SLUG}"`);
+  console.log(`$env:TIMESTAMP = "${TIMESTAMP}"`);
+  console.log(`$env:SESSION = "qa-${SLUG}-${TIMESTAMP}"`);
+  console.log(`$env:REPORT_DIR = "${REPORT_DIR}"`);
+  console.log("\n(Run `playwright-cli close` to stop the browser)");
 
-  // 8. Display session information
-  console.log("\n── QA Session ──────────────────────────────────────");
-  console.log(`  URL:       ${targetUrl}`);
-  console.log(`  Headless:  ${headless}`);
-  console.log(`  Video:     ${videoPath}`);
-  console.log(`  Reports:   ${reportDir}`);
-  console.log(`  PID:       ${process.pid}`);
-  console.log("────────────────────────────────────────────────────\n");
+  // 5. Keep alive — prevents script from exiting (which kills child processes)
+  console.log("\nPress Ctrl+C to stop the QA session.");
+  process.stdin.resume(); // keeps event loop alive
 
-  // 9. Keep the session alive until Ctrl+C
-  process.stdin.resume();
-  console.log("🔴 QA session active. Interact with the browser.");
-  console.log("   Press Ctrl+C to stop and clean up.\n");
-
-  await new Promise(() => {});
+  // Hang forever so the browser stays open
+  await new Promise(() => {}); // never resolves
 }
 
 main().catch((err) => {
-  console.error("❌ QA session failed:", err.message);
+  console.error("Fatal error:", err);
   process.exit(1);
 });

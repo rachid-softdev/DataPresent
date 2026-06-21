@@ -46,5 +46,7 @@ next-env.d.ts
 # Prisma
 prisma/migrations/
 
-# Playwright auth state (generated per-run)
-tests/e2e/.auth/*.json
+# Playwright artifacts
+e2e/.auth/*.json
+playwright-report/
+test-results/
