@@ -85,7 +85,7 @@
     "stripe": "^22.2.0",
     "tailwind-merge": "^3.5.0",
     "zod": "^4.4.2",
-    "zustand": "^5.0.12"
+    "zustand": "^5.0.14"
   },
   "devDependencies": {
     "@playwright/cli": "^0.1.14",
