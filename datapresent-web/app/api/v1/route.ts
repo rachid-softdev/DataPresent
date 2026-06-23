@@ -7,6 +7,18 @@ import { API_VERSION, V1_ENDPOINTS } from "@/lib/api-versioning";
 
 export const dynamic = "force-dynamic";
 
+export async function GET() {
+  return NextResponse.json({
+    version: API_VERSION,
+    status: "stable",
+    endpoints: V1_ENDPOINTS.map((ep) => ({
+      path: ep.path,
+      methods: ep.methods,
+      description: ep.description,
+    })),
+  });
+}
+
 export async function OPTIONS() {
   return NextResponse.json({
     version: API_VERSION,

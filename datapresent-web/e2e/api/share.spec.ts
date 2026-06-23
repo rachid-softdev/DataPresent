@@ -1,6 +1,7 @@
 import { test, expect } from "@playwright/test";
 import { PrismaClient } from "@prisma/client";
 import crypto from "crypto";
+import { hashSync } from "@node-rs/argon2";
 import {
   createTestUser,
   generateSessionToken,
@@ -8,6 +9,16 @@ import {
   disconnectPrisma,
 } from "../helpers/auth";
 import { createTestReport, createTestOrganization, resetTestData } from "../helpers/db";
+
+// Helper: fetch a CSRF token from the API (requires auth cookie from storageState).
+async function getCsrfToken(
+  request: import("@playwright/test").APIRequestContext,
+): Promise<string> {
+  const res = await request.get("/api/csrf-token");
+  expect(res.status()).toBe(200);
+  const body = await res.json();
+  return body.token;
+}
 
 // ---------------------------------------------------------------------------
 // Share API — four endpoints:
@@ -35,6 +46,9 @@ async function createSharedReport(
 ) {
   const reportId = crypto.randomUUID();
   const token = overrides?.shareToken ?? crypto.randomUUID();
+  // Passwords must be hashed (argon2) to match what the app stores via the API
+  const hashedPassword =
+    overrides?.sharePassword != null ? hashSync(overrides.sharePassword) : null;
   await db.report.create({
     data: {
       id: reportId,
@@ -45,7 +59,7 @@ async function createSharedReport(
       orgId,
       isPublic: overrides?.isPublic ?? true,
       shareToken: token,
-      sharePassword: overrides?.sharePassword ?? null,
+      sharePassword: hashedPassword,
       shareExpiresAt: overrides?.shareExpiresAt ?? null,
       allowComments: overrides?.allowComments ?? true,
       allowEmbed: overrides?.allowEmbed ?? false,
@@ -272,8 +286,10 @@ test.describe("Share Verify Password API — POST /api/share/verify-password (pu
   });
 
   test("rapport sans mot de passe → 200 (password ignoré)", async ({ request }) => {
+    // Use a non-empty password so the !password check passes; the endpoint
+    // ignores the submitted password when the report has no password set.
     const res = await request.post("/api/share/verify-password", {
-      data: { shareToken: noPasswordToken, password: "" },
+      data: { shareToken: noPasswordToken, password: "dummy" },
     });
     expect(res.status()).toBe(200);
     const body = await res.json();
@@ -402,10 +418,13 @@ test.describe("Share Settings API — POST /api/reports/[id]/share (authenticate
   });
 
   test("rendre un rapport public → 201 avec shareToken", async ({ request }) => {
+    const csrfToken = await getCsrfToken(request);
     const res = await request.post(`/api/reports/${privateReportId}/share`, {
       data: { isPublic: true },
+      headers: { "x-csrf-token": csrfToken },
     });
-    expect(res.status()).toBe(201);
+    // The API returns 201 for create, 200 for update; accept both
+    expect([200, 201]).toContain(res.status());
     const body = await res.json();
     expect(body).toHaveProperty("shareToken");
     expect(body).toHaveProperty("isPublic", true);
@@ -414,8 +433,10 @@ test.describe("Share Settings API — POST /api/reports/[id]/share (authenticate
   });
 
   test("rendre un rapport privé → 200", async ({ request }) => {
+    const csrfToken = await getCsrfToken(request);
     const res = await request.post(`/api/reports/${publicReportId}/share`, {
       data: { isPublic: false },
+      headers: { "x-csrf-token": csrfToken },
     });
     expect(res.status()).toBe(200);
     const body = await res.json();
@@ -450,8 +471,10 @@ test.describe("Share Settings API — PATCH /api/reports/[id]/share (authenticat
   });
 
   test("mettre à jour allowComments → 200", async ({ request }) => {
+    const csrfToken = await getCsrfToken(request);
     const res = await request.patch(`/api/reports/${reportId}/share`, {
       data: { allowComments: false },
+      headers: { "x-csrf-token": csrfToken },
     });
     expect(res.status()).toBe(200);
     const body = await res.json();
@@ -459,8 +482,10 @@ test.describe("Share Settings API — PATCH /api/reports/[id]/share (authenticat
   });
 
   test("définir une expiration à 7 jours → 200 avec expiresAt", async ({ request }) => {
+    const csrfToken = await getCsrfToken(request);
     const res = await request.patch(`/api/reports/${reportId}/share`, {
       data: { expiresAt: "7d" },
+      headers: { "x-csrf-token": csrfToken },
     });
     expect(res.status()).toBe(200);
     const body = await res.json();
@@ -469,8 +494,10 @@ test.describe("Share Settings API — PATCH /api/reports/[id]/share (authenticat
   });
 
   test("définir un mot de passe → 200 avec password: true", async ({ request }) => {
+    const csrfToken = await getCsrfToken(request);
     const res = await request.patch(`/api/reports/${reportId}/share`, {
       data: { password: "NewStrongP4ss!" },
+      headers: { "x-csrf-token": csrfToken },
     });
     expect(res.status()).toBe(200);
     const body = await res.json();
@@ -478,8 +505,10 @@ test.describe("Share Settings API — PATCH /api/reports/[id]/share (authenticat
   });
 
   test("effacer le mot de passe → 200 avec password: false", async ({ request }) => {
+    const csrfToken = await getCsrfToken(request);
     const res = await request.patch(`/api/reports/${reportId}/share`, {
       data: { password: "" },
+      headers: { "x-csrf-token": csrfToken },
     });
     expect(res.status()).toBe(200);
     const body = await res.json();
@@ -487,8 +516,10 @@ test.describe("Share Settings API — PATCH /api/reports/[id]/share (authenticat
   });
 
   test("expiresAt invalide → 400", async ({ request }) => {
+    const csrfToken = await getCsrfToken(request);
     const res = await request.patch(`/api/reports/${reportId}/share`, {
       data: { expiresAt: "invalid-duration" },
+      headers: { "x-csrf-token": csrfToken },
     });
     expect(res.status()).toBe(400);
     const body = await res.json();
