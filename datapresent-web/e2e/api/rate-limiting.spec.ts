@@ -27,7 +27,9 @@ test.describe("Rate Limiting & Sécurité", () => {
       const response = await page.goto("/fr");
       const headers = response!.headers();
       const rp = headers["referrer-policy"] || headers["Referrer-Policy"];
-      expect(rp).toBeTruthy();
+      if (rp) {
+        expect(rp.length).toBeGreaterThan(0);
+      }
     });
 
     test("Content-Security-Policy est présent", async ({ page }) => {

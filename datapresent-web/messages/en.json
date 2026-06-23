@@ -54,7 +54,10 @@
     "login": "Log in",
     "signup": "Sign up",
     "newReport": "New",
-    "blog": "Blog"
+    "blog": "Blog",
+    "help": "Help",
+    "privacy": "Privacy",
+    "terms": "Terms"
   },
   "errors": {
     "auth": {
