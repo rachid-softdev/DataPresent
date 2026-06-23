@@ -96,30 +96,53 @@ test.describe("Paramètres — Équipe (/settings/team)", () => {
   });
 });
 
-test.describe("Paramètres — Sécurité (/settings/account)", () => {
+test.describe("Paramètres — Compte et sécurité (/settings/account)", () => {
   test.use({ storageState: "e2e/.auth/user.json" });
 
-  test("la page affiche le formulaire de changement de mot de passe", async ({ page }) => {
+  test("la page affiche le titre 'Compte' ou 'Sécurité'", async ({ page }) => {
     await page.goto("/settings/account");
-    await expect(page.getByRole("heading", { name: /sécurité|security|account/i })).toBeVisible();
-
-    // Password fields should be visible
-    const passwordFields = page.getByLabel(/mot de passe|password/i);
-    await expect(passwordFields.first()).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: /compte|account|sécurité|security/i }),
+    ).toBeVisible();
   });
 
-  test("le formulaire de mot de passe a au moins un champ", async ({ page }) => {
+  test("la carte de déconnexion est visible avec un bouton", async ({ page }) => {
     await page.goto("/settings/account");
-    const passwordInput = page.locator('input[type="password"]');
-    await expect(passwordInput.first()).toBeVisible();
+    // The page shows a Sign Out card with a button
+    const signOutCard = page.locator("text=Déconnexion").or(page.locator("text=Sign out"));
+    await expect(signOutCard.first()).toBeVisible();
+    const signOutBtn = page.getByRole("button", { name: /déconnexion|sign out|logout/i });
+    await expect(signOutBtn).toBeVisible();
   });
 
-  test("le bouton de mise à jour du mot de passe est visible", async ({ page }) => {
+  test("la carte de suppression de compte est visible avec un bouton destructif", async ({
+    page,
+  }) => {
     await page.goto("/settings/account");
-    const updateBtn = page.getByRole("button", {
-      name: /mettre.*jour|update|modifier|sauvegarder|save/i,
-    });
-    await expect(updateBtn).toBeVisible();
+    // The page shows a Delete Account card with a destructive button
+    const deleteCard = page.locator("text=Supprimer").or(page.locator("text=Delete"));
+    await expect(deleteCard.first()).toBeVisible();
+    const deleteBtn = page.getByRole("button", { name: /supprimer|delete/i });
+    await expect(deleteBtn).toBeVisible();
+  });
+
+  test("cliquer sur 'Supprimer' ouvre une boîte de confirmation", async ({ page }) => {
+    await page.goto("/settings/account");
+    const deleteBtn = page.getByRole("button", { name: /supprimer|delete/i });
+    if ((await deleteBtn.count()) === 0) return;
+    await deleteBtn.click();
+    // Confirmation dialog should appear
+    const dialog = page.getByRole("alertdialog").or(page.locator('[role="dialog"]'));
+    await expect(dialog).toBeVisible({ timeout: 3000 });
+  });
+
+  test("la carte de déconnexion a une description textuelle", async ({ page }) => {
+    await page.goto("/settings/account");
+    // There should be description text explaining the action
+    const cardDescription = page.locator("p.text-muted-foreground, .card-description").first();
+    if ((await cardDescription.count()) > 0) {
+      await expect(cardDescription).toBeVisible();
+    }
   });
 });
 

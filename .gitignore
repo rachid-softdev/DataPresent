@@ -50,3 +50,6 @@ next-env.d.ts
 # biome
 .biome/
 .playwright-cli/
+
+# Dev server logs (Playwright webServer artifacts)
+dev-server*.log

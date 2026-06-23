@@ -74,10 +74,49 @@ test.describe("API — Version info", () => {
   });
 });
 
-test.describe("API — Analytics", () => {
-  test("GET /api/analytics sans paramètres retourne 400", async ({ request }) => {
+test.describe("API — Analytics (POST /api/analytics)", () => {
+  test("POST avec event valide retourne 200", async ({ request }) => {
+    const response = await request.post("/api/analytics", {
+      data: { event: "report_exported", properties: { format: "pdf" } },
+    });
+    expect(response.status()).toBe(200);
+    const body = await response.json();
+    expect(body.success).toBe(true);
+  });
+
+  test("POST sans event retourne 400", async ({ request }) => {
+    const response = await request.post("/api/analytics", {
+      data: {},
+    });
+    expect(response.status()).toBe(400);
+    const body = await response.json();
+    expect(body).toHaveProperty("error");
+  });
+
+  test("POST avec event non autorisé retourne 403", async ({ request }) => {
+    const response = await request.post("/api/analytics", {
+      data: { event: "invalid_event" },
+    });
+    expect(response.status()).toBe(403);
+  });
+
+  test("POST avec properties invalides (tableau) retourne 400", async ({ request }) => {
+    const response = await request.post("/api/analytics", {
+      data: { event: "report_exported", properties: [1, 2, 3] },
+    });
+    expect(response.status()).toBe(400);
+  });
+
+  test("POST avec properties imbriquées retourne 400", async ({ request }) => {
+    const response = await request.post("/api/analytics", {
+      data: { event: "report_exported", properties: { nested: { a: 1 } } },
+    });
+    expect(response.status()).toBe(400);
+  });
+
+  test("GET sur /api/analytics retourne 405", async ({ request }) => {
     const response = await request.get("/api/analytics");
-    expect([400, 404]).toContain(response.status());
+    expect(response.status()).toBe(405);
   });
 });
 

@@ -30,8 +30,8 @@ export async function checkRateLimit(key: string, options?: RateLimitOptions): P
   const windowIntervalMs = windowMs;
 
   const result = await prisma.$queryRaw<Array<{ allowed: boolean }>>`
-    INSERT INTO "RateLimit" ("key", "count", "windowStart", "expires")
-    VALUES (${key}, 1, NOW(), NOW() + (${intervalMs}::double precision * interval '1 millisecond'))
+    INSERT INTO "RateLimit" ("id", "key", "count", "windowStart", "expires")
+    VALUES (gen_random_uuid()::text, ${key}, 1, NOW(), NOW() + (${intervalMs}::double precision * interval '1 millisecond'))
     ON CONFLICT ("key") DO UPDATE SET
       "count" = CASE
         WHEN "RateLimit"."windowStart" < NOW() - (${windowIntervalMs}::double precision * interval '1 millisecond') THEN 1

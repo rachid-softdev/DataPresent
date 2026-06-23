@@ -10,7 +10,7 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
+  workers: process.env.CI ? 1 : 2,
   reporter: "html",
   use: {
     baseURL: "http://localhost:3000",
@@ -29,6 +29,7 @@ export default defineConfig({
       testIgnore: [
         /auth\.setup\.ts/,
         /auth\/signout/,
+        /auth\/accept-invite/,
         /dashboard\//,
         /settings\//,
         /share\//,
@@ -38,6 +39,8 @@ export default defineConfig({
         /dashboard-nav/,
         /pages/,
         /report-creation/,
+        /responsive-dashboard/,
+        /error-boundaries/,
       ],
       use: { ...devices["Desktop Chrome"] },
     },
@@ -47,6 +50,7 @@ export default defineConfig({
       dependencies: ["setup"],
       testMatch: [
         /auth\/signout/,
+        /auth\/accept-invite/,
         /dashboard\//,
         /settings\//,
         /share\//,
@@ -57,6 +61,8 @@ export default defineConfig({
         /pages/,
         /report-creation/,
         /share/,
+        /responsive-dashboard/,
+        /error-boundaries/,
       ],
       use: {
         ...devices["Desktop Chrome"],
@@ -68,6 +74,7 @@ export default defineConfig({
       testIgnore: [
         /auth\.setup\.ts/,
         /auth\/signout/,
+        /auth\/accept-invite/,
         /dashboard\//,
         /settings\//,
         /share\//,
@@ -77,6 +84,8 @@ export default defineConfig({
         /dashboard-nav/,
         /pages/,
         /report-creation/,
+        /responsive-dashboard/,
+        /error-boundaries/,
       ],
       use: { ...devices["Desktop Firefox"] },
     },
@@ -85,6 +94,7 @@ export default defineConfig({
       testIgnore: [
         /auth\.setup\.ts/,
         /auth\/signout/,
+        /auth\/accept-invite/,
         /dashboard\//,
         /settings\//,
         /share\//,
@@ -94,13 +104,19 @@ export default defineConfig({
         /dashboard-nav/,
         /pages/,
         /report-creation/,
+        /responsive-dashboard/,
+        /error-boundaries/,
       ],
       use: { ...devices["Desktop Safari"] },
     },
     {
       name: "api",
+      dependencies: ["setup"],
       testMatch: "api/**/*.spec.ts",
-      use: { baseURL: "http://localhost:3000" },
+      use: {
+        baseURL: "http://localhost:3000",
+        storageState: "e2e/.auth/user.json",
+      },
     },
   ],
   webServer: {
@@ -108,5 +124,11 @@ export default defineConfig({
     url: "http://localhost:3000",
     reuseExistingServer: !process.env.CI,
     timeout: 120000,
+    // Override DATABASE_URL + NEXTAUTH_SECRET so the app queries the same
+    // test database that E2E helpers seed, and decodes session JWTs correctly.
+    env: {
+      DATABASE_URL: process.env.DATABASE_URL,
+      NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
+    },
   },
 });
