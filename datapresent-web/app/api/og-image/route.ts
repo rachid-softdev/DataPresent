@@ -29,6 +29,7 @@ function generateOgImage(params: {
   type: string;
 }): Response {
   // Create an ImageResponse with the design
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- ImageResponse constructor type is inaccessible from @vercel/og
   const response = new (ImageResponse as any)(
     {
       type: "div",

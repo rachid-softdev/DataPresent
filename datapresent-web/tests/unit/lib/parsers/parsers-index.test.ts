@@ -35,7 +35,7 @@ vi.mock("@/lib/parsers/gsheets", () => ({
 
 describe("parsers index", () => {
   it("should export parseFile function", async () => {
-    const module = await import("@/lib/parsers");
+    const mod = await import("@/lib/parsers");
     expect(module.parseFile).toBeDefined();
   });
 

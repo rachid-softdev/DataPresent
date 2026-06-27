@@ -38,7 +38,7 @@ for (const { key, value } of envVars) {
     const cmd = `vercel env add "${key}" production --value "${escapedValue}" --force --yes`;
     execSync(cmd, { stdio: "pipe" });
     console.log(`  ✅ ${key}`);
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.log(`  ⚠️  ${key} - ${error.message?.split("\n")[0] || "error"}`);
   }
 }

@@ -28,7 +28,7 @@ describe("org", () => {
   });
 
   it("should export ensureUserHasOrganization function", async () => {
-    const module = await import("@/lib/org");
+    const mod = await import("@/lib/org");
     expect(module.ensureUserHasOrganization).toBeDefined();
   });
 
@@ -64,7 +64,7 @@ describe("org", () => {
   });
 
   it("should export getUserOrganizations function", async () => {
-    const module = await import("@/lib/org");
+    const mod = await import("@/lib/org");
     expect(module.getUserOrganizations).toBeDefined();
   });
 

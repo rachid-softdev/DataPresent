@@ -95,7 +95,7 @@ export default function SignupPage() {
               className="app-btn app-btn-outline w-full justify-center"
             >
               <GoogleIcon className="w-5 h-5" />
-              S'inscrire avec Google
+              S&apos;inscrire avec Google
             </button>
           </div>
 
@@ -158,7 +158,7 @@ export default function SignupPage() {
         </div>
 
         <p className="text-center text-xs mt-6 text-muted-foreground/60 max-w-sm mx-auto">
-          En vous inscrivant, vous acceptez nos Conditions d'utilisation et notre Politique de
+          En vous inscrivant, vous acceptez nos Conditions d&apos;utilisation et notre Politique de
           confidentialité
         </p>
       </main>

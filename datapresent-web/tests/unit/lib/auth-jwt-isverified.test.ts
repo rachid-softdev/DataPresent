@@ -19,7 +19,6 @@ import { describe, it, expect, vi, beforeEach, beforeAll } from "vitest";
 const capturedConfigs: Array<{ callbacks: Record<string, Function> }> = [];
 
 vi.mock("next-auth", () => ({
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   default: vi.fn((config: any) => {
     capturedConfigs.push(config);
     return {

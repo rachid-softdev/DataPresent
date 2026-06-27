@@ -78,8 +78,8 @@ export function EntitlementsProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Safe: fetches entitlements on mount; setState happens inside useCallback
     fetchEntitlements();
   }, [fetchEntitlements]);
 

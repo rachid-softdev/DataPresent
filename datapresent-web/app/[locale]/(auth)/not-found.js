@@ -10,10 +10,10 @@ export default function NotFound() {
           Page non trouvée
         </h1>
         <p className="mt-2 text-gray-600 dark:text-gray-400">
-          La page que vous recherchez n'existe pas ou a été déplacée.
+          La page que vous recherchez n&apos;existe pas ou a été déplacée.
         </p>
         <Button asChild className="mt-6">
-          <Link href="/">Retour à l'accueil</Link>
+          <Link href="/">Retour à l&apos;accueil</Link>
         </Button>
       </div>
     </div>

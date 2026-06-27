@@ -35,7 +35,6 @@ const mockCaptureMessage = vi.hoisted(() => vi.fn());
 const mockFetch = vi.hoisted(() => vi.fn());
 const mockGetLimit = vi.hoisted(() => vi.fn());
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let mockWorkerProcessFn: ((job: any) => Promise<void>) | null = null;
 
 // ---------------------------------------------------------------------------

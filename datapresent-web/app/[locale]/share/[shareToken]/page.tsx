@@ -15,6 +15,7 @@ interface SlideData {
   position: number;
   title: string;
   layout: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   contentJson: any;
   speakerNotes: string | null;
   reportId: string;
@@ -47,38 +48,6 @@ function SharePageContent() {
   const [passwordRequired, setPasswordRequired] = useState(false);
   const [password, setPassword] = useState("");
   const [verifying, setVerifying] = useState(false);
-
-  useEffect(() => {
-    if (shareToken) {
-      // First get metadata to check if password is required
-      fetch(`/api/share/meta?token=${shareToken}`)
-        .then((res) => {
-          if (!res.ok) {
-            if (res.status === 404) {
-              notFound();
-            }
-            if (res.status === 410) {
-              setError(t("linkExpired"));
-            }
-            throw new Error("Failed to get meta");
-          }
-          return res.json();
-        })
-        .then((data: ShareMeta) => {
-          setMeta(data);
-          if (data.hasPassword) {
-            setPasswordRequired(true);
-            setLoading(false);
-          } else {
-            // No password required, fetch the report directly
-            checkReportAccess(shareToken, "");
-          }
-        })
-        .catch(() => {
-          notFound();
-        });
-    }
-  }, [shareToken]);
 
   const checkReportAccess = async (token: string, pwd: string) => {
     setLoading(true);
@@ -117,6 +86,39 @@ function SharePageContent() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (shareToken) {
+      // First get metadata to check if password is required
+      fetch(`/api/share/meta?token=${shareToken}`)
+        .then((res) => {
+          if (!res.ok) {
+            if (res.status === 404) {
+              notFound();
+            }
+            if (res.status === 410) {
+              setError(t("linkExpired"));
+            }
+            throw new Error("Failed to get meta");
+          }
+          return res.json();
+        })
+        .then((data: ShareMeta) => {
+          setMeta(data);
+          if (data.hasPassword) {
+            setPasswordRequired(true);
+            setLoading(false);
+          } else {
+            // No password required, fetch the report directly
+            checkReportAccess(shareToken, "");
+          }
+        })
+        .catch(() => {
+          notFound();
+        });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [shareToken]);
 
   const handlePasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

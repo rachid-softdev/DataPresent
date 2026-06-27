@@ -13,6 +13,7 @@ let purify: ReturnType<typeof DOMPurify>;
 function getPurify() {
   if (!purify) {
     const window = new JSDOM("").window;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     purify = DOMPurify(window as any);
   }
   return purify;

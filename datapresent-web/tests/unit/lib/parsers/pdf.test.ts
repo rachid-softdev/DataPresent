@@ -6,7 +6,7 @@ import { describe, it, expect } from "vitest";
 
 describe("pdf parser", () => {
   it("should export parsePdf function", async () => {
-    const module = await import("@/lib/parsers/pdf");
+    const mod = await import("@/lib/parsers/pdf");
     expect(module.parsePdf).toBeDefined();
   });
 

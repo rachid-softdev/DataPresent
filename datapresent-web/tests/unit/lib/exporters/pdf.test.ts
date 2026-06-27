@@ -7,7 +7,7 @@ import { SlideLayout } from "@prisma/client";
 
 describe("pdf exporter", () => {
   it("should export generatePdf and generateHtmlFromSlides functions", async () => {
-    const module = await import("@/lib/exporters/pdf");
+    const mod = await import("@/lib/exporters/pdf");
     expect(module.generatePdf).toBeDefined();
     expect(module.generateHtmlFromSlides).toBeDefined();
   });

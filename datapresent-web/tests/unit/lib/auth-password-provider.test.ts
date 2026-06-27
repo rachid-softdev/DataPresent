@@ -10,7 +10,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 // ---------------------------------------------------------------------------
 // Capture CredentialsProvider calls so we can test the password authorize fn
 // ---------------------------------------------------------------------------
-const capturedProviders: Array<{ id: string; authorize: Function }> = [];
+const capturedProviders: Array<{ id: string; authorize: (...args: unknown[]) => unknown }> = [];
 
 vi.mock("next-auth/providers/credentials", () => ({
   default: vi.fn((config: any) => {
@@ -61,7 +61,7 @@ vi.mock("@/lib/password", () => ({
   hashPassword: vi.fn(),
 }));
 
-let passwordAuthorize: Function | null = null;
+let passwordAuthorize: ((...args: unknown[]) => unknown) | null = null;
 
 describe("Auth — Password CredentialsProvider", () => {
   beforeAll(async () => {

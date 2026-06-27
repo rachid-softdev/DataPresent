@@ -24,6 +24,7 @@ export function shouldConvertToNumber(v: string): boolean {
 }
 
 export async function parseGoogleSheet(spreadsheetId: string): Promise<ParsedData> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const sheets = google.sheets({ version: "v4", auth: (await auth.getClient()) as any });
 
   const spreadsheet = await sheets.spreadsheets.get({

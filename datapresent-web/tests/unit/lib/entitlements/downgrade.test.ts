@@ -42,12 +42,12 @@ describe("downgrade service", () => {
   });
 
   it("should export downgradeService", async () => {
-    const module = await import("@/lib/entitlements/downgrade");
+    const mod = await import("@/lib/entitlements/downgrade");
     expect(module.downgradeService).toBeDefined();
   });
 
   it("should export convenience functions", async () => {
-    const module = await import("@/lib/entitlements/downgrade");
+    const mod = await import("@/lib/entitlements/downgrade");
     expect(module.getDowngradePreview).toBeDefined();
     expect(module.getDowngradeInfo).toBeDefined();
     expect(module.applyDowngrade).toBeDefined();

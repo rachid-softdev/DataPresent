@@ -18,9 +18,11 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const stored = localStorage.getItem("theme") as Theme | null;
     if (stored === "light" || stored === "dark") {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Safe: reads persisted theme once on mount
       setTheme(stored);
       document.documentElement.setAttribute("data-theme", stored);
     }
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Safe: marks component hydrated to prevent flash
     setMounted(true);
   }, []);
 

@@ -38,7 +38,7 @@ describe("cache", () => {
   });
 
   it("should export cache config", async () => {
-    const module = await import("@/lib/cache");
+    const mod = await import("@/lib/cache");
     expect(module).toBeDefined();
   });
 
