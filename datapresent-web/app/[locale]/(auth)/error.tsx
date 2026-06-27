@@ -30,10 +30,10 @@ export default function Error({
           </div>
 
           <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground mb-3">
-            Erreur d'authentification
+            Erreur d&apos;authentification
           </h1>
           <p className="text-muted-foreground text-lg mb-8 max-w-sm mx-auto">
-            Une erreur s'est produite lors de la connexion. Veuillez réessayer.
+            Une erreur s&apos;est produite lors de la connexion. Veuillez réessayer.
           </p>
 
           {process.env.NODE_ENV === "development" && (

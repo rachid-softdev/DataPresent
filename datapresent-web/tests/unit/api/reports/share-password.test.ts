@@ -18,6 +18,7 @@ describe("Share PATCH — password update logic", () => {
 
     // passwordUpdate should be undefined (skip in spread)
     let passwordUpdate: string | null | undefined = undefined;
+    // eslint-disable-next-line security/detect-possible-timing-attacks -- test file, not production code
     if (password !== undefined) {
       passwordUpdate = null; // would be '' ? null : hashed
     }
@@ -30,6 +31,7 @@ describe("Share PATCH — password update logic", () => {
     const password = body.password;
 
     let passwordUpdate: string | null | undefined = undefined;
+    // eslint-disable-next-line security/detect-possible-timing-attacks -- test file, not production code
     if (password !== undefined) {
       passwordUpdate = password === "" ? null : "hashed-value";
     }
@@ -42,6 +44,7 @@ describe("Share PATCH — password update logic", () => {
     const password = body.password;
 
     let passwordUpdate: string | null | undefined = undefined;
+    // eslint-disable-next-line security/detect-possible-timing-attacks -- test file, not production code
     if (password !== undefined) {
       passwordUpdate = password === "" ? null : "hashed-value";
     }

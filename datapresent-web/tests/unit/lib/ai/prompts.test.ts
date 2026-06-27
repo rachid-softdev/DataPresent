@@ -6,7 +6,7 @@ import { describe, it, expect } from "vitest";
 
 describe("ai prompts", () => {
   it("should export buildAnalysisPrompt function", async () => {
-    const module = await import("@/lib/ai/prompts");
+    const mod = await import("@/lib/ai/prompts");
     expect(module.buildAnalysisPrompt).toBeDefined();
   });
 

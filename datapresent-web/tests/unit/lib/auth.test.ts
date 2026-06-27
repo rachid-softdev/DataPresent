@@ -47,7 +47,7 @@ describe("auth", () => {
   });
 
   it("should export auth handlers", async () => {
-    const module = await import("@/lib/auth");
+    const mod = await import("@/lib/auth");
     expect(module).toBeDefined();
     expect(module.handlers).toBeDefined();
     expect(module.auth).toBeDefined();

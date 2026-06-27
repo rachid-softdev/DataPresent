@@ -15,7 +15,7 @@ import {
 
 interface LineChartSlideProps {
   content: {
-    data?: Array<{ name: string; value?: number; [key: string]: any }>;
+    data?: Array<{ name: string; value?: number; [key: string]: unknown }>;
     title?: string;
     subtitle?: string;
     yAxisLabel?: string;

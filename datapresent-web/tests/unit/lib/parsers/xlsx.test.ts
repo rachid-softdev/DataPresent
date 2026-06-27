@@ -55,7 +55,7 @@ describe("xlsx parser", () => {
   });
 
   it("should export parseXlsx function", async () => {
-    const module = await import("@/lib/parsers/xlsx");
+    const mod = await import("@/lib/parsers/xlsx");
     expect(module.parseXlsx).toBeDefined();
   });
 

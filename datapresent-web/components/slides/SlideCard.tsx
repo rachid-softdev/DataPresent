@@ -38,7 +38,10 @@ interface SlideCardProps {
   slide: Slide;
 }
 
-const layoutComponents: Record<SlideLayout, React.ComponentType<{ content: any }>> = {
+const layoutComponents: Record<
+  SlideLayout,
+  React.ComponentType<{ content: Record<string, unknown> }>
+> = {
   TITLE_SLIDE: TitleSlide,
   KPI_GRID: KpiGrid,
   BAR_CHART: BarChartSlide,
@@ -70,7 +73,7 @@ export const SlideCard = memo(function SlideCard({ slide }: SlideCardProps) {
         <h3 className="text-xl font-semibold text-primary-foreground">{slide.title}</h3>
       </div>
       <div className="p-8">
-        <LayoutComponent content={slide.contentJson} />
+        <LayoutComponent content={slide.contentJson as Record<string, unknown>} />
       </div>
       {slide.speakerNotes && (
         <div className="bg-yellow-50 dark:bg-yellow-900/20 border-t border-border px-8 py-4">

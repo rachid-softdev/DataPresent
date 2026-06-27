@@ -323,7 +323,6 @@ describe("Downgrade detection in customer.subscription.updated", () => {
     const currentSub = undefined;
     const plan = "FREE";
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- undefined sub requires any for property access
     const isDowngrade =
       currentSub && (currentSub as any).plan !== "FREE" && plan !== (currentSub as any).plan;
     // undefined && ... evaluates to undefined (falsy), which means "no downgrade detected"

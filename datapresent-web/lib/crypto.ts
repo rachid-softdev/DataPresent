@@ -30,6 +30,7 @@ export function verifyJobSignature(data: Record<string, unknown>, signature: str
 export function extractSignedJobData<T extends Record<string, unknown>>(
   jobData: T & { signature?: string },
 ): { valid: boolean; cleanData: T } {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { signature, ...cleanData } = jobData as any;
   if (!signature) return { valid: false, cleanData: cleanData as T };
   const valid = verifyJobSignature(cleanData as Record<string, unknown>, signature);

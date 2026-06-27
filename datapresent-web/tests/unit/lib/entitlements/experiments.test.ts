@@ -90,7 +90,7 @@ describe("Experiments", () => {
     it("should return false when bucket is above percentage", () => {
       // Create users until we find one with high bucket
       let inExperiment = false;
-      let bucket = 0;
+      const bucket = 0;
 
       // With 0%, no one should be in experiment
       inExperiment = isInExperimentBucket("SEED", "user-1", 0);

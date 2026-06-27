@@ -22,6 +22,13 @@ const eslintConfig = defineConfig([
       "@typescript-eslint/no-explicit-any": "off",
     },
   },
+  // Script files: allow `require()` since these are Node.js scripts not in the Next.js build
+  {
+    files: ["scripts/**/*.js"],
+    rules: {
+      "@typescript-eslint/no-require-imports": "off",
+    },
+  },
   {
     rules: {
       "security/detect-object-injection": "warn",

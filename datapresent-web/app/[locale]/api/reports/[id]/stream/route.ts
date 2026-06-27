@@ -81,7 +81,7 @@ export async function GET(req: NextRequest) {
       // Timeout to prevent leaked connections from silent disconnects
       const connectionTimeout = setTimeout(cleanup, 5 * 60 * 1000);
 
-      const sendEvent = (event: string, data: any) => {
+      const sendEvent = (event: string, data: unknown) => {
         try {
           controller.enqueue(encoder.encode(`event: ${event}\n`));
           controller.enqueue(encoder.encode(`data: ${JSON.stringify(data)}\n\n`));

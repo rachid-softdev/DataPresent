@@ -37,7 +37,6 @@ const mockLimitReachedError = vi.hoisted(() => {
   };
 });
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let capturedWorkerProcessFn: ((job: any) => Promise<void>) | null = null;
 const mockWorkerConstructor = vi.hoisted(() => vi.fn());
 

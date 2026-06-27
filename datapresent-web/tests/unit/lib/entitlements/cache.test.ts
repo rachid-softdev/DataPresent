@@ -17,7 +17,7 @@ describe.skip("entitlements cache", () => {
   });
 
   it("should export cache functions", async () => {
-    const module = await import("@/lib/entitlements/cache");
+    const mod = await import("@/lib/entitlements/cache");
     expect(module.getCachedEntitlements).toBeDefined();
     expect(module.setCachedEntitlements).toBeDefined();
     expect(module.invalidateEntitlementsCache).toBeDefined();

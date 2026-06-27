@@ -33,7 +33,7 @@ export default function Error({
             Rapport introuvable
           </h1>
           <p className="text-muted-foreground text-lg mb-8 max-w-sm mx-auto">
-            Ce lien de partage n'existe pas ou a été supprimé.
+            Ce lien de partage n&apos;existe pas ou a été supprimé.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
@@ -49,7 +49,7 @@ export default function Error({
               className="inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-surface text-surface-foreground px-6 py-3 font-medium transition-colors hover:bg-muted hover:scale-105"
             >
               <Home className="w-4 h-4" />
-              Retour à l'accueil
+              Retour à l&apos;accueil
             </Link>
           </div>
         </div>

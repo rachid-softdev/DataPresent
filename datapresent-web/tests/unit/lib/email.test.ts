@@ -42,12 +42,12 @@ describe("email", () => {
   });
 
   it("should export sendMagicLinkEmail function", async () => {
-    const module = await import("@/lib/email");
+    const mod = await import("@/lib/email");
     expect(module.sendMagicLinkEmail).toBeDefined();
   });
 
   it("should export sendWelcomeEmail function", async () => {
-    const module = await import("@/lib/email");
+    const mod = await import("@/lib/email");
     expect(module.sendWelcomeEmail).toBeDefined();
   });
 

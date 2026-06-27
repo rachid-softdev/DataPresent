@@ -23,6 +23,7 @@ export function DataPreview({ file }: DataPreviewProps) {
 
   useEffect(() => {
     if (!file) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Safe: resets preview state when file is cleared
       setData(null);
       setError(null);
       return;
@@ -30,6 +31,7 @@ export function DataPreview({ file }: DataPreviewProps) {
 
     const ext = file.name.split(".").pop()?.toLowerCase();
     if (ext === "pdf") {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Safe: derived state based on file extension
       setData(null);
       setError(null);
       return;

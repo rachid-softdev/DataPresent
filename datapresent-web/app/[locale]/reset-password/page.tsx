@@ -26,6 +26,7 @@ function ResetPasswordContent() {
 
   useEffect(() => {
     if (!token) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Safe: only runs once on mount to validate token
       setError("Token de réinitialisation manquant");
       return;
     }
@@ -46,6 +47,7 @@ function ResetPasswordContent() {
       return;
     }
 
+    // eslint-disable-next-line security/detect-possible-timing-attacks -- Safe: both values are client-side user inputs, not secrets
     if (password !== confirmPassword) {
       setError("Les mots de passe ne correspondent pas");
       return;

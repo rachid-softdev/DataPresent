@@ -45,7 +45,7 @@ vi.mock("next/server", () => ({
 
 describe("entitlements middleware", () => {
   it("should export middleware functions", async () => {
-    const module = await import("@/lib/entitlements/middleware");
+    const mod = await import("@/lib/entitlements/middleware");
     expect(module).toBeDefined();
   });
 });

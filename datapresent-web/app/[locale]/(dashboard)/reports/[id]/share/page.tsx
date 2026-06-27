@@ -159,7 +159,7 @@ export default function SharePage({ params }: { params: Promise<{ id: string }> 
     <div className="max-w-2xl mx-auto">
       <div className="mb-8">
         <h1 className="app-heading app-heading-xl">Paramètres de partage</h1>
-        <p className="app-page-desc mt-1">Gérez l'accès public à votre rapport</p>
+        <p className="app-page-desc mt-1">Gérez l&apos;accès public à votre rapport</p>
       </div>
 
       <div className="space-y-6">
@@ -208,7 +208,7 @@ export default function SharePage({ params }: { params: Promise<{ id: string }> 
 
             {settings?.isPublic && embedUrl && (
               <div>
-                <Label className="mb-2 block">Lien d'intégration (iframe)</Label>
+                <Label className="mb-2 block">Lien d&apos;intégration (iframe)</Label>
                 <div className="flex gap-2">
                   <Input readOnly value={embedUrl} className="flex-1 font-mono text-sm" />
                   <Button
@@ -282,9 +282,9 @@ export default function SharePage({ params }: { params: Promise<{ id: string }> 
                 <div className="flex items-center gap-3">
                   <Link2 className="w-5 h-5 text-muted-foreground" />
                   <div>
-                    <p className="font-medium">Autoriser l'intégration (iframe)</p>
+                    <p className="font-medium">Autoriser l&apos;intégration (iframe)</p>
                     <p className="text-sm text-muted-foreground">
-                      Permet d'intégrer le rapport sur un site externe
+                      Permet d&apos;intégrer le rapport sur un site externe
                     </p>
                   </div>
                 </div>

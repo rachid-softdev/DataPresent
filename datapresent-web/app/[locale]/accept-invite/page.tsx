@@ -26,17 +26,6 @@ function AcceptInviteContent() {
     role: string;
   } | null>(null);
 
-  useEffect(() => {
-    if (!token) {
-      setError("Token d'invitation manquant");
-      setLoading(false);
-      return;
-    }
-
-    // Check if user is logged in - if not, redirect to login with invite token
-    checkSessionAndAcceptInvite();
-  }, [token]);
-
   const checkSessionAndAcceptInvite = async () => {
     try {
       // First check if user is logged in
@@ -75,6 +64,19 @@ function AcceptInviteContent() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (!token) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Safe: only runs once on mount to validate token
+      setError("Token d'invitation manquant");
+      setLoading(false);
+      return;
+    }
+
+    // Check if user is logged in - if not, redirect to login with invite token
+    checkSessionAndAcceptInvite();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token]);
 
   if (loading) {
     return (

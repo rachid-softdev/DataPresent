@@ -44,6 +44,7 @@ export function SharePageClient({ initialData }: { initialData: Omit<ReportData,
   useEffect(() => {
     // If no password required, show report directly
     if (!initialData.hasPassword) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Safe: initializes report from server data once
       setReport(initialData as ReportData);
       setLoading(false);
     } else {
@@ -167,6 +168,7 @@ export function SharePageClient({ initialData }: { initialData: Omit<ReportData,
         <div className="space-y-8">
           {report.slides.map((slide) => (
             <div key={slide.id} className="relative bg-card rounded-lg border p-6 shadow-sm">
+              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
               <SlideCard slide={slide as any} />
               {report.isWatermarked && <Watermark show={report.isWatermarked} />}
             </div>
