@@ -102,7 +102,7 @@
     "@vitejs/plugin-react": "^6.0.2",
     "@vitest/coverage-v8": "^4.1.7",
     "dotenv": "^17.0.0",
-    "eslint": "^9",
+    "eslint": "^10",
     "eslint-config-next": "16.2.7",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-security": "^3.0.1",
