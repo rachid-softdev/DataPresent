@@ -1,16 +1,16 @@
-import { auth } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
-import { ensureUserHasOrganization } from "@/lib/org";
+import { ChevronRight } from "lucide-react";
+import dynamic from "next/dynamic";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
-import Link from "next/link";
-import dynamic from "next/dynamic";
+import { IntelligentEmptyState } from "@/components/onboarding/IntelligentEmptyState";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { IntelligentEmptyState } from "@/components/onboarding/IntelligentEmptyState";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ChevronRight } from "lucide-react";
+import { auth } from "@/lib/auth";
+import { ensureUserHasOrganization } from "@/lib/org";
+import { prisma } from "@/lib/prisma";
 
 const UsageCard = dynamic(
   () => import("@/components/usage/UsageCard").then((m) => ({ default: m.UsageCard })),

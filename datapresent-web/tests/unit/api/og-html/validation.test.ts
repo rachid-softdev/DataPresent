@@ -17,7 +17,7 @@
 // is the .slice() call. The > N checks are defense-in-depth but unreachable
 // with the current code structure.
 
-import { describe, it, expect, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 // ---------------------------------------------------------------------------
 // Mock NextRequest

@@ -9,8 +9,8 @@
 // - Redirects to /login on error
 // - Shows error state on missing token
 
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 // ---------------------------------------------------------------------------
 // Mocks

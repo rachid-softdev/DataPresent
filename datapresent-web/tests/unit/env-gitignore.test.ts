@@ -6,9 +6,9 @@
 // Tests that .env.production is properly listed in .gitignore
 // to prevent accidental commits of production environment secrets.
 
-import { describe, it, expect } from "vitest";
 import fs from "fs";
 import path from "path";
+import { describe, expect, it } from "vitest";
 
 describe(".gitignore contains .env.production (Fix #9)", () => {
   const gitignorePath = path.resolve(__dirname, "../../.gitignore");

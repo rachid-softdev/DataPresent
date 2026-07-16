@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 
 test.describe("Page embed — /embed/[shareToken]", () => {
   test("un token d'embed invalide affiche 404", async ({ page }) => {

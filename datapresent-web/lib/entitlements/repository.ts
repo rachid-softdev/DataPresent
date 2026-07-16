@@ -2,19 +2,18 @@
 // Entitlement Repository - Interface & Implementation
 // ==========================================
 
-import { prisma } from "@/lib/prisma";
-import { Prisma } from "@prisma/client";
 import type {
-  Plan,
-  Subscription,
-  Feature,
-  PlanFeature,
   EntitlementOverride,
+  Feature,
+  Plan,
+  PlanFeature,
+  Subscription,
   UsageTracking,
   WebhookEvent,
 } from "@prisma/client";
-import type { FeatureKey, ExperimentConfig } from "./types";
-import type { ConsumeResult, ConsumeSuccess } from "./types";
+import { Prisma } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
+import type { ConsumeResult, ConsumeSuccess, ExperimentConfig, FeatureKey } from "./types";
 
 // ==========================================
 // Interface

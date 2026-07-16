@@ -1,14 +1,14 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, ChevronRight, MessageSquare, List, X } from "lucide-react";
+import type { Slide } from "@prisma/client";
+import { AnimatePresence, motion } from "framer-motion";
+import { ChevronLeft, ChevronRight, List, MessageSquare, X } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import { toast } from "sonner";
+import { CommentThread } from "@/components/comments/CommentThread";
+import { Button } from "@/components/ui/button";
 import { SlideCard } from "./SlideCard";
 import { SortableSlideList } from "./SortableSlideList";
-import { CommentThread } from "@/components/comments/CommentThread";
-import type { Slide } from "@prisma/client";
-import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
 
 interface SlideViewerProps {
   slides: Slide[];

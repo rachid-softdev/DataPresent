@@ -2,15 +2,15 @@
 // FeatureGateService Tests
 // ==========================================
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
 import type {
-  Plan,
-  Subscription,
-  Feature,
-  PlanFeature,
   EntitlementOverride,
+  Feature,
+  Plan,
+  PlanFeature,
+  Subscription,
   UsageTracking,
 } from "@prisma/client";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // Use vi.hoisted to properly mock modules
 const { mockCache, mockRepository } = vi.hoisted(() => {

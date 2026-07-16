@@ -2,7 +2,7 @@
 // Plan Utils Tests
 // ==========================================
 
-import { describe, it, expect, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 // Mock env to prevent module-level schema validation at import time
 vi.mock("@/env", () => ({

@@ -1,5 +1,5 @@
-import { prisma } from "@/lib/prisma";
 import crypto from "node:crypto";
+import { prisma } from "@/lib/prisma";
 
 export async function ensureUserHasOrganization(userId: string, email: string) {
   const membership = await prisma.membership.findFirst({

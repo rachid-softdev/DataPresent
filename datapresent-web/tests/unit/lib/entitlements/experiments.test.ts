@@ -2,7 +2,7 @@
 // Experiments (A/B Testing) Tests
 // ==========================================
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // Mock the dependencies that have LRUCache issues
 vi.mock("@/lib/entitlements/cache", () => ({
@@ -33,10 +33,10 @@ vi.mock("@/lib/entitlements/feature-gate", () => ({
 }));
 
 import {
-  getExperimentBucket,
-  isInExperimentBucket,
   calculateExperimentDistribution,
   getDistributionStats,
+  getExperimentBucket,
+  isInExperimentBucket,
 } from "@/lib/entitlements/experiments";
 
 describe("Experiments", () => {

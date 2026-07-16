@@ -1,17 +1,17 @@
+import { FileType } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
-import { uploadToR2 } from "@/lib/r2";
-import { isValidSector, VALID_SECTORS } from "@/lib/sector";
-import { getGenerateQueue } from "@/lib/queue";
 import { canConsume, getLimit } from "@/lib/entitlements/feature-gate";
-import { checkRateLimit } from "@/lib/rate-limit";
+import { badRequest, ERROR_CODES, unauthorized } from "@/lib/errors";
+import { prisma } from "@/lib/prisma";
+import { getGenerateQueue } from "@/lib/queue";
 import { signJobData } from "@/lib/queue/job-security";
-import { ERROR_CODES, unauthorized, badRequest } from "@/lib/errors";
+import { uploadToR2 } from "@/lib/r2";
+import { checkRateLimit } from "@/lib/rate-limit";
+import { isValidSector, VALID_SECTORS } from "@/lib/sector";
 import { withCsrfProtection } from "@/lib/security/csrf-middleware";
 import { logApiError } from "@/lib/security/error-logger";
 import { validateMagicBytes } from "@/lib/upload-validation";
-import { FileType } from "@prisma/client";
 
 export async function POST(req: NextRequest) {
   const session = await auth();

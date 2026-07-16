@@ -3,7 +3,7 @@
 // API Keys Tests
 // ==========================================
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const { mockPrisma } = vi.hoisted(() => ({
   mockPrisma: {

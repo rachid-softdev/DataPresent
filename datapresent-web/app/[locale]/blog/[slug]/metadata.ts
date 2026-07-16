@@ -1,5 +1,5 @@
-import { Metadata } from "next";
 import { readFileSync } from "fs";
+import { Metadata } from "next";
 import { join } from "path";
 import type { BlogPost } from "@/lib/blog/types";
 

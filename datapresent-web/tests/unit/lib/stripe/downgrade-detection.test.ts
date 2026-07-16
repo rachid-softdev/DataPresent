@@ -11,7 +11,7 @@
 // The fix: remove the `plan !== 'FREE'` restriction so that PRO→FREE
 // IS correctly identified as a downgrade.
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // ---------------------------------------------------------------------------
 // Mock dependencies needed to import stripe-webhook-handler
@@ -67,11 +67,11 @@ vi.mock("@/lib/prisma", () => ({
   },
 }));
 
+import Stripe from "stripe";
 // ---------------------------------------------------------------------------
 // Import the handler
 // ---------------------------------------------------------------------------
 import { processWebhookEvent } from "@/lib/stripe-webhook-handler";
-import Stripe from "stripe";
 
 describe("Downgrade detection in customer.subscription.updated", () => {
   beforeEach(() => {

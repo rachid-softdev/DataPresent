@@ -1,8 +1,8 @@
 export {
   Card,
-  CardHeader,
-  CardTitle,
   CardContent,
   CardDescription,
   CardFooter,
+  CardHeader,
+  CardTitle,
 } from "@datapresent/ui";

@@ -3,9 +3,9 @@
  * Run: npm run push:env
  */
 
+import { execSync } from "child_process";
 import fs from "fs";
 import path from "path";
-import { execSync } from "child_process";
 
 // Parse .env.production.local directly
 const envFilePath = path.resolve(process.cwd(), ".env.production.local");

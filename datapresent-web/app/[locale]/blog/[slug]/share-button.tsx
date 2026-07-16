@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { Check, Link2, Share2 } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Share2, Check, Link2 } from "lucide-react";
 
 interface ShareButtonProps {
   title: string;

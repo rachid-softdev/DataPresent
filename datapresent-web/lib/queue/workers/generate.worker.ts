@@ -1,13 +1,13 @@
-import { Worker, Job, type ConnectionOptions } from "bullmq";
-import { prisma } from "@/lib/prisma";
-import { parseFile } from "@/lib/parsers";
+import { type ConnectionOptions, Job, Worker } from "bullmq";
 import { analyzeWithClaude } from "@/lib/ai/analyze";
-import { getSignedDownloadUrl } from "@/lib/r2";
-import { getRedisConnectionAsync } from "@/lib/redis";
-import { extractSignedJobData } from "../job-security";
-import { captureException, captureMessage } from "@/lib/sentry";
 import { getLimit } from "@/lib/entitlements/feature-gate";
 import { logger } from "@/lib/logger";
+import { parseFile } from "@/lib/parsers";
+import { prisma } from "@/lib/prisma";
+import { getSignedDownloadUrl } from "@/lib/r2";
+import { getRedisConnectionAsync } from "@/lib/redis";
+import { captureException, captureMessage } from "@/lib/sentry";
+import { extractSignedJobData } from "../job-security";
 
 // Retry configuration
 const MAX_RETRIES = 3;

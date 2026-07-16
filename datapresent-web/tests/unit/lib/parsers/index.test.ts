@@ -2,7 +2,7 @@
 // Parsers Tests
 // ==========================================
 
-import { describe, it, expect, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 // Mock the individual parsers
 vi.mock("@/lib/parsers/xlsx", () => ({
@@ -33,7 +33,7 @@ vi.mock("@/lib/parsers/gsheets", () => ({
   }),
 }));
 
-import { parseFile, ParsedData } from "@/lib/parsers/index";
+import { ParsedData, parseFile } from "@/lib/parsers/index";
 
 describe("parsers", () => {
   describe("parseFile", () => {

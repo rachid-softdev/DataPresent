@@ -1,9 +1,9 @@
 "use client";
 
+import { ArrowLeft, Home, Search } from "lucide-react";
 import Link from "next/link";
-import { Home, Search, ArrowLeft } from "lucide-react";
-import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
+import { Header } from "@/components/layout/header";
 
 export default function NotFound() {
   return (

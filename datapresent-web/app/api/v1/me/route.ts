@@ -4,9 +4,9 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
 import { toUserDTO } from "@/lib/dto";
-import { unauthorized, notFound, ERROR_CODES } from "@/lib/errors";
+import { ERROR_CODES, notFound, unauthorized } from "@/lib/errors";
+import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 

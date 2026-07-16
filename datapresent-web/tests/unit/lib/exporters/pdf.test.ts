@@ -3,8 +3,8 @@
 // PDF Exporter Tests
 // ==========================================
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
 import { SlideLayout } from "@prisma/client";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 describe("pdf exporter", () => {
   it("should export generatePdf and generateHtmlFromSlides functions", async () => {

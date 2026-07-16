@@ -7,7 +7,7 @@
 // - Returns undefined when REDIS_TLS_ENABLED=false
 // - Supports custom CA and rejectUnauthorized
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // We test the behavior by mocking env and checking that getRedisConnection
 // calls IORedis with/without tls options

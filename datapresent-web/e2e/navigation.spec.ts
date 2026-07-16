@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 
 test.describe("Navigation cross-pages", () => {
   test("navigation de l'accueil vers les tarifs via 'Voir tous les forfaits'", async ({ page }) => {

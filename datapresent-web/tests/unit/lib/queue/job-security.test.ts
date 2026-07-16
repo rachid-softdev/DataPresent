@@ -3,7 +3,7 @@
 // Job Security Tests
 // ==========================================
 
-import { describe, it, expect, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 // Mock crypto.randomBytes for consistent testing
 vi.mock("crypto", async () => {
@@ -13,7 +13,7 @@ vi.mock("crypto", async () => {
   };
 });
 
-import { signJobData, verifyJobSignature, extractSignedJobData } from "@/lib/queue/job-security";
+import { extractSignedJobData, signJobData, verifyJobSignature } from "@/lib/queue/job-security";
 
 describe("job-security", () => {
   describe("signJobData", () => {

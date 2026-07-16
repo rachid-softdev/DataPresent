@@ -10,7 +10,7 @@
 // - generateToken() produces hex tokens
 // - Timing-safe comparison
 
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 
 // Import from the worker-common package (via vitest alias)
 const cryptoPath = "@datapresent/worker-common/crypto";

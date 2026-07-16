@@ -16,7 +16,7 @@
 //
 // We extract and test the version increment logic in isolation.
 
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 describe("Atomic Version Increment (Fix 6)", () => {
   // ========================================================================

@@ -8,8 +8,8 @@
 // - Uses net.isIP() for validation
 // - Rejects empty/newlines
 
-import { describe, it, expect } from "vitest";
 import { NextRequest } from "next/server";
+import { describe, expect, it } from "vitest";
 import { extractClientIP } from "@/lib/client-ip";
 
 function createRequest(headers: Record<string, string>): NextRequest {

@@ -1,7 +1,7 @@
-import { getTranslations } from "next-intl/server";
 import { readFileSync } from "fs";
-import { join } from "path";
 import { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
+import { join } from "path";
 import { BlogCard } from "@/components/blog/blog-card";
 import { BlogHeader } from "@/components/blog/blog-header";
 import type { BlogPost } from "@/lib/blog/types";

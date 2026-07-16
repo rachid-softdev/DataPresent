@@ -1,16 +1,16 @@
 "use client";
 
 import {
-  LineChart as RechartsLineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  Legend,
   Area,
   AreaChart,
+  CartesianGrid,
+  Legend,
+  Line,
+  LineChart as RechartsLineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
 } from "recharts";
 
 interface LineChartSlideProps {

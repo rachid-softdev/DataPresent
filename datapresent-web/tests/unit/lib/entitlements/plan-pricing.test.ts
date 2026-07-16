@@ -12,7 +12,7 @@
 // Tests must stub all required env vars before dynamically importing
 // plan-pricing. The same required stubs are defined in tests/setup.ts.
 
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 describe("Plan Pricing (plan-pricing.ts)", () => {
   beforeEach(() => {

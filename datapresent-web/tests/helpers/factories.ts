@@ -1,4 +1,4 @@
-import type { PrismaClient, Plan, Sector } from "@prisma/client";
+import type { Plan, PrismaClient, Sector } from "@prisma/client";
 import crypto from "crypto";
 
 // ---------------------------------------------------------------------------

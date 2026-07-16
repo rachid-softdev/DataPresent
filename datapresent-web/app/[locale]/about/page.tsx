@@ -1,8 +1,8 @@
 import "@/app/landing.css";
 
+import { ArrowRight } from "lucide-react";
 import { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 
 interface AboutPageProps {

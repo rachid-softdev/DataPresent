@@ -3,7 +3,7 @@
 // XLSX Parser Tests
 // ==========================================
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // Mock helpers for ExcelJS worksheet/row/cell objects
 function createCell(value: unknown) {

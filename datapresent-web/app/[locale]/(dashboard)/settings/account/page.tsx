@@ -1,14 +1,14 @@
 "use client";
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
 import { signOut } from "next-auth/react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { useTranslations } from "next-intl";
+import { useState } from "react";
 import { toast } from "sonner";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 
 export default function AccountPage() {
   const router = useRouter();

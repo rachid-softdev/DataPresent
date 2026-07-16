@@ -7,7 +7,7 @@
 // - Returns 429 for 4th connection
 // - Cleans up on abort
 
-import { describe, it, expect, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 
 // We test the SSE connection tracking logic directly (module-level Map).
 describe("SSE connection limit logic", () => {

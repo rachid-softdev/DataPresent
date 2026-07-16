@@ -7,7 +7,7 @@
 // - Character type diversity (upper, lower, digit, special)
 // - Old < 8 char passwords now correctly rejected
 
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { isPasswordValid } from "@/lib/password";
 
 describe("Password Reset Security", () => {

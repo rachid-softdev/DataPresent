@@ -9,7 +9,7 @@
 // - Different users have independent rate limits
 // - Rate limit passes when under limit
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // ---------------------------------------------------------------------------
 // Mock setup — all mock variables must use vi.hoisted
@@ -104,7 +104,7 @@ vi.mock("@/env", () => ({
 // ---------------------------------------------------------------------------
 // Import the module under test (after mocks are set up)
 // ---------------------------------------------------------------------------
-import { POST, PATCH } from "@/app/[locale]/api/reports/[id]/share/route";
+import { PATCH, POST } from "@/app/[locale]/api/reports/[id]/share/route";
 
 /**
  * Create a mock params object for the share route

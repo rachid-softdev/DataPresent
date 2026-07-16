@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 
 // Note: These tests assume the user is authenticated via the test authentication
 // In a real scenario, you would use authenticated session storage or test tokens

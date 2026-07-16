@@ -1,7 +1,7 @@
 // Re-exports from the shared crypto module
 // Kept for backward compatibility
 export {
+  extractSignedJobData,
   signJobData,
   verifyJobSignature,
-  extractSignedJobData,
 } from "@/lib/crypto";

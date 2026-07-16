@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 
 /**
  * Accessibilité — Audit manuel complet (sans dépendance à @axe-core/playwright)

@@ -10,7 +10,7 @@
 // The CSRF middleware itself is tested in lib/security/csrf-middleware.test.ts.
 // These tests verify route-level integration for the reports DELETE handler.
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // ---------------------------------------------------------------------------
 // Mock setup — all mock variables must use vi.hoisted

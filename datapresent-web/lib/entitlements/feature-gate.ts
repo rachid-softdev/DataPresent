@@ -3,25 +3,25 @@
 // ==========================================
 
 import type {
+  EntitlementOverride,
+  Feature,
+  FeatureType,
   Plan,
   SubscriptionStatus,
-  FeatureType,
-  Feature,
-  EntitlementOverride,
   UsageTracking,
 } from "@prisma/client";
+import { entitlementsCache } from "./cache";
+import { getExperimentConfig, isInExperiment } from "./experiments";
 import type { PlanFeatureWithFeature } from "./repository";
+import { entitlementRepository } from "./repository";
 import type {
-  EntitlementMap,
-  DebugTrace,
-  ResolutionSource,
   ConsumeResult,
+  DebugTrace,
+  EntitlementMap,
   ExperimentConfig,
   FeatureKey,
+  ResolutionSource,
 } from "./types";
-import { entitlementRepository } from "./repository";
-import { entitlementsCache } from "./cache";
-import { isInExperiment, getExperimentConfig } from "./experiments";
 
 // ==========================================
 // Feature Gate Service Class

@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 
 // Use native fetch (no auth cookie) for unauthenticated tests.
 const BASE = "http://localhost:3000";

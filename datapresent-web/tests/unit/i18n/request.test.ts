@@ -3,7 +3,7 @@
 // i18n Request Tests
 // ==========================================
 
-import { describe, it, expect, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 // Mock next-intl/server
 vi.mock("next-intl/server", () => ({

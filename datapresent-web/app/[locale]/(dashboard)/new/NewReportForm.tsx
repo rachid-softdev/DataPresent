@@ -1,22 +1,22 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { DropZone } from "@/components/upload/DropZone";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { InlineHelp } from "@/components/ui/inline-help";
 import { DataPreview } from "@/components/upload/DataPreview";
-import { SectorSelector } from "@/components/upload/SectorSelector";
-import { SlideCountSlider } from "@/components/upload/SlideCountSlider";
-import { Stepper, useReportSteps } from "@/components/upload/Stepper";
+import { DropZone } from "@/components/upload/DropZone";
 import { FlowContainer } from "@/components/upload/FlowContainer";
 import { GenerationProgress, useGenerationSubStages } from "@/components/upload/GenerationProgress";
 import { ReportResult } from "@/components/upload/ReportResult";
-import { InlineHelp } from "@/components/ui/inline-help";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { SectorSelector } from "@/components/upload/SectorSelector";
+import { SlideCountSlider } from "@/components/upload/SlideCountSlider";
 import type { StepId } from "@/components/upload/Stepper";
+import { Stepper, useReportSteps } from "@/components/upload/Stepper";
 
 const STALL_TIMEOUT_MS = 30_000;
 const POLL_INTERVAL_MS = 3_000;

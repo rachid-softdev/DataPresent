@@ -1,15 +1,15 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { AlertCircle, ArrowLeft, CheckCircle, Loader2, Lock } from "lucide-react";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { Suspense, useEffect, useState } from "react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Loader2, ArrowLeft, Lock, CheckCircle, AlertCircle } from "lucide-react";
-import { toast } from "sonner";
 
 function ResetPasswordContent() {
   const t = useTranslations();

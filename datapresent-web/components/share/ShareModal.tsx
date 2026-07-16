@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { Calendar, Check, Copy, EyeOff, Globe, Lock, Users, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -12,8 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { X, Copy, Check, Globe, Lock, Users, Calendar, EyeOff } from "lucide-react";
-import { toast } from "sonner";
+import { Switch } from "@/components/ui/switch";
 
 interface ShareModalProps {
   reportId: string;

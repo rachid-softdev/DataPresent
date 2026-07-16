@@ -1,8 +1,8 @@
 "use client";
 
+import type { Slide } from "@prisma/client";
 import dynamic from "next/dynamic";
 import { Skeleton } from "@/components/ui/skeleton";
-import type { Slide } from "@prisma/client";
 
 const SlideViewer = dynamic(
   () => import("@/components/slides/SlideViewer").then((m) => ({ default: m.SlideViewer })),

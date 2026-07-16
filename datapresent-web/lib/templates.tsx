@@ -1,4 +1,4 @@
-import { TrendingUp, Building2, Users, Cloud, FileText } from "lucide-react";
+import { Building2, Cloud, FileText, TrendingUp, Users } from "lucide-react";
 
 export interface Template {
   id: string;

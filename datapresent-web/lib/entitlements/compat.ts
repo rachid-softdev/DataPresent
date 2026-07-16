@@ -13,8 +13,8 @@
 // DEPRECATION WARNING: Importing from this file will log a warning.
 // ==========================================
 
-import { prisma } from "@/lib/prisma";
 import { env } from "@/env";
+import { prisma } from "@/lib/prisma";
 import { featureGateService } from "./feature-gate";
 
 // Emit deprecation warning once at module load time

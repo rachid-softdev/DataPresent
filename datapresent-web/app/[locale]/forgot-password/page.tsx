@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { AlertCircle, ArrowLeft, CheckCircle, Loader2, Mail } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { Loader2, ArrowLeft, Mail, CheckCircle, AlertCircle } from "lucide-react";
+import { useState } from "react";
 import { toast } from "sonner";
 
 export default function ForgotPasswordPage() {

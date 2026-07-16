@@ -1,5 +1,5 @@
-import Link from "next/link";
 import { ArrowRight, ShieldCheck } from "lucide-react";
+import Link from "next/link";
 
 interface LandingCtaProps {
   title: React.ReactNode;

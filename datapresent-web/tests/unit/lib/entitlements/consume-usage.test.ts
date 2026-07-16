@@ -9,7 +9,7 @@
 // statement using INSERT ... ON CONFLICT DO UPDATE with a RETURNING clause.
 // This eliminates race conditions in concurrent consumption scenarios.
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // ---------------------------------------------------------------------------
 // Mocks — must use vi.hoisted for variables used in vi.mock factories

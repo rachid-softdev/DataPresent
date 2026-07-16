@@ -2,7 +2,7 @@
 // File Upload Validation Tests (validateMagicBytes)
 // ==========================================
 
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { validateMagicBytes } from "@/lib/upload-validation";
 
 describe("validateMagicBytes", () => {

@@ -1,13 +1,13 @@
 "use client";
 
-import { memo, useMemo } from "react";
-import Link from "next/link";
-import Image from "next/image";
 import { format } from "date-fns";
-import { fr, enUS } from "date-fns/locale";
+import { enUS, fr } from "date-fns/locale";
 import { Clock } from "lucide-react";
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import Image from "next/image";
+import Link from "next/link";
+import { memo, useMemo } from "react";
 import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { type BlogPost } from "@/lib/blog/types";
 
 interface BlogCardProps {

@@ -9,7 +9,7 @@
 // The rate limiting uses an atomic UPSERT pattern via prisma.$queryRaw.
 // We test the checkRateLimit function with mocked raw query results.
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // ---------------------------------------------------------------------------
 // Mock prisma.$queryRaw to simulate rate limit behaviour

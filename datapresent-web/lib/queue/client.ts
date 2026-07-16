@@ -1,4 +1,4 @@
-import { Queue, type ConnectionOptions } from "bullmq";
+import { type ConnectionOptions, Queue } from "bullmq";
 import { getRedisConnectionAsync } from "@/lib/redis";
 
 let generateQueueInstance: Queue | null = null;

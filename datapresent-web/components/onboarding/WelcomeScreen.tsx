@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Upload, Sparkles, Share2 } from "lucide-react";
+import { Share2, Sparkles, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface WelcomeScreenProps {

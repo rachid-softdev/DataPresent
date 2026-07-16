@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import { verifyPassword } from "@/lib/password";
-import { checkRateLimit } from "@/lib/rate-limit";
 import { extractClientIP } from "@/lib/client-ip";
 import { notFound, unauthorized } from "@/lib/errors";
+import { verifyPassword } from "@/lib/password";
+import { prisma } from "@/lib/prisma";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 /**
  * POST /api/share/verify-password

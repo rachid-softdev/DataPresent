@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Loader2, AlertCircle, XCircle } from "lucide-react";
+import { AlertCircle, Loader2, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";

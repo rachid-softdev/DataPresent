@@ -1,10 +1,10 @@
-import { auth } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
 import { getTranslations } from "next-intl/server";
-import { PLAN_PRICING, getPlanPricing } from "@/lib/entitlements/plan-pricing";
-import { getAllEntitlements } from "@/lib/entitlements/feature-gate";
-import { PricingPlanFeature } from "@/components/billing/PricingTable";
 import { PlanSelector } from "@/components/billing/PlanSelector";
+import { PricingPlanFeature } from "@/components/billing/PricingTable";
+import { auth } from "@/lib/auth";
+import { getAllEntitlements } from "@/lib/entitlements/feature-gate";
+import { getPlanPricing, PLAN_PRICING } from "@/lib/entitlements/plan-pricing";
+import { prisma } from "@/lib/prisma";
 
 async function buildFeatures(planKey: string, orgId?: string): Promise<PricingPlanFeature[]> {
   const features: PricingPlanFeature[] = [];

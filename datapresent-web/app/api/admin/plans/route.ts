@@ -4,11 +4,11 @@
 // Admin only
 // ==========================================
 
+import type { DowngradeStrategy, Plan } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 import { withAdmin } from "@/lib/admin";
 import { entitlementRepository } from "@/lib/entitlements/repository";
 import { prisma } from "@/lib/prisma";
-import type { Plan, DowngradeStrategy } from "@prisma/client";
 
 // GET all plans with their features
 export const GET = withAdmin(

@@ -8,7 +8,7 @@
 // - logger.error() includes error context
 // - Development mode uses console.log/error with readable format
 
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 describe("Logger (lib/logger.ts)", () => {
   let stdoutWriteSpy: ReturnType<typeof vi.spyOn>;

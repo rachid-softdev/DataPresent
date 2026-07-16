@@ -3,7 +3,7 @@
 // PPTX Exporter Tests
 // ==========================================
 
-import { describe, it, expect, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 // Mock PptxGenJS since it's a heavy dependency
 vi.mock("pptxgenjs", () => {

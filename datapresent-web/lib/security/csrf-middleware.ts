@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { validateCsrfToken } from "./csrf";
 import { auth } from "@/lib/auth";
+import { validateCsrfToken } from "./csrf";
 import { logSecurityEvent } from "./error-logger";
 
 /**

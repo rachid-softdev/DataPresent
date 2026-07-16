@@ -2,15 +2,15 @@
 
 import { useMemo } from "react";
 import {
-  BarChart as RechartsBarChart,
   Bar,
-  XAxis,
-  YAxis,
   CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
   Cell,
   Legend,
+  BarChart as RechartsBarChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
 } from "recharts";
 import { getChartColors } from "./chart-colors";
 

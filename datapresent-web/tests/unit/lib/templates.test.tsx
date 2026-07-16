@@ -2,8 +2,8 @@
 // Templates Tests
 // ==========================================
 
-import { describe, it, expect } from "vitest";
-import { getTemplatesBySector, getSectorLabel, getLayoutIcon, TEMPLATES } from "@/lib/templates";
+import { describe, expect, it } from "vitest";
+import { getLayoutIcon, getSectorLabel, getTemplatesBySector, TEMPLATES } from "@/lib/templates";
 
 describe("templates", () => {
   describe("TEMPLATES", () => {

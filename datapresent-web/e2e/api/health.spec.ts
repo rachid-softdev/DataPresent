@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 
 test.describe("API Health — /api/health", () => {
   test("GET /api/health retourne 200 ou 503", async ({ request }) => {

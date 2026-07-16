@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useCallback } from "react";
-import { useRouter, usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useCallback, useState } from "react";
 import { useKeyboardShortcut } from "@/components/hooks/use-keyboard-shortcut";
 import { CommandPalette } from "@/components/layout/command-palette";
 

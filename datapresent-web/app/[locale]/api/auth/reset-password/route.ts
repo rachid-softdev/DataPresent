@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
+import { extractTokenPrefix, verifyToken } from "@/lib/crypto";
+import { hashPassword } from "@/lib/password";
 import { prisma } from "@/lib/prisma";
 import { logApiError, withCsrfProtection } from "@/lib/security";
-import { verifyToken, extractTokenPrefix } from "@/lib/crypto";
-import { hashPassword } from "@/lib/password";
 import { PasswordResetSchema } from "@/lib/validation-schemas";
 
 export async function POST(req: NextRequest) {

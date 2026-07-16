@@ -6,7 +6,7 @@
 // Mocks: @/lib/entitlements/repository, @/lib/entitlements/feature-gate,
 //        @/lib/sentry, @/lib/prisma.
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // --- Mocks (hoisted above imports by vitest) -------------------------
 
@@ -38,8 +38,8 @@ vi.mock("@/lib/prisma", () => ({
 // --- Imports (after mocks are installed) -----------------------------
 
 import { downgradeService } from "@/lib/entitlements/downgrade";
-import { entitlementRepository } from "@/lib/entitlements/repository";
 import { getAllEntitlements, invalidateCache } from "@/lib/entitlements/feature-gate";
+import { entitlementRepository } from "@/lib/entitlements/repository";
 import { captureMessage } from "@/lib/sentry";
 
 // --- Fixture builders -------------------------------------------------

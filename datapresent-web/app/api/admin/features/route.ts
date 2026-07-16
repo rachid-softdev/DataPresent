@@ -5,10 +5,10 @@
 // Admin only
 // ==========================================
 
+import type { FeatureType } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 import { withAdmin } from "@/lib/admin";
 import { prisma } from "@/lib/prisma";
-import type { FeatureType } from "@prisma/client";
 
 // GET all features
 export const GET = withAdmin(

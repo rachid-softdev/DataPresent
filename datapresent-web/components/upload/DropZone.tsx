@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useCallback } from "react";
-import { Upload, FileSpreadsheet, FileText, X } from "lucide-react";
+import { FileSpreadsheet, FileText, Upload, X } from "lucide-react";
+import { useCallback, useState } from "react";
 import { cn } from "@/lib/utils";
 
 interface DropZoneProps {

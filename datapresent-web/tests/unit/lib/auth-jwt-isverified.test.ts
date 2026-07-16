@@ -10,7 +10,7 @@
 // auth.ts. We capture the NextAuth config to extract the callbacks,
 // then test them in isolation with mocked Prisma.
 
-import { describe, it, expect, vi, beforeEach, beforeAll } from "vitest";
+import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 // ---------------------------------------------------------------------------
 // Capture NextAuth config to extract callbacks

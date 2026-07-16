@@ -13,7 +13,7 @@
 // validated transitively through the public `getExperimentBucket` /
 // `isInExperimentBucket` wrappers, which call it directly.
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { DebugTrace, ResolutionSource } from "@/lib/entitlements/types";
 
 // Mock the repository so experiments.ts never touches prisma.
@@ -35,12 +35,12 @@ vi.mock("@/lib/entitlements/feature-gate", () => ({
 }));
 
 import {
-  getExperimentBucket,
-  isInExperimentBucket,
-  isInExperiment,
-  getExperimentConfig,
   calculateExperimentDistribution,
   getDistributionStats,
+  getExperimentBucket,
+  getExperimentConfig,
+  isInExperiment,
+  isInExperimentBucket,
 } from "@/lib/entitlements/experiments";
 import { featureGateService } from "@/lib/entitlements/feature-gate";
 import { entitlementRepository } from "@/lib/entitlements/repository";

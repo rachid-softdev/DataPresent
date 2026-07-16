@@ -10,7 +10,7 @@
 // - Webhook endpoints skipped
 // - GET/OPTIONS requests skipped
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // ---------------------------------------------------------------------------
 // Mock next/server
@@ -41,10 +41,10 @@ vi.mock("@/lib/crypto", () => ({
   verifyJobSignature: vi.fn(),
 }));
 
-import { withCsrfProtection } from "@/lib/security/csrf-middleware";
-import { generateCsrfToken } from "@/lib/security/csrf";
-import { auth } from "@/lib/auth";
 import { NextRequest } from "next/server";
+import { auth } from "@/lib/auth";
+import { generateCsrfToken } from "@/lib/security/csrf";
+import { withCsrfProtection } from "@/lib/security/csrf-middleware";
 
 /**
  * Create a minimal mock NextRequest

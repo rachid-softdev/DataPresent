@@ -14,14 +14,13 @@
 // CSRF_SECRET, violating key material separation. The fix removes the
 // fallback so that JOB_SIGNING_SECRET is strictly required.
 
-import { describe, it, expect } from "vitest";
-
-// Import crypto functions UNDER TEST
-import { signJobData, verifyJobSignature } from "@/lib/crypto";
+import crypto from "crypto";
+import { describe, expect, it } from "vitest";
 
 // Import env to check values in test setup
 import { env } from "@/env";
-import crypto from "crypto";
+// Import crypto functions UNDER TEST
+import { signJobData, verifyJobSignature } from "@/lib/crypto";
 
 describe("Crypto No Fallback (Fix #4)", () => {
   const sampleData = { jobId: "job-123", type: "export" };

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+import { badRequest, ERROR_CODES } from "@/lib/errors";
 import { constructWebhookEvent, handleWebhookEvent } from "@/lib/stripe-webhook-handler";
-import { ERROR_CODES, badRequest } from "@/lib/errors";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";

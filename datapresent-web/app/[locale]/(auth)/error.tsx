@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect } from "react";
+import { AlertTriangle, LogIn, RefreshCw } from "lucide-react";
 import Link from "next/link";
-import { AlertTriangle, RefreshCw, LogIn } from "lucide-react";
-import { Header } from "@/components/layout/header";
+import { useEffect } from "react";
 import { Footer } from "@/components/layout/footer";
+import { Header } from "@/components/layout/header";
 
 export default function Error({
   error,

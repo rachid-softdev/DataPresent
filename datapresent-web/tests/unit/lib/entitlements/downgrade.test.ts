@@ -2,7 +2,7 @@
 // Downgrade Service Tests
 // ==========================================
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // Mock the dependencies
 vi.mock("@/lib/entitlements/feature-gate", () => ({

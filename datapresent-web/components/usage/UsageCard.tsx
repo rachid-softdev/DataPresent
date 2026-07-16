@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { FileText, Layers, Loader2, Zap } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { useEffect, useState } from "react";
+import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { Badge } from "@/components/ui/badge";
-import { Loader2, FileText, Layers, Zap } from "lucide-react";
 
 interface UsageData {
   plan: string;

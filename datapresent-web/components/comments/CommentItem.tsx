@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, memo } from "react";
+import { formatDistanceToNow } from "date-fns";
+import { fr } from "date-fns/locale";
+import { Check, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { memo, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { formatDistanceToNow } from "date-fns";
-import { fr } from "date-fns/locale";
-import { MoreHorizontal, Pencil, Trash2, Check } from "lucide-react";
 
 interface CommentItemProps {
   comment: {

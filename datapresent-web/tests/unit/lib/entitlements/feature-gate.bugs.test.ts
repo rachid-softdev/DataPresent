@@ -3,7 +3,7 @@
 // In-memory fake repository. No database required.
 // ==========================================
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // In-memory store shared between the test helpers and the mocked repository.
 // vi.hoisted guarantees it is created BEFORE the vi.mock factory runs.
@@ -102,12 +102,12 @@ vi.mock("@/lib/entitlements/repository", () => {
 
 // Import the convenience functions + singleton under test (after mocks are registered).
 import {
-  featureGateService,
-  hasFeature,
-  getLimit,
   canConsume,
   consume,
+  featureGateService,
   getDebugTrace,
+  getLimit,
+  hasFeature,
 } from "@/lib/entitlements/feature-gate";
 
 // ==========================================

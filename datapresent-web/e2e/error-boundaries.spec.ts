@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 
 /**
  * Tests des boundaries d'erreur : 500, 404 étendu, auth, dashboard, partage, mobile.

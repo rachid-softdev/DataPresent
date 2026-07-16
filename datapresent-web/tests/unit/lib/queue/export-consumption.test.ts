@@ -8,7 +8,7 @@
 // - Security validation rejects unauthorized jobs
 // - Export status is updated correctly (DONE / ERROR)
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // ---------------------------------------------------------------------------
 // Hoisted mock variables — ALL must be in vi.hoisted for vi.mock factories

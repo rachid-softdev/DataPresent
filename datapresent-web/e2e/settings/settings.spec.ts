@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 
 /**
  * Tests des pages de paramètres — nécessite un utilisateur authentifié.

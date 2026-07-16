@@ -3,9 +3,9 @@
  * Prevents cross-site scripting attacks by sanitizing user input
  */
 
+import DOMPurify from "dompurify";
 // @ts-expect-error — jsdom has no declaration file for v29
 import { JSDOM } from "jsdom";
-import DOMPurify from "dompurify";
 import { env } from "@/env";
 
 // Singleton DOMPurify instance (caching JSDOM creation for performance)

@@ -1,14 +1,14 @@
-import { auth } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
-import { ArrowLeft } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { Spinner } from "@/components/ui/spinner";
 import { ReportActions } from "@/components/reports/ReportActions";
 import { ReportDetailPoller } from "@/components/reports/ReportDetailPoller";
 import { SlideViewerWrapper } from "@/components/slides/SlideViewerWrapper";
+import { Badge } from "@/components/ui/badge";
+import { Spinner } from "@/components/ui/spinner";
+import { auth } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 
 export default async function ReportPage({ params }: { params: Promise<{ id: string }> }) {
   const t = await getTranslations();

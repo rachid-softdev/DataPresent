@@ -10,7 +10,7 @@
 // - POST with invalid JSON returns 500
 // - Only REPORT_EXPORTED is allowed from clients
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // ---------------------------------------------------------------------------
 // Mock setup

@@ -1,14 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import {
-  OnboardingProvider,
-  DEFAULT_ONBOARDING_STEPS,
-} from "@/components/onboarding/OnboardingTour";
-import { DashboardNav } from "@/components/org/DashboardNav";
-import { WelcomeScreen } from "@/components/onboarding/WelcomeScreen";
-import { StartChecklist } from "@/components/onboarding/StartChecklist";
 import { KeyboardShortcuts } from "@/components/layout/keyboard-shortcuts";
+import {
+  DEFAULT_ONBOARDING_STEPS,
+  OnboardingProvider,
+} from "@/components/onboarding/OnboardingTour";
+import { StartChecklist } from "@/components/onboarding/StartChecklist";
+import { WelcomeScreen } from "@/components/onboarding/WelcomeScreen";
+import { DashboardNav } from "@/components/org/DashboardNav";
 
 export function DashboardWithOnboarding({ children }: { children: React.ReactNode }) {
   const [showWelcome, setShowWelcome] = useState<boolean | null>(() => {

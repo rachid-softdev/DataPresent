@@ -2,7 +2,7 @@
 // Plans Tests
 // ==========================================
 
-import { describe, it, expect, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 // Mock prisma and feature-gate to avoid Prisma client dependency
 vi.mock("@/lib/prisma", () => ({

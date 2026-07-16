@@ -10,7 +10,7 @@
 // so we test the middleware behavior by observing the x-request-id
 // header rather than verifying the specific UUID value.
 
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 // ---------------------------------------------------------------------------
 // Mock next-intl/middleware (required by middleware.ts)

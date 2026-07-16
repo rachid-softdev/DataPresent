@@ -1,7 +1,7 @@
 import nodemailer from "nodemailer";
 import { Resend } from "resend";
 import { env } from "@/env";
-import { getEmailTemplate, emailConfig } from "./email-templates";
+import { emailConfig, getEmailTemplate } from "./email-templates";
 
 const isDev = env.NODE_ENV === "development";
 const emailFrom = env.EMAIL_FROM || "DataPresent <noreply@datapresent.com>";

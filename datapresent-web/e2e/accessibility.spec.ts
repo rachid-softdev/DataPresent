@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 
 test.describe("Accessibilité — Pages publiques", () => {
   test("la page d'accueil a un titre de page pertinent", async ({ page }) => {

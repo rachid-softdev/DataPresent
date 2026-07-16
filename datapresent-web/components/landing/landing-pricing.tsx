@@ -1,5 +1,5 @@
+import { ArrowRight, Check } from "lucide-react";
 import Link from "next/link";
-import { Check, ArrowRight } from "lucide-react";
 
 interface LandingPricingProps {
   title: string;

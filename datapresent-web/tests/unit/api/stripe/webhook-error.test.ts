@@ -7,7 +7,7 @@
 // have included err.message or result.error. After the fix, only
 // a generic "Webhook processing failed" message is returned.
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // ---------------------------------------------------------------------------
 // Mock setup — all mock variables must use vi.hoisted
@@ -44,11 +44,11 @@ vi.mock("@/lib/errors", () => ({
   }),
 }));
 
+import { NextRequest } from "next/server";
 // ---------------------------------------------------------------------------
 // Import the module under test
 // ---------------------------------------------------------------------------
 import { POST } from "@/app/[locale]/api/stripe/webhook/route";
-import { NextRequest } from "next/server";
 
 describe("Stripe Webhook Error Details (Fix #5)", () => {
   beforeEach(() => {

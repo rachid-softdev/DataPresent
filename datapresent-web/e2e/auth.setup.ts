@@ -1,9 +1,9 @@
-import { test as setup, expect } from "@playwright/test";
+import { expect, test as setup } from "@playwright/test";
 import {
   createTestUser,
+  disconnectPrisma,
   generateSessionToken,
   setSessionCookie,
-  disconnectPrisma,
 } from "./auth-helpers";
 
 /**

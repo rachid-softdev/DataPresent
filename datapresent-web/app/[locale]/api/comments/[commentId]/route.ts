@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
+import { badRequest, ERROR_CODES, forbidden, notFound, unauthorized } from "@/lib/errors";
 import { prisma } from "@/lib/prisma";
-import { withCsrfProtection } from "@/lib/security";
-import { ERROR_CODES, unauthorized, forbidden, notFound, badRequest } from "@/lib/errors";
 import { sanitizeComment } from "@/lib/sanitize";
+import { withCsrfProtection } from "@/lib/security";
 
 export async function PATCH(
   req: NextRequest,

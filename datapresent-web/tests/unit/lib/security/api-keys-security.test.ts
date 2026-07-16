@@ -8,7 +8,7 @@
 // - revokeApiKey() enforces orgId ownership via Prisma where clause
 // - createApiKey() stores keyPrefix for O(1) lookup
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // ---------------------------------------------------------------------------
 // Mock setup for revokeApiKey tests
@@ -41,7 +41,7 @@ vi.mock("@/lib/password", () => ({
 }));
 
 // Import after mocks
-import { revokeApiKey, createApiKey, formatKeyForDisplay } from "@/lib/api-keys";
+import { createApiKey, formatKeyForDisplay, revokeApiKey } from "@/lib/api-keys";
 import { extractTokenPrefix } from "@/lib/crypto";
 
 describe("API Keys Security", () => {

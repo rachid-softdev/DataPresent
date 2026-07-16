@@ -1,4 +1,4 @@
-import { unstable_cache, revalidateTag } from "next/cache";
+import { revalidateTag, unstable_cache } from "next/cache";
 import { prisma } from "./prisma";
 
 // Cache tags for manual invalidation

@@ -1,1 +1,1 @@
-export { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@datapresent/ui";
+export { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@datapresent/ui";

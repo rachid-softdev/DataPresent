@@ -16,7 +16,7 @@
 // to avoid importing the page module's massive dependency tree
 // (which includes several components with pre-existing parse errors).
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // ---------------------------------------------------------------------------
 // Mocks
@@ -40,6 +40,7 @@ vi.mock("@/lib/entitlements/feature-gate", () => ({
 // Replicate the exact data-fetching logic from page.tsx lines 7-25
 // ---------------------------------------------------------------------------
 
+import { getLimit } from "@/lib/entitlements/feature-gate";
 /**
  * Replicates the maxSlides computation from page.tsx for testing in isolation.
  * The actual page.tsx code is:
@@ -56,7 +57,6 @@ vi.mock("@/lib/entitlements/feature-gate", () => ({
  *   return <NewReportForm maxSlides={maxSlides} />;
  */
 import { prisma } from "@/lib/prisma";
-import { getLimit } from "@/lib/entitlements/feature-gate";
 
 async function computeMaxSlides(session: { user?: { id?: string } } | null): Promise<number> {
   let maxSlides = 20;

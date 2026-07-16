@@ -4,7 +4,7 @@
 
 import IORedis from "ioredis";
 import { LRUCache } from "lru-cache";
-import { getRedisConnectionAsync, createSubscriberConnection, connection } from "@/lib/redis";
+import { connection, createSubscriberConnection, getRedisConnectionAsync } from "@/lib/redis";
 import type { EntitlementMap } from "./types";
 
 // ==========================================

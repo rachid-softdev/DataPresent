@@ -16,10 +16,10 @@
 // are written against the fixed API (via a typed cast) so they pass once the fixes
 // land, and will fail loudly against the unfixed code.
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
 import type { NextRequest } from "next/server";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { ConsumeResult } from "@/lib/entitlements";
-import { withFeature, withLimit, withConsume } from "@/lib/entitlements/middleware";
+import { withConsume, withFeature, withLimit } from "@/lib/entitlements/middleware";
 
 // ------------------------------------------
 // Mocks (hoisted so vi.mock factories can reference them)

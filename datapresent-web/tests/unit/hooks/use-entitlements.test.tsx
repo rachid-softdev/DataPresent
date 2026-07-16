@@ -2,9 +2,9 @@
 // use-entitlements Hook Tests
 // ==========================================
 
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, renderHook, waitFor } from "@testing-library/react";
 import React, { type ReactNode } from "react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 // Mock fetch globally
 global.fetch = vi.fn();

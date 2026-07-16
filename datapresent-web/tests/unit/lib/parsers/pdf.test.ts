@@ -3,7 +3,7 @@
 // PDF Parser Tests
 // ==========================================
 
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 
 describe("pdf parser", () => {
   it("should export parsePdf function", async () => {

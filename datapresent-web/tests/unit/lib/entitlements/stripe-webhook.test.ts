@@ -2,8 +2,8 @@
 // Stripe Webhook Handler Tests
 // ==========================================
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
 import Stripe from "stripe";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // Use vi.hoisted to properly mock modules
 const { mockStripe, mockRepository, mockFeatureGate } = vi.hoisted(() => {
@@ -65,11 +65,11 @@ vi.mock("@/lib/prisma", () => ({
 }));
 
 import {
-  handleWebhookEvent,
   constructWebhookEvent,
-  verifyWebhookSignature,
+  handleWebhookEvent,
   isEventProcessed,
   markEventProcessed,
+  verifyWebhookSignature,
 } from "@/lib/stripe-webhook-handler";
 
 describe("Stripe Webhook Handler", () => {

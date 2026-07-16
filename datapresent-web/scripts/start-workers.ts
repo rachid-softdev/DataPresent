@@ -1,5 +1,5 @@
-import { getGenerateWorker } from "../lib/queue/workers/generate.worker";
 import { getExportWorker } from "../lib/queue/workers/export.worker";
+import { getGenerateWorker } from "../lib/queue/workers/generate.worker";
 
 async function start() {
   const generateWorker = await getGenerateWorker();

@@ -2,12 +2,12 @@
 // Downgrade Service - Handle Plan Downgrades
 // ==========================================
 
+import type { DowngradeStrategy, Plan, SubscriptionStatus } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
-import type { Plan, DowngradeStrategy, SubscriptionStatus } from "@prisma/client";
-import type { DowngradePreview, DowngradeInfo } from "./types";
-import { entitlementRepository } from "./repository";
-import { getAllEntitlements, invalidateCache } from "./feature-gate";
 import { captureMessage } from "@/lib/sentry";
+import { getAllEntitlements, invalidateCache } from "./feature-gate";
+import { entitlementRepository } from "./repository";
+import type { DowngradeInfo, DowngradePreview } from "./types";
 
 // ==========================================
 // Downgrade Service Class

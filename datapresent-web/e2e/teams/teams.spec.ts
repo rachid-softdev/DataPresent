@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 
 /**
  * Tests des fonctionnalités d'équipe — nécessite un utilisateur authentifié.

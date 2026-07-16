@@ -3,7 +3,7 @@
 // DOCX Exporter Tests
 // ==========================================
 
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 
 describe("docx exporter", () => {
   it("should export generateDocx function", async () => {

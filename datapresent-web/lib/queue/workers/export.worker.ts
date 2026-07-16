@@ -1,11 +1,11 @@
-import { Worker, type ConnectionOptions } from "bullmq";
+import { type ConnectionOptions, Worker } from "bullmq";
+import { consume, hasFeature, LimitReachedError } from "@/lib/entitlements/feature-gate";
+import { generateDocx, generatePdf, generatePptx } from "@/lib/exporters";
+import { logger } from "@/lib/logger";
 import { prisma } from "@/lib/prisma";
-import { generatePptx, generatePdf, generateDocx } from "@/lib/exporters";
 import { uploadToR2 } from "@/lib/r2";
 import { getRedisConnectionAsync } from "@/lib/redis";
 import { extractSignedJobData } from "../job-security";
-import { hasFeature, consume, LimitReachedError } from "@/lib/entitlements/feature-gate";
-import { logger } from "@/lib/logger";
 
 let workerInstance: Worker | null = null;
 

@@ -1,5 +1,5 @@
-import { Document, Packer, Paragraph, TextRun, HeadingLevel } from "docx";
 import { SlideLayout } from "@prisma/client";
+import { Document, HeadingLevel, Packer, Paragraph, TextRun } from "docx";
 
 interface SlideData {
   title: string;

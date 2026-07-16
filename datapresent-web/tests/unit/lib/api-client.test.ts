@@ -8,7 +8,7 @@
 // - apiFetch skips CSRF header for GET requests
 // - Fallback behavior when CSRF fetch fails
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // Mock global fetch
 const mockFetch = vi.fn();

@@ -1,15 +1,15 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { AlertCircle, ArrowLeft, Building2, CheckCircle, Loader2 } from "lucide-react";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import Link from "next/link";
+import { Suspense, useEffect, useState } from "react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, CheckCircle, AlertCircle, ArrowLeft, Building2 } from "lucide-react";
-import { toast } from "sonner";
 
 function AcceptInviteContent() {
   const t = useTranslations();

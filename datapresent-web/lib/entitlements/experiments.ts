@@ -2,9 +2,9 @@
 // A/B Testing Experiments - Stable Hashing & Bucketing
 // ==========================================
 
-import type { ExperimentConfig } from "./types";
-import { entitlementRepository } from "./repository";
 import { featureGateService } from "./feature-gate";
+import { entitlementRepository } from "./repository";
+import type { ExperimentConfig } from "./types";
 
 // ==========================================
 // MurmurHash3 Implementation (for stable bucketing)

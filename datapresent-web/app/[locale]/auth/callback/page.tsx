@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 import { Spinner } from "@/components/ui/spinner";
 
 type CallbackState = "loading" | "success" | "error";

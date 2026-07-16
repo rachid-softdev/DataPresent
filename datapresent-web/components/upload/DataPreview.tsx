@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { FileSpreadsheet, FileText, Loader2, Table } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { Loader2, Table, FileSpreadsheet, FileText } from "lucide-react";
+import { useEffect, useState } from "react";
 
 interface DataPreviewProps {
   file: File | null;

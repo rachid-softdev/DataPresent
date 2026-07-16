@@ -11,7 +11,7 @@
 // - slideCount defaults to 10 when not provided in job data
 // - generate worker passes slideCount to analyzeWithClaude
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // ---------------------------------------------------------------------------
 // Mock dependencies for generate worker tests

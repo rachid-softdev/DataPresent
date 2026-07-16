@@ -22,8 +22,8 @@
 // NO real database is used. The repo under test is the REAL implementation;
 // only the prisma client is replaced by the in-memory fake.
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
 import type { UsageTracking } from "@prisma/client";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // ---------------------------------------------------------------------------
 // In-memory fake UsageTracking table
@@ -153,9 +153,9 @@ vi.mock("@/lib/entitlements/cache", () => ({
   },
 }));
 
+import { FeatureGateService } from "@/lib/entitlements/feature-gate";
 // Imports must happen after the mocks are declared.
 import { PrismaEntitlementRepository } from "@/lib/entitlements/repository";
-import { FeatureGateService } from "@/lib/entitlements/feature-gate";
 
 const repo = new PrismaEntitlementRepository();
 const service = new FeatureGateService();

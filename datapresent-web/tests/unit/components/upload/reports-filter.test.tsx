@@ -1,5 +1,5 @@
-import { describe, it, expect, vi } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
 import { ReportsFilter } from "@/components/reports/ReportsFilter";
 
 // Mock framer-motion: AnimatePresence renders children directly (no exit animation delay),

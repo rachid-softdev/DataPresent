@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
+import { badRequest, ERROR_CODES, forbidden, notFound, unauthorized } from "@/lib/errors";
 import { prisma } from "@/lib/prisma";
-import { ERROR_CODES, unauthorized, forbidden, notFound, badRequest } from "@/lib/errors";
-import { sanitizeComment } from "@/lib/sanitize";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { sanitizeComment } from "@/lib/sanitize";
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth();

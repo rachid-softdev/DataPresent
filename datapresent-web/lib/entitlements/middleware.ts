@@ -2,10 +2,10 @@
 // Middleware Factories - Framework-Agnostic
 // ==========================================
 
-import { auth } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
-import { hasFeature, canConsume, consume, type ConsumeResult } from "@/lib/entitlements";
 import type { NextRequest } from "next/server";
+import { auth } from "@/lib/auth";
+import { type ConsumeResult, canConsume, consume, hasFeature } from "@/lib/entitlements";
+import { prisma } from "@/lib/prisma";
 
 // ==========================================
 // Helper: Extract orgId and userId from session
