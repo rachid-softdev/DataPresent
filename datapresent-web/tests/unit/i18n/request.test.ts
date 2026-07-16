@@ -17,6 +17,6 @@ vi.mock("../messages/fr.json", () => ({ default: { greeting: "Bonjour" } }));
 describe("i18n/request", () => {
   it("should export getRequestConfig function", async () => {
     const mod = await import("@/i18n/request");
-    expect(module.default).toBeDefined();
+    expect(mod.default).toBeDefined();
   });
 });

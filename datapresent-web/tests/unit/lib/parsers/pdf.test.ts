@@ -8,7 +8,7 @@ import { describe, it, expect } from "vitest";
 describe("pdf parser", () => {
   it("should export parsePdf function", async () => {
     const mod = await import("@/lib/parsers/pdf");
-    expect(module.parsePdf).toBeDefined();
+    expect(mod.parsePdf).toBeDefined();
   });
 
   it("should throw when called (placeholder implementation)", async () => {

@@ -38,11 +38,32 @@ export default defineConfig({
         statements: 60,
       },
     },
+    // Inline deps that ship their own React copy so the alias below is applied.
+    // Otherwise Vitest externalizes node_modules and Node resolves lucide-react's
+    // "react" to the @datapresent/ui-pinned 19.2.6, causing a duplicate-React crash
+    // ("Cannot read properties of null (reading 'useContext')").
+    server: {
+      deps: {
+        inline: ["lucide-react", "@datapresent/ui"],
+      },
+    },
   },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "."),
       "@datapresent/worker-common": path.resolve(__dirname, "../packages/worker-common/src"),
+      // Force a single React + lucide-react copy. The `@datapresent/ui` workspace
+      // package pins react@19.2.6 and resolves to a lucide-react build against that
+      // version; without this, lucide-react icons call useContext on the wrong React
+      // instance and crash with "Cannot read properties of null (reading 'useContext')".
+      react: path.resolve(__dirname, "./node_modules/react"),
+      "react/jsx-runtime": path.resolve(__dirname, "./node_modules/react/jsx-runtime"),
+      "react-dom": path.resolve(__dirname, "./node_modules/react-dom"),
+      "react-dom/client": path.resolve(__dirname, "./node_modules/react-dom/client"),
+      "lucide-react": path.resolve(__dirname, "./node_modules/lucide-react"),
+      // `@datapresent/ui` also resolves `next` and `lucide-react` against its pinned
+      // react@19.2.6; redirect them to the app's react@19.2.7 builds.
+      next: path.resolve(__dirname, "./node_modules/next"),
     },
     dedupe: ["react", "react-dom"],
   },

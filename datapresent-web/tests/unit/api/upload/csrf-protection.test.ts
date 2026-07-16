@@ -1,3 +1,4 @@
+// @vitest-environment node
 // ==========================================
 // Upload Route — CSRF Protection & Validation
 // ==========================================

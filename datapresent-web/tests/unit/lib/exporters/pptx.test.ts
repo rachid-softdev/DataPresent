@@ -32,11 +32,11 @@ vi.mock("@prisma/client", () => ({
 describe("pptx exporter", () => {
   it("should export generatePptx function", async () => {
     const mod = await import("@/lib/exporters/pptx");
-    expect(module.generatePptx).toBeDefined();
+    expect(mod.generatePptx).toBeDefined();
   });
 
   it("should import module", async () => {
     const mod = await import("@/lib/exporters/pptx");
-    expect(module).toBeDefined();
+    expect(mod).toBeDefined();
   });
 });

@@ -19,6 +19,6 @@ vi.mock("@/lib/ai/prompts", () => ({
 describe("ai analyze", () => {
   it("should export analyzeWithClaude function", async () => {
     const mod = await import("@/lib/ai/analyze");
-    expect(module.analyzeWithClaude).toBeDefined();
+    expect(mod.analyzeWithClaude).toBeDefined();
   });
 });
