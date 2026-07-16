@@ -1,3 +1,4 @@
+// @vitest-environment node
 // ==========================================
 // Worker Common — Crypto Tests (Horizon 6)
 // ==========================================

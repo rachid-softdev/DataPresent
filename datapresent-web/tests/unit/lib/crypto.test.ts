@@ -1,3 +1,4 @@
+// @vitest-environment node
 // ==========================================
 // Crypto Utility Tests (extractTokenPrefix)
 // ==========================================

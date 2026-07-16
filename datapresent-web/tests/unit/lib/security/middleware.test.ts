@@ -1,3 +1,4 @@
+// @vitest-environment node
 // ==========================================
 // Middleware Tests (i18n + security headers)
 // ==========================================

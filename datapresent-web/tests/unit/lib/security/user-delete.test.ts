@@ -1,3 +1,4 @@
+// @vitest-environment node
 // ==========================================
 // User Account Deletion Security Tests
 // ==========================================

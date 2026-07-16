@@ -1,3 +1,4 @@
+// @vitest-environment node
 // ==========================================
 // CSRF Middleware (withCsrfProtection) Tests
 // ==========================================

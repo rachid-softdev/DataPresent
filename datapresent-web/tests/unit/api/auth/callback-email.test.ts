@@ -1,3 +1,4 @@
+// @vitest-environment node
 // ==========================================
 // Magic Link — Callback Email POST Tests (Item 12)
 // ==========================================

@@ -1,3 +1,4 @@
+// @vitest-environment node
 // ==========================================
 // Crypto Key Material Separation Tests
 // ==========================================

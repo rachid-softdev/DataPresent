@@ -1,3 +1,4 @@
+// @vitest-environment node
 // ==========================================
 // Analytics API Route Tests (Horizon 6)
 // ==========================================

@@ -1,3 +1,4 @@
+// @vitest-environment node
 // ==========================================
 // Debug Entitlements — Rate Limit Tests
 // ==========================================

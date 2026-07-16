@@ -1,3 +1,4 @@
+// @vitest-environment node
 // ==========================================
 // .env.production in .gitignore Test (Fix #9)
 // ==========================================
