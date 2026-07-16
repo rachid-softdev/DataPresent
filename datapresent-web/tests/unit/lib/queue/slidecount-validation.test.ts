@@ -6,8 +6,8 @@
 // - canHaveSlideCount from compat.ts validates plan limits
 // - FREE plan: max 8 slides
 // - PRO plan: max 20 slides
-// - TEAM plan: max 30 slides
-// - AGENCY plan: unlimited (-1)
+// - PRO plan: max 30 slides
+// - ULTRA plan: unlimited (-1)
 // - slideCount defaults to 10 when not provided in job data
 // - generate worker passes slideCount to analyzeWithClaude
 
@@ -167,32 +167,32 @@ describe("canHaveSlideCount (plan validation)", () => {
   });
 
   // -----------------------------------------------------------------------
-  // PRO plan — max 20 slides
+  // STARTER plan — max 20 slides
   // -----------------------------------------------------------------------
-  describe("PRO plan", () => {
+  describe("STARTER plan", () => {
     it("should allow up to 20 slides", () => {
-      const result = canHaveSlideCount("PRO", 20);
+      const result = canHaveSlideCount("STARTER", 20);
       expect(result.allowed).toBe(true);
       expect(result.maxSlides).toBe(20);
     });
 
     it("should reject more than 20 slides", () => {
-      const result = canHaveSlideCount("PRO", 21);
+      const result = canHaveSlideCount("STARTER", 21);
       expect(result.allowed).toBe(false);
       expect(result.maxSlides).toBe(20);
     });
 
-    it("should allow 8 slides (within PRO limit)", () => {
-      const result = canHaveSlideCount("PRO", 8);
+    it("should allow 8 slides (within STARTER limit)", () => {
+      const result = canHaveSlideCount("STARTER", 8);
       expect(result.allowed).toBe(true);
       expect(result.maxSlides).toBe(20);
     });
   });
 
   // -----------------------------------------------------------------------
-  // TEAM plan — max 30 slides
+  // PRO plan — max 30 slides
   // -----------------------------------------------------------------------
-  describe("TEAM plan", () => {
+  describe("PRO plan", () => {
     it("should allow up to 30 slides", () => {
       const result = canHaveSlideCount("PRO", 30);
       expect(result.allowed).toBe(true);
@@ -207,9 +207,9 @@ describe("canHaveSlideCount (plan validation)", () => {
   });
 
   // -----------------------------------------------------------------------
-  // AGENCY plan — unlimited (-1 means no limit)
+  // ULTRA plan — unlimited (-1 means no limit)
   // -----------------------------------------------------------------------
-  describe("AGENCY plan", () => {
+  describe("ULTRA plan", () => {
     it("should allow any slide count (unlimited)", () => {
       const result = canHaveSlideCount("ULTRA", 100);
       expect(result.allowed).toBe(true);
