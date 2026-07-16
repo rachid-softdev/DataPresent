@@ -24,17 +24,14 @@
 - **Post-push fix (`63efe03`):** `downgrade.test.ts` `mod`/`module` rebase-merge artifact
 - **Rename test-expectation fix (`5fa09c1`):** updated stale `TEAM`/`AGENCY` names in `plans`, `plan-utils`, `slidecount-validation` tests (80/80 pass)
 - **`node:` import error fix (`a8ddea0`):** added `// @vitest-environment node` pragma to 29 logic-test files importing Node builtins (crypto, fs, etc.). `No such built-in module: node:` errors: 12 → **0**; unit suite 1124 → **1242 passing**
-- **Unit suite now:** 1242 passed, 33 failed, 4 skipped (128 files). `node:` errors = 0.
+- **All 33 genuine failures fixed (`a6393c4`):** created missing `middleware.ts` (`@/middleware` barrel: i18n + CORS + x-request-id), fixed duplicate-React crash via vitest.config.ts aliases (`@datapresent/ui` pins react 19.2.6 vs app 19.2.7), added missing `node` pragma to `csrf-protection.test.ts`, and corrected `module`→`mod` test typos in 12 files. No source logic bugs were found — all were test/env issues.
+- **Unit suite now FULLY GREEN:** 1318 passed, 0 failed, 4 skipped (128 files). `node:` errors = 0.
 
 ### In Progress
 - (none)
 
-### Blocked / Known remaining failures (genuine, out of scope for node: fix)
-- ~33 failures remain, all genuine (NOT environment):
-  - **Missing `@/middleware` barrel export (REAL bug):** `middleware/cors.test.ts`, `middleware/cors-dev-restricted.test.ts`, `middleware/request-id.test.ts`, `lib/security/middleware.test.ts` → `Failed to resolve import "@/middleware"` (no `middleware.ts`/barrel exists; `@/*` → `./*`)
-  - **DOM/React test issues:** `components/ui/dialog.test.tsx`, `components/ui/empty-state.test.tsx`
-  - **Real export/assertion bugs:** `lib/org` (returns 500 instead of 403/400; 2 exports undefined), `lib/auth`, `lib/email`, `lib/exporters/{docx,pdf,pptx}`, `lib/parsers/{parsers-index,pdf,xlsx}`, `lib/ai/{analyze,prompts}`, `i18n/request`
-  - **Route handler assertions:** `api/upload/csrf-protection.test.ts` (expects 400/403/200, gets 500s — likely missing env/DB/Redis or real bug)
+### Blocked
+- (none) — unit suite is green
 
 ## Key Decisions
 - `withLimit` overload: `(featureKey, handler)` and `(featureKey, amount, handler)`
