@@ -29,7 +29,7 @@
 - **Unit suite now FULLY GREEN:** 1318 passed, 0 failed, 4 skipped (128 files). `node:` errors = 0.
 - **All `tsc --noEmit` type errors resolved + pushed (`0cf7bba`):** 22 errors fixed across `lib/stripe.ts` (apiVersion `2026-06-24.dahlia`), `playwright.config.ts` (env `?? ""`), `types/bullmq.d.ts` (WorkerOptions `retryStrategy?` augmentation), `components/onboarding/index.ts` (`OnboardingProvider as OnboardingTour`), `app/api/ready/route.ts` (`IRedisClient.ping()`), queue Redis `ConnectionOptions` consistency, `SlideViewerWrapper.tsx` (`@prisma/client` Slide), `about/page.tsx` (`TeamMember` type), `ReportsFilter.tsx` (custom `@datapresent-ui` props), `lib/exporters/pdf.ts` (puppeteer `waitUntil`), `lib/r2.ts` (`@smithy` dedupe), `scripts/create-stripe-products.ts` + `scripts/push-env.ts` (residual). `tsc --noEmit` exits 0.
 - **Build now passes (`eb30fe1`):** `next build` was broken by root `middleware.ts` colliding with Next.js 16's reserved filename (this fork uses `proxy.ts` for the app middleware). Relocated `@/middleware` → `middleware/index.ts` so the 4 unit tests still resolve it and the build uses `proxy.ts`. `next build` succeeds; unit suite still green (1318 passed).
-- **Biome lint (`biome check`):** 412 diagnostics across 524 files, mostly auto-fixable import sorting. The husky hook only runs `biome format` (not `biome check`), so lint rules are currently unenforced. Not yet auto-fixed — pending decision.
+- **Biome (`biome check`) now clean (`dad94d9`):** ran `biome check --write` to auto-fix import organization across 382 web-app files. Enabled `html.parser.interpolation` in `biome.json` so email templates (`lib/email-templates/*.html`) parse `{{ }}` interpolation instead of false-positive parse errors. `biome check` exits 0; `tsc` clean; suite green.
 
 ### In Progress
 - (none)
@@ -63,9 +63,8 @@
 - `datapresent-web/lib/exporters/pdf.ts`, `datapresent-web/lib/r2.ts`, `datapresent-web/lib/queue/client.ts`, `datapresent-web/lib/queue/workers/*.ts` — tsc fixes
 
 ## Next Steps
-- **Biome lint (optional):** run `biome check --write` to auto-fix the ~412 diagnostics (mostly import sorting), then commit. Currently unenforced by the hook.
 - **Prisma migration (BLOCKED — no DB):** do NOT run `prisma migrate`. Prepared SQL renames enum values `PRO`→`STARTER`, `TEAM`→`PRO`, `AGENCY`→`ULTRA` in `prisma/migrations/20260716000000_rename_plan_tiers_to_free_starter_pro_ultra/migration.sql`. Apply via `prisma migrate deploy` once a DB is reachable.
-- (Pipeline status: rename done, 15 bugs fixed, unit suite green, `tsc` clean, `next build` passes — all pushed to `origin/main`)
+- (Pipeline status: rename done, 15 bugs fixed, unit suite green, `tsc` clean, `next build` passes, `biome check` clean — all pushed to `origin/main`)
 
 ---
 
