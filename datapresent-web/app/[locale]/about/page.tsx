@@ -84,7 +84,7 @@ interface TeamMember {
   bio: string;
 }
 
-const TEAM: Record<string, { fr: TeamMember[]; en: TeamMember[] }> = {
+const TEAM: { fr: TeamMember[]; en: TeamMember[] } = {
   fr: [
     {
       name: "Alexandre Renard",

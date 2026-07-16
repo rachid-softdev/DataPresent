@@ -127,8 +127,8 @@ export default defineConfig({
     // Override DATABASE_URL + NEXTAUTH_SECRET so the app queries the same
     // test database that E2E helpers seed, and decodes session JWTs correctly.
     env: {
-      DATABASE_URL: process.env.DATABASE_URL,
-      NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
+      DATABASE_URL: process.env.DATABASE_URL ?? "",
+      NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET ?? "",
     },
   },
 });

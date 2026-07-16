@@ -1,6 +1,6 @@
 import Stripe from "stripe";
 
-const stripeApiVersion = "2026-04-22.dahlia" as const;
+const stripeApiVersion = "2026-06-24.dahlia" as const;
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: stripeApiVersion,

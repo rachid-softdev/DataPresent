@@ -1,7 +1,7 @@
 import Stripe from "stripe";
 import { env, isFeatureEnabled } from "@/env";
 
-const stripeApiVersion = "2026-04-22.dahlia" as const;
+const stripeApiVersion = "2026-06-24.dahlia" as const;
 
 let _stripe: Stripe | null = null;
 

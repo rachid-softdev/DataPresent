@@ -1,4 +1,4 @@
-import { Worker } from "bullmq";
+import { Worker, type ConnectionOptions } from "bullmq";
 import { prisma } from "@/lib/prisma";
 import { generatePptx, generatePdf, generateDocx } from "@/lib/exporters";
 import { uploadToR2 } from "@/lib/r2";
@@ -128,7 +128,7 @@ export async function getExportWorker(): Promise<Worker> {
       }
     },
     {
-      connection: conn,
+      connection: conn as unknown as ConnectionOptions,
       removeOnComplete: { count: 200, age: 3600 },
       removeOnFail: { count: 100, age: 86400 },
     },

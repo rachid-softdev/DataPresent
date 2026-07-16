@@ -2,14 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { Skeleton } from "@/components/ui/skeleton";
-// Minimal type matching SlideViewer's expected Slide shape
-interface Slide {
-  id: string;
-  title: string;
-  position: number;
-  content: unknown;
-  layout: string;
-}
+import type { Slide } from "@prisma/client";
 
 const SlideViewer = dynamic(
   () => import("@/components/slides/SlideViewer").then((m) => ({ default: m.SlideViewer })),

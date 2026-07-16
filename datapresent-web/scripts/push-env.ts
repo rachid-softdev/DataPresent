@@ -39,7 +39,8 @@ for (const { key, value } of envVars) {
     execSync(cmd, { stdio: "pipe" });
     console.log(`  ✅ ${key}`);
   } catch (error: unknown) {
-    console.log(`  ⚠️  ${key} - ${error.message?.split("\n")[0] || "error"}`);
+    const message = error instanceof Error ? error.message : String(error);
+    console.log(`  ⚠️  ${key} - ${message.split("\n")[0] || "error"}`);
   }
 }
 

@@ -14,7 +14,8 @@ import {
   Download,
   Loader2,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -381,27 +382,26 @@ export function ReportsFilter({
                   Supprimer
                 </Button>
                 <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      disabled={batchExporting !== null}
-                      className="gap-2"
-                    >
-                      {batchExporting ? (
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                      ) : (
-                        <Download className="w-4 h-4" />
-                      )}
-                      Exporter
-                    </Button>
+                  <DropdownMenuTrigger
+                    className={cn(buttonVariants({ variant: "outline", size: "sm" }), "gap-2")}
+                    disabled={batchExporting !== null}
+                  >
+                    {batchExporting ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Download className="w-4 h-4" />
+                    )}
+                    Exporter
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
+                  <DropdownMenuContent className="right-0">
                     {EXPORT_FORMATS.map((fmt) => (
                       <DropdownMenuItem
                         key={fmt}
-                        onClick={() => handleBatchExport(fmt)}
-                        disabled={batchExporting !== null}
+                        onClick={() => {
+                          if (batchExporting !== null) return;
+                          handleBatchExport(fmt);
+                        }}
+                        className={batchExporting !== null ? "opacity-50 pointer-events-none" : ""}
                       >
                         {fmt}
                       </DropdownMenuItem>
