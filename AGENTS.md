@@ -4,6 +4,7 @@
 - Rename Plan enum `FREE/PRO/TEAM/AGENCY` → `FREE/STARTER/PRO/ULTRA` (price-preserving)
 - Fix 15 catalogued entitlements bugs, write regression tests, push to `origin/main`
 - Investigate + fix `node:` import errors in the vitest unit suite (vitest env setup)
+- Resolve all TypeScript `tsc --noEmit` type errors across the web app and scripts, push to `origin/main`
 
 ## Constraints & Preferences
 - Tiers: free, starter, pro, ultra (user-chosen)
@@ -26,6 +27,7 @@
 - **`node:` import error fix (`a8ddea0`):** added `// @vitest-environment node` pragma to 29 logic-test files importing Node builtins (crypto, fs, etc.). `No such built-in module: node:` errors: 12 → **0**; unit suite 1124 → **1242 passing**
 - **All 33 genuine failures fixed (`a6393c4`):** created missing `middleware.ts` (`@/middleware` barrel: i18n + CORS + x-request-id), fixed duplicate-React crash via vitest.config.ts aliases (`@datapresent/ui` pins react 19.2.6 vs app 19.2.7), added missing `node` pragma to `csrf-protection.test.ts`, and corrected `module`→`mod` test typos in 12 files. No source logic bugs were found — all were test/env issues.
 - **Unit suite now FULLY GREEN:** 1318 passed, 0 failed, 4 skipped (128 files). `node:` errors = 0.
+- **All `tsc --noEmit` type errors resolved + pushed (`0cf7bba`):** 22 errors fixed across `lib/stripe.ts` (apiVersion `2026-06-24.dahlia`), `playwright.config.ts` (env `?? ""`), `types/bullmq.d.ts` (WorkerOptions `retryStrategy?` augmentation), `components/onboarding/index.ts` (`OnboardingProvider as OnboardingTour`), `app/api/ready/route.ts` (`IRedisClient.ping()`), queue Redis `ConnectionOptions` consistency, `SlideViewerWrapper.tsx` (`@prisma/client` Slide), `about/page.tsx` (`TeamMember` type), `ReportsFilter.tsx` (custom `@datapresent-ui` props), `lib/exporters/pdf.ts` (puppeteer `waitUntil`), `lib/r2.ts` (`@smithy` dedupe), `scripts/create-stripe-products.ts` + `scripts/push-env.ts` (residual). `tsc --noEmit` exits 0.
 
 ### In Progress
 - (none)
@@ -39,6 +41,7 @@
 - Husky hook: direct `biome format` on NUL-delimited staged paths (replaced broken `lint-staged` which failed on `[locale]`/`(dashboard)` bracket paths)
 - Rebase conflict: took remote `package.json`/`pnpm-lock.yaml` (prisma already `^5.22.0`)
 - **`node:` fix approach:** per-file `// @vitest-environment node` pragma (vitest 4.1.8 lacks `environmentMatchGlobs`); DOM tests keep default `jsdom`
+- **`tsc` fixes:** stripe `apiVersion` literal `"2026-06-24.dahlia"` (installed `stripe@22.3.2`); bullmq `WorkerOptions` augmented with `retryStrategy?` via `types/bullmq.d.ts` (avoids stale `@ts-expect-error`); `SlideViewerWrapper` uses `@prisma/client` `Slide` (has `contentJson`, not `content`); `TEAM` data is `{fr: TeamMember[], en: TeamMember[]}` so `about/page.tsx` annotation was wrong; `ReportsFilter` uses custom non-Radix `@datapresent-ui` components (removed `asChild`/`align`/`disabled`); `IRedisClient` gained `ping()`
 
 ## Relevant Files
 - `datapresent-web/lib/entitlements/*.ts` — feature-gate, experiments, repository, middleware, types, compat, downgrade (rename + bugfixes)
@@ -48,11 +51,18 @@
 - `datapresent-web/vitest.config.ts` — global `environment: "jsdom"` (do NOT add `environmentMatchGlobs` — unsupported)
 - `datapresent-web/prisma/migrations/20260716000000_rename_plan_tiers_to_free_starter_pro_ultra/migration.sql` — prepared, NOT run (needs DB)
 - `.husky/pre-commit` — direct biome format (committed `c4e2979`)
+- `datapresent-web/lib/stripe.ts`, `datapresent-web/scripts/create-stripe-products.ts` — apiVersion `"2026-06-24.dahlia"`
+- `datapresent-web/types/bullmq.d.ts` — `WorkerOptions.retryStrategy?` augmentation
+- `datapresent-web/components/onboarding/index.ts` — `OnboardingProvider as OnboardingTour` export
+- `datapresent-web/app/api/ready/route.ts` — `IRedisClient.ping()`
+- `datapresent-web/components/slides/SlideViewerWrapper.tsx` — `@prisma/client` `Slide`
+- `datapresent-web/app/[locale]/about/page.tsx` — `TeamMember` type fix
+- `datapresent-web/components/reports/ReportsFilter.tsx` — custom `@datapresent-ui` props
+- `datapresent-web/lib/exporters/pdf.ts`, `datapresent-web/lib/r2.ts`, `datapresent-web/lib/queue/client.ts`, `datapresent-web/lib/queue/workers/*.ts` — tsc fixes
 
 ## Next Steps
-- Decide whether to fix the ~33 genuine failures (missing `@/middleware` barrel export is the biggest real bug; others are export/assertion bugs + DOM test setup)
-- Optionally run full `tsc` and fix the 11 pre-existing type errors (Redis ping, puppeteer, AWS SDK, Stripe date literal, etc.)
-- Execute the plan-tier migration SQL only when a DB is available
+- Execute the plan-tier migration SQL only when a DB is available (do NOT run `prisma migrate` now)
+- (All other objectives met: rename done, 15 bugs fixed, unit suite green, `tsc` clean, pushed to `origin/main`)
 
 ---
 
