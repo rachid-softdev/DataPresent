@@ -111,7 +111,7 @@ describe("useEntitlements hook", () => {
       })
       .mockResolvedValueOnce({
         ok: true,
-        json: async () => ({ ...mockEntitlements, plan: "TEAM" }),
+        json: async () => ({ ...mockEntitlements, plan: "PRO" }),
       });
 
     const { useEntitlements, EntitlementsProvider } = await import("@/hooks/use-entitlements");

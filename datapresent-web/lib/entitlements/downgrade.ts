@@ -244,9 +244,9 @@ export class DowngradeService {
   private getPlanPriority(plan: Plan): number {
     const priorities: Record<Plan, number> = {
       FREE: 0,
-      PRO: 1,
-      TEAM: 2,
-      AGENCY: 3,
+      STARTER: 1,
+      PRO: 2,
+      ULTRA: 3,
     };
     return priorities[plan] ?? 0;
   }

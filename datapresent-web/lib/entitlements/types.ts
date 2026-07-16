@@ -68,7 +68,7 @@ export interface ConsumeSuccess {
 
 export interface ConsumeFailure {
   success: false;
-  error: "LIMIT_REACHED" | "FEATURE_NOT_AVAILABLE";
+  error: "LIMIT_REACHED" | "FEATURE_NOT_AVAILABLE" | "INVALID_AMOUNT";
   featureKey: string;
   limit: number | null;
   used: number;

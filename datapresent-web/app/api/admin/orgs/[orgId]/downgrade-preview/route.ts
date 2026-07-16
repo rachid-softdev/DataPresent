@@ -20,7 +20,7 @@ export const GET = withAdmin(
     }
 
     // Validate target plan
-    if (!["FREE", "PRO", "TEAM", "AGENCY"].includes(targetPlan)) {
+    if (!["FREE", "STARTER", "PRO", "ULTRA"].includes(targetPlan)) {
       return NextResponse.json({ error: "Invalid targetPlan" }, { status: 400 });
     }
 

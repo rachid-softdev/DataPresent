@@ -226,7 +226,7 @@ export class PrismaEntitlementRepository implements IEntitlementRepository {
 
     // Get start and end of current month
     const periodStart = new Date(now.getFullYear(), now.getMonth(), 1);
-    const periodEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+    const periodEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
 
     // Pre-check: if no existing usage row and amount already exceeds limit, reject early.
     // This is a safety net; the ON CONFLICT WHERE clause handles the race on UPDATE path.

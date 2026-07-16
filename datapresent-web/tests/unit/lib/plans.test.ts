@@ -85,7 +85,7 @@ describe("plans", () => {
     expect(planHasFeature("FREE", "formatPPTX")).toBe(true);
     expect(planHasFeature("FREE", "formatPDF")).toBe(false);
     expect(planHasFeature("PRO", "formatPDF")).toBe(true);
-    expect(planHasFeature("AGENCY", "whiteLabel")).toBe(true);
+    expect(planHasFeature("ULTRA", "whiteLabel")).toBe(true);
   });
 
   it("should export getPlanPrice function", async () => {
@@ -98,8 +98,8 @@ describe("plans", () => {
 
     expect(getPlanPrice("FREE")).toBe("€0/mo");
     expect(getPlanPrice("PRO")).toBe("€19/mo");
-    expect(getPlanPrice("TEAM")).toBe("€49/mo");
-    expect(getPlanPrice("AGENCY")).toBe("Custom");
+    expect(getPlanPrice("PRO")).toBe("€49/mo");
+    expect(getPlanPrice("ULTRA")).toBe("Custom");
   });
 
   it("should export planSupportsFormat function", async () => {
@@ -114,7 +114,7 @@ describe("plans", () => {
     expect(planSupportsFormat("FREE", "PDF")).toBe(false);
     expect(planSupportsFormat("PRO", "PDF")).toBe(true);
     expect(planSupportsFormat("PRO", "DOCX")).toBe(true);
-    expect(planSupportsFormat("AGENCY", "PPTX")).toBe(true);
+    expect(planSupportsFormat("ULTRA", "PPTX")).toBe(true);
   });
 
   it("should export PLAN_FEATURES", async () => {

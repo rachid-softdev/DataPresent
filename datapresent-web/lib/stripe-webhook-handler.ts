@@ -39,8 +39,8 @@ function getPlanFromPriceId(priceId: string | null): Plan {
   if (!priceId) return "FREE";
 
   const priceIdToPlan: Record<string, Plan> = {
-    [env.STRIPE_PRICE_PRO_MONTHLY ?? ""]: "PRO",
-    [env.STRIPE_PRICE_TEAM_MONTHLY ?? ""]: "TEAM",
+    [env.STRIPE_PRICE_PRO_MONTHLY ?? ""]: "STARTER",
+    [env.STRIPE_PRICE_TEAM_MONTHLY ?? ""]: "PRO",
     [env.STRIPE_PRICE_STARTER_MONTHLY ?? ""]: "FREE",
   };
 

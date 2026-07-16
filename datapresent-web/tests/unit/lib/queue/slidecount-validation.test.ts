@@ -194,13 +194,13 @@ describe("canHaveSlideCount (plan validation)", () => {
   // -----------------------------------------------------------------------
   describe("TEAM plan", () => {
     it("should allow up to 30 slides", () => {
-      const result = canHaveSlideCount("TEAM", 30);
+      const result = canHaveSlideCount("PRO", 30);
       expect(result.allowed).toBe(true);
       expect(result.maxSlides).toBe(30);
     });
 
     it("should reject more than 30 slides", () => {
-      const result = canHaveSlideCount("TEAM", 31);
+      const result = canHaveSlideCount("PRO", 31);
       expect(result.allowed).toBe(false);
       expect(result.maxSlides).toBe(30);
     });
@@ -211,13 +211,13 @@ describe("canHaveSlideCount (plan validation)", () => {
   // -----------------------------------------------------------------------
   describe("AGENCY plan", () => {
     it("should allow any slide count (unlimited)", () => {
-      const result = canHaveSlideCount("AGENCY", 100);
+      const result = canHaveSlideCount("ULTRA", 100);
       expect(result.allowed).toBe(true);
       expect(result.maxSlides).toBe(-1);
     });
 
     it("should allow 0 slides (unlimited)", () => {
-      const result = canHaveSlideCount("AGENCY", 0);
+      const result = canHaveSlideCount("ULTRA", 0);
       expect(result.allowed).toBe(true);
       expect(result.maxSlides).toBe(-1);
     });

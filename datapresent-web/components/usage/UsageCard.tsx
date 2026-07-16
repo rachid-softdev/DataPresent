@@ -82,11 +82,11 @@ export function UsageCard() {
     switch (plan) {
       case "FREE":
         return "outline";
-      case "PRO":
+      case "STARTER":
         return "default";
-      case "TEAM":
+      case "PRO":
         return "secondary";
-      case "AGENCY":
+      case "ULTRA":
         return "secondary";
       default:
         return "outline";

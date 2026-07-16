@@ -90,7 +90,7 @@ describe("plan-utils", () => {
     expect(canUseFormat("FREE", "DOCX")).toBe(false);
     expect(canUseFormat("PRO", "PDF")).toBe(true);
     expect(canUseFormat("PRO", "DOCX")).toBe(true);
-    expect(canUseFormat("TEAM", "PPTX")).toBe(true);
+    expect(canUseFormat("PRO", "PPTX")).toBe(true);
   });
 
   it("should export canHaveSlideCount function", async () => {
@@ -112,10 +112,10 @@ describe("plan-utils", () => {
     expect(canHaveSlideCount("PRO", 21).allowed).toBe(false);
 
     // TEAM: maxSlides = 30
-    expect(canHaveSlideCount("TEAM", 30).allowed).toBe(true);
+    expect(canHaveSlideCount("PRO", 30).allowed).toBe(true);
 
     // AGENCY: unlimited (-1)
-    const agency = canHaveSlideCount("AGENCY", 999999);
+    const agency = canHaveSlideCount("ULTRA", 999999);
     expect(agency.allowed).toBe(true);
     expect(agency.maxSlides).toBe(-1);
   });
@@ -221,13 +221,13 @@ describe("plan-utils", () => {
         {
           orgId: "org-1",
           org: {
-            subscription: { plan: "AGENCY" },
+            subscription: { plan: "ULTRA" },
           },
         },
       ],
     });
     mockPrisma.subscription.findUnique.mockResolvedValue({
-      plan: "AGENCY",
+      plan: "ULTRA",
       status: "ACTIVE",
     });
 
@@ -249,13 +249,13 @@ describe("plan-utils", () => {
         {
           orgId: "org-1",
           org: {
-            subscription: { plan: "AGENCY" },
+            subscription: { plan: "ULTRA" },
           },
         },
       ],
     });
     mockPrisma.subscription.findUnique.mockResolvedValue({
-      plan: "AGENCY",
+      plan: "ULTRA",
       status: "ACTIVE",
     });
 

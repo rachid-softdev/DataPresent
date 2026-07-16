@@ -49,23 +49,8 @@ vi.mock("@/lib/entitlements/cache", () => ({
 vi.mock("@/lib/entitlements/repository", () => ({
   entitlementRepository: {
     ...mockRepository,
-    getPlanFeatures: vi.fn((plan: string) => {
-      // Return features based on plan
-      if (plan === "PRO" || plan === "AGENCY") {
-        return Promise.resolve([
-          {
-            feature: { key: "EXPORT_PDF", type: "BOOLEAN" as const },
-            enabled: true,
-          },
-          {
-            feature: { key: "REPORTS_PER_MONTH", type: "LIMIT" as const },
-            limitValue: plan === "AGENCY" ? null : 30,
-            enabled: true,
-          },
-        ]);
-      }
-      return Promise.resolve([]);
-    }),
+    // Delegate to the mockable fn so per-test getPlanFeatures mocks apply
+    getPlanFeatures: (plan: string) => mockRepository.getPlanFeatures(plan),
   },
 }));
 
@@ -211,6 +196,7 @@ describe("FeatureGateService", () => {
       mockRepository.getPlanFeatures.mockResolvedValue([
         {
           feature: { key: "REPORTS_PER_MONTH", type: "LIMIT" as const },
+          enabled: true,
           limitValue: 30,
         },
       ] as unknown as PlanFeature[]);
@@ -223,7 +209,7 @@ describe("FeatureGateService", () => {
     it("should return null for unlimited (Enterprise)", async () => {
       mockCache.get.mockResolvedValue(null);
       mockRepository.getActiveSubscription.mockResolvedValue({
-        plan: "AGENCY" as Plan,
+        plan: "ULTRA" as Plan,
         status: "ACTIVE",
       } as Subscription);
       mockRepository.getAllOverrides.mockResolvedValue([]);
@@ -247,8 +233,8 @@ describe("FeatureGateService", () => {
 
       const result = await service.getLimit("org-1", "REPORTS_PER_MONTH");
 
-      // Implementation returns false for fallback (not 0) - this is a known behavior
-      expect(result).toBe(false);
+      // No plan feature and no limit override -> unlimited (null)
+      expect(result).toBe(null);
     });
   });
 
@@ -288,8 +274,9 @@ describe("FeatureGateService", () => {
       mockRepository.getAllOverrides.mockResolvedValue([]);
       mockRepository.getPlanFeatures.mockResolvedValue([
         {
-          feature: { key: "EXPORT_PDF", type: "BOOLEAN" as const },
+          feature: { key: "EXPORT_PDF", type: "LIMIT" as const },
           enabled: true,
+          limitValue: 10,
         },
       ] as unknown as PlanFeature[]);
       mockRepository.getUsage.mockResolvedValue({
@@ -297,6 +284,7 @@ describe("FeatureGateService", () => {
         periodEnd: new Date("2099-12-31"),
       } as unknown as UsageTracking);
 
+      // 10 used + 1 new = 11, limit is 10 → should be blocked
       const result = await service.canConsume("org-1", "EXPORT_PDF", 1);
 
       expect(result).toBe(false);
@@ -305,7 +293,7 @@ describe("FeatureGateService", () => {
     it("should return true for unlimited", async () => {
       mockCache.get.mockResolvedValue(null);
       mockRepository.getActiveSubscription.mockResolvedValue({
-        plan: "AGENCY" as Plan,
+        plan: "ULTRA" as Plan,
         status: "ACTIVE",
       } as Subscription);
       mockRepository.getAllOverrides.mockResolvedValue([]);
@@ -321,12 +309,10 @@ describe("FeatureGateService", () => {
         periodEnd: new Date("2099-12-31"),
       } as unknown as UsageTracking);
 
-      // Even with usage tracked, if under some limit should pass
-      // Current implementation returns false for this scenario
+      // EXPORT_PDF is a BOOLEAN feature with no limit, so canConsume allows it
       const result = await service.canConsume("org-1", "EXPORT_PDF", 1);
 
-      // This test reflects current implementation behavior
-      expect(result).toBe(false);
+      expect(result).toBe(true);
     });
 
     it("should return false when feature not available", async () => {

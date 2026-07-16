@@ -52,34 +52,34 @@ describe("Plan Pricing (plan-pricing.ts)", () => {
     });
   });
 
-  it("should return Pro plan with price 19 and stripePriceId from env", async () => {
+  it("should return Starter plan with price 19 and stripePriceId from env", async () => {
     const { getPlanPricing } = await import("@/lib/entitlements/plan-pricing");
-    const pricing = getPlanPricing("PRO");
+    const pricing = getPlanPricing("STARTER");
 
     expect(pricing).toEqual({
-      name: "Pro",
+      name: "Starter",
       price: 19,
       stripePriceId: "price_pro_monthly_test",
     });
   });
 
-  it("should return Team plan with price 49 and stripePriceId from env", async () => {
+  it("should return Pro plan with price 49 and stripePriceId from env", async () => {
     const { getPlanPricing } = await import("@/lib/entitlements/plan-pricing");
-    const pricing = getPlanPricing("TEAM");
+    const pricing = getPlanPricing("PRO");
 
     expect(pricing).toEqual({
-      name: "Team",
+      name: "Pro",
       price: 49,
       stripePriceId: "price_team_monthly_test",
     });
   });
 
-  it("should return Agency plan with price -1 (custom) and null stripePriceId", async () => {
+  it("should return Ultra plan with price -1 (custom) and null stripePriceId", async () => {
     const { getPlanPricing } = await import("@/lib/entitlements/plan-pricing");
-    const pricing = getPlanPricing("AGENCY");
+    const pricing = getPlanPricing("ULTRA");
 
     expect(pricing).toEqual({
-      name: "Agency",
+      name: "Ultra",
       price: -1,
       stripePriceId: null,
     });
@@ -104,14 +104,14 @@ describe("Plan Pricing (plan-pricing.ts)", () => {
   it("should expose PLAN_PRICING constant with correct keys", async () => {
     const { PLAN_PRICING } = await import("@/lib/entitlements/plan-pricing");
 
-    expect(Object.keys(PLAN_PRICING)).toEqual(["FREE", "PRO", "TEAM", "AGENCY"]);
+    expect(Object.keys(PLAN_PRICING)).toEqual(["FREE", "STARTER", "PRO", "ULTRA"]);
   });
 
   it("should expose PlanType as union of plan keys", async () => {
     const { PLAN_PRICING } = await import("@/lib/entitlements/plan-pricing");
 
     // Verify all plan types exist
-    for (const plan of ["FREE", "PRO", "TEAM", "AGENCY"] as const) {
+    for (const plan of ["FREE", "STARTER", "PRO", "ULTRA"] as const) {
       expect(PLAN_PRICING[plan]).toBeDefined();
       expect(PLAN_PRICING[plan].name).toBeDefined();
       expect(typeof PLAN_PRICING[plan].price).toBe("number");
@@ -136,12 +136,12 @@ describe("Plan Pricing (plan-pricing.ts)", () => {
 
     // When stripe price env vars are missing, env.STRIPE_PRICE_* will be
     // undefined, and the ?? null fallback in plan-pricing.ts returns null.
-    const pro = getPlanPricing("PRO");
-    expect(pro.price).toBe(19);
-    expect(pro.stripePriceId).toBeNull();
+    const starter = getPlanPricing("STARTER");
+    expect(starter.price).toBe(19);
+    expect(starter.stripePriceId).toBeNull();
 
-    const team = getPlanPricing("TEAM");
-    expect(team.price).toBe(49);
-    expect(team.stripePriceId).toBeNull();
+    const pro = getPlanPricing("PRO");
+    expect(pro.price).toBe(49);
+    expect(pro.stripePriceId).toBeNull();
   });
 });

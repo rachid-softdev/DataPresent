@@ -106,7 +106,7 @@ export default async function BillingPage() {
   const subscription = org?.subscription;
   const orgId = org?.id;
 
-  const plans = (["FREE", "PRO", "TEAM", "AGENCY"] as const).map(async (plan) => {
+  const plans = (["FREE", "STARTER", "PRO", "ULTRA"] as const).map(async (plan) => {
     const pricing = getPlanPricing(plan);
     return {
       id: plan,
@@ -114,13 +114,13 @@ export default async function BillingPage() {
       price: pricing.price,
       period: pricing.price === -1 ? undefined : t("perMonth"),
       description:
-        plan === "AGENCY"
+        plan === "ULTRA"
           ? "Pour les agences et grandes organisations nécessitant des solutions personnalisées"
           : t(`plans.${plan.toLowerCase()}.description`),
       features: await buildFeatures(plan, orgId),
-      popular: plan === "PRO",
+      popular: plan === "STARTER",
       cta:
-        plan === "FREE" ? "Plan actuel" : plan === "AGENCY" ? "Contacter les ventes" : "Souscrire",
+        plan === "FREE" ? "Plan actuel" : plan === "ULTRA" ? "Contacter les ventes" : "Souscrire",
       currentPlan: subscription?.plan === plan,
       stripePriceId: pricing.stripePriceId || undefined,
     };
