@@ -14,7 +14,7 @@
 // The fix extracts webhook-related re-exports into a dedicated bridge module
 // to break the cycle.
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // ---------------------------------------------------------------------------
 // Mock env — needed for stripe-webhook-handler import

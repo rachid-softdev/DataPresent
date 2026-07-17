@@ -2,9 +2,9 @@
 // A/B Testing Experiments - Stable Hashing & Bucketing
 // ==========================================
 
-import type { ExperimentConfig } from "./types";
-import { entitlementRepository } from "./repository";
 import { featureGateService } from "./feature-gate";
+import { entitlementRepository } from "./repository";
+import type { ExperimentConfig } from "./types";
 
 // ==========================================
 // MurmurHash3 Implementation (for stable bucketing)
@@ -15,102 +15,51 @@ import { featureGateService } from "./feature-gate";
  * Used for stable user bucketing in experiments
  */
 function murmurhash3(key: string): number {
-  let h1 = 0xdeadbeef;
-  let h2 = 0x41c6ce57;
-
+  let h = 0;
   const len = key.length;
   const nblocks = Math.floor(len / 4);
 
-  // Body
   for (let i = 0; i < nblocks; i++) {
     const offset = i * 4;
-    let k1 =
+    let k =
       (key.charCodeAt(offset) & 0xff) |
       ((key.charCodeAt(offset + 1) & 0xff) << 8) |
       ((key.charCodeAt(offset + 2) & 0xff) << 16) |
       ((key.charCodeAt(offset + 3) & 0xff) << 24);
+    k = k >>> 0;
 
-    k1 = Math.imul(k1, 0xcc9e2d51);
-    k1 = (k1 << 15) | (k1 >>> 17);
-    k1 = Math.imul(k1, 0x1b873593);
+    k = Math.imul(k, 0xcc9e2d51);
+    k = (k << 15) | (k >>> 17);
+    k = Math.imul(k, 0x1b873593);
 
-    h1 ^= k1;
-    h1 = (h1 << 13) | (h1 >>> 19);
-    h1 = (h1 * 5 + 0xe6546b64) | 0;
-
-    let k2 =
-      (key.charCodeAt(offset + 1) & 0xff) |
-      ((key.charCodeAt(offset + 2) & 0xff) << 8) |
-      ((key.charCodeAt(offset + 3) & 0xff) << 16) |
-      ((key.charCodeAt(offset + 4) & 0xff) << 24);
-
-    k2 = Math.imul(k2, 0xcc9e2d51);
-    k2 = (k2 << 15) | (k2 >>> 17);
-    k2 = Math.imul(k2, 0x1b873593);
-
-    h2 ^= k2;
-    h2 = (h2 << 13) | (h2 >>> 19);
-    h2 = (h2 * 5 + 0xe6546b64) | 0;
+    h ^= k;
+    h = (h << 13) | (h >>> 19);
+    h = (Math.imul(h, 5) + 0xe6546b64) >>> 0;
   }
 
   // Tail
-  const tail = key.substring(nblocks * 4);
   let k1 = 0;
-  let k2 = 0;
+  const tailStart = nblocks * 4;
+  const tailLen = len - tailStart;
+  if (tailLen >= 3) k1 ^= (key.charCodeAt(tailStart + 2) & 0xff) << 16;
+  if (tailLen >= 2) k1 ^= (key.charCodeAt(tailStart + 1) & 0xff) << 8;
+  if (tailLen >= 1) k1 ^= key.charCodeAt(tailStart) & 0xff;
 
-  for (let i = tail.length - 1; i >= 0; i--) {
-    const char = tail.charCodeAt(i);
-    if (i >= tail.length - 1) {
-      k1 ^= char << 16;
-    }
-    if (i >= tail.length - 2) {
-      k1 ^= char << 8;
-    }
-    if (i >= tail.length - 3) {
-      k1 ^= char;
-    }
-    if (i >= tail.length - 3) {
-      k2 ^= char << 24;
-    }
-    if (i >= tail.length - 4) {
-      k2 ^= char << 16;
-    }
-    if (i >= tail.length - 5) {
-      k2 ^= char << 8;
-    }
-    if (i >= tail.length - 6) {
-      k2 ^= char;
-    }
-  }
-
-  if (tail.length >= 3) {
+  if (tailLen > 0) {
     k1 = Math.imul(k1, 0xcc9e2d51);
     k1 = (k1 << 15) | (k1 >>> 17);
     k1 = Math.imul(k1, 0x1b873593);
-    h1 ^= k1;
+    h ^= k1;
   }
 
-  if (tail.length >= 4) {
-    k2 = Math.imul(k2, 0xcc9e2d51);
-    k2 = (k2 << 15) | (k2 >>> 17);
-    k2 = Math.imul(k2, 0x1b873593);
-    h2 ^= k2;
-  }
+  h ^= len;
+  h ^= h >>> 16;
+  h = Math.imul(h, 0x85ebca6b);
+  h ^= h >>> 13;
+  h = Math.imul(h, 0xc2b2ae35);
+  h ^= h >>> 16;
 
-  // Finalization
-  h1 ^= len;
-  h2 ^= len;
-
-  h1 = Math.imul(h1 ^ (h1 >>> 16), 0x85ebca6b);
-  h1 = Math.imul(h1 ^ (h1 >>> 13), 0xc2b2ae35);
-  h1 ^= h1 >>> 16;
-
-  h2 = Math.imul(h2 ^ (h2 >>> 16), 0x85ebca6b);
-  h2 = Math.imul(h2 ^ (h2 >>> 13), 0xc2b2ae35);
-  h2 ^= h2 >>> 16;
-
-  // Convert to unsigned 32-bit integer to avoid negative values
-  return ((h1 << 16) | (h2 >>> 16)) >>> 0;
+  return h >>> 0;
 }
 
 // ==========================================
@@ -157,9 +106,13 @@ export async function isInExperiment(
   // First check if user has override forcing the experiment
   const debugTrace = await featureGateService.getDebugTrace(orgId, experimentKey, userId);
 
-  // If user has override enabling this experiment, return true
-  if (debugTrace.resolvedVia === "user_override" && debugTrace.value === true) {
-    return true;
+  // If an override (user or org) forces enrollment, respect it for both
+  // enable and disable so org-level rollout controls are honored.
+  if (
+    (debugTrace.resolvedVia === "user_override" || debugTrace.resolvedVia === "org_override") &&
+    typeof debugTrace.value === "boolean"
+  ) {
+    return debugTrace.value;
   }
 
   // Get experiment config from plan
@@ -273,6 +226,9 @@ export function getDistributionStats(
   sampleSize: number;
 } {
   const distribution = calculateExperimentDistribution(seed, userIds, expectedPercentage);
+  if (distribution.total === 0) {
+    return { expected: expectedPercentage, actual: 0, difference: 0, sampleSize: 0 };
+  }
   const actualPercentage = (distribution.treatment / distribution.total) * 100;
 
   return {

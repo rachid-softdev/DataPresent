@@ -1,6 +1,6 @@
+import { isFeatureEnabled } from "@/env";
 import { prisma } from "@/lib/prisma";
 import { getRedisConnectionAsync } from "@/lib/redis";
-import { isFeatureEnabled } from "@/env";
 
 // ==========================================
 // Health Check Types

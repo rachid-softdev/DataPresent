@@ -12,7 +12,7 @@
 // rather than importing the component, because XHR constructor mock
 // requires a real constructor function which is fragile in jsdom.
 
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 // ---------------------------------------------------------------------------
 // Replicate the core logic from NewReportForm.tsx for testability

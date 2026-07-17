@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
-import { withCsrfProtection } from "@/lib/security";
 import { unauthorized } from "@/lib/errors";
 import { verifyPassword } from "@/lib/password";
+import { prisma } from "@/lib/prisma";
+import { withCsrfProtection } from "@/lib/security";
 
 export async function GET(req: NextRequest) {
   const session = await auth();

@@ -1,13 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { Loader2 } from "lucide-react";
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
-import Link from "next/link";
-import { ThemeToggle } from "@/components/ui/theme-toggle";
-import { GoogleIcon } from "@/components/ui/icons";
 import { useTranslations } from "next-intl";
-import { Loader2 } from "lucide-react";
+import { useState } from "react";
+import { GoogleIcon } from "@/components/ui/icons";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 export default function LoginPage() {
   const searchParams = useSearchParams();

@@ -1,6 +1,6 @@
 "use client";
 
-import { Upload, Settings2, Sparkles, FileText } from "lucide-react";
+import { FileText, Settings2, Sparkles, Upload } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export type StepId = "upload" | "config" | "generation" | "result";

@@ -1,9 +1,9 @@
-import { auth } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
-import { getLimit } from "@/lib/entitlements/feature-gate";
+import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
-import { ArrowLeft } from "lucide-react";
+import { auth } from "@/lib/auth";
+import { getLimit } from "@/lib/entitlements/feature-gate";
+import { prisma } from "@/lib/prisma";
 import NewReportForm from "./NewReportForm";
 
 export default async function NewReportPage() {

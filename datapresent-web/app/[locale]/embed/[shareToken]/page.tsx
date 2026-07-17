@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
-import { prisma } from "@/lib/prisma";
 import { SlideCard } from "@/components/slides/SlideCard";
 import { Watermark } from "@/components/watermark/Watermark";
+import { prisma } from "@/lib/prisma";
 
 export default async function EmbedPage({
   params,

@@ -1,13 +1,14 @@
+// @vitest-environment node
 // ==========================================
 // AI Prompts Tests
 // ==========================================
 
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 
 describe("ai prompts", () => {
   it("should export buildAnalysisPrompt function", async () => {
     const mod = await import("@/lib/ai/prompts");
-    expect(module.buildAnalysisPrompt).toBeDefined();
+    expect(mod.buildAnalysisPrompt).toBeDefined();
   });
 
   it("should build prompt with all required parameters", async () => {

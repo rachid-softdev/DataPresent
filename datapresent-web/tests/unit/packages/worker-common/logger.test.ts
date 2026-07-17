@@ -7,7 +7,7 @@
 // - child() context inheritance
 // - All log levels work correctly
 
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 // Import from the worker-common package (via vitest alias)
 const loggerPath = "@datapresent/worker-common/logger";

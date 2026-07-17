@@ -2,10 +2,10 @@
 // Middleware Factories - Framework-Agnostic
 // ==========================================
 
-import { auth } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
-import { hasFeature, canConsume, consume, type ConsumeResult } from "@/lib/entitlements";
 import type { NextRequest } from "next/server";
+import { auth } from "@/lib/auth";
+import { type ConsumeResult, canConsume, consume, hasFeature } from "@/lib/entitlements";
+import { prisma } from "@/lib/prisma";
 
 // ==========================================
 // Helper: Extract orgId and userId from session
@@ -37,12 +37,18 @@ async function getSessionContext(_request: NextRequest): Promise<{
 // Error Response Helpers
 // ==========================================
 
+async function getCurrentPlan(orgId: string): Promise<string> {
+  const sub = await prisma.subscription.findUnique({ where: { orgId } });
+  if (sub && ["ACTIVE", "TRIALING"].includes(sub.status)) return sub.plan;
+  return "FREE";
+}
+
 function createFeatureErrorResponse(featureKey: string, currentPlan: string): Response {
   return Response.json(
     {
       error: "FEATURE_NOT_AVAILABLE",
       feature: featureKey,
-      plan_required: "PRO",
+      plan_required: "STARTER",
       current_plan: currentPlan,
       upgrade_url: "/billing/upgrade",
     },
@@ -118,7 +124,7 @@ export function withFeature(
     }
 
     if (!allowed) {
-      return createFeatureErrorResponse(featureKey, "FREE");
+      return createFeatureErrorResponse(featureKey, await getCurrentPlan(orgId));
     }
 
     return handler(request, { orgId: orgId!, userId: userId! });
@@ -160,9 +166,26 @@ export function createLimitMiddleware(featureKey: string) {
 export function withLimit(
   featureKey: string,
   handler: (request: NextRequest, context: { orgId: string; userId: string }) => Promise<Response>,
+): (request: NextRequest) => Promise<Response>;
+export function withLimit(
+  featureKey: string,
+  amount: number,
+  handler: (request: NextRequest, context: { orgId: string; userId: string }) => Promise<Response>,
+): (request: NextRequest) => Promise<Response>;
+export function withLimit(
+  featureKey: string,
+  handlerOrAmount:
+    | ((request: NextRequest, context: { orgId: string; userId: string }) => Promise<Response>)
+    | number,
+  maybeHandler?: (
+    request: NextRequest,
+    context: { orgId: string; userId: string },
+  ) => Promise<Response>,
 ) {
+  const amount = typeof handlerOrAmount === "number" ? handlerOrAmount : 1;
+  const handler = (typeof handlerOrAmount === "function" ? handlerOrAmount : maybeHandler)!;
   return async (request: NextRequest): Promise<Response> => {
-    const { allowed, orgId, userId } = await createLimitMiddleware(featureKey)(request, 1);
+    const { allowed, orgId, userId } = await createLimitMiddleware(featureKey)(request, amount);
 
     if (!orgId) {
       return Response.json({ error: "Unauthorized" }, { status: 401 });
@@ -244,7 +267,7 @@ export function withConsume(
 
     if (!result.success) {
       if (result.error === "FEATURE_NOT_AVAILABLE") {
-        return createFeatureErrorResponse(featureKey, "FREE");
+        return createFeatureErrorResponse(featureKey, await getCurrentPlan(orgId));
       }
 
       return createLimitErrorResponse(featureKey, result.limit ?? 0, result.used, result.resetAt);

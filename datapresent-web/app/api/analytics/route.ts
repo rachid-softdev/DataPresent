@@ -3,7 +3,7 @@
 // ==========================================
 
 import { NextRequest, NextResponse } from "next/server";
-import { trackEvent, ANALYTICS_EVENTS, type AnalyticsEvent } from "@/lib/analytics";
+import { ANALYTICS_EVENTS, type AnalyticsEvent, trackEvent } from "@/lib/analytics";
 import { extractClientIP } from "@/lib/client-ip";
 
 export const dynamic = "force-dynamic";

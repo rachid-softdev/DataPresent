@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect, createContext, useContext, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { X, ChevronRight } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
+import { ChevronRight, X } from "lucide-react";
+import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 

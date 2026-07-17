@@ -1,8 +1,9 @@
+// @vitest-environment node
 // ==========================================
 // Crypto Utility Tests (extractTokenPrefix)
 // ==========================================
 
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { extractTokenPrefix } from "@/lib/crypto";
 
 describe("extractTokenPrefix", () => {

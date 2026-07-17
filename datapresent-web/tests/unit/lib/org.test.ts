@@ -1,8 +1,9 @@
+// @vitest-environment node
 // ==========================================
 // Org Tests
 // ==========================================
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // Mock prisma using vi.hoisted
 const { mockPrisma } = vi.hoisted(() => ({
@@ -29,7 +30,7 @@ describe("org", () => {
 
   it("should export ensureUserHasOrganization function", async () => {
     const mod = await import("@/lib/org");
-    expect(module.ensureUserHasOrganization).toBeDefined();
+    expect(mod.ensureUserHasOrganization).toBeDefined();
   });
 
   it("should return existing org id if user already has membership", async () => {
@@ -65,7 +66,7 @@ describe("org", () => {
 
   it("should export getUserOrganizations function", async () => {
     const mod = await import("@/lib/org");
-    expect(module.getUserOrganizations).toBeDefined();
+    expect(mod.getUserOrganizations).toBeDefined();
   });
 
   it("should return user organizations with plan info", async () => {

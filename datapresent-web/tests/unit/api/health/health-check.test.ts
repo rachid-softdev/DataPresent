@@ -8,7 +8,7 @@
 // - Reports individual check statuses (objects with status/error)
 // - Response shape validation
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // ---------------------------------------------------------------------------
 // Mock variables (must use vi.hoisted)

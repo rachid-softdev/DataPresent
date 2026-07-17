@@ -13,8 +13,8 @@
 // DEPRECATION WARNING: Importing from this file will log a warning.
 // ==========================================
 
-import { prisma } from "@/lib/prisma";
 import { env } from "@/env";
+import { prisma } from "@/lib/prisma";
 import { featureGateService } from "./feature-gate";
 
 // Emit deprecation warning once at module load time
@@ -82,8 +82,8 @@ export const PLANS = {
     customDomain: false,
     stripePriceId: null,
   },
-  PRO: {
-    name: "Pro",
+  STARTER: {
+    name: "Starter",
     price: 19,
     reportsPerMonth: 30,
     maxSlides: 20,
@@ -100,8 +100,8 @@ export const PLANS = {
     customDomain: false,
     stripePriceId: env.STRIPE_PRICE_PRO_MONTHLY ?? null,
   },
-  TEAM: {
-    name: "Team",
+  PRO: {
+    name: "Pro",
     price: 49,
     reportsPerMonth: -1,
     maxSlides: 30,
@@ -118,8 +118,8 @@ export const PLANS = {
     customDomain: false,
     stripePriceId: env.STRIPE_PRICE_TEAM_MONTHLY ?? null,
   },
-  AGENCY: {
-    name: "Agency",
+  ULTRA: {
+    name: "Ultra",
     price: -1,
     reportsPerMonth: -1,
     maxSlides: -1,

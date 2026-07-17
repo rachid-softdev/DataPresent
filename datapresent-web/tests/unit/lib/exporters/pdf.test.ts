@@ -1,15 +1,16 @@
+// @vitest-environment node
 // ==========================================
 // PDF Exporter Tests
 // ==========================================
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
 import { SlideLayout } from "@prisma/client";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 describe("pdf exporter", () => {
   it("should export generatePdf and generateHtmlFromSlides functions", async () => {
     const mod = await import("@/lib/exporters/pdf");
-    expect(module.generatePdf).toBeDefined();
-    expect(module.generateHtmlFromSlides).toBeDefined();
+    expect(mod.generatePdf).toBeDefined();
+    expect(mod.generateHtmlFromSlides).toBeDefined();
   });
 
   it("should generate HTML from slides", async () => {

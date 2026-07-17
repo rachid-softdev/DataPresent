@@ -7,7 +7,7 @@
 // - trackEvent() calls logger.info with correct shape
 // - Properties are spread correctly
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // Mock the logger module BEFORE importing analytics
 // Use vi.hoisted to define mock function at the hoisted scope level
@@ -23,7 +23,7 @@ vi.mock("@/lib/logger", () => ({
   },
 }));
 
-import { trackEvent, ANALYTICS_EVENTS } from "@/lib/analytics";
+import { ANALYTICS_EVENTS, trackEvent } from "@/lib/analytics";
 
 describe("Analytics (lib/analytics.ts)", () => {
   beforeEach(() => {

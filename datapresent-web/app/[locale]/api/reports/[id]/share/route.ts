@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
 import { env } from "@/env";
-import { prisma } from "@/lib/prisma";
-import { withCsrfProtection } from "@/lib/security";
-import { unauthorized, forbidden, notFound } from "@/lib/errors";
+import { auth } from "@/lib/auth";
+import { forbidden, notFound, unauthorized } from "@/lib/errors";
 import { hashPassword } from "@/lib/password";
+import { prisma } from "@/lib/prisma";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { withCsrfProtection } from "@/lib/security";
 import { ShareCreateSchema, ShareUpdateSchema } from "@/lib/validation-schemas";
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {

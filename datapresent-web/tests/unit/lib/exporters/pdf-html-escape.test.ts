@@ -9,7 +9,7 @@
 // The private escapeHtml() function in pdf.ts escapes: & < > " '
 // These tests verify the escaping through the public generateHtmlFromSlides API.
 
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { generateHtmlFromSlides } from "@/lib/exporters/pdf";
 
 describe("PDF export XSS prevention (escapeHtml via generateHtmlFromSlides)", () => {

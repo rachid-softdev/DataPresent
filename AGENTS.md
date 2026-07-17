@@ -1,54 +1,83 @@
 <!-- BEGIN:anchored-summary -->
-## Goal
-- Fix all critical blockers found by 10 test-automation-engineer agents so the project can implement the ~1,990 missing E2E test scenarios
+## Active Work Stream: Plan-tier rename + entitlements bugfix + unit-suite greening
+## Goal (current)
+- Rename Plan enum `FREE/PRO/TEAM/AGENCY` → `FREE/STARTER/PRO/ULTRA` (price-preserving)
+- Fix 15 catalogued entitlements bugs, write regression tests, push to `origin/main`
+- Investigate + fix `node:` import errors in the vitest unit suite (vitest env setup)
+- Resolve all TypeScript `tsc --noEmit` type errors across the web app and scripts, push to `origin/main`
 
 ## Constraints & Preferences
-- Use Playwright E2E (same pattern as `D:\git-projects\PromptBearer` with `qa`)
-- Align Playwright execution scripts exactly with PromptBearer pattern — no duplicates, runs directly
+- Tiers: free, starter, pro, ultra (user-chosen)
+- Feature flags are DB-backed (already implemented in `datapresent-web/lib/entitlements/`)
+- Do NOT run `prisma migrate` (no DB); leave migration SQL unexecuted
+- Do NOT run `pnpm install` without `--ignore-scripts` (husky prepare fails + aborts bin symlinks)
+- Vitest 4.1.8 global `environment: "jsdom"`; `environmentMatchGlobs` is NOT supported — use per-file `// @vitest-environment node` pragma for Node-builtin tests
 
 ## Progress
 ### Done
-- Fix #1: Created `/contact` page at `app/[locale]/contact/page.tsx` with form + SEO metadata; removed `/contact` → `/help` redirect from `next.config.ts`
-- Fix #2: Created Playwright auth fixture at `e2e/auth.setup.ts` + `e2e/auth-helpers.ts` + `e2e/helpers/auth.ts` + `e2e/helpers/db.ts` — injects `authjs.session-token` JWT cookie, persists storage state to `e2e/.auth/user.json`
-- Fix #3: Created extension skeleton at `datapresent-extension/src/` — Manifest V3, background service-worker, popup (HTML+TS), content scripts (TS+CSS), types, tsconfig
-- Fix #4: Added `SMTP_HOST=localhost` and `SMTP_PORT=1025` to `e2e/.env.test`
-- Fix #5: Stripe test keys already existed as placeholders in `.env.test`
-- Created `scripts/qa-web.js` + `scripts/qa-web.ps1` — interactive QA session (PromptBearer `qa` pattern)
-- Restructured all tests: moved from `tests/e2e/` to `e2e/` with subdirectories (auth/, dashboard/, share/, subscription/, settings/, admin/, api/, teams/, helpers/)
-- Wrote 34 spec files with ~319 test declarations covering auth, public pages, dashboard, reports, share, subscription, settings, admin, teams, API, accessibility, responsive, and extension structure
-- Updated `playwright.config.ts` — multi-browser (chromium, firefox, webkit, authenticated, api), setup project with dependencies
-- Committed + pushed to `origin/main` — 72 files, 8,963 lines added
-- Cleaned unused remote branches (dependabot auto-merged)
-- Aligned Playwright execution scripts with PromptBearer pattern exactly: removed 5 duplicate scripts (`test:e2e`, `test:e2e:ui`, etc.), renamed `web:qa` → `qa`, rewrote `qa-web.js` to use `execSync` + PowerShell `Start-Process` detached launcher (exact PromptBearer pattern)
+- **Plan-tier rename:** applied repo-wide; plan literals `TEAM`/`AGENCY` eliminated; `tsc --noEmit` clean for all entitlements files
+- **15 entitlements bugs fixed:** `feature-gate.ts`, `experiments.ts`, `repository.ts`, `middleware.ts`, `types.ts`
+- **5 regression suites (94 tests) written + passing:** `feature-gate.bugs` (23), `consumption.bugs` (17), `experiments.bugs` (14), `downgrade.bugs` (23), `middleware.bugs` (8 — `withLimit` made a proper overload)
+- **Fixed 3 regressions my own fixes introduced:** override `limitValue` check `!== null` → `!= null`; test-infra `getPlanFeatures` delegation; 2 tests asserted buggy behavior; 2 mocks missing `enabled:true` / modeled LIMIT as BOOLEAN
+- **All entitlements tests green:** 162 passed, 3 skipped
+- **Committed + pushed (`c4e2979`):** rename + 15 bugfixes + 5 suites + husky hook fix (replaced `lint-staged` with direct `biome format` NUL-delimited)
+- **Rebased onto `origin/main`** (12 behind): resolved `package.json`/`pnpm-lock.yaml` conflicts (prisma `^5.22.0`) by taking remote
+- **Post-push fix (`63efe03`):** `downgrade.test.ts` `mod`/`module` rebase-merge artifact
+- **Rename test-expectation fix (`5fa09c1`):** updated stale `TEAM`/`AGENCY` names in `plans`, `plan-utils`, `slidecount-validation` tests (80/80 pass)
+- **`node:` import error fix (`a8ddea0`):** added `// @vitest-environment node` pragma to 29 logic-test files importing Node builtins (crypto, fs, etc.). `No such built-in module: node:` errors: 12 → **0**; unit suite 1124 → **1242 passing**
+- **All 33 genuine failures fixed (`a6393c4`):** created missing `middleware.ts` (`@/middleware` barrel: i18n + CORS + x-request-id), fixed duplicate-React crash via vitest.config.ts aliases (`@datapresent/ui` pins react 19.2.6 vs app 19.2.7), added missing `node` pragma to `csrf-protection.test.ts`, and corrected `module`→`mod` test typos in 12 files. No source logic bugs were found — all were test/env issues.
+- **Unit suite now FULLY GREEN:** 1318 passed, 0 failed, 4 skipped (128 files). `node:` errors = 0.
+- **All `tsc --noEmit` type errors resolved + pushed (`0cf7bba`):** 22 errors fixed across `lib/stripe.ts` (apiVersion `2026-06-24.dahlia`), `playwright.config.ts` (env `?? ""`), `types/bullmq.d.ts` (WorkerOptions `retryStrategy?` augmentation), `components/onboarding/index.ts` (`OnboardingProvider as OnboardingTour`), `app/api/ready/route.ts` (`IRedisClient.ping()`), queue Redis `ConnectionOptions` consistency, `SlideViewerWrapper.tsx` (`@prisma/client` Slide), `about/page.tsx` (`TeamMember` type), `ReportsFilter.tsx` (custom `@datapresent-ui` props), `lib/exporters/pdf.ts` (puppeteer `waitUntil`), `lib/r2.ts` (`@smithy` dedupe), `scripts/create-stripe-products.ts` + `scripts/push-env.ts` (residual). `tsc --noEmit` exits 0.
+- **Build now passes (`eb30fe1`):** `next build` was broken by root `middleware.ts` colliding with Next.js 16's reserved filename (this fork uses `proxy.ts` for the app middleware). Relocated `@/middleware` → `middleware/index.ts` so the 4 unit tests still resolve it and the build uses `proxy.ts`. `next build` succeeds; unit suite still green (1318 passed).
+- **Biome (`biome check`) now clean (`dad94d9`):** ran `biome check --write` to auto-fix import organization across 382 web-app files. Enabled `html.parser.interpolation` in `biome.json` so email templates (`lib/email-templates/*.html`) parse `{{ }}` interpolation instead of false-positive parse errors. `biome check` exits 0; `tsc` clean; suite green.
 
 ### In Progress
 - (none)
 
 ### Blocked
-- (none)
+- (none) — unit suite is green
 
 ## Key Decisions
-- Switched from `tests/e2e/` to `e2e/` directory structure matching PromptBearer pattern
-- Playwright projects: `setup` (creates auth state) → `authenticated` (depends on setup, uses storageState) + `chromium`/`firefox`/`webkit` (public tests only) + `api` (API tests)
-- Auth fixture uses `next-auth/jwt` `encode()` directly for session token generation (no UI login flow needed)
-- Extension tests are structural/unit-level (validate skeleton files exist with correct structure)
-- Removed duplicate scripts — single clean set: `test`, `test:ui`, `test:headed`, `test:authenticated`, `test:api`, `test:unit`, + `qa`/`qa:headless`
-- `qa-web.js` rewritten to use pure `execSync` + PowerShell `Start-Process` for detached server launch (PromptBearer pattern)
+- `withLimit` overload: `(featureKey, handler)` and `(featureKey, amount, handler)`
+- Override `limitValue` uses `!= null` (handles `undefined`)
+- Husky hook: direct `biome format` on NUL-delimited staged paths (replaced broken `lint-staged` which failed on `[locale]`/`(dashboard)` bracket paths)
+- Rebase conflict: took remote `package.json`/`pnpm-lock.yaml` (prisma already `^5.22.0`)
+- **`node:` fix approach:** per-file `// @vitest-environment node` pragma (vitest 4.1.8 lacks `environmentMatchGlobs`); DOM tests keep default `jsdom`
+- **`tsc` fixes:** stripe `apiVersion` literal `"2026-06-24.dahlia"` (installed `stripe@22.3.2`); bullmq `WorkerOptions` augmented with `retryStrategy?` via `types/bullmq.d.ts` (avoids stale `@ts-expect-error`); `SlideViewerWrapper` uses `@prisma/client` `Slide` (has `contentJson`, not `content`); `TEAM` data is `{fr: TeamMember[], en: TeamMember[]}` so `about/page.tsx` annotation was wrong; `ReportsFilter` uses custom non-Radix `@datapresent-ui` components (removed `asChild`/`align`/`disabled`); `IRedisClient` gained `ping()`
 
 ## Relevant Files
-- `datapresent-web/app/[locale]/contact/page.tsx`: New contact page with form + sidebar info
-- `datapresent-web/e2e/auth.setup.ts`: Global Playwright setup — creates user, injects JWT, saves storage state
-- `datapresent-web/e2e/auth-helpers.ts`: JWT generation + cookie injection + Prisma user creation
-- `datapresent-web/e2e/helpers/auth.ts`: Re-exports auth helpers for PromptBearer-style imports
-- `datapresent-web/e2e/helpers/db.ts`: PromptBearer-style DB factories (createTestReport, createTestOrganization)
-- `datapresent-web/scripts/qa-web.js`: Interactive QA session (execSync + PowerShell detached) — matches PromptBearer exactly
-- `datapresent-web/playwright.config.ts`: 6 projects (setup, chromium, firefox, webkit, authenticated, api)
-- `datapresent-web/package.json`: Clean scripts — `test`, `test:ui`, `test:headed`, `test:authenticated`, `test:api`, `test:unit`, `qa`, `qa:headless`
-- `datapresent-extension/src/manifest.json`: Extension Manifest V3 skeleton
-- `datapresent-extension/e2e/extension.spec.ts`: 20 structural tests for extension skeleton
+- `datapresent-web/lib/entitlements/*.ts` — feature-gate, experiments, repository, middleware, types, compat, downgrade (rename + bugfixes)
+- `datapresent-web/tests/unit/lib/entitlements/*.bugs.test.ts` — 5 regression suites (94 tests, green)
+- `datapresent-web/tests/unit/lib/plans.test.ts`, `plan-utils.test.ts`, `queue/slidecount-validation.test.ts` — rename expectation fixes (`5fa09c1`)
+- `datapresent-web/tests/unit/**` (29 files) — `// @vitest-environment node` pragma added (`a8ddea0`)
+- `datapresent-web/vitest.config.ts` — global `environment: "jsdom"` (do NOT add `environmentMatchGlobs` — unsupported)
+- `datapresent-web/prisma/migrations/20260716000000_rename_plan_tiers_to_free_starter_pro_ultra/migration.sql` — prepared, NOT run (needs DB)
+- `.husky/pre-commit` — direct biome format (committed `c4e2979`)
+- `datapresent-web/lib/stripe.ts`, `datapresent-web/scripts/create-stripe-products.ts` — apiVersion `"2026-06-24.dahlia"`
+- `datapresent-web/types/bullmq.d.ts` — `WorkerOptions.retryStrategy?` augmentation
+- `datapresent-web/components/onboarding/index.ts` — `OnboardingProvider as OnboardingTour` export
+- `datapresent-web/app/api/ready/route.ts` — `IRedisClient.ping()`
+- `datapresent-web/components/slides/SlideViewerWrapper.tsx` — `@prisma/client` `Slide`
+- `datapresent-web/app/[locale]/about/page.tsx` — `TeamMember` type fix
+- `datapresent-web/components/reports/ReportsFilter.tsx` — custom `@datapresent-ui` props
+- `datapresent-web/lib/exporters/pdf.ts`, `datapresent-web/lib/r2.ts`, `datapresent-web/lib/queue/client.ts`, `datapresent-web/lib/queue/workers/*.ts` — tsc fixes
 
 ## Next Steps
-(Coming from user request)
+- **Prisma migration (BLOCKED — no DB):** do NOT run `prisma migrate`. Prepared SQL renames enum values `PRO`→`STARTER`, `TEAM`→`PRO`, `AGENCY`→`ULTRA` in `prisma/migrations/20260716000000_rename_plan_tiers_to_free_starter_pro_ultra/migration.sql`. Apply via `prisma migrate deploy` once a DB is reachable.
+- (Pipeline status: rename done, 15 bugs fixed, unit suite green, `tsc` clean, `next build` passes, `biome check` clean — all pushed to `origin/main`)
+
+---
+
+## (Prior work stream — E2E test blockers, mostly complete)
+### Done
+- Fix #1: `/contact` page + removed `/contact`→`/help` redirect
+- Fix #2: Playwright auth fixture (JWT cookie → `e2e/.auth/user.json`)
+- Fix #3: Extension skeleton (Manifest V3)
+- Fix #4/#5: `SMTP_HOST`/`SMTP_PORT` + Stripe test keys in `e2e/.env.test`
+- `scripts/qa-web.js` + `qa-web.ps1` (PromptBearer `qa` pattern)
+- Restructured `tests/e2e/` → `e2e/` (34 spec files, ~319 declarations)
+- `playwright.config.ts` 6 projects; committed+pushed (72 files)
+- Aligned Playwright scripts with PromptBearer exactly (removed 5 duplicates, `web:qa`→`qa`)
 
 <!-- END:anchored-summary -->
 

@@ -1,15 +1,15 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter, useParams } from "next/navigation";
-import { useTranslations } from "next-intl";
-import { Badge } from "@/components/ui/badge";
-import { Watermark } from "@/components/watermark/Watermark";
-import { SlideCard } from "@/components/slides/SlideCard";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { Loader2, Lock } from "lucide-react";
+import { useParams, useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { SlideCard } from "@/components/slides/SlideCard";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Watermark } from "@/components/watermark/Watermark";
 
 interface Slide {
   id: string;

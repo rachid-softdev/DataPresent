@@ -1,6 +1,6 @@
-import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { PrismaClient } from "@prisma/client";
-import { getTestDb, truncateAll, closeDb } from "../../helpers/db";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { closeDb, getTestDb, truncateAll } from "../../helpers/db";
 import { createTestOrganization } from "../../helpers/factories";
 
 /**

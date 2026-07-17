@@ -7,7 +7,7 @@
 // - '' = remove existing password
 // - valid password = hash and set
 
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 
 // Test the password update logic directly (independent of route mocking)
 describe("Share PATCH — password update logic", () => {

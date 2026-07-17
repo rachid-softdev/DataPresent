@@ -1,1 +1,1 @@
-export { Alert, AlertTitle, AlertDescription } from "@datapresent/ui";
+export { Alert, AlertDescription, AlertTitle } from "@datapresent/ui";

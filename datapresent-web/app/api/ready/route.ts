@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getExportQueue, getGenerateQueue } from "@/lib/queue";
 import { getRedisConnectionAsync } from "@/lib/redis";
-import { getGenerateQueue, getExportQueue } from "@/lib/queue";
 
 export const dynamic = "force-dynamic";
 

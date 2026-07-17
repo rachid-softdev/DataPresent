@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { Building2, CreditCard, Key, Shield, User, Users } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
-import { User, Building2, Users, CreditCard, Key, Shield } from "lucide-react";
 
 const settingsNav = [
   {

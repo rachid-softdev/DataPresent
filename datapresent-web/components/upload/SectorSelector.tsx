@@ -1,6 +1,6 @@
 "use client";
 
-import { Building2, TrendingUp, Users, Cloud, FileText } from "lucide-react";
+import { Building2, Cloud, FileText, TrendingUp, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export interface SectorOption {

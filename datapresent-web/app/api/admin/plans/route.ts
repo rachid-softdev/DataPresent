@@ -4,16 +4,16 @@
 // Admin only
 // ==========================================
 
+import type { DowngradeStrategy, Plan } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 import { withAdmin } from "@/lib/admin";
 import { entitlementRepository } from "@/lib/entitlements/repository";
 import { prisma } from "@/lib/prisma";
-import type { Plan, DowngradeStrategy } from "@prisma/client";
 
 // GET all plans with their features
 export const GET = withAdmin(
   async (req) => {
-    const plans: Plan[] = ["FREE", "PRO", "TEAM", "AGENCY"];
+    const plans: Plan[] = ["FREE", "STARTER", "PRO", "ULTRA"];
 
     // Get all features
     const allFeatures = await prisma.feature.findMany({
@@ -61,7 +61,7 @@ export const POST = withAdmin(
     }
 
     // Validate plan
-    if (!["FREE", "PRO", "TEAM", "AGENCY"].includes(planKey)) {
+    if (!["FREE", "STARTER", "PRO", "ULTRA"].includes(planKey)) {
       return NextResponse.json({ error: "Invalid plan" }, { status: 400 });
     }
 

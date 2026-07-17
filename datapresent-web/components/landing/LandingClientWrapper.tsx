@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export function LandingClientWrapper({ children }: { children: React.ReactNode }) {
   const [mounted, setMounted] = useState(false);

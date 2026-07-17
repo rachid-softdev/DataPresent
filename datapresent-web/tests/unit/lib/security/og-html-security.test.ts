@@ -6,7 +6,7 @@
 // - Input length caps: title ≤ 100, description ≤ 300, slug ≤ 100
 // - HTML escaping to prevent XSS via OG tags
 
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 
 // ---------------------------------------------------------------------------
 // Input capping logic (extracted from route.ts)

@@ -1,8 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { motion } from "framer-motion";
-import { CheckCircle2, AlertTriangle, ArrowRight, RotateCcw } from "lucide-react";
+import { AlertTriangle, ArrowRight, CheckCircle2, RotateCcw } from "lucide-react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 

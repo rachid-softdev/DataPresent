@@ -5,12 +5,12 @@
 // Admin only
 // ==========================================
 
+import type { OverrideScope, Prisma } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 import { withAdmin } from "@/lib/admin";
-import { entitlementRepository } from "@/lib/entitlements/repository";
 import { invalidateCache } from "@/lib/entitlements/feature-gate";
+import { entitlementRepository } from "@/lib/entitlements/repository";
 import { prisma } from "@/lib/prisma";
-import type { OverrideScope, Prisma } from "@prisma/client";
 
 // GET all overrides
 export const GET = withAdmin(

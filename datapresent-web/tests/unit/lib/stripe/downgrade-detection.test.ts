@@ -11,7 +11,7 @@
 // The fix: remove the `plan !== 'FREE'` restriction so that PRO→FREE
 // IS correctly identified as a downgrade.
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // ---------------------------------------------------------------------------
 // Mock dependencies needed to import stripe-webhook-handler
@@ -67,11 +67,11 @@ vi.mock("@/lib/prisma", () => ({
   },
 }));
 
+import Stripe from "stripe";
 // ---------------------------------------------------------------------------
 // Import the handler
 // ---------------------------------------------------------------------------
 import { processWebhookEvent } from "@/lib/stripe-webhook-handler";
-import Stripe from "stripe";
 
 describe("Downgrade detection in customer.subscription.updated", () => {
   beforeEach(() => {
@@ -100,11 +100,11 @@ describe("Downgrade detection in customer.subscription.updated", () => {
               {
                 price: {
                   id:
-                    newPlan === "PRO"
+                    newPlan === "STARTER"
                       ? "price_pro_test"
-                      : newPlan === "TEAM"
+                      : newPlan === "PRO"
                         ? "price_team_test"
-                        : "price_starter_test",
+                        : "price_ultra_test",
                 },
               },
             ],
@@ -115,11 +115,11 @@ describe("Downgrade detection in customer.subscription.updated", () => {
   }
 
   // -----------------------------------------------------------------------
-  // PRO → FREE is a downgrade
+  // STARTER → FREE is a downgrade
   // -----------------------------------------------------------------------
-  it("should detect PRO to FREE as a downgrade", async () => {
+  it("should detect STARTER to FREE as a downgrade", async () => {
     // Current subscription in DB is PRO
-    mockSubscriptionFindUnique.mockResolvedValue({ plan: "PRO" });
+    mockSubscriptionFindUnique.mockResolvedValue({ plan: "STARTER" });
     // The repository's isEventProcessed returns false (new event)
     // We'll test the isDowngrade logic directly via the event handler
 
@@ -129,7 +129,7 @@ describe("Downgrade detection in customer.subscription.updated", () => {
     const { captureMessage } = await import("@/lib/sentry");
 
     // Create event simulating upgrade to FREE (which is actually a downgrade from PRO)
-    const event = createSubscriptionUpdatedEvent("PRO", "FREE");
+    const event = createSubscriptionUpdatedEvent("STARTER", "FREE");
 
     // The handler will run. It reads the current plan from DB (PRO),
     // then the new plan from the event (FREE), and computes isDowngrade.
@@ -160,7 +160,7 @@ describe("Downgrade detection in customer.subscription.updated", () => {
 
     // Direct test of the downgrade logic:
     // Extract the exact condition from stripe-webhook-handler.ts (line 149-150)
-    const currentSub = { plan: "PRO" };
+    const currentSub = { plan: "STARTER" };
     const plan = "FREE";
 
     // BUGGY condition (current code):
@@ -174,11 +174,11 @@ describe("Downgrade detection in customer.subscription.updated", () => {
   });
 
   // -----------------------------------------------------------------------
-  // PRO → TEAM is NOT a downgrade
+  // STARTER → PRO is NOT a downgrade
   // -----------------------------------------------------------------------
-  it("should NOT detect PRO to TEAM as a downgrade", () => {
-    const currentSub = { plan: "PRO" };
-    const plan = "TEAM";
+  it("should NOT detect STARTER to PRO as a downgrade", () => {
+    const currentSub = { plan: "STARTER" };
+    const plan = "PRO";
 
     const isDowngrade = currentSub && currentSub.plan !== "FREE" && plan !== currentSub.plan;
     // TEAM is a higher plan, not a downgrade
@@ -191,17 +191,17 @@ describe("Downgrade detection in customer.subscription.updated", () => {
     expect(isDowngrade).toBe(true); // It IS a plan change
 
     // To properly check it's NOT a downgrade, use the priority system:
-    const planPriority: Record<string, number> = { FREE: 0, PRO: 1, TEAM: 2, AGENCY: 3 };
+    const planPriority: Record<string, number> = { FREE: 0, STARTER: 1, PRO: 2, ULTRA: 3 };
     const isActualDowngrade = planPriority[plan] < planPriority[currentSub.plan];
     expect(isActualDowngrade).toBe(false); // TEAM > PRO, so not a downgrade
   });
 
   // -----------------------------------------------------------------------
-  // FREE → PRO is NOT a downgrade
+  // FREE → STARTER is NOT a downgrade
   // -----------------------------------------------------------------------
-  it("should NOT detect FREE to PRO as a downgrade", () => {
+  it("should NOT detect FREE to STARTER as a downgrade", () => {
     const currentSub = { plan: "FREE" };
-    const plan = "PRO";
+    const plan = "STARTER";
 
     // When current plan is FREE, isDowngrade condition should be false
     const isDowngrade = currentSub && currentSub.plan !== "FREE" && plan !== currentSub.plan;
@@ -225,11 +225,11 @@ describe("Downgrade detection in customer.subscription.updated", () => {
   });
 
   // -----------------------------------------------------------------------
-  // Same plan (PRO → PRO) — no change
+  // Same plan (STARTER → STARTER) — no change
   // -----------------------------------------------------------------------
-  it("should NOT detect PRO to PRO as any change", () => {
-    const currentSub = { plan: "PRO" };
-    const plan = "PRO";
+  it("should NOT detect STARTER to STARTER as any change", () => {
+    const currentSub = { plan: "STARTER" };
+    const plan = "STARTER";
 
     const isDowngrade = currentSub && currentSub.plan !== "FREE" && plan !== currentSub.plan;
     expect(isDowngrade).toBe(false); // Same plan, no change
@@ -240,26 +240,26 @@ describe("Downgrade detection in customer.subscription.updated", () => {
   });
 
   // -----------------------------------------------------------------------
-  // PRO → AGENCY — not a downgrade
+  // STARTER → ULTRA — not a downgrade
   // -----------------------------------------------------------------------
-  it("should NOT detect PRO to AGENCY as a downgrade", () => {
-    const currentSub = { plan: "PRO" };
-    const plan = "AGENCY";
+  it("should NOT detect STARTER to ULTRA as a downgrade", () => {
+    const currentSub = { plan: "STARTER" };
+    const plan = "ULTRA";
 
     const isDowngrade = currentSub && currentSub.plan !== "FREE" && plan !== currentSub.plan;
     expect(isDowngrade).toBe(true); // It IS a plan change
 
     // But it's not an actual downgrade (AGENCY > PRO)
-    const planPriority: Record<string, number> = { FREE: 0, PRO: 1, TEAM: 2, AGENCY: 3 };
+    const planPriority: Record<string, number> = { FREE: 0, STARTER: 1, PRO: 2, ULTRA: 3 };
     const isActualDowngrade = planPriority[plan] < planPriority[currentSub.plan];
     expect(isActualDowngrade).toBe(false); // AGENCY > PRO, not a downgrade
   });
 
   // -----------------------------------------------------------------------
-  // TEAM → FREE is a downgrade
+  // PRO → FREE is a downgrade
   // -----------------------------------------------------------------------
-  it("should detect TEAM to FREE as a downgrade", () => {
-    const currentSub = { plan: "TEAM" };
+  it("should detect PRO to FREE as a downgrade", () => {
+    const currentSub = { plan: "PRO" };
     const plan = "FREE";
 
     // Buggy condition fails to detect TEAM→FREE:
@@ -273,10 +273,10 @@ describe("Downgrade detection in customer.subscription.updated", () => {
   });
 
   // -----------------------------------------------------------------------
-  // AGENCY → FREE is a downgrade
+  // ULTRA → FREE is a downgrade
   // -----------------------------------------------------------------------
-  it("should detect AGENCY to FREE as a downgrade", () => {
-    const currentSub = { plan: "AGENCY" };
+  it("should detect ULTRA to FREE as a downgrade", () => {
+    const currentSub = { plan: "ULTRA" };
     const plan = "FREE";
 
     const buggyIsDowngrade =
@@ -288,11 +288,11 @@ describe("Downgrade detection in customer.subscription.updated", () => {
   });
 
   // -----------------------------------------------------------------------
-  // AGENCY → TEAM is a downgrade
+  // ULTRA → PRO is a downgrade
   // -----------------------------------------------------------------------
-  it("should detect AGENCY to TEAM as a downgrade", () => {
-    const currentSub = { plan: "AGENCY" };
-    const plan = "TEAM";
+  it("should detect ULTRA to PRO as a downgrade", () => {
+    const currentSub = { plan: "ULTRA" };
+    const plan = "PRO";
 
     // Both conditions work here since neither plan is FREE
     const buggyIsDowngrade =
@@ -303,7 +303,7 @@ describe("Downgrade detection in customer.subscription.updated", () => {
     expect(fixedIsDowngrade).toBe(true); // Also works
 
     // Verify it's an actual downgrade:
-    const planPriority: Record<string, number> = { FREE: 0, PRO: 1, TEAM: 2, AGENCY: 3 };
+    const planPriority: Record<string, number> = { FREE: 0, STARTER: 1, PRO: 2, ULTRA: 3 };
     expect(planPriority[plan]).toBeLessThan(planPriority[currentSub.plan]);
   });
 
@@ -330,7 +330,7 @@ describe("Downgrade detection in customer.subscription.updated", () => {
   });
 
   it("should handle empty plan string", () => {
-    const currentSub = { plan: "PRO" };
+    const currentSub = { plan: "STARTER" };
     const plan = "";
 
     const fixedIsDowngrade = currentSub && currentSub.plan !== "FREE" && plan !== currentSub.plan;

@@ -1,3 +1,4 @@
+// @vitest-environment node
 // ==========================================
 // CSRF Token API Endpoint Tests
 // ==========================================
@@ -8,7 +9,7 @@
 // - Different tokens each call
 // - Error handling
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // ---------------------------------------------------------------------------
 // Mock next/server
@@ -33,8 +34,8 @@ vi.mock("@/lib/auth", () => ({
 }));
 
 import { GET } from "@/app/api/csrf-token/route";
-import { validateCsrfToken } from "@/lib/security/csrf";
 import { auth } from "@/lib/auth";
+import { validateCsrfToken } from "@/lib/security/csrf";
 
 describe("CSRF Token API - GET /api/csrf-token", () => {
   beforeEach(() => {

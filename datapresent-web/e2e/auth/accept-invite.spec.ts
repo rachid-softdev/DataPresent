@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 
 test.describe("Accepter une invitation — /accept-invite", () => {
   const VALID_TOKEN = "invite-token-abc-456";

@@ -2,7 +2,7 @@
 // Entitlements Middleware Tests
 // ==========================================
 
-import { describe, it, expect, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 // Mock the dependencies
 vi.mock("@/lib/auth", () => ({

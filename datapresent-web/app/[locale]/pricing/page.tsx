@@ -1,7 +1,7 @@
-import { getTranslations } from "next-intl/server";
+import { Check, HelpCircle, Minus } from "lucide-react";
 import { Metadata } from "next";
 import Link from "next/link";
-import { Check, Minus, HelpCircle } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 
 interface PricingPageProps {
   params: Promise<{ locale: string }>;

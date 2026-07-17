@@ -1,19 +1,19 @@
-import { getTranslations } from "next-intl/server";
-import { notFound } from "next/navigation";
-import { readFileSync } from "fs";
-import { join } from "path";
 import { format } from "date-fns";
-import { fr, enUS } from "date-fns/locale";
+import { enUS, fr } from "date-fns/locale";
+import { readFileSync } from "fs";
+import { ArrowLeft, Calendar, Clock } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { Clock, Calendar, ArrowLeft } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { notFound } from "next/navigation";
 import Script from "next/script";
-import { BlogRenderer } from "@/components/blog/blog-renderer";
+import { getTranslations } from "next-intl/server";
+import { join } from "path";
 import { BlogHeader } from "@/components/blog/blog-header";
+import { BlogRenderer } from "@/components/blog/blog-renderer";
+import { Badge } from "@/components/ui/badge";
 import type { BlogPost } from "@/lib/blog/types";
-import { ShareButton } from "./share-button";
 import { generateMetadata } from "./metadata";
+import { ShareButton } from "./share-button";
 
 interface ArticlePageProps {
   params: Promise<{ locale: string; slug: string }>;

@@ -9,7 +9,7 @@
 // - Custom provider support
 // - Response shape and timestamp
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // Mock prisma and redis BEFORE importing the module under test
 // NOTE: vi.mock factory functions are hoisted, so any variables referenced must use vi.hoisted()

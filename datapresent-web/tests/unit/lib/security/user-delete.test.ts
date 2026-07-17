@@ -1,3 +1,4 @@
+// @vitest-environment node
 // ==========================================
 // User Account Deletion Security Tests
 // ==========================================
@@ -7,7 +8,7 @@
 // - Without confirmation, returns 400 error
 // - Requires authenticated session
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // ---------------------------------------------------------------------------
 // Mock setup

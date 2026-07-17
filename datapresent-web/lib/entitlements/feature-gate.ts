@@ -3,25 +3,25 @@
 // ==========================================
 
 import type {
+  EntitlementOverride,
+  Feature,
+  FeatureType,
   Plan,
   SubscriptionStatus,
-  FeatureType,
-  Feature,
-  EntitlementOverride,
   UsageTracking,
 } from "@prisma/client";
+import { entitlementsCache } from "./cache";
+import { getExperimentConfig, isInExperiment } from "./experiments";
 import type { PlanFeatureWithFeature } from "./repository";
+import { entitlementRepository } from "./repository";
 import type {
-  EntitlementMap,
-  DebugTrace,
-  ResolutionSource,
   ConsumeResult,
+  DebugTrace,
+  EntitlementMap,
   ExperimentConfig,
   FeatureKey,
+  ResolutionSource,
 } from "./types";
-import { entitlementRepository } from "./repository";
-import { entitlementsCache } from "./cache";
-import { isInExperiment, getExperimentConfig } from "./experiments";
 
 // ==========================================
 // Feature Gate Service Class
@@ -60,7 +60,8 @@ export class FeatureGateService {
    */
   async getLimit(orgId: string, limitKey: string, userId?: string): Promise<number | null> {
     const resolved = await this.resolveFeature(orgId, limitKey, userId);
-    return resolved.value as number | null;
+    if (resolved.featureType !== "LIMIT") return null;
+    return typeof resolved.value === "number" ? resolved.value : null;
   }
 
   /**
@@ -83,6 +84,7 @@ export class FeatureGateService {
     amount: number = 1,
     userId?: string,
   ): Promise<boolean> {
+    if (!Number.isFinite(amount) || amount <= 0) return false;
     // First check if feature is enabled
     const hasAccess = await this.hasFeature(orgId, featureKey, userId);
     if (!hasAccess) return false;
@@ -109,6 +111,16 @@ export class FeatureGateService {
     amount: number = 1,
     userId?: string,
   ): Promise<ConsumeResult> {
+    if (!Number.isFinite(amount) || amount <= 0) {
+      return {
+        success: false,
+        error: "INVALID_AMOUNT",
+        featureKey,
+        limit: null,
+        used: 0,
+        resetAt: null,
+      };
+    }
     // First check if feature is enabled
     const hasAccess = await this.hasFeature(orgId, featureKey, userId);
     if (!hasAccess) {
@@ -210,13 +222,7 @@ export class FeatureGateService {
    * Get debug trace for a feature (for troubleshooting)
    */
   async getDebugTrace(orgId: string, featureKey: string, userId?: string): Promise<DebugTrace> {
-    const resolved = await this.resolveFeatureWithOverrides(
-      orgId,
-      featureKey,
-      userId,
-      undefined,
-      undefined,
-    );
+    const resolved = await this.resolveFeature(orgId, featureKey, userId);
 
     return {
       featureKey,
@@ -292,11 +298,18 @@ export class FeatureGateService {
       );
 
       if (userOverride && this.isOverrideValid(userOverride)) {
+        const isLimit = userOverride.limitValue != null;
+        const overrideValue = isLimit
+          ? userOverride.limitValue === -1
+            ? null
+            : userOverride.limitValue
+          : userOverride.enabled;
         return {
-          value: userOverride.enabled,
+          value: overrideValue,
           resolvedVia: "user_override",
           overrideId: userOverride.id,
           expiresAt: userOverride.expiresAt,
+          featureType: isLimit ? "LIMIT" : undefined,
         };
       }
     }
@@ -307,11 +320,18 @@ export class FeatureGateService {
     );
 
     if (orgOverride && this.isOverrideValid(orgOverride)) {
+      const isLimit = orgOverride.limitValue != null;
+      const overrideValue = isLimit
+        ? orgOverride.limitValue === -1
+          ? null
+          : orgOverride.limitValue
+        : orgOverride.enabled;
       return {
-        value: orgOverride.enabled,
+        value: overrideValue,
         resolvedVia: "org_override",
         overrideId: orgOverride.id,
         expiresAt: orgOverride.expiresAt,
+        featureType: isLimit ? "LIMIT" : undefined,
       };
     }
 
@@ -329,7 +349,7 @@ export class FeatureGateService {
         // For limit type, return the limit value
         if (planFeature.limitValue !== null) {
           return {
-            value: planFeature.limitValue,
+            value: planFeature.limitValue === -1 ? null : planFeature.limitValue,
             resolvedVia: "plan",
             planKey: plan ?? "FREE",
             featureType: planFeature.feature.type,
@@ -350,7 +370,7 @@ export class FeatureGateService {
       // Regular boolean or limit feature
       if (planFeature.feature.type === "LIMIT") {
         return {
-          value: planFeature.limitValue,
+          value: planFeature.limitValue === -1 ? null : planFeature.limitValue,
           resolvedVia: "plan",
           planKey: plan ?? "FREE",
           featureType: planFeature.feature.type,

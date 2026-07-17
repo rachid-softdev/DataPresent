@@ -7,7 +7,7 @@
 // - Fails closed (returns empty string for non-strings or falsy)
 // - Idempotent
 
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { normalizeEmail } from "@/lib/email-normalize";
 
 describe("normalizeEmail", () => {

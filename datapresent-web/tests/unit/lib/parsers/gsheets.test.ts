@@ -2,7 +2,7 @@
 // Google Sheets Parser Tests
 // ==========================================
 
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { shouldConvertToNumber } from "@/lib/parsers/gsheets";
 
 describe("shouldConvertToNumber", () => {

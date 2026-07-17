@@ -13,7 +13,7 @@
 // These tests verify the route-level integration — that withCsrfProtection()
 // is actually called and its response is respected.
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // ---------------------------------------------------------------------------
 // Mock setup — all mock variables must use vi.hoisted
@@ -81,7 +81,7 @@ vi.mock("next/server", () => ({
 // ---------------------------------------------------------------------------
 // Import the module under test (after mocks are set up)
 // ---------------------------------------------------------------------------
-import { PATCH, DELETE, GET } from "@/app/[locale]/api/organizations/[id]/route";
+import { DELETE, GET, PATCH } from "@/app/[locale]/api/organizations/[id]/route";
 
 /**
  * Create a minimal NextRequest-like object for testing

@@ -2,19 +2,18 @@
 // Entitlement Repository - Interface & Implementation
 // ==========================================
 
-import { prisma } from "@/lib/prisma";
-import { Prisma } from "@prisma/client";
 import type {
-  Plan,
-  Subscription,
-  Feature,
-  PlanFeature,
   EntitlementOverride,
+  Feature,
+  Plan,
+  PlanFeature,
+  Subscription,
   UsageTracking,
   WebhookEvent,
 } from "@prisma/client";
-import type { FeatureKey, ExperimentConfig } from "./types";
-import type { ConsumeResult, ConsumeSuccess } from "./types";
+import { Prisma } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
+import type { ConsumeResult, ConsumeSuccess, ExperimentConfig, FeatureKey } from "./types";
 
 // ==========================================
 // Interface
@@ -226,7 +225,7 @@ export class PrismaEntitlementRepository implements IEntitlementRepository {
 
     // Get start and end of current month
     const periodStart = new Date(now.getFullYear(), now.getMonth(), 1);
-    const periodEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+    const periodEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
 
     // Pre-check: if no existing usage row and amount already exceeds limit, reject early.
     // This is a safety net; the ON CONFLICT WHERE clause handles the race on UPDATE path.

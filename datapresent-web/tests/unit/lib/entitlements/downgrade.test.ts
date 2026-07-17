@@ -2,7 +2,7 @@
 // Downgrade Service Tests
 // ==========================================
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // Mock the dependencies
 vi.mock("@/lib/entitlements/feature-gate", () => ({
@@ -43,14 +43,14 @@ describe("downgrade service", () => {
 
   it("should export downgradeService", async () => {
     const mod = await import("@/lib/entitlements/downgrade");
-    expect(module.downgradeService).toBeDefined();
+    expect(mod.downgradeService).toBeDefined();
   });
 
   it("should export convenience functions", async () => {
     const mod = await import("@/lib/entitlements/downgrade");
-    expect(module.getDowngradePreview).toBeDefined();
-    expect(module.getDowngradeInfo).toBeDefined();
-    expect(module.applyDowngrade).toBeDefined();
+    expect(mod.getDowngradePreview).toBeDefined();
+    expect(mod.getDowngradeInfo).toBeDefined();
+    expect(mod.applyDowngrade).toBeDefined();
   });
 
   it("should return empty array for same plan", async () => {

@@ -1,8 +1,8 @@
-import { MetadataRoute } from "next";
 import { readFileSync } from "fs";
+import { MetadataRoute } from "next";
 import { join } from "path";
-import type { BlogPost } from "@/lib/blog/types";
 import { env } from "@/env";
+import type { BlogPost } from "@/lib/blog/types";
 
 const BASE_URL = env.NEXT_PUBLIC_BASE_URL ?? "https://datapresent.com";
 

@@ -1,5 +1,5 @@
-import { prisma } from "@/lib/prisma";
 import { env } from "@/env";
+import { prisma } from "@/lib/prisma";
 import { getRedisConnectionAsync } from "@/lib/redis";
 
 const rateLimitMap = {

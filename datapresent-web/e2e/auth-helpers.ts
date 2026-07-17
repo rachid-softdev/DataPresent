@@ -1,7 +1,7 @@
-import { PrismaClient } from "@prisma/client";
 import { hash } from "@node-rs/argon2";
-import { encode } from "next-auth/jwt";
 import type { BrowserContext, Page } from "@playwright/test";
+import { PrismaClient } from "@prisma/client";
+import { encode } from "next-auth/jwt";
 
 // ---------------------------------------------------------------------------
 // Shared test user credentials — used across all authenticated E2E tests

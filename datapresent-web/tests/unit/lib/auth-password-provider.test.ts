@@ -5,7 +5,7 @@
 // Tests the password-based CredentialsProvider (id: "password")
 // added to lib/auth.ts for email+password login.
 
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 // ---------------------------------------------------------------------------
 // Capture CredentialsProvider calls so we can test the password authorize fn

@@ -7,7 +7,7 @@
 // - verifyUserPassword verifies against stored hash
 // - userHasPassword checks if password exists
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // ---------------------------------------------------------------------------
 // Mock setup — must use vi.hoisted for variables referenced in vi.mock
@@ -31,7 +31,7 @@ vi.mock("@/lib/password", () => ({
   verifyPassword: mockVerifyPassword,
 }));
 
-import { verifyUserPassword, userHasPassword, setUserPassword } from "@/lib/password-service";
+import { setUserPassword, userHasPassword, verifyUserPassword } from "@/lib/password-service";
 
 describe("Password Service", () => {
   beforeEach(() => {

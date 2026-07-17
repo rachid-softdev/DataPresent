@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import { signIn } from "@/lib/auth";
-import { cookies } from "next/headers";
 import { randomUUID } from "crypto";
-import { verifyToken, extractTokenPrefix } from "@/lib/crypto";
+import { cookies } from "next/headers";
+import { NextRequest, NextResponse } from "next/server";
+import { signIn } from "@/lib/auth";
+import { extractTokenPrefix, verifyToken } from "@/lib/crypto";
+import { prisma } from "@/lib/prisma";
 
 export async function POST(req: NextRequest) {
   try {

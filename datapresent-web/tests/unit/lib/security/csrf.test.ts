@@ -1,11 +1,11 @@
+// @vitest-environment node
 // ==========================================
 // CSRF Security Tests
 // ==========================================
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
-
-import { generateCsrfToken, validateCsrfToken, deriveKey } from "@/lib/security/csrf";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { signJobData, verifyJobSignature } from "@/lib/crypto";
+import { deriveKey, generateCsrfToken, validateCsrfToken } from "@/lib/security/csrf";
 
 describe("CSRF Security", () => {
   beforeEach(() => {

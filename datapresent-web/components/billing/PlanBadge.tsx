@@ -10,13 +10,17 @@ const PLAN_CONFIG: Record<string, { label: string; className: string }> = {
     label: "Gratuit",
     className: "bg-muted text-muted-foreground",
   },
-  PRO: {
-    label: "Pro",
+  STARTER: {
+    label: "Starter",
     className: "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300",
   },
-  TEAM: {
-    label: "Team",
+  PRO: {
+    label: "Pro",
     className: "bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300",
+  },
+  ULTRA: {
+    label: "Ultra",
+    className: "bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300",
   },
 };
 

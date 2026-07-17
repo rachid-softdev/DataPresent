@@ -11,7 +11,7 @@
 // - withCircuitBreaker() higher-order function
 // - Error types (CircuitBreakerOpenError)
 
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 // We test the raw classes directly since they have no side-effect imports
 // that depend on env.ts validation at module load time.

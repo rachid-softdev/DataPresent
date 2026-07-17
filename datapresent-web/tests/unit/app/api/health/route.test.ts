@@ -6,7 +6,7 @@
 // - GET returns NextResponse.json with runHealthChecks result
 // - Status code is 200 when all checks ok, 503 otherwise
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mockQueryRaw = vi.hoisted(() => vi.fn());
 const mockRedisPing = vi.hoisted(() => vi.fn());

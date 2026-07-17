@@ -1,8 +1,8 @@
 "use client";
 
+import { AlertTriangle } from "lucide-react";
 import { Component, ReactNode } from "react";
 import { Button } from "@/components/ui/button";
-import { AlertTriangle } from "lucide-react";
 
 interface ErrorBoundaryMessages {
   title: string;

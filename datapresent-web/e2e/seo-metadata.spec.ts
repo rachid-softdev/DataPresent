@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 
 test.describe("SEO — Métadonnées des pages publiques", () => {
   async function checkMetaTags(

@@ -8,7 +8,7 @@
 // - Null handling for optional fields (speakerNotes)
 // - Date serialization
 
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { toSlideDTO } from "@/lib/dto/slide.dto";
 
 describe("SlideDTO (slide.dto.ts)", () => {

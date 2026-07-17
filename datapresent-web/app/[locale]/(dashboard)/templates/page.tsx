@@ -1,15 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { Layout } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
-import { TEMPLATES, getSectorLabel, Template } from "@/lib/templates";
+import { getSectorLabel, TEMPLATES, Template } from "@/lib/templates";
 import { cn } from "@/lib/utils";
-import { Layout } from "lucide-react";
 
 const SECTORS = ["ALL", "FINANCE", "MARKETING", "HR", "SAAS", "GENERIC"] as const;
 

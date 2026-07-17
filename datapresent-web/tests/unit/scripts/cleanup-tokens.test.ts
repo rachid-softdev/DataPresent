@@ -10,7 +10,7 @@
 // - Returns correct counts
 // - Handles empty results (no expired tokens)
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // ---------------------------------------------------------------------------
 // Mock process.exit to prevent the module-level main() call from exiting.

@@ -3,11 +3,11 @@
 // Preview which features will be affected by downgrade (admin only)
 // ==========================================
 
+import type { Plan } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 import { withAdmin } from "@/lib/admin";
 import { getDowngradeInfo } from "@/lib/entitlements";
 import { prisma } from "@/lib/prisma";
-import type { Plan } from "@prisma/client";
 
 export const GET = withAdmin(
   async (req, { params }) => {
@@ -20,7 +20,7 @@ export const GET = withAdmin(
     }
 
     // Validate target plan
-    if (!["FREE", "PRO", "TEAM", "AGENCY"].includes(targetPlan)) {
+    if (!["FREE", "STARTER", "PRO", "ULTRA"].includes(targetPlan)) {
       return NextResponse.json({ error: "Invalid targetPlan" }, { status: 400 });
     }
 

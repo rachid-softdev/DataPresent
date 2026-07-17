@@ -1,1 +1,15 @@
-npx lint-staged
+#!/usr/bin/env sh
+# Format staged files with Biome.
+#
+# lint-staged's internal `git stash` step chokes on paths containing [], (),
+# or spaces (e.g. app/[locale]/(dashboard)/...), so we invoke Biome directly
+# on the staged files using NUL-delimited paths (git -z | xargs -0), which
+# Biome and Git handle correctly. Reformatted files are restaged so the
+# committed version is formatted.
+set -e
+
+git diff --cached --name-only --diff-filter=ACMR -z \
+  | xargs -0 -r ./node_modules/.bin/biome format --write --no-errors-on-unmatched --files-ignore-unknown=true
+
+git diff --cached --name-only --diff-filter=ACMR -z \
+  | xargs -0 -r git add --

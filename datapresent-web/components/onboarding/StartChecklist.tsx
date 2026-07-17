@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useCallback } from "react";
-import { useRouter } from "next/navigation";
-import { CheckCircle2, Circle, PartyPopper } from "lucide-react";
 import { motion } from "framer-motion";
+import { CheckCircle2, Circle, PartyPopper } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useCallback, useState } from "react";
 
 interface ChecklistItem {
   id: string;

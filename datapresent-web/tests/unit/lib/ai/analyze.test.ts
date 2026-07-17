@@ -1,8 +1,9 @@
+// @vitest-environment node
 // ==========================================
 // AI Analyze Tests
 // ==========================================
 
-import { describe, it, expect, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 // We need to mock before importing the module
 vi.mock("@anthropic-ai/sdk", () => ({
@@ -18,6 +19,6 @@ vi.mock("@/lib/ai/prompts", () => ({
 describe("ai analyze", () => {
   it("should export analyzeWithClaude function", async () => {
     const mod = await import("@/lib/ai/analyze");
-    expect(module.analyzeWithClaude).toBeDefined();
+    expect(mod.analyzeWithClaude).toBeDefined();
   });
 });

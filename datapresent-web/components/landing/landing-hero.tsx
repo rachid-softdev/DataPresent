@@ -1,5 +1,5 @@
-import Link from "next/link";
 import { ArrowRight, Check } from "lucide-react";
+import Link from "next/link";
 
 interface LandingHeroProps {
   badge: string;

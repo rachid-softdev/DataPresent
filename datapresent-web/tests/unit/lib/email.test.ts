@@ -1,8 +1,9 @@
+// @vitest-environment node
 // ==========================================
 // Email Tests
 // ==========================================
 
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 // Mock dependencies
 vi.mock("nodemailer", () => ({
@@ -43,12 +44,12 @@ describe("email", () => {
 
   it("should export sendMagicLinkEmail function", async () => {
     const mod = await import("@/lib/email");
-    expect(module.sendMagicLinkEmail).toBeDefined();
+    expect(mod.sendMagicLinkEmail).toBeDefined();
   });
 
   it("should export sendWelcomeEmail function", async () => {
     const mod = await import("@/lib/email");
-    expect(module.sendWelcomeEmail).toBeDefined();
+    expect(mod.sendWelcomeEmail).toBeDefined();
   });
 
   it("should log email in dev mode without provider", async () => {

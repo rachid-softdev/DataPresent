@@ -21,7 +21,7 @@
  * - Lifecycle: Expire incomplete multipart uploads after 24h
  */
 
-import { S3Client, PutObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3";
+import { GetObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { env, isFeatureEnabled } from "@/env";
 
@@ -62,5 +62,9 @@ export async function getSignedDownloadUrl(key: string) {
     Bucket: env.R2_BUCKET_NAME,
     Key: key,
   });
-  return getSignedUrl(getR2Client() as never, command, { expiresIn: 600 });
+  // Localized cast: @aws-sdk/client-s3 (^4.16.1) and @aws-sdk/s3-request-presigner
+  // (^4.14.2) depend on two different @smithy/types versions, producing a
+  // `GetObjectCommand`/`Command` type mismatch. `pnpm dedupe` would require a
+  // reinstall (forbidden here). Cast limited to this single argument.
+  return getSignedUrl(getR2Client() as never, command as any, { expiresIn: 600 });
 }

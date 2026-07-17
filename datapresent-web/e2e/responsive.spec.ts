@@ -1,5 +1,5 @@
-import { test, expect } from "@playwright/test";
 import type { Page } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 
 test.describe("Responsive — Mobile (375px)", () => {
   test.use({ viewport: { width: 375, height: 812 } });

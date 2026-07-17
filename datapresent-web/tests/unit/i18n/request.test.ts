@@ -1,8 +1,9 @@
+// @vitest-environment node
 // ==========================================
 // i18n Request Tests
 // ==========================================
 
-import { describe, it, expect, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 // Mock next-intl/server
 vi.mock("next-intl/server", () => ({
@@ -16,6 +17,6 @@ vi.mock("../messages/fr.json", () => ({ default: { greeting: "Bonjour" } }));
 describe("i18n/request", () => {
   it("should export getRequestConfig function", async () => {
     const mod = await import("@/i18n/request");
-    expect(module.default).toBeDefined();
+    expect(mod.default).toBeDefined();
   });
 });

@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import { sendMagicLinkEmail } from "@/lib/email";
-import { authRateLimit } from "@/lib/rate-limit";
-import { normalizeEmail } from "@/lib/email-normalize";
-import { extractClientIP } from "@/lib/client-ip";
-import { withCsrfProtection } from "@/lib/security/csrf-middleware";
-import { generateToken, hashToken, extractTokenPrefix } from "@/lib/crypto";
-import { ERROR_CODES, SUCCESS_CODES, badRequest, apiSuccess } from "@/lib/errors";
 import { env } from "@/env";
+import { extractClientIP } from "@/lib/client-ip";
+import { extractTokenPrefix, generateToken, hashToken } from "@/lib/crypto";
+import { sendMagicLinkEmail } from "@/lib/email";
+import { normalizeEmail } from "@/lib/email-normalize";
+import { apiSuccess, badRequest, ERROR_CODES, SUCCESS_CODES } from "@/lib/errors";
+import { prisma } from "@/lib/prisma";
+import { authRateLimit } from "@/lib/rate-limit";
+import { withCsrfProtection } from "@/lib/security/csrf-middleware";
 
 const TOKEN_EXPIRY = 10 * 60 * 1000; // 10 minutes
 

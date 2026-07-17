@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
+import { extractClientIP } from "@/lib/client-ip";
+import { extractTokenPrefix, generateToken, hashToken } from "@/lib/crypto";
+import { normalizeEmail } from "@/lib/email-normalize";
+import { ERROR_CODES } from "@/lib/errors";
 import { prisma } from "@/lib/prisma";
 import { authRateLimit } from "@/lib/rate-limit";
-import { normalizeEmail } from "@/lib/email-normalize";
-import { extractClientIP } from "@/lib/client-ip";
-import { withCsrfProtection } from "@/lib/security/csrf-middleware";
 import { logApiError } from "@/lib/security";
-import { ERROR_CODES } from "@/lib/errors";
-import { generateToken, hashToken, extractTokenPrefix } from "@/lib/crypto";
+import { withCsrfProtection } from "@/lib/security/csrf-middleware";
 
 export async function POST(req: NextRequest) {
   const csrfResponse = await withCsrfProtection(req);

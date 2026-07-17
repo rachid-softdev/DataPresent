@@ -8,7 +8,7 @@
 // - Returns 429 when rate limited
 // - CheckRateLimit is called with correct identifier
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // ---------------------------------------------------------------------------
 // Mocks — all mock variables must use vi.hoisted
@@ -34,11 +34,11 @@ vi.mock("@/lib/rate-limit", () => ({
   checkRateLimit: mockCheckRateLimit,
 }));
 
+import { NextRequest } from "next/server";
 // ---------------------------------------------------------------------------
 // Import the module under test
 // ---------------------------------------------------------------------------
 import { GET } from "@/app/[locale]/api/share/meta/route";
-import { NextRequest } from "next/server";
 
 describe("Share Meta Rate Limiting (Fix #8)", () => {
   beforeEach(() => {

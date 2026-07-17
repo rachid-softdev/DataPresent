@@ -1,3 +1,4 @@
+// @vitest-environment node
 // ==========================================
 // Magic Link — Callback Email POST Tests (Item 12)
 // ==========================================
@@ -8,7 +9,7 @@
 // - signIn error returns 401
 // - Catch-all error returns 500
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // ---------------------------------------------------------------------------
 // Hoisted mocks

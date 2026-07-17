@@ -1,15 +1,15 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { HelpCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Avatar } from "@/components/ui/avatar";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { RestartOnboardingButton } from "@/components/onboarding/OnboardingTour";
-import { HelpCircle } from "lucide-react";
+import { Avatar } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 
 interface User {
   id: string;

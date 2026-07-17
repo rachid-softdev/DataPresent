@@ -5,12 +5,12 @@
 // Tests for reusable Zod schemas in lib/validation-schemas.ts:
 // - ShareCreateSchema, ShareUpdateSchema, InviteSchema, PasswordResetSchema
 
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
-  ShareCreateSchema,
-  ShareUpdateSchema,
   InviteSchema,
   PasswordResetSchema,
+  ShareCreateSchema,
+  ShareUpdateSchema,
 } from "@/lib/validation-schemas";
 
 describe("ShareCreateSchema", () => {

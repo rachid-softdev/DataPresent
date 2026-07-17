@@ -3,9 +3,9 @@
  * Run: npm run push:env
  */
 
+import { execSync } from "child_process";
 import fs from "fs";
 import path from "path";
-import { execSync } from "child_process";
 
 // Parse .env.production.local directly
 const envFilePath = path.resolve(process.cwd(), ".env.production.local");
@@ -39,7 +39,8 @@ for (const { key, value } of envVars) {
     execSync(cmd, { stdio: "pipe" });
     console.log(`  ✅ ${key}`);
   } catch (error: unknown) {
-    console.log(`  ⚠️  ${key} - ${error.message?.split("\n")[0] || "error"}`);
+    const message = error instanceof Error ? error.message : String(error);
+    console.log(`  ⚠️  ${key} - ${message.split("\n")[0] || "error"}`);
   }
 }
 

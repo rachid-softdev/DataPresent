@@ -1,6 +1,6 @@
 "use client";
 
-import { Lightbulb, Target, AlertTriangle } from "lucide-react";
+import { AlertTriangle, Lightbulb, Target } from "lucide-react";
 
 interface TextSummaryProps {
   content: {

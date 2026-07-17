@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
+import { DM_Sans, Fraunces } from "next/font/google";
 import { cookies } from "next/headers";
-import { Fraunces, DM_Sans } from "next/font/google";
 import { Providers } from "@/components/providers";
 import "./globals.css";
 

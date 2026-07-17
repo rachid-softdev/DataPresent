@@ -1,21 +1,21 @@
 import "../landing.css";
 
-import { getTranslations } from "next-intl/server";
 import Link from "next/link";
-import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { getTranslations } from "next-intl/server";
 import { HydrationGuard } from "@/components/hooks/hydration-guard";
-import { Reveal } from "@/components/landing/Reveal";
-import { LandingFaq } from "@/components/landing/landing-faq";
 import {
-  LandingHero,
-  LandingFormats,
-  LandingHowItWorks,
+  LandingCta,
   LandingFeatures,
+  LandingFooter,
+  LandingFormats,
+  LandingHero,
+  LandingHowItWorks,
   LandingPricing,
   LandingTestimonials,
-  LandingCta,
-  LandingFooter,
 } from "@/components/landing";
+import { LandingFaq } from "@/components/landing/landing-faq";
+import { Reveal } from "@/components/landing/Reveal";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 export default async function RootPage() {
   const t = await getTranslations("landing");

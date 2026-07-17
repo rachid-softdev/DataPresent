@@ -1,10 +1,10 @@
-import * as React from "react";
+import { AlertTriangle, CheckCircle2, Info, Quote, XCircle } from "lucide-react";
 import Image from "next/image";
-import { cn } from "@/lib/utils";
-import { type ContentSection, type CalloutVariant } from "@/lib/blog/types";
-import { Card, CardContent } from "@/components/ui/card";
+import * as React from "react";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle2, AlertTriangle, Info, XCircle, Quote } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { type CalloutVariant, type ContentSection } from "@/lib/blog/types";
+import { cn } from "@/lib/utils";
 
 interface BlogRendererProps {
   sections: ContentSection[];

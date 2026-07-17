@@ -1,8 +1,8 @@
 import "@/app/landing.css";
 
+import { ArrowRight } from "lucide-react";
 import { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 
 interface AboutPageProps {
@@ -84,7 +84,7 @@ interface TeamMember {
   bio: string;
 }
 
-const TEAM: Record<string, { fr: TeamMember[]; en: TeamMember[] }> = {
+const TEAM: { fr: TeamMember[]; en: TeamMember[] } = {
   fr: [
     {
       name: "Alexandre Renard",

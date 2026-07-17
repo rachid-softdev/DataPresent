@@ -7,7 +7,7 @@
 // - setRequestId does nothing in dev/test
 // - configureRequestScope reads x-request-id header
 
-import { describe, it, expect, vi, afterEach } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 describe("Sentry setRequestId (lib/sentry.ts)", () => {
   const originalNodeEnv = process.env.NODE_ENV;

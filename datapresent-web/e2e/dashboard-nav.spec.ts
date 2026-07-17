@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 
 test.describe("Navigation du tableau de bord", () => {
   test("la page d'accueil (/) est publique et ne redirige pas", async ({ page }) => {

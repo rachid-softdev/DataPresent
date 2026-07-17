@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo, memo } from "react";
-import { useRouter } from "next/navigation";
-import { CommentInput } from "@/components/comments/CommentInput";
-import { CommentItem } from "./CommentItem";
 import { MessageSquare, X } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { memo, useCallback, useEffect, useMemo, useState } from "react";
+import { CommentInput } from "@/components/comments/CommentInput";
 import { Button } from "@/components/ui/button";
+import { CommentItem } from "./CommentItem";
 
 interface Comment {
   id: string;

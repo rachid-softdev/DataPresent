@@ -2,58 +2,52 @@
 // Feature Flags & Entitlements - Main Export
 // ==========================================
 
-// Types
-export * from "./types";
-
-// Repository
-export { entitlementRepository } from "./repository";
-export type { IEntitlementRepository } from "./repository";
-
 // Cache
 export {
   entitlementsCache,
   getCachedEntitlements,
-  setCachedEntitlements,
   invalidateEntitlementsCache,
+  setCachedEntitlements,
 } from "./cache";
-
+// Downgrade
+export {
+  applyDowngrade,
+  downgradeService,
+  getDowngradeInfo,
+  getDowngradePreview,
+} from "./downgrade";
+// Experiments
+export {
+  calculateExperimentDistribution,
+  getDistributionStats,
+  getExperimentBucket,
+  getExperimentConfig,
+  isInExperiment,
+  isInExperimentBucket,
+} from "./experiments";
 // Feature Gate (Main Service)
 export {
-  featureGateService,
-  hasFeature,
-  getLimit,
   assertFeature,
   canConsume,
   consume,
+  FeatureNotAvailableError,
+  featureGateService,
   getAllEntitlements,
   getDebugTrace,
+  getLimit,
+  hasFeature,
   invalidateCache,
-  FeatureNotAvailableError,
   LimitReachedError,
   SubscriptionExpiredError,
 } from "./feature-gate";
-
-// Experiments
-export {
-  isInExperiment,
-  getExperimentConfig,
-  getExperimentBucket,
-  isInExperimentBucket,
-  calculateExperimentDistribution,
-  getDistributionStats,
-} from "./experiments";
-
-// Downgrade
-export {
-  downgradeService,
-  getDowngradePreview,
-  getDowngradeInfo,
-  applyDowngrade,
-} from "./downgrade";
-
 // Middleware
 export {
+  createConsumeMiddleware,
   createFeatureMiddleware,
   createLimitMiddleware,
-  createConsumeMiddleware,
 } from "./middleware";
+export type { IEntitlementRepository } from "./repository";
+// Repository
+export { entitlementRepository } from "./repository";
+// Types
+export * from "./types";

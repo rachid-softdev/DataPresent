@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { PricingTable, type PricingPlan } from "@/components/billing/PricingTable";
+import { type PricingPlan, PricingTable } from "@/components/billing/PricingTable";
 
 interface PlanSelectorProps {
   plans: PricingPlan[];

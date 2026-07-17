@@ -1,14 +1,14 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { Loader2, Trash2, UserPlus } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
+import { useEffect, useState } from "react";
 import { Avatar } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
-import { Loader2, UserPlus, Trash2 } from "lucide-react";
 
 interface TeamMember {
   id: string;

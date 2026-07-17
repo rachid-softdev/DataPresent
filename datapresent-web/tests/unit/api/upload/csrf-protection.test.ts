@@ -1,3 +1,4 @@
+// @vitest-environment node
 // ==========================================
 // Upload Route — CSRF Protection & Validation
 // ==========================================
@@ -15,7 +16,7 @@
 // The CSRF middleware itself is tested in lib/security/csrf-middleware.test.ts.
 // These verify route-level integration.
 
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 // ---------------------------------------------------------------------------
 // Mock setup — all mock variables must use vi.hoisted

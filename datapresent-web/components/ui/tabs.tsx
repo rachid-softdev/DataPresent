@@ -1,1 +1,1 @@
-export { Tabs, TabsList, TabsTrigger, TabsContent } from "@datapresent/ui";
+export { Tabs, TabsContent, TabsList, TabsTrigger } from "@datapresent/ui";

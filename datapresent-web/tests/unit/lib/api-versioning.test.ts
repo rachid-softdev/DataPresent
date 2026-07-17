@@ -2,8 +2,8 @@
 // Tests for API versioning utilities
 // ==========================================
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { API_VERSION, V1_ENDPOINTS, buildV1Url } from "@/lib/api-versioning";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { API_VERSION, buildV1Url, V1_ENDPOINTS } from "@/lib/api-versioning";
 
 describe("api-versioning", () => {
   describe("API_VERSION", () => {

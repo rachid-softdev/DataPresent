@@ -10,7 +10,7 @@
 // We replicate the exact logic from page.tsx in testable functions
 // to avoid importing the massive dependency tree of the server component.
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // ---------------------------------------------------------------------------
 // Replicate the "See all reports" link logic from page.tsx

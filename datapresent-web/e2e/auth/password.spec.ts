@@ -1,9 +1,9 @@
-import { test, expect } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 import {
-  TEST_USER_EMAIL,
-  TEST_USER_PASSWORD,
   createTestUser,
   disconnectPrisma,
+  TEST_USER_EMAIL,
+  TEST_USER_PASSWORD,
 } from "../helpers/auth";
 
 test.describe("Connexion par mot de passe — Password login", () => {

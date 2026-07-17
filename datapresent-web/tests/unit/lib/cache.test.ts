@@ -2,7 +2,7 @@
 // Cache Tests
 // ==========================================
 
-import { describe, it, expect, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 // Mock modules that cache.ts depends on
 vi.mock("@/lib/prisma", () => ({

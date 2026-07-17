@@ -1,14 +1,14 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { AlertCircle, Loader2, Lock } from "lucide-react";
 import { notFound, useParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Badge } from "@/components/ui/badge";
-import { Watermark } from "@/components/watermark/Watermark";
+import { Suspense, useEffect, useState } from "react";
 import { SlideCard } from "@/components/slides/SlideCard";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Loader2, Lock, AlertCircle } from "lucide-react";
+import { Watermark } from "@/components/watermark/Watermark";
 
 interface SlideData {
   id: string;

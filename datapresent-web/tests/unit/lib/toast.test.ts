@@ -2,7 +2,7 @@
 // Toast Tests
 // ==========================================
 
-import { describe, it, expect, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 // Mock sonner
 vi.mock("sonner", () => ({

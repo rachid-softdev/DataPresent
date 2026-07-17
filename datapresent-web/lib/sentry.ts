@@ -1,5 +1,5 @@
-import type { NextRequest } from "next/server";
 import * as Sentry from "@sentry/nextjs";
+import type { NextRequest } from "next/server";
 
 /**
  * Initialize Sentry for error tracking and performance monitoring

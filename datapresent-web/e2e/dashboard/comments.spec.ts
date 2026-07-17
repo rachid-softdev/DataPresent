@@ -1,13 +1,13 @@
-import { test, expect } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 import { PrismaClient } from "@prisma/client";
 import crypto from "crypto";
+import { disconnectPrisma } from "../helpers/auth";
 import {
-  createTestUser,
   createTestOrganization,
   createTestReport,
+  createTestUser,
   disconnectPrisma as disconnectDb,
 } from "../helpers/db";
-import { disconnectPrisma } from "../helpers/auth";
 
 test.use({ storageState: "e2e/.auth/user.json" });
 

@@ -2,12 +2,12 @@
 
 import { useMemo } from "react";
 import {
-  PieChart as RechartsPieChart,
-  Pie,
   Cell,
-  Tooltip,
-  ResponsiveContainer,
   Legend,
+  Pie,
+  PieChart as RechartsPieChart,
+  ResponsiveContainer,
+  Tooltip,
 } from "recharts";
 import { getChartColors } from "./chart-colors";
 

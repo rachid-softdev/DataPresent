@@ -1,6 +1,6 @@
 "use client";
 
-import { TrendingUp, TrendingDown, Minus } from "lucide-react";
+import { Minus, TrendingDown, TrendingUp } from "lucide-react";
 import { Card } from "@/components/ui/card";
 
 interface KpiGridProps {

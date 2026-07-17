@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
 import { getLimit } from "@/lib/entitlements/feature-gate";
 import { getPlanPricing } from "@/lib/entitlements/plan-pricing";
-import { ERROR_CODES, unauthorized, badRequest } from "@/lib/errors";
+import { badRequest, ERROR_CODES, unauthorized } from "@/lib/errors";
+import { prisma } from "@/lib/prisma";
 
 export async function GET() {
   const session = await auth();

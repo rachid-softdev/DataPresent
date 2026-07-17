@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 
 test.describe("Réinitialisation du mot de passe — /reset-password", () => {
   const VALID_TOKEN = "valid-reset-token-abc123";

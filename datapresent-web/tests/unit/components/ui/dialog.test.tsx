@@ -1,6 +1,6 @@
-import { describe, it, expect } from "vitest";
 import { render, screen } from "@testing-library/react";
-import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { describe, expect, it } from "vitest";
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 
 describe("Dialog", () => {
   it("renders nothing when closed (uncontrolled default)", () => {

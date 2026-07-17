@@ -1,3 +1,4 @@
+// @vitest-environment node
 // ==========================================
 // Middleware Tests (i18n + security headers)
 // ==========================================
@@ -7,7 +8,7 @@
 // - API routes pass through to handlers
 // - Static assets excluded
 
-import { describe, it, expect, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 // ---------------------------------------------------------------------------
 // Mock next-intl/middleware before importing middleware.ts

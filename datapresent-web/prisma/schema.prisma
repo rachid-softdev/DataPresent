@@ -208,9 +208,9 @@ model Subscription {
 
 enum Plan {
   FREE
+  STARTER
   PRO
-  TEAM
-  AGENCY
+  ULTRA
 }
 
 enum SubscriptionStatus {

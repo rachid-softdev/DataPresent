@@ -1,7 +1,7 @@
 "use client";
 
-import { ThemeToggle } from "@/components/ui/theme-toggle";
 import Link from "next/link";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 interface LandingFooterProps {
   description: string;

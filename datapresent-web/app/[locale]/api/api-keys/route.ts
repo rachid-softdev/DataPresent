@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
+import { createApiKey, listApiKeys, revokeApiKey } from "@/lib/api-keys";
 import { auth } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
-import { listApiKeys, createApiKey, revokeApiKey } from "@/lib/api-keys";
-import { withCsrfProtection } from "@/lib/security";
 import { hasFeature } from "@/lib/entitlements/feature-gate";
+import { prisma } from "@/lib/prisma";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { withCsrfProtection } from "@/lib/security";
 
 async function getOrgId(userId: string): Promise<string | null> {
   const user = await prisma.user.findUnique({

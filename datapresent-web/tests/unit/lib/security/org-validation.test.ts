@@ -11,7 +11,7 @@
 // 3. name.trim().length must be > 0
 // 4. name.trim().length must be <= 100
 
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 
 /**
  * Pure function representing the org name validation logic extracted

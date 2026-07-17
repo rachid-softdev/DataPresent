@@ -1,8 +1,8 @@
+import { ChevronRight, HelpCircle, Mail, MessageSquare } from "lucide-react";
 import { Metadata } from "next";
-import { HelpCircle, Mail, MessageSquare, ChevronRight } from "lucide-react";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import { HelpSearch } from "@/components/help/HelpSearch";
+import { Button } from "@/components/ui/button";
 
 interface HelpPageProps {
   params: Promise<{ locale: string }>;

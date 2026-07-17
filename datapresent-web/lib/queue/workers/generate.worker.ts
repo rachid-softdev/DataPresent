@@ -1,13 +1,13 @@
-import { Worker, Job } from "bullmq";
-import { prisma } from "@/lib/prisma";
-import { parseFile } from "@/lib/parsers";
+import { type ConnectionOptions, Job, Worker } from "bullmq";
 import { analyzeWithClaude } from "@/lib/ai/analyze";
-import { getSignedDownloadUrl } from "@/lib/r2";
-import { getRedisConnectionAsync } from "@/lib/redis";
-import { extractSignedJobData } from "../job-security";
-import { captureException, captureMessage } from "@/lib/sentry";
 import { getLimit } from "@/lib/entitlements/feature-gate";
 import { logger } from "@/lib/logger";
+import { parseFile } from "@/lib/parsers";
+import { prisma } from "@/lib/prisma";
+import { getSignedDownloadUrl } from "@/lib/r2";
+import { getRedisConnectionAsync } from "@/lib/redis";
+import { captureException, captureMessage } from "@/lib/sentry";
+import { extractSignedJobData } from "../job-security";
 
 // Retry configuration
 const MAX_RETRIES = 3;
@@ -172,7 +172,7 @@ export async function getGenerateWorker(): Promise<Worker<unknown>> {
       }
     },
     {
-      connection: conn,
+      connection: conn as unknown as ConnectionOptions,
       // Remove completed jobs after 1 hour, keep 100
       removeOnComplete: { count: 100, age: 3600 },
       // Remove failed jobs after 1 day, keep 500 for debugging
@@ -183,7 +183,6 @@ export async function getGenerateWorker(): Promise<Worker<unknown>> {
         duration: 60000,
       },
       // Retry strategy: exponential backoff with max 3 retries
-      // @ts-expect-error — retryStrategy not in BullMQ WorkerOptions type but accepted at runtime
       retryStrategy: (job: Job) => {
         if (job.attemptsMade >= MAX_RETRIES) {
           captureMessage(`Job ${job.id} failed after ${MAX_RETRIES} retries`, "error", {

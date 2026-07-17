@@ -2,7 +2,7 @@
 // Entitlements Cache Tests
 // ==========================================
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // Skip these tests - cache.ts requires ioredis and lru-cache
 // which have complex module resolution in jsdom environment

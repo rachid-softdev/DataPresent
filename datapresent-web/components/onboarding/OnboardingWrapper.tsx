@@ -1,6 +1,6 @@
 "use client";
 
-import { OnboardingProvider, DEFAULT_ONBOARDING_STEPS } from "./OnboardingTour";
+import { DEFAULT_ONBOARDING_STEPS, OnboardingProvider } from "./OnboardingTour";
 
 export function OnboardingWrapper({ children }: { children: React.ReactNode }) {
   return (

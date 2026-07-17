@@ -2,7 +2,7 @@
 // Plans Tests
 // ==========================================
 
-import { describe, it, expect, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 // Mock prisma and feature-gate to avoid Prisma client dependency
 vi.mock("@/lib/prisma", () => ({
@@ -23,8 +23,8 @@ describe("plans", () => {
     expect(PLANS).toBeDefined();
     expect(PLANS.FREE).toBeDefined();
     expect(PLANS.PRO).toBeDefined();
-    expect(PLANS.TEAM).toBeDefined();
-    expect(PLANS.AGENCY).toBeDefined();
+    expect(PLANS.STARTER).toBeDefined();
+    expect(PLANS.ULTRA).toBeDefined();
   });
 
   it("should have correct FREE plan features", async () => {
@@ -41,37 +41,37 @@ describe("plans", () => {
     expect(PLANS.FREE.whiteLabel).toBe(false);
   });
 
+  it("should have correct STARTER plan features", async () => {
+    const { PLANS } = await import("@/lib/entitlements/compat");
+
+    expect(PLANS.STARTER.name).toBe("Starter");
+    expect(PLANS.STARTER.price).toBe(19);
+    expect(PLANS.STARTER.reportsPerMonth).toBe(30);
+    expect(PLANS.STARTER.formatPPTX).toBe(true);
+    expect(PLANS.STARTER.formatPDF).toBe(true);
+    expect(PLANS.STARTER.formatDOCX).toBe(true);
+    expect(PLANS.STARTER.watermark).toBe(false);
+  });
+
   it("should have correct PRO plan features", async () => {
     const { PLANS } = await import("@/lib/entitlements/compat");
 
     expect(PLANS.PRO.name).toBe("Pro");
-    expect(PLANS.PRO.price).toBe(19);
-    expect(PLANS.PRO.reportsPerMonth).toBe(30);
-    expect(PLANS.PRO.formatPPTX).toBe(true);
-    expect(PLANS.PRO.formatPDF).toBe(true);
-    expect(PLANS.PRO.formatDOCX).toBe(true);
-    expect(PLANS.PRO.watermark).toBe(false);
+    expect(PLANS.PRO.price).toBe(49);
+    expect(PLANS.PRO.reportsPerMonth).toBe(-1); // unlimited
+    expect(PLANS.PRO.maxOrganizations).toBe(-1); // unlimited
+    expect(PLANS.PRO.collaboration).toBe(true);
   });
 
-  it("should have correct TEAM plan features", async () => {
+  it("should have correct ULTRA plan features", async () => {
     const { PLANS } = await import("@/lib/entitlements/compat");
 
-    expect(PLANS.TEAM.name).toBe("Team");
-    expect(PLANS.TEAM.price).toBe(49);
-    expect(PLANS.TEAM.reportsPerMonth).toBe(-1); // unlimited
-    expect(PLANS.TEAM.maxOrganizations).toBe(-1); // unlimited
-    expect(PLANS.TEAM.collaboration).toBe(true);
-  });
-
-  it("should have correct AGENCY plan features", async () => {
-    const { PLANS } = await import("@/lib/entitlements/compat");
-
-    expect(PLANS.AGENCY.name).toBe("Agency");
-    expect(PLANS.AGENCY.price).toBe(-1); // custom
-    expect(PLANS.AGENCY.whiteLabel).toBe(true);
-    expect(PLANS.AGENCY.apiAccess).toBe(true);
-    expect(PLANS.AGENCY.customDomain).toBe(true);
-    expect(PLANS.AGENCY.prioritySupport).toBe(true);
+    expect(PLANS.ULTRA.name).toBe("Ultra");
+    expect(PLANS.ULTRA.price).toBe(-1); // custom
+    expect(PLANS.ULTRA.whiteLabel).toBe(true);
+    expect(PLANS.ULTRA.apiAccess).toBe(true);
+    expect(PLANS.ULTRA.customDomain).toBe(true);
+    expect(PLANS.ULTRA.prioritySupport).toBe(true);
   });
 
   it("should export planHasFeature function", async () => {
@@ -85,7 +85,7 @@ describe("plans", () => {
     expect(planHasFeature("FREE", "formatPPTX")).toBe(true);
     expect(planHasFeature("FREE", "formatPDF")).toBe(false);
     expect(planHasFeature("PRO", "formatPDF")).toBe(true);
-    expect(planHasFeature("AGENCY", "whiteLabel")).toBe(true);
+    expect(planHasFeature("ULTRA", "whiteLabel")).toBe(true);
   });
 
   it("should export getPlanPrice function", async () => {
@@ -97,9 +97,9 @@ describe("plans", () => {
     const { getPlanPrice } = await import("@/lib/entitlements/compat");
 
     expect(getPlanPrice("FREE")).toBe("€0/mo");
-    expect(getPlanPrice("PRO")).toBe("€19/mo");
-    expect(getPlanPrice("TEAM")).toBe("€49/mo");
-    expect(getPlanPrice("AGENCY")).toBe("Custom");
+    expect(getPlanPrice("STARTER")).toBe("€19/mo");
+    expect(getPlanPrice("PRO")).toBe("€49/mo");
+    expect(getPlanPrice("ULTRA")).toBe("Custom");
   });
 
   it("should export planSupportsFormat function", async () => {
@@ -114,7 +114,7 @@ describe("plans", () => {
     expect(planSupportsFormat("FREE", "PDF")).toBe(false);
     expect(planSupportsFormat("PRO", "PDF")).toBe(true);
     expect(planSupportsFormat("PRO", "DOCX")).toBe(true);
-    expect(planSupportsFormat("AGENCY", "PPTX")).toBe(true);
+    expect(planSupportsFormat("ULTRA", "PPTX")).toBe(true);
   });
 
   it("should export PLAN_FEATURES", async () => {

@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
+import { extractClientIP } from "@/lib/client-ip";
 import { prisma } from "@/lib/prisma";
 import { checkRateLimit } from "@/lib/rate-limit";
-import { extractClientIP } from "@/lib/client-ip";
 
 export class AdminAuthError extends Error {
   constructor(

@@ -1,6 +1,6 @@
 import { google } from "googleapis";
-import type { ParsedData } from "./index";
 import { getGoogleSheetsPrivateKey } from "@/lib/crypto/pem";
+import type { ParsedData } from "./index";
 
 const privateKey = getGoogleSheetsPrivateKey();
 const auth = new google.auth.GoogleAuth({

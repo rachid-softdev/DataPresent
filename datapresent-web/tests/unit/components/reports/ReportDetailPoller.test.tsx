@@ -8,8 +8,8 @@
 // - Cleans up interval on unmount
 // - Does NOT poll when initial status is DONE
 
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ReportDetailPoller } from "@/components/reports/ReportDetailPoller";
 
 // ---------------------------------------------------------------------------

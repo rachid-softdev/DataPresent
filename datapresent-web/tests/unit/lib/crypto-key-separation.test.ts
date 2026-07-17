@@ -1,3 +1,4 @@
+// @vitest-environment node
 // ==========================================
 // Crypto Key Material Separation Tests
 // ==========================================
@@ -12,10 +13,10 @@
 // checking that sign/verify produce deterministic results that
 // would change if the underlying secret changed.
 
-import { describe, it, expect, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 // Import the real crypto module
-import { signJobData, verifyJobSignature, extractSignedJobData } from "@/lib/crypto";
+import { extractSignedJobData, signJobData, verifyJobSignature } from "@/lib/crypto";
 
 describe("Key Material Separation - JOB_SIGNING_SECRET", () => {
   // The test setup stubs JOB_SIGNING_SECRET, so env.JOB_SIGNING_SECRET

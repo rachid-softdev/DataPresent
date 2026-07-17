@@ -13,7 +13,7 @@
 // auth.ts. These tests extract and re-implement that callback logic to
 // validate the business rules in isolation.
 
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 
 // ==========================================
 // JWT Callback Logic (mirrors auth.ts)

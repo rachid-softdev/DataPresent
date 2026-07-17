@@ -1,12 +1,12 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
-  stripHtml,
-  sanitizeHtml,
-  sanitizeAttribute,
-  sanitizeJs,
-  sanitizeComment,
-  sanitizeSlideContent,
   isUrlSafe,
+  sanitizeAttribute,
+  sanitizeComment,
+  sanitizeHtml,
+  sanitizeJs,
+  sanitizeSlideContent,
+  stripHtml,
 } from "@/lib/sanitize";
 
 describe("sanitize", () => {

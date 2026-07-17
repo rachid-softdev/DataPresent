@@ -2,7 +2,7 @@
 // Plan Utils Tests
 // ==========================================
 
-import { describe, it, expect, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 // Mock env to prevent module-level schema validation at import time
 vi.mock("@/env", () => ({
@@ -64,9 +64,9 @@ describe("plan-utils", () => {
       const plan = args?.where?.plan ?? "FREE";
       const limits: Record<string, number | null> = {
         FREE: 3,
-        PRO: 30,
-        TEAM: 30,
-        AGENCY: null,
+        STARTER: 30,
+        PRO: -1,
+        ULTRA: null,
       };
       return Promise.resolve([
         {
@@ -90,7 +90,7 @@ describe("plan-utils", () => {
     expect(canUseFormat("FREE", "DOCX")).toBe(false);
     expect(canUseFormat("PRO", "PDF")).toBe(true);
     expect(canUseFormat("PRO", "DOCX")).toBe(true);
-    expect(canUseFormat("TEAM", "PPTX")).toBe(true);
+    expect(canUseFormat("PRO", "PPTX")).toBe(true);
   });
 
   it("should export canHaveSlideCount function", async () => {
@@ -107,15 +107,15 @@ describe("plan-utils", () => {
     expect(canHaveSlideCount("FREE", 9).allowed).toBe(false);
     expect(canHaveSlideCount("FREE", 9).maxSlides).toBe(8);
 
-    // PRO: maxSlides = 20
-    expect(canHaveSlideCount("PRO", 20).allowed).toBe(true);
-    expect(canHaveSlideCount("PRO", 21).allowed).toBe(false);
+    // STARTER: maxSlides = 20
+    expect(canHaveSlideCount("STARTER", 20).allowed).toBe(true);
+    expect(canHaveSlideCount("STARTER", 21).allowed).toBe(false);
 
-    // TEAM: maxSlides = 30
-    expect(canHaveSlideCount("TEAM", 30).allowed).toBe(true);
+    // PRO: maxSlides = 30
+    expect(canHaveSlideCount("PRO", 30).allowed).toBe(true);
 
-    // AGENCY: unlimited (-1)
-    const agency = canHaveSlideCount("AGENCY", 999999);
+    // ULTRA: unlimited (-1)
+    const agency = canHaveSlideCount("ULTRA", 999999);
     expect(agency.allowed).toBe(true);
     expect(agency.maxSlides).toBe(-1);
   });
@@ -221,13 +221,13 @@ describe("plan-utils", () => {
         {
           orgId: "org-1",
           org: {
-            subscription: { plan: "AGENCY" },
+            subscription: { plan: "ULTRA" },
           },
         },
       ],
     });
     mockPrisma.subscription.findUnique.mockResolvedValue({
-      plan: "AGENCY",
+      plan: "ULTRA",
       status: "ACTIVE",
     });
 
@@ -249,13 +249,13 @@ describe("plan-utils", () => {
         {
           orgId: "org-1",
           org: {
-            subscription: { plan: "AGENCY" },
+            subscription: { plan: "ULTRA" },
           },
         },
       ],
     });
     mockPrisma.subscription.findUnique.mockResolvedValue({
-      plan: "AGENCY",
+      plan: "ULTRA",
       status: "ACTIVE",
     });
 

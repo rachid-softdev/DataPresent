@@ -7,7 +7,7 @@
 // - Non-localhost origins (e.g. http://localhost:5173, https://evil.com) are blocked
 // - Production mode continues to use ALLOWED_ORIGINS check
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // ---------------------------------------------------------------------------
 // Mock next-intl/middleware (required by middleware.ts)
@@ -53,11 +53,11 @@ vi.mock("next/server", () => {
   };
 });
 
+import type { NextRequest } from "next/server";
 // ---------------------------------------------------------------------------
 // Import after mocks
 // ---------------------------------------------------------------------------
 import { middleware } from "@/middleware";
-import type { NextRequest } from "next/server";
 
 /**
  * Create a minimal mock NextRequest for CORS testing

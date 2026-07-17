@@ -2,12 +2,12 @@
 // AI Schemas Tests
 // ==========================================
 
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
+  AnalysisResponseSchema,
   InsightSchema,
   SlideContentSchema,
   SlideSchema,
-  AnalysisResponseSchema,
 } from "@/lib/ai/schemas";
 
 describe("ai/schemas", () => {

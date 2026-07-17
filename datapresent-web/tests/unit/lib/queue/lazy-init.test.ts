@@ -15,7 +15,7 @@
 // 1. The lazy function in redis.ts (getRedisConnectionAsync)
 // 2. The expected contract for the fixed lazy API
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // ---------------------------------------------------------------------------
 // Mock bullmq Queue constructor — capturing eager initialisation

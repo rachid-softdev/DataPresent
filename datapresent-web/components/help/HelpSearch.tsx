@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { Search, X } from "lucide-react";
-import { Input } from "@/components/ui/input";
 import { AnimatePresence, motion } from "framer-motion";
+import { Search, X } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Input } from "@/components/ui/input";
 
 interface FaqItem {
   question: string;

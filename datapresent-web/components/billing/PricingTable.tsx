@@ -1,16 +1,16 @@
 "use client";
 
-import { Check, X, Loader2, HelpCircle } from "lucide-react";
+import { Check, HelpCircle, Loader2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Tooltip } from "@/components/ui/tooltip";
 import {
   Card,
   CardContent,
-  CardHeader,
-  CardTitle,
   CardDescription,
   CardFooter,
+  CardHeader,
+  CardTitle,
 } from "@/components/ui/card";
+import { Tooltip } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 
 export interface PricingPlanFeature {

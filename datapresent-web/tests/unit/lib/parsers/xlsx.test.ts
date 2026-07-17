@@ -1,8 +1,9 @@
+// @vitest-environment node
 // ==========================================
 // XLSX Parser Tests
 // ==========================================
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // Mock helpers for ExcelJS worksheet/row/cell objects
 function createCell(value: unknown) {
@@ -56,7 +57,7 @@ describe("xlsx parser", () => {
 
   it("should export parseXlsx function", async () => {
     const mod = await import("@/lib/parsers/xlsx");
-    expect(module.parseXlsx).toBeDefined();
+    expect(mod.parseXlsx).toBeDefined();
   });
 
   it("should parse xlsx file with single sheet", async () => {

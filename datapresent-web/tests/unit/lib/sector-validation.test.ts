@@ -6,7 +6,7 @@
 // which is derived from Prisma's Sector enum.
 // Used by: POST /api/upload and POST /api/reports/[id]/regenerate
 
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { isValidSector, VALID_SECTORS } from "@/lib/sector";
 
 describe("Sector validation — VALID_SECTORS constant", () => {

@@ -9,7 +9,7 @@
 // - No origin header returns no CORS headers
 // - Development mode allows all origins
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // ---------------------------------------------------------------------------
 // Mock next-intl/middleware (required by middleware.ts)
@@ -55,11 +55,11 @@ vi.mock("next/server", () => {
   };
 });
 
+import type { NextRequest } from "next/server";
 // ---------------------------------------------------------------------------
 // Import after mocks
 // ---------------------------------------------------------------------------
 import { middleware } from "@/middleware";
-import type { NextRequest } from "next/server";
 
 /**
  * Create a minimal mock NextRequest for CORS testing

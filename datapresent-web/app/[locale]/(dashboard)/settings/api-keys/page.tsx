@@ -1,23 +1,23 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { formatDistanceToNow } from "date-fns";
+import { fr } from "date-fns/locale";
+import { AlertCircle, CheckCircle, Copy, Key, Loader2, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+import { useEffect, useState } from "react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
   DialogDescription,
   DialogFooter,
+  DialogHeader,
+  DialogTitle,
 } from "@/components/ui/dialog";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader2, Key, Trash2, Copy, AlertCircle, CheckCircle } from "lucide-react";
-import { formatDistanceToNow } from "date-fns";
-import { fr } from "date-fns/locale";
+import { Input } from "@/components/ui/input";
 
 interface ApiKey {
   id: string;

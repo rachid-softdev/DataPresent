@@ -1,7 +1,7 @@
 "use client";
 
+import { Eye, Upload } from "lucide-react";
 import Link from "next/link";
-import { Upload, Eye } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 
 export function IntelligentEmptyState() {

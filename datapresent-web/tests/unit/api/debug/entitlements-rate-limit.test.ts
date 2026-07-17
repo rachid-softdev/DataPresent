@@ -1,3 +1,4 @@
+// @vitest-environment node
 // ==========================================
 // Debug Entitlements — Rate Limit Tests
 // ==========================================
@@ -7,7 +8,7 @@
 // - Rejects requests exceeding the limit
 // - Uses per-admin rate limit key (userId + IP)
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // ---------------------------------------------------------------------------
 // Mock setup — all mock variables must use vi.hoisted

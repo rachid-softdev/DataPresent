@@ -8,7 +8,7 @@
 // - Null handling for optional fields
 // - Date serialization
 
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { toUserDTO } from "@/lib/dto/user.dto";
 
 describe("UserDTO (user.dto.ts)", () => {

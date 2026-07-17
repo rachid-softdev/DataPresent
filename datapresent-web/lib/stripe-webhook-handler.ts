@@ -2,14 +2,14 @@
 // Stripe Webhook Handler - Enriched with Idempotency & Cache
 // ==========================================
 
+import type { Plan } from "@prisma/client";
 import Stripe from "stripe";
 import { env } from "@/env";
-import { getStripe } from "./stripe";
+import { invalidateCache } from "./entitlements/feature-gate";
+import { entitlementRepository } from "./entitlements/repository";
 import { prisma } from "./prisma";
 import { captureException, captureMessage } from "./sentry";
-import { entitlementRepository } from "./entitlements/repository";
-import { invalidateCache } from "./entitlements/feature-gate";
-import type { Plan } from "@prisma/client";
+import { getStripe } from "./stripe";
 
 const MAX_RETRIES = 3;
 const RETRY_DELAYS = [1000, 2000, 4000]; // 1s, 2s, 4s - exponential backoff
@@ -39,8 +39,8 @@ function getPlanFromPriceId(priceId: string | null): Plan {
   if (!priceId) return "FREE";
 
   const priceIdToPlan: Record<string, Plan> = {
-    [env.STRIPE_PRICE_PRO_MONTHLY ?? ""]: "PRO",
-    [env.STRIPE_PRICE_TEAM_MONTHLY ?? ""]: "TEAM",
+    [env.STRIPE_PRICE_PRO_MONTHLY ?? ""]: "STARTER",
+    [env.STRIPE_PRICE_TEAM_MONTHLY ?? ""]: "PRO",
     [env.STRIPE_PRICE_STARTER_MONTHLY ?? ""]: "FREE",
   };
 

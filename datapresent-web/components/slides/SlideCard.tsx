@@ -1,13 +1,13 @@
 "use client";
 
-import { memo } from "react";
-import dynamic from "next/dynamic";
 import type { Slide, SlideLayout } from "@prisma/client";
-import { TitleSlide } from "./layouts/TitleSlide";
+import dynamic from "next/dynamic";
+import { memo } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Comparison } from "./layouts/Comparison";
 import { KpiGrid } from "./layouts/KpiGrid";
 import { TextSummary } from "./layouts/TextSummary";
-import { Comparison } from "./layouts/Comparison";
-import { Skeleton } from "@/components/ui/skeleton";
+import { TitleSlide } from "./layouts/TitleSlide";
 
 // Lazy load heavy chart components (recharts is ~30KB)
 const BarChartSlide = dynamic(

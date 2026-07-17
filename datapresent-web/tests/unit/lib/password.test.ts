@@ -1,5 +1,5 @@
-import { describe, it, expect } from "vitest";
-import { hashPassword, verifyPassword, isPasswordValid } from "@/lib/password";
+import { describe, expect, it } from "vitest";
+import { hashPassword, isPasswordValid, verifyPassword } from "@/lib/password";
 
 describe("password", () => {
   describe("isPasswordValid", () => {

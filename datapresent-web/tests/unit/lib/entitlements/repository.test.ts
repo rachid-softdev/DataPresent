@@ -2,7 +2,7 @@
 // Entitlements Repository Tests
 // ==========================================
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // Mock @prisma/client to prevent missing module error
 vi.mock("@prisma/client", () => ({}));

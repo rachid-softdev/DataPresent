@@ -8,12 +8,12 @@
 // - buildPaginatedQuery() arguments and execution
 // - Edge cases: empty results, single item, exact limit
 
-import { describe, it, expect, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import {
-  toPaginatedResponse,
-  encodeCursor,
-  decodeCursor,
   buildPaginatedQuery,
+  decodeCursor,
+  encodeCursor,
+  toPaginatedResponse,
 } from "@/lib/dto/pagination.dto";
 
 describe("Pagination DTO (pagination.dto.ts)", () => {

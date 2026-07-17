@@ -10,7 +10,7 @@
 // POST handler. The middleware returns null (pass-through) if the
 // CSRF token is valid, or a 403 Response if invalid/missing.
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // ---------------------------------------------------------------------------
 // Mocks for withCsrfProtection dependencies
