@@ -2,3 +2,4 @@ packages:
   - 'packages/*'
   - 'datapresent-web'
   - 'workers'
+  - 'datapresent-prospecting'

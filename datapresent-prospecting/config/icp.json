@@ -1,0 +1,61 @@
+{
+  "company": "DataPresent",
+  "offer": "DataPresent est un SaaS qui transforme vos fichiers de données (Excel, CSV, PDF, Google Sheets) en présentations professionnelles générées par IA en quelques secondes, au lieu de jours de travail manuel.",
+  "markets": [
+    {
+      "language": "fr",
+      "countries": ["FR"],
+      "searchQueries": [
+        "agence data analytics France",
+        "cabinet de conseil data France",
+        "agence marketing data France",
+        "SSII business intelligence France",
+        "société de conseil en data France"
+      ]
+    },
+    {
+      "language": "en",
+      "countries": ["GB", "US", "IE", "CA"],
+      "searchQueries": [
+        "data analytics agency UK",
+        "data consulting firm United States",
+        "business intelligence consultancy UK",
+        "marketing analytics agency London",
+        "data science consulting company USA"
+      ]
+    }
+  ],
+  "sectors": [
+    "consulting",
+    "analytics",
+    "business intelligence",
+    "marketing agency",
+    "data science",
+    "software / SaaS",
+    "market research"
+  ],
+  "companySize": { "min": 5, "max": 200 },
+  "roles": [
+    "CEO",
+    "CTO",
+    "COO",
+    "Head of Data",
+    "Data Analyst",
+    "Marketing Manager",
+    "VP Marketing"
+  ],
+  "excludedKeywords": [
+    "recruitment",
+    "job board",
+    "formation en ligne",
+    "cours",
+    "government",
+    "université",
+    "recruteur",
+    "pôle emploi",
+    "wikipedia",
+    "indeed",
+    "glassdoor"
+  ],
+  "batchSize": 10
+}
