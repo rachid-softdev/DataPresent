@@ -1,6 +1,6 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
-import { closeBrowser, getBrowser } from "./browser.js";
+import { closeBrowser, getBrowser, newPage } from "./browser.js";
 import { env } from "./env.js";
 import { RunnerLock } from "./lock.js";
 import { runAnalyze } from "./stages/analyze.js";
@@ -94,7 +94,7 @@ async function main(): Promise<void> {
   try {
     if (stage === "all") {
       const browser = await getBrowser();
-      const page = await browser.newPage();
+      const page = await newPage();
       try {
         await runDiscover({ icp, browser, page, batch });
         await runEnrich({ page, batch });
@@ -109,7 +109,7 @@ async function main(): Promise<void> {
 
     if (stage === "discover") {
       const browser = await getBrowser();
-      const page = await browser.newPage();
+      const page = await newPage();
       try {
         await runDiscover({ icp, browser, page, batch });
       } finally {
@@ -120,7 +120,7 @@ async function main(): Promise<void> {
 
     if (stage === "enrich") {
       const browser = await getBrowser();
-      const page = await browser.newPage();
+      const page = await newPage();
       try {
         await runEnrich({ page, batch });
       } finally {

@@ -53,14 +53,18 @@ pnpm --filter datapresent-prospecting start -- --stage status --mark <id> --mark
 - **ICP** : `config/icp.json` — marchés (FR : France ; EN : GB/US/IE/CA),
   secteurs, tailles, rôles, requêtes de recherche, exclusions.
 - **Prompts** : `config/prompts/prospect-analysis.md`, `email-writer.md`.
-- **Recherche** : scraping SERP Google → Bing → DuckDuckGo (contextes
-  navigateur isolés, bascule automatique sur anti-bot). Les paramètres
-  régionaux des moteurs (`gl`/`cr`, `cc`, `kl`) sont forcés depuis le pays
-  du marché ICP pour neutraliser le biais de géolocalisation IP.
+- **Recherche** : scraping Google SERP avec session navigateur unique (portage
+  de la stratégie CommuneScraper : UA standard, `navigator.webdriver` masqué,
+  délais humains, gestion du consentement RGPD, retry sur page anti-bot).
+  Les paramètres régionaux (`gl`/`cr`) sont forcés depuis le pays du marché
+  ICP pour neutraliser le biais de géolocalisation IP. Si l'IPv6 de votre
+  opérateur est flaggée par Google ("trafic exceptionnel"), activez
+  `PROSPECTING_FORCE_IPV4=true` (proxy local en IPv4).
 - **Environnement** : copier `.env.example` → `.env.local` (chargé via
   dotenv-cli ou export). Variables clés : `ANTHROPIC_API_KEY`,
   `RESEND_API_KEY`, `PROSPECTING_SENDER` (domaine vérifié
-  Resend), `PROSPECTING_OPTOUT_URL`, `CHROME_PATH` (dev Windows), `NODE_ENV`.
+  Resend), `PROSPECTING_OPTOUT_URL`, `CHROME_PATH` (dev Windows), `NODE_ENV`,
+  `PROSPECTING_FORCE_IPV4` (IP IPv6 flaggée par Google).
 
 ## Données
 

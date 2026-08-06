@@ -1,10 +1,11 @@
 import type { Browser, Page } from "puppeteer-core";
+import { preparePage } from "../browser.js";
 
 export interface SearchResult {
   title: string;
   url: string;
   snippet: string;
-  source: "google" | "bing" | "ddg";
+  source: "google";
 }
 
 /** Signatures des pages anti-bot (Google "trafic exceptionnel", captchas...). */
@@ -44,29 +45,7 @@ export function unwrapGoogleUrl(raw: string): string | undefined {
   return undefined;
 }
 
-/**
- * Extrait l'URL réelle d'une redirection Bing (/ck/a) : le paramètre "u"
- * contient l'URL réelle en base64url (préfixe "a1").
- */
-export function unwrapBingUrl(raw: string): string | undefined {
-  if (!raw) return undefined;
-  if (raw.startsWith("http") && !raw.includes("bing.com/ck/a")) {
-    return raw;
-  }
-  try {
-    const u = new URL(raw);
-    if (u.pathname === "/ck/a") {
-      const b64 = (u.searchParams.get("u") ?? "").replace(/^a1/, "");
-      const decoded = Buffer.from(b64, "base64url").toString("utf-8");
-      if (decoded.startsWith("http")) return decoded;
-    }
-  } catch {
-    return undefined;
-  }
-  return undefined;
-}
-
-/** Domaines bloqués (réseaux sociaux, annuaires...) — avec sous-domaines. */
+/** Domaines bloqués (réseaux sociaux, dictionnaires, annuaires...). */
 const BLOCKED_HOSTS = [
   "facebook.com",
   "linkedin.com",
@@ -75,6 +54,13 @@ const BLOCKED_HOSTS = [
   "youtube.com",
   "instagram.com",
   "wikipedia.org",
+  "fr.wikipedia.org",
+  "wiktionary.org",
+  "cnrtl.fr",
+  "larousse.fr",
+  "lerobert.com",
+  "le-dictionnaire.com",
+  "dictionnaire.com",
   "indeed.com",
   "glassdoor.com",
   "yelp.com",
@@ -93,33 +79,10 @@ export function isRelevantResult(url: string): boolean {
 }
 
 /**
- * Région DuckDuckGo (paramètre kl) par pays — force la géolocalisation
- * des résultats (évite le biais IP du client).
+ * Construit l'URL de recherche Google avec les paramètres régionaux qui
+ * contrent la géolocalisation IP (biais local). Exporté pour testabilité.
  */
-export function duckDuckGoRegion(country: string | undefined, language: "fr" | "en"): string {
-  switch (country) {
-    case "FR":
-      return "fr-fr";
-    case "GB":
-      return "gb-en";
-    case "US":
-      return "us-en";
-    case "IE":
-      return "ie-en";
-    case "CA":
-      return "ca-en";
-    default:
-      return language === "fr" ? "fr-fr" : "us-en";
-  }
-}
-
-/**
- * Construit l'URL de recherche SERP d'un moteur avec les paramètres
- * régionaux qui contrent la géolocalisation IP (biais local).
- * Exporté pour testabilité.
- */
-export function buildSearchUrl(
-  engine: "google" | "bing" | "ddg",
+export function buildGoogleSearchUrl(
   query: string,
   language: "fr" | "en",
   country: string | undefined,
@@ -127,37 +90,68 @@ export function buildSearchUrl(
   const q = encodeURIComponent(query);
   const hl = language === "fr" ? "fr" : "en";
   const countryParam = country ?? (language === "fr" ? "FR" : "US");
-
-  switch (engine) {
-    case "google":
-      // gl= pays de la recherche, cr= restriction pays (cr=countryFR)
-      return `https://www.google.com/search?q=${q}&hl=${hl}&num=10&gl=${countryParam.toLowerCase()}&cr=country${countryParam}`;
-    case "bing":
-      // cc= restreint les résultats à un pays
-      return `https://www.bing.com/search?q=${q}&setlang=${hl}&cc=${countryParam}`;
-    case "ddg":
-      return `https://html.duckduckgo.com/html/?q=${q}&kl=${duckDuckGoRegion(countryParam, language)}`;
-  }
+  // gl= pays de la recherche, cr= restriction pays (cr=countryFR)
+  return `https://www.google.com/search?q=${q}&hl=${hl}&num=10&gl=${countryParam.toLowerCase()}&cr=country${countryParam}`;
 }
 
 const randomDelay = (min: number, max: number) =>
   new Promise((r) => setTimeout(r, min + Math.random() * (max - min)));
 
-/** Extraction Google SERP (anchors + dé-redirection /url?q=). */
+/** La page affiche la bannière de consentement RGPD ("Before you continue"). */
+async function acceptConsentIfPresent(page: Page): Promise<boolean> {
+  const hasConsent = await page.evaluate(() =>
+    /before you continue|av\.ant de continuer|continuer sur google/i.test(
+      document.body?.innerText ?? "",
+    ),
+  );
+  if (!hasConsent) return false;
+  await page.evaluate(() => {
+    const buttons = Array.from(document.querySelectorAll("button"));
+    const accept = buttons.find((b) =>
+      /accept all|tout accepter|j'accepte|agree/i.test(
+        b.innerText ?? b.getAttribute("aria-label") ?? "",
+      ),
+    );
+    (accept as HTMLButtonElement | undefined)?.click();
+  });
+  await randomDelay(2000, 3000);
+  return true;
+}
+
+/**
+ * Extraction Google SERP — portage de la stratégie CommuneScraper :
+ * MÊME page/session pour toutes les recherches (cookies Google persistants,
+ * aucune rotation de contexte) + délai humain après chargement.
+ * Gère la bannière de consentement RGPD et un retry sur page anti-bot
+ * (le blocage "trafic exceptionnel" est parfois transitoire).
+ */
 async function scrapeGoogle(
   page: Page,
   query: string,
   language: "fr" | "en",
   country: string | undefined,
 ): Promise<SearchResult[]> {
-  const url = buildSearchUrl("google", query, language, country);
+  const url = buildGoogleSearchUrl(query, language, country);
   await page.goto(url, { waitUntil: "domcontentloaded", timeout: 30_000 });
   await randomDelay(2000, 3500);
 
-  const bodyText = await page.evaluate(() => document.body?.innerText ?? "");
+  // Bannière RGPD : accepter puis recharger (le cookie posé débloque la SERP).
+  if (await acceptConsentIfPresent(page)) {
+    await page.goto(url, { waitUntil: "domcontentloaded", timeout: 30_000 });
+    await randomDelay(2000, 3000);
+  }
+
+  let bodyText = await page.evaluate(() => document.body?.innerText ?? "");
   if (looksBlocked(bodyText)) {
-    console.warn("[google] anti-bot page detected, switching to Bing");
-    return [];
+    console.warn("[google] anti-bot page detected, retrying once");
+    await randomDelay(4000, 6000);
+    await page.goto(url, { waitUntil: "domcontentloaded", timeout: 30_000 });
+    await randomDelay(2000, 3000);
+    bodyText = await page.evaluate(() => document.body?.innerText ?? "");
+    if (looksBlocked(bodyText)) {
+      console.warn("[google] anti-bot page detected after retry");
+      return [];
+    }
   }
 
   const raw = await page.evaluate(() => {
@@ -171,104 +165,26 @@ async function scrapeGoogle(
     return out;
   });
 
-  return dedupe(raw, "google");
+  return dedupe(raw);
 }
 
-/** Extraction Bing SERP (li.b_algo — URLs directes). */
-async function scrapeBing(
-  page: Page,
-  query: string,
-  language: "fr" | "en",
-  country: string | undefined,
-): Promise<SearchResult[]> {
-  const url = buildSearchUrl("bing", query, language, country);
-  await page.goto(url, { waitUntil: "domcontentloaded", timeout: 30_000 });
-  await randomDelay(1500, 2500);
-
-  const raw = await page.evaluate(() => {
-    const out: Array<{ title: string; url: string; snippet: string }> = [];
-    for (const li of Array.from(document.querySelectorAll("li.b_algo"))) {
-      const a = (li.querySelector("h2 a") ?? li.querySelector("a")) as HTMLAnchorElement | null;
-      const href = a?.getAttribute("href");
-      const title = a?.textContent?.trim() ?? "";
-      if (!href || !title) continue;
-      out.push({ title, url: href, snippet: li.textContent?.trim()?.slice(0, 500) ?? "" });
-    }
-    return out;
-  });
-
-  if (raw.length === 0) {
-    const title = await page.title();
-    const body = await page.evaluate(() => document.body?.innerText ?? "");
-    console.warn(
-      `[bing] 0 results — title: "${title}" body: "${body.replace(/\s+/g, " ").slice(0, 150)}"`,
-    );
-  }
-
-  return dedupe(raw, "bing");
-}
-
-/** Extraction DuckDuckGo (html.duckduckgo.com — HTML simple, URLs directes). */
-async function scrapeDuckDuckGo(
-  page: Page,
-  query: string,
-  language: "fr" | "en",
-  country: string | undefined,
-): Promise<SearchResult[]> {
-  const url = buildSearchUrl("ddg", query, language, country);
-  await page.goto(url, { waitUntil: "domcontentloaded", timeout: 30_000 });
-  await randomDelay(1500, 2500);
-
-  const raw = await page.evaluate(() => {
-    const out: Array<{ title: string; url: string; snippet: string }> = [];
-    for (const result of Array.from(document.querySelectorAll(".result"))) {
-      const a = result.querySelector(".result__a") as HTMLAnchorElement | null;
-      const href = a?.getAttribute("href");
-      const title = a?.textContent?.trim() ?? "";
-      if (!href || !title) continue;
-      const snippet = result.querySelector(".result__snippet")?.textContent?.trim() ?? "";
-      out.push({ title, url: href, snippet });
-    }
-    return out;
-  });
-
-  if (raw.length === 0) {
-    const title = await page.title();
-    console.warn(`[ddg] 0 results — title: "${title}"`);
-  }
-
-  return dedupe(raw, "ddg");
-}
-
-function dedupe(
-  raw: Array<{ title: string; url: string; snippet: string }>,
-  source: "google" | "bing" | "ddg",
-): SearchResult[] {
+function dedupe(raw: Array<{ title: string; url: string; snippet: string }>): SearchResult[] {
   const seen = new Map<string, SearchResult>();
   for (const r of raw) {
-    const realUrl =
-      source === "google"
-        ? unwrapGoogleUrl(r.url)
-        : source === "bing"
-          ? unwrapBingUrl(r.url)
-          : r.url;
+    const realUrl = unwrapGoogleUrl(r.url);
     if (!realUrl || !isRelevantResult(realUrl)) continue;
     const key = new URL(realUrl).hostname;
     if (seen.has(key)) continue;
     const cleanTitle = r.title.replace(/\s*›\s*/g, " - ").trim();
-    seen.set(key, { title: cleanTitle, url: realUrl, snippet: r.snippet, source });
+    seen.set(key, { title: cleanTitle, url: realUrl, snippet: r.snippet, source: "google" });
   }
   return [...seen.values()];
 }
 
 /**
- * Recherche SERP multi-moteurs : Google → Bing → DuckDuckGo.
- * Même approche que CommuneScraper, avec bascule automatique quand un
- * moteur sert une page anti-bot (trafic exceptionnel, captcha...) et des
- * paramètres régionaux forcés (contre le biais de géolocalisation IP).
- *
- * Chaque recherche s'exécute dans un CONTEXTE DE NAVIGATEUR ISOLÉ
- * (cookies frais) : les moteurs limitent par session, pas seulement par IP.
+ * Recherche Google avec session persistante (approche CommuneScraper) :
+ * pas de rotation de contexte — les cookies Google s'accumulent sur la
+ * même page, ce qui est le comportement d'un utilisateur réel.
  */
 export async function searchWeb(
   browser: Browser,
@@ -277,49 +193,8 @@ export async function searchWeb(
   language: "fr" | "en",
   country?: string,
 ): Promise<SearchResult[]> {
-  const ua = await browser.userAgent();
-  let results = await runWithFreshContext(browser, page, ua, (fresh) =>
-    scrapeGoogle(fresh, query, language, country),
-  );
-  if (results.length > 0) return results;
-
-  console.warn("[search] Google blocked or empty — trying Bing");
-  results = await runWithFreshContext(browser, page, ua, (fresh) =>
-    scrapeBing(fresh, query, language, country),
-  );
-  if (results.length > 0) return results;
-
-  console.warn("[search] Bing blocked or empty — trying DuckDuckGo");
-  return runWithFreshContext(browser, page, ua, (fresh) =>
-    scrapeDuckDuckGo(fresh, query, language, country),
-  );
-}
-
-type ContextRunner = (page: Page) => Promise<SearchResult[]>;
-
-/**
- * Exécute un scrape dans un contexte de navigateur isolé (cookies neufs),
- * puis ferme le contexte. La page fallback est utilisée si la création
- * d'un contexte échoue (headless sparticuz sur Lambda peut le refuser).
- */
-async function runWithFreshContext(
-  browser: Browser,
-  fallback: Page,
-  userAgent: string,
-  run: ContextRunner,
-): Promise<SearchResult[]> {
-  try {
-    const context = await browser.createBrowserContext();
-    try {
-      const fresh = await context.newPage();
-      await fresh.setUserAgent(userAgent);
-      return await run(fresh);
-    } finally {
-      await context.close().catch(() => undefined);
-    }
-  } catch {
-    return run(fallback);
-  }
+  await preparePage(page, browser);
+  return scrapeGoogle(page, query, language, country);
 }
 
 /** Alias rétro-compatible (utilisé par discover). */

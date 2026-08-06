@@ -1,11 +1,5 @@
 import { describe, expect, it } from "vitest";
-import {
-  buildSearchUrl,
-  duckDuckGoRegion,
-  isRelevantResult,
-  unwrapBingUrl,
-  unwrapGoogleUrl,
-} from "../search/google.js";
+import { buildGoogleSearchUrl, isRelevantResult, unwrapGoogleUrl } from "../search/google.js";
 import { companyFromTitle, normalizeDomain } from "../stages/discover.js";
 
 describe("unwrapGoogleUrl", () => {
@@ -27,35 +21,20 @@ describe("unwrapGoogleUrl", () => {
   });
 });
 
-describe("unwrapBingUrl", () => {
-  it("décode l'URL réelle depuis /ck/a (base64url, préfixe a1)", () => {
-    // "a1" + base64url("https://www.ladresse.com/agence/l-adresse-alfortville/204")
-    const b64 = "a1aHR0cHM6Ly93d3cubGFkcmVzc2UuY29tL2FnZW5jZS9sLWFkcmVzc2UtYWxmb3J0dmlsbGUvMjA0";
-    const raw = `https://www.bing.com/ck/a?!&&p=abc&u=${b64}&ntb=1`;
-    expect(unwrapBingUrl(raw)).toBe("https://www.ladresse.com/agence/l-adresse-alfortville/204");
-  });
-
-  it("laisse passer une URL directe", () => {
-    expect(unwrapBingUrl("https://acme.fr")).toBe("https://acme.fr");
-  });
-
-  it("retourne undefined si impossible", () => {
-    expect(unwrapBingUrl("")).toBeUndefined();
-    expect(unwrapBingUrl("https://www.bing.com/ck/a?!&&p=x")).toBeUndefined();
-  });
-});
-
 describe("isRelevantResult", () => {
   it("accepte les sites d'entreprises", () => {
     expect(isRelevantResult("https://acme.fr")).toBe(true);
     expect(isRelevantResult("https://www.acme.com/contact")).toBe(true);
   });
 
-  it("rejette google, réseaux sociaux et annuaires", () => {
+  it("rejette google, réseaux sociaux, dictionnaires et annuaires", () => {
     expect(isRelevantResult("https://www.google.com/search?q=x")).toBe(false);
     expect(isRelevantResult("https://www.facebook.com/acme")).toBe(false);
     expect(isRelevantResult("https://www.linkedin.com/company/acme")).toBe(false);
     expect(isRelevantResult("https://fr.wikipedia.org/wiki/Acme")).toBe(false);
+    expect(isRelevantResult("https://www.cnrtl.fr/definition/acme")).toBe(false);
+    expect(isRelevantResult("https://fr.wiktionary.org/wiki/acme")).toBe(false);
+    expect(isRelevantResult("https://www.le-dictionnaire.com/definition/acme")).toBe(false);
     expect(isRelevantResult("https://www.indeed.com/jobs")).toBe(false);
   });
 
@@ -89,46 +68,21 @@ describe("companyFromTitle", () => {
   });
 });
 
-describe("duckDuckGoRegion", () => {
-  it("force la région DuckDuckGo par pays (contre le biais IP)", () => {
-    expect(duckDuckGoRegion("FR", "fr")).toBe("fr-fr");
-    expect(duckDuckGoRegion("GB", "en")).toBe("gb-en");
-    expect(duckDuckGoRegion("US", "en")).toBe("us-en");
-    expect(duckDuckGoRegion("IE", "en")).toBe("ie-en");
-    expect(duckDuckGoRegion("CA", "en")).toBe("ca-en");
-  });
-
-  it("retombe sur la langue quand le pays est inconnu", () => {
-    expect(duckDuckGoRegion("DE", "fr")).toBe("fr-fr");
-    expect(duckDuckGoRegion(undefined, "en")).toBe("us-en");
-  });
-});
-
-describe("buildSearchUrl", () => {
+describe("buildGoogleSearchUrl", () => {
   it("Google : hl + gl + cr forcés depuis le pays", () => {
-    const url = new URL(buildSearchUrl("google", "agence data analytics", "fr", "FR"));
+    const url = new URL(buildGoogleSearchUrl("agence data analytics", "fr", "FR"));
     expect(url.searchParams.get("q")).toBe("agence data analytics");
     expect(url.searchParams.get("hl")).toBe("fr");
     expect(url.searchParams.get("gl")).toBe("fr");
     expect(url.searchParams.get("cr")).toBe("countryFR");
   });
 
-  it("Bing : setlang + cc forcés depuis le pays", () => {
-    const url = new URL(buildSearchUrl("bing", "data analytics agency", "en", "GB"));
-    expect(url.searchParams.get("q")).toBe("data analytics agency");
-    expect(url.searchParams.get("setlang")).toBe("en");
-    expect(url.searchParams.get("cc")).toBe("GB");
-  });
-
-  it("DDG : kl région forcée", () => {
-    const url = new URL(buildSearchUrl("ddg", "agence data analytics", "fr", "FR"));
-    expect(url.searchParams.get("kl")).toBe("fr-fr");
-  });
-
   it("pays par défaut dérivé de la langue si absent", () => {
-    expect(new URL(buildSearchUrl("google", "q", "fr", undefined)).searchParams.get("cr")).toBe(
+    expect(new URL(buildGoogleSearchUrl("q", "fr", undefined)).searchParams.get("cr")).toBe(
       "countryFR",
     );
-    expect(new URL(buildSearchUrl("bing", "q", "en", undefined)).searchParams.get("cc")).toBe("US");
+    expect(new URL(buildGoogleSearchUrl("q", "en", undefined)).searchParams.get("cr")).toBe(
+      "countryUS",
+    );
   });
 });

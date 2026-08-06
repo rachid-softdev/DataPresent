@@ -1,8 +1,19 @@
 import { existsSync } from "node:fs";
 import { env } from "./env.js";
+import { type Ipv4Proxy, startIpv4Proxy } from "./ipv4-proxy.js";
 
 export type BrowserLike = import("puppeteer-core").Browser;
 export type PageLike = import("puppeteer-core").Page;
+
+/** User-agent standard Chrome Windows (portage CommuneScraper). */
+export const DEFAULT_USER_AGENT =
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36";
+
+/** Lance le proxy IPv4 local (si PROSPECTING_FORCE_IPV4) et retourne l'arg Chrome. */
+async function proxyArg(): Promise<string> {
+  ipv4Proxy = await startIpv4Proxy();
+  return `--proxy-server=http://127.0.0.1:${ipv4Proxy.port}`;
+}
 
 /** Chemins courants de Chrome/Edge installés en local (Windows / macOS / Linux). */
 function findInstalledBrowser(): string | undefined {
@@ -25,11 +36,12 @@ function findInstalledBrowser(): string | undefined {
 }
 
 let browserPromise: Promise<BrowserLike> | null = null;
-let realUserAgent: string | null = null;
+let ipv4Proxy: Ipv4Proxy | null = null;
 
 /**
- * Lance un navigateur headless avec des options anti-détection
- * (portage du HeadlessWebDriverFactory de CommuneScraper).
+ * Lance un navigateur headless avec les protections anti-détection de
+ * CommuneScraper (HeadlessWebDriverFactory) : UA standard, suppression du
+ * flag --enable-automation, navigator.webdriver masqué, lang fr-FR.
  * Chaîne de fallback : CHROME_PATH / Edge / Chrome local → @sparticuz/chromium
  * (binaire Lambda, utilisé en prod Linux / GitHub Actions).
  */
@@ -56,6 +68,8 @@ export function getBrowser(): Promise<BrowserLike> {
         // Supprime le flag --enable-automation (signal "Chrome piloté").
         ignoreDefaultArgs: ["--enable-automation"],
         args: [
+          ...(env.PROSPECTING_FORCE_IPV4 ? [await proxyArg()] : []),
+          `--user-agent=${DEFAULT_USER_AGENT}`,
           "--no-sandbox",
           "--disable-setuid-sandbox",
           "--disable-dev-shm-usage",
@@ -76,15 +90,8 @@ export function getBrowser(): Promise<BrowserLike> {
         protocolTimeout: 60_000,
       });
 
-      // User-agent réel du Chrome lancé (cohérent → moins suspect qu'un UA dur).
-      realUserAgent = await browser.userAgent();
-
-      const pages = await browser.pages();
-      for (const page of pages) {
-        await page.setUserAgent(realUserAgent);
-        await page.evaluateOnNewDocument(() => {
-          Object.defineProperty(navigator, "webdriver", { get: () => undefined });
-        });
+      for (const page of await browser.pages()) {
+        await preparePage(page, browser);
       }
       return browser;
     })();
@@ -92,19 +99,33 @@ export function getBrowser(): Promise<BrowserLike> {
   return browserPromise;
 }
 
-/** User-agent réel du navigateur (défini après launch). */
-export async function getUserAgent(): Promise<string> {
-  if (!realUserAgent) await getBrowser();
-  return realUserAgent ?? "";
+/**
+ * Prépare une page pour le scraping : UA standard (par override CDP, comme
+ * CommuneScraper), viewport réaliste et navigator.webdriver masqué.
+ * À appeler sur CHAQUE page utilisée pour une recherche (les nouvelles
+ * pages n'héritent pas des protections appliquées au launch).
+ */
+export async function preparePage(page: PageLike, browser?: BrowserLike): Promise<void> {
+  try {
+    const cdp = await (browser
+      ? page.createCDPSession()
+      : Promise.reject(new Error("browser required")));
+    await cdp.send("Network.setUserAgentOverride", { userAgent: DEFAULT_USER_AGENT });
+    await cdp.detach();
+  } catch {
+    await page.setUserAgent(DEFAULT_USER_AGENT);
+  }
+  await page.setViewport({ width: 1920, height: 1080 });
+  await page.evaluateOnNewDocument(() => {
+    Object.defineProperty(navigator, "webdriver", { get: () => undefined });
+  });
 }
 
-/** Crée (ou réutilise) une page neuve avec le user-agent réel. */
+/** Crée une page neuve, préparée pour le scraping. */
 export async function newPage(): Promise<PageLike> {
   const browser = await getBrowser();
   const page = await browser.newPage();
-  const ua = await getUserAgent();
-  if (ua) await page.setUserAgent(ua);
-  await page.setViewport({ width: 1920, height: 1080 });
+  await preparePage(page, browser);
   return page;
 }
 
@@ -113,6 +134,9 @@ export async function closeBrowser(): Promise<void> {
     const browser = await browserPromise;
     await browser.close().catch(() => undefined);
     browserPromise = null;
-    realUserAgent = null;
+  }
+  if (ipv4Proxy) {
+    await ipv4Proxy.close().catch(() => undefined);
+    ipv4Proxy = null;
   }
 }

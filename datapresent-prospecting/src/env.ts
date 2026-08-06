@@ -20,6 +20,13 @@ const envSchema = z.object({
   // chaîne de fallback Edge → Chrome → @sparticuz/chromium (Linux/prod).
   CHROME_PATH: z.string().optional(),
 
+  // Force les requêtes du navigateur en IPv4 via un proxy local. Utile quand
+  // l'IPv6 de l'opérateur est flaggée par Google (page "trafic exceptionnel").
+  PROSPECTING_FORCE_IPV4: z
+    .enum(["true", "false"])
+    .default("false")
+    .transform((v) => v === "true"),
+
   // Webhook Resend (détection réponses / rebonds)
   PROSPECTING_WEBHOOK_PORT: z.string().optional(),
 
