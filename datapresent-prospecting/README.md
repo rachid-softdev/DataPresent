@@ -53,12 +53,13 @@ pnpm --filter datapresent-prospecting start -- --stage status --mark <id> --mark
 - **ICP** : `config/icp.json` — marchés (FR : France ; EN : GB/US/IE/CA),
   secteurs, tailles, rôles, requêtes de recherche, exclusions.
 - **Prompts** : `config/prompts/prospect-analysis.md`, `email-writer.md`.
-- **Recherche** : `TAVILY_API_KEY` (recommandé — API conçue pour les agents IA,
-  free tier). Sans clé : scraping SERP Google → Bing → DuckDuckGo
-  (contextes navigateur isolés, bascule automatique sur anti-bot).
+- **Recherche** : scraping SERP Google → Bing → DuckDuckGo (contextes
+  navigateur isolés, bascule automatique sur anti-bot). Les paramètres
+  régionaux des moteurs (`gl`/`cr`, `cc`, `kl`) sont forcés depuis le pays
+  du marché ICP pour neutraliser le biais de géolocalisation IP.
 - **Environnement** : copier `.env.example` → `.env.local` (chargé via
   dotenv-cli ou export). Variables clés : `ANTHROPIC_API_KEY`,
-  `TAVILY_API_KEY`, `RESEND_API_KEY`, `PROSPECTING_SENDER` (domaine vérifié
+  `RESEND_API_KEY`, `PROSPECTING_SENDER` (domaine vérifié
   Resend), `PROSPECTING_OPTOUT_URL`, `CHROME_PATH` (dev Windows), `NODE_ENV`.
 
 ## Données

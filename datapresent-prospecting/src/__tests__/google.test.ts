@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { isRelevantResult, unwrapBingUrl, unwrapGoogleUrl } from "../search/google.js";
+import {
+  buildSearchUrl,
+  duckDuckGoRegion,
+  isRelevantResult,
+  unwrapBingUrl,
+  unwrapGoogleUrl,
+} from "../search/google.js";
 import { companyFromTitle, normalizeDomain } from "../stages/discover.js";
 
 describe("unwrapGoogleUrl", () => {
@@ -80,5 +86,49 @@ describe("companyFromTitle", () => {
 
   it("retourne une chaîne vide sans séparateur", () => {
     expect(companyFromTitle("")).toBe("");
+  });
+});
+
+describe("duckDuckGoRegion", () => {
+  it("force la région DuckDuckGo par pays (contre le biais IP)", () => {
+    expect(duckDuckGoRegion("FR", "fr")).toBe("fr-fr");
+    expect(duckDuckGoRegion("GB", "en")).toBe("gb-en");
+    expect(duckDuckGoRegion("US", "en")).toBe("us-en");
+    expect(duckDuckGoRegion("IE", "en")).toBe("ie-en");
+    expect(duckDuckGoRegion("CA", "en")).toBe("ca-en");
+  });
+
+  it("retombe sur la langue quand le pays est inconnu", () => {
+    expect(duckDuckGoRegion("DE", "fr")).toBe("fr-fr");
+    expect(duckDuckGoRegion(undefined, "en")).toBe("us-en");
+  });
+});
+
+describe("buildSearchUrl", () => {
+  it("Google : hl + gl + cr forcés depuis le pays", () => {
+    const url = new URL(buildSearchUrl("google", "agence data analytics", "fr", "FR"));
+    expect(url.searchParams.get("q")).toBe("agence data analytics");
+    expect(url.searchParams.get("hl")).toBe("fr");
+    expect(url.searchParams.get("gl")).toBe("fr");
+    expect(url.searchParams.get("cr")).toBe("countryFR");
+  });
+
+  it("Bing : setlang + cc forcés depuis le pays", () => {
+    const url = new URL(buildSearchUrl("bing", "data analytics agency", "en", "GB"));
+    expect(url.searchParams.get("q")).toBe("data analytics agency");
+    expect(url.searchParams.get("setlang")).toBe("en");
+    expect(url.searchParams.get("cc")).toBe("GB");
+  });
+
+  it("DDG : kl région forcée", () => {
+    const url = new URL(buildSearchUrl("ddg", "agence data analytics", "fr", "FR"));
+    expect(url.searchParams.get("kl")).toBe("fr-fr");
+  });
+
+  it("pays par défaut dérivé de la langue si absent", () => {
+    expect(new URL(buildSearchUrl("google", "q", "fr", undefined)).searchParams.get("cr")).toBe(
+      "countryFR",
+    );
+    expect(new URL(buildSearchUrl("bing", "q", "en", undefined)).searchParams.get("cc")).toBe("US");
   });
 });

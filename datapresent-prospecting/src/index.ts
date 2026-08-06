@@ -93,15 +93,13 @@ async function main(): Promise<void> {
 
   try {
     if (stage === "all") {
-      // Tavily : la découverte n'a pas besoin de navigateur.
-      const needBrowser = !env.TAVILY_API_KEY;
-      const browser = needBrowser ? await getBrowser() : null;
-      const page = browser ? await browser.newPage() : null;
+      const browser = await getBrowser();
+      const page = await browser.newPage();
       try {
         await runDiscover({ icp, browser, page, batch });
-        if (page) await runEnrich({ page, batch });
+        await runEnrich({ page, batch });
       } finally {
-        if (browser) await closeBrowser();
+        await closeBrowser();
       }
       await runAnalyze({ batch });
       await runGenerate({ batch });

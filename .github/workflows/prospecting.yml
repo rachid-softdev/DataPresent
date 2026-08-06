@@ -35,7 +35,6 @@ jobs:
         env:
           NODE_ENV: production
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
           PROSPECTING_SENDER: ${{ secrets.PROSPECTING_SENDER }}
           PROSPECTING_OPTOUT_URL: ${{ secrets.PROSPECTING_OPTOUT_URL }}

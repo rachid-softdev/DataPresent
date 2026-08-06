@@ -1,7 +1,6 @@
 import { randomUUID } from "node:crypto";
 import type { Browser, Page } from "puppeteer-core";
-import { env } from "../env.js";
-import { googleSearch, type SearchResult, tavilySearch } from "../search/google.js";
+import { googleSearch, type SearchResult } from "../search/google.js";
 import { findProspectByDomain, loadStore, saveStore, upsertProspect } from "../store.js";
 import type { DataStore, IcpConfig, Prospect } from "../types.js";
 
@@ -51,38 +50,16 @@ async function addCandidate(
 }
 
 /**
- * Recherche unifiée : Tavily (fiable) si la clé est configurée,
- * sinon scraping SERP multi-moteurs via navigateur.
- */
-async function search(
-  query: string,
-  language: "fr" | "en",
-  opts: { browser: Browser | null; page: Page | null },
-): Promise<SearchResult[]> {
-  if (env.TAVILY_API_KEY) {
-    try {
-      return await tavilySearch(query, env.TAVILY_API_KEY);
-    } catch (err) {
-      console.warn(
-        `[discover] Tavily failed (${err instanceof Error ? err.message : err}) — fallback scraping`,
-      );
-    }
-  }
-  if (!opts.browser || !opts.page) {
-    throw new Error("Browser is required when TAVILY_API_KEY is not set");
-  }
-  return googleSearch(opts.browser, opts.page, query, language);
-}
-
-/**
  * Étage 1 — discover : à partir de l'ICP (config/icp.json), génère les
  * requêtes Google par marché (FR + EN) et collecte les sociétés candidates.
  * Dédoublonnage par domaine (persistant via store.json).
+ * Le pays du marché est transmis au scraping pour forcer la région des
+ * moteurs (évite le biais de géolocalisation IP).
  */
 export async function runDiscover(opts: {
   icp: IcpConfig;
-  browser: Browser | null;
-  page: Page | null;
+  browser: Browser;
+  page: Page;
   batch?: number;
 }): Promise<number> {
   const store = await loadStore();
@@ -96,11 +73,9 @@ export async function runDiscover(opts: {
     const queries = market.searchQueries.slice(0, perMarket);
     for (const query of queries) {
       if (remaining <= 0) break;
-      console.log(`[discover] ${market.language.toUpperCase()} :: ${query}`);
-      const results = await search(query, market.language, {
-        browser: opts.browser,
-        page: opts.page,
-      });
+      const country = market.countries[0] ?? (market.language === "fr" ? "FR" : "US");
+      console.log(`[discover] ${market.language.toUpperCase()} :: ${query} (${country})`);
+      const results = await googleSearch(opts.browser, opts.page, query, market.language, country);
       for (const result of results.slice(0, 4)) {
         if (remaining <= 0) break;
         added += await addCandidate(store, result, market.language, market.countries[0] ?? "");

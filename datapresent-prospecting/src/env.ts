@@ -20,10 +20,6 @@ const envSchema = z.object({
   // chaîne de fallback Edge → Chrome → @sparticuz/chromium (Linux/prod).
   CHROME_PATH: z.string().optional(),
 
-  // Recherche fiable (recommandé) : Tavily — https://tavily.com (free tier).
-  // Si absent, le pipeline retombe sur le scraping SERP Google→Bing→DDG.
-  TAVILY_API_KEY: z.string().optional(),
-
   // Webhook Resend (détection réponses / rebonds)
   PROSPECTING_WEBHOOK_PORT: z.string().optional(),
 

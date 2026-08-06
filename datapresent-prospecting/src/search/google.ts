@@ -4,7 +4,7 @@ export interface SearchResult {
   title: string;
   url: string;
   snippet: string;
-  source: "google" | "bing" | "ddg" | "tavily";
+  source: "google" | "bing" | "ddg";
 }
 
 /** Signatures des pages anti-bot (Google "trafic exceptionnel", captchas...). */
@@ -92,12 +92,65 @@ export function isRelevantResult(url: string): boolean {
   return true;
 }
 
+/**
+ * Région DuckDuckGo (paramètre kl) par pays — force la géolocalisation
+ * des résultats (évite le biais IP du client).
+ */
+export function duckDuckGoRegion(country: string | undefined, language: "fr" | "en"): string {
+  switch (country) {
+    case "FR":
+      return "fr-fr";
+    case "GB":
+      return "gb-en";
+    case "US":
+      return "us-en";
+    case "IE":
+      return "ie-en";
+    case "CA":
+      return "ca-en";
+    default:
+      return language === "fr" ? "fr-fr" : "us-en";
+  }
+}
+
+/**
+ * Construit l'URL de recherche SERP d'un moteur avec les paramètres
+ * régionaux qui contrent la géolocalisation IP (biais local).
+ * Exporté pour testabilité.
+ */
+export function buildSearchUrl(
+  engine: "google" | "bing" | "ddg",
+  query: string,
+  language: "fr" | "en",
+  country: string | undefined,
+): string {
+  const q = encodeURIComponent(query);
+  const hl = language === "fr" ? "fr" : "en";
+  const countryParam = country ?? (language === "fr" ? "FR" : "US");
+
+  switch (engine) {
+    case "google":
+      // gl= pays de la recherche, cr= restriction pays (cr=countryFR)
+      return `https://www.google.com/search?q=${q}&hl=${hl}&num=10&gl=${countryParam.toLowerCase()}&cr=country${countryParam}`;
+    case "bing":
+      // cc= restreint les résultats à un pays
+      return `https://www.bing.com/search?q=${q}&setlang=${hl}&cc=${countryParam}`;
+    case "ddg":
+      return `https://html.duckduckgo.com/html/?q=${q}&kl=${duckDuckGoRegion(countryParam, language)}`;
+  }
+}
+
 const randomDelay = (min: number, max: number) =>
   new Promise((r) => setTimeout(r, min + Math.random() * (max - min)));
 
 /** Extraction Google SERP (anchors + dé-redirection /url?q=). */
-async function scrapeGoogle(page: Page, query: string, hl: string): Promise<SearchResult[]> {
-  const url = `https://www.google.com/search?q=${encodeURIComponent(query)}&hl=${hl}&num=10`;
+async function scrapeGoogle(
+  page: Page,
+  query: string,
+  language: "fr" | "en",
+  country: string | undefined,
+): Promise<SearchResult[]> {
+  const url = buildSearchUrl("google", query, language, country);
   await page.goto(url, { waitUntil: "domcontentloaded", timeout: 30_000 });
   await randomDelay(2000, 3500);
 
@@ -122,8 +175,13 @@ async function scrapeGoogle(page: Page, query: string, hl: string): Promise<Sear
 }
 
 /** Extraction Bing SERP (li.b_algo — URLs directes). */
-async function scrapeBing(page: Page, query: string, hl: string): Promise<SearchResult[]> {
-  const url = `https://www.bing.com/search?q=${encodeURIComponent(query)}&setlang=${hl}`;
+async function scrapeBing(
+  page: Page,
+  query: string,
+  language: "fr" | "en",
+  country: string | undefined,
+): Promise<SearchResult[]> {
+  const url = buildSearchUrl("bing", query, language, country);
   await page.goto(url, { waitUntil: "domcontentloaded", timeout: 30_000 });
   await randomDelay(1500, 2500);
 
@@ -151,8 +209,13 @@ async function scrapeBing(page: Page, query: string, hl: string): Promise<Search
 }
 
 /** Extraction DuckDuckGo (html.duckduckgo.com — HTML simple, URLs directes). */
-async function scrapeDuckDuckGo(page: Page, query: string): Promise<SearchResult[]> {
-  const url = `https://html.duckduckgo.com/html/?q=${encodeURIComponent(query)}`;
+async function scrapeDuckDuckGo(
+  page: Page,
+  query: string,
+  language: "fr" | "en",
+  country: string | undefined,
+): Promise<SearchResult[]> {
+  const url = buildSearchUrl("ddg", query, language, country);
   await page.goto(url, { waitUntil: "domcontentloaded", timeout: 30_000 });
   await randomDelay(1500, 2500);
 
@@ -199,39 +262,10 @@ function dedupe(
 }
 
 /**
- * Recherche Tavily (API conçue pour les agents IA — pas d'anti-bot).
- * Utilisée si TAVILY_API_KEY est configurée, sinon fallback scraping SERP.
- */
-export async function tavilySearch(query: string, apiKey: string): Promise<SearchResult[]> {
-  const response = await fetch("https://api.tavily.com/search", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      api_key: apiKey,
-      query,
-      search_depth: "basic",
-      max_results: 10,
-    }),
-    signal: AbortSignal.timeout(30_000),
-  });
-  if (!response.ok) throw new Error(`Tavily error ${response.status}: ${await response.text()}`);
-  const data = (await response.json()) as {
-    results?: Array<{ title: string; url: string; content?: string }>;
-  };
-  return (data.results ?? [])
-    .filter((r) => isRelevantResult(r.url))
-    .map((r) => ({
-      title: r.title,
-      url: r.url,
-      snippet: r.content ?? "",
-      source: "tavily" as const,
-    }));
-}
-
-/**
  * Recherche SERP multi-moteurs : Google → Bing → DuckDuckGo.
  * Même approche que CommuneScraper, avec bascule automatique quand un
- * moteur sert une page anti-bot (trafic exceptionnel, captcha...).
+ * moteur sert une page anti-bot (trafic exceptionnel, captcha...) et des
+ * paramètres régionaux forcés (contre le biais de géolocalisation IP).
  *
  * Chaque recherche s'exécute dans un CONTEXTE DE NAVIGATEUR ISOLÉ
  * (cookies frais) : les moteurs limitent par session, pas seulement par IP.
@@ -241,20 +275,24 @@ export async function searchWeb(
   page: Page,
   query: string,
   language: "fr" | "en",
+  country?: string,
 ): Promise<SearchResult[]> {
-  const hl = language === "fr" ? "fr" : "en";
   const ua = await browser.userAgent();
   let results = await runWithFreshContext(browser, page, ua, (fresh) =>
-    scrapeGoogle(fresh, query, hl),
+    scrapeGoogle(fresh, query, language, country),
   );
   if (results.length > 0) return results;
 
   console.warn("[search] Google blocked or empty — trying Bing");
-  results = await runWithFreshContext(browser, page, ua, (fresh) => scrapeBing(fresh, query, hl));
+  results = await runWithFreshContext(browser, page, ua, (fresh) =>
+    scrapeBing(fresh, query, language, country),
+  );
   if (results.length > 0) return results;
 
   console.warn("[search] Bing blocked or empty — trying DuckDuckGo");
-  return runWithFreshContext(browser, page, ua, (fresh) => scrapeDuckDuckGo(fresh, query));
+  return runWithFreshContext(browser, page, ua, (fresh) =>
+    scrapeDuckDuckGo(fresh, query, language, country),
+  );
 }
 
 type ContextRunner = (page: Page) => Promise<SearchResult[]>;
@@ -290,6 +328,7 @@ export async function googleSearch(
   page: Page,
   query: string,
   language: "fr" | "en",
+  country?: string,
 ): Promise<SearchResult[]> {
-  return searchWeb(browser, page, query, language);
+  return searchWeb(browser, page, query, language, country);
 }
