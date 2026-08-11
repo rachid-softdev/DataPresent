@@ -9,6 +9,7 @@
     "clean": "rm -rf dist"
   },
   "devDependencies": {
+    "@types/chrome": "^0.2.5",
     "typescript": "^5.7.0"
   }
 }

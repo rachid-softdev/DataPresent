@@ -3,15 +3,15 @@
 // ==========================================
 
 import type {
+  DowngradeStrategy,
+  FeatureType,
+  OverrideScope,
   Plan,
   SubscriptionStatus,
-  FeatureType,
-  DowngradeStrategy,
-  OverrideScope,
 } from "@prisma/client";
 
 // Re-export Prisma types for convenience
-export type { Plan, SubscriptionStatus, FeatureType, DowngradeStrategy, OverrideScope };
+export type { DowngradeStrategy, FeatureType, OverrideScope, Plan, SubscriptionStatus };
 
 // ==========================================
 // Feature Types
@@ -68,7 +68,7 @@ export interface ConsumeSuccess {
 
 export interface ConsumeFailure {
   success: false;
-  error: "LIMIT_REACHED" | "FEATURE_NOT_AVAILABLE";
+  error: "LIMIT_REACHED" | "FEATURE_NOT_AVAILABLE" | "INVALID_AMOUNT";
   featureKey: string;
   limit: number | null;
   used: number;

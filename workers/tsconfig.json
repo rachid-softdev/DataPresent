@@ -11,11 +11,12 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
+    "types": ["node", "vitest/globals"],
     "declaration": false,
     "sourceMap": true,
     "noUnusedLocals": false,
     "noUnusedParameters": false
   },
-  "include": ["src/**/*.ts"],
+  "include": ["src/**/*.ts", "types/**/*.d.ts"],
   "exclude": ["node_modules", "dist"]
 }

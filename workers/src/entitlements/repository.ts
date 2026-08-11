@@ -2,23 +2,25 @@
 // Entitlement Repository - Interface & Implementation
 // ==========================================
 
-import { prisma } from "../prisma.js";
-import { Prisma } from "@prisma/client";
 import type {
-  Plan,
-  Subscription,
-  Feature,
-  PlanFeature,
   EntitlementOverride,
+  Feature,
+  Plan,
+  PlanFeature,
+  Subscription,
   UsageTracking,
   WebhookEvent,
 } from "@prisma/client";
-import type { FeatureKey, ExperimentConfig } from "./types";
-import type { ConsumeResult, ConsumeSuccess } from "./types";
+import { Prisma } from "@prisma/client";
+import { prisma } from "../prisma.js";
+import type { ConsumeResult, ConsumeSuccess, ExperimentConfig, FeatureKey } from "./types";
 
 // ==========================================
 // Interface
 // ==========================================
+
+// PlanFeature with the `feature` relation included (matching the `include: { feature: true }` query)
+export type PlanFeatureWithFeature = PlanFeature & { feature: Feature };
 
 export interface IEntitlementRepository {
   // Subscription
@@ -26,8 +28,8 @@ export interface IEntitlementRepository {
 
   // Features & Plans
   getFeature(key: string): Promise<Feature | null>;
-  getPlanFeatures(plan: Plan): Promise<PlanFeature[]>;
-  getAllPlanFeatures(): Promise<PlanFeature[]>;
+  getPlanFeatures(plan: Plan): Promise<PlanFeatureWithFeature[]>;
+  getAllPlanFeatures(): Promise<PlanFeatureWithFeature[]>;
 
   // Overrides
   getUserOverride(userId: string, featureKey: string): Promise<EntitlementOverride | null>;
@@ -110,20 +112,22 @@ export class PrismaEntitlementRepository implements IEntitlementRepository {
   /**
    * Get all plan features for a specific plan
    */
-  async getPlanFeatures(plan: Plan): Promise<PlanFeature[]> {
-    return prisma.planFeature.findMany({
+  async getPlanFeatures(plan: Plan): Promise<PlanFeatureWithFeature[]> {
+    const result = await prisma.planFeature.findMany({
       where: { plan },
       include: { feature: true },
     });
+    return result as unknown as PlanFeatureWithFeature[];
   }
 
   /**
    * Get all plan features across all plans
    */
-  async getAllPlanFeatures(): Promise<PlanFeature[]> {
-    return prisma.planFeature.findMany({
+  async getAllPlanFeatures(): Promise<PlanFeatureWithFeature[]> {
+    const result = await prisma.planFeature.findMany({
       include: { feature: true },
     });
+    return result as unknown as PlanFeatureWithFeature[];
   }
 
   /**
@@ -163,13 +167,17 @@ export class PrismaEntitlementRepository implements IEntitlementRepository {
     const now = new Date();
     return prisma.entitlementOverride.findMany({
       where: {
-        OR: [
-          // Org-level overrides
-          { scope: "ORG", scopeId: orgId },
-          // User-level overrides
-          ...(userId ? [{ scope: "USER", scopeId: userId }] : []),
+        AND: [
+          {
+            OR: [
+              // Org-level overrides
+              { scope: "ORG" as const, scopeId: orgId },
+              // User-level overrides
+              ...(userId ? [{ scope: "USER" as const, scopeId: userId }] : []),
+            ],
+          },
+          { OR: [{ expiresAt: null }, { expiresAt: { gt: now } }] },
         ],
-        OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
       },
     });
   }
@@ -217,7 +225,7 @@ export class PrismaEntitlementRepository implements IEntitlementRepository {
 
     // Get start and end of current month
     const periodStart = new Date(now.getFullYear(), now.getMonth(), 1);
-    const periodEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+    const periodEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
 
     // Pre-check: if no existing usage row and amount already exceeds limit, reject early.
     // This is a safety net; the ON CONFLICT WHERE clause handles the race on UPDATE path.

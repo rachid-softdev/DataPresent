@@ -33,6 +33,10 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "avatars.githubusercontent.com",
       },
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
+      },
     ],
   },
   async headers() {
@@ -66,7 +70,7 @@ const nextConfig: NextConfig = {
               "default-src 'self'",
               `script-src ${scriptSrc}`,
               "style-src 'self' 'unsafe-inline'",
-              "img-src 'self' data: blob: https://*.r2.cloudflarestorage.com https://lh3.googleusercontent.com https://avatars.githubusercontent.com",
+              "img-src 'self' data: blob: https://*.r2.cloudflarestorage.com https://lh3.googleusercontent.com https://avatars.githubusercontent.com https://images.unsplash.com",
               "font-src 'self' data:",
               "connect-src 'self' https://api.anthropic.com https://*.r2.cloudflarestorage.com https://api.stripe.com https://sheets.googleapis.com",
               "frame-src 'self' https://js.stripe.com",

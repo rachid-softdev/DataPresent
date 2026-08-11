@@ -49,7 +49,9 @@ export async function getPdfWorker(): Promise<Worker | null> {
       removeOnComplete: { count: 200, age: 3600 },
       removeOnFail: { count: 100, age: 86400 },
     },
-  );
+    // The placeholder processor only throws, so BullMQ infers
+    // `Worker<any, never, string>`; cast to the base Worker type.
+  ) as unknown as Worker;
 
   logger.info("[pdf-worker] Registered placeholder worker (PDF_DEDICATED_WORKER=1)");
 

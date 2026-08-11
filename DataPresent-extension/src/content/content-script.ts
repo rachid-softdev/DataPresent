@@ -7,7 +7,7 @@ import type { ExtensionMessage, MessageResponse } from "../types/messages.js";
 // ─── Listen for messages from popup / background ───
 
 chrome.runtime.onMessage.addListener(
-  (message: ExtensionMessage, sender, sendResponse: MessageResponse) => {
+  (message: ExtensionMessage, _sender, sendResponse: MessageResponse) => {
     console.log("[DataPresent] Content script received:", message.name);
 
     switch (message.name) {

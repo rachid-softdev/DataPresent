@@ -11,6 +11,10 @@ import { prisma } from "@/lib/prisma";
 const googleConfigured = !!(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET);
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  // Trust the host in development so session/auth works regardless of the
+  // actual dev port (NEXTAUTH_URL may differ from the port Next picks).
+  // In production the deployment host is always trusted by default.
+  trustHost: process.env.NODE_ENV !== "production",
   adapter: PrismaAdapter(prisma),
   providers: [
     ...(googleConfigured

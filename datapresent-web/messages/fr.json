@@ -158,7 +158,7 @@
         "reports": "Rapports",
         "slides": "Diapositives",
         "unlimited": "Illimité",
-        "warning": "Vous avez utilisé {{percent}}% de votre quota de rapports"
+        "warning": "Vous avez utilisé {percent}% de votre quota de rapports"
       }
     }
   },
@@ -202,7 +202,7 @@
       "storage": "Stockage",
       "thisMonth": "Ce mois",
       "unlimited": "Illimité",
-      "warning": "Vous avez utilisé {{percent}}% de votre quota de rapports"
+      "warning": "Vous avez utilisé {percent}% de votre quota de rapports"
     }
   },
   "reports": {
@@ -375,7 +375,7 @@
       "supportDedicated": "Support dédié",
       "accountManager": "Gestionnaire de compte",
       "sla": "SLA garantie",
-      "reportsLimit": "{{count}} rapports/mois"
+      "reportsLimit": "{count} rapports/mois"
     },
     "table": {
       "title": "Comparaison détaillée",

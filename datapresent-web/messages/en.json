@@ -194,7 +194,7 @@
       "storage": "Storage",
       "thisMonth": "This month",
       "unlimited": "Unlimited",
-      "warning": "You have used {{percent}}% of your report quota"
+      "warning": "You have used {percent}% of your report quota"
     }
   },
   "reports": {
@@ -366,7 +366,7 @@
       "supportDedicated": "Dedicated support",
       "accountManager": "Account manager",
       "sla": "SLA guarantee",
-      "reportsLimit": "{{count}} reports/month"
+      "reportsLimit": "{count} reports/month"
     },
     "table": {
       "title": "Detailed comparison",

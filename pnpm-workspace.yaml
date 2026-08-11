@@ -3,3 +3,4 @@ packages:
   - 'datapresent-web'
   - 'workers'
   - 'datapresent-prospecting'
+  - 'DataPresent-extension'
