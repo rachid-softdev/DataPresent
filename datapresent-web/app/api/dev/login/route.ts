@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import { hashPassword } from "@/lib/password";
 import { signIn } from "@/lib/auth";
+import { hashPassword } from "@/lib/password";
+import { prisma } from "@/lib/prisma";
 
 /**
  * DEV-ONLY endpoint to obtain a real authenticated session cookie.
@@ -38,10 +38,11 @@ export async function POST() {
     });
   }
 
-  const fd = new FormData();
-  fd.set("email", DEV_EMAIL);
-  fd.set("password", DEV_PASSWORD);
-  const result = await signIn("password", fd, { redirect: false });
+  const result = await signIn("password", {
+    email: DEV_EMAIL,
+    password: DEV_PASSWORD,
+    redirect: false,
+  });
 
   if (result?.error) {
     return NextResponse.json(
