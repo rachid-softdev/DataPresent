@@ -1,3 +1,4 @@
+// @vitest-environment node
 // ==========================================
 // V1 Reports API Route Tests (Horizon 6)
 // ==========================================
@@ -6,6 +7,7 @@
 // - Returns 401 when not authenticated
 // - Returns 404 when user has no organization
 // - Returns 200 with paginated ReportDTOs
+// - API key auth resolves the org from the key
 // - Pagination parameters (cursor, limit)
 // - Error handling
 
@@ -20,6 +22,7 @@ const mockPrismaReportFindMany = vi.hoisted(() => vi.fn());
 const mockPrismaReportCount = vi.hoisted(() => vi.fn());
 const mockToReportDTO = vi.hoisted(() => vi.fn());
 const mockBuildPaginatedQuery = vi.hoisted(() => vi.fn());
+const mockAuthenticateApiKey = vi.hoisted(() => vi.fn());
 const mockJson = vi.hoisted(() => vi.fn());
 
 vi.mock("next/server", () => ({
@@ -31,6 +34,10 @@ vi.mock("next/server", () => ({
 
 vi.mock("@/lib/auth", () => ({
   auth: mockAuth,
+}));
+
+vi.mock("@/lib/api-auth", () => ({
+  authenticateApiKey: mockAuthenticateApiKey,
 }));
 
 vi.mock("@/lib/prisma", () => ({
@@ -349,5 +356,61 @@ describe("V1 Reports API route (/api/v1/reports)", () => {
 
     expect(response.status).toBe(500);
     expect(data.error).toBe("Internal server error");
+  });
+
+  // ======================================================================
+  // API key auth
+  // ======================================================================
+
+  it("should return 401 when no session and no valid API key", async () => {
+    mockAuth.mockResolvedValue(null);
+    mockAuthenticateApiKey.mockResolvedValue(null);
+
+    const response = await GET(
+      new Request("http://localhost:3000/api/v1/reports", {
+        headers: { authorization: "Bearer dp_invalid" },
+      }),
+    );
+    const data = await response.json();
+
+    expect(response.status).toBe(401);
+    expect(data.error).toBe("errors.auth.unauthorized");
+    expect(mockPrismaMembershipFindFirst).not.toHaveBeenCalled();
+    expect(mockBuildPaginatedQuery).not.toHaveBeenCalled();
+  });
+
+  it("should list reports of the API key org when authenticating with a valid key", async () => {
+    const mockReports = [{ id: "rpt_1", title: "API Report" }];
+    const mockPaginatedResult = {
+      items: mockReports,
+      hasMore: false,
+      nextCursor: null,
+      totalCount: 1,
+    };
+
+    mockAuth.mockResolvedValue(null);
+    mockAuthenticateApiKey.mockResolvedValue({ orgId: "org_api", keyId: "key_1" });
+    mockBuildPaginatedQuery.mockResolvedValue(mockPaginatedResult);
+    mockToReportDTO.mockImplementation((r: { id: string; title: string }) => ({ ...r }));
+
+    const response = await GET(
+      new Request("http://localhost:3000/api/v1/reports", {
+        headers: { "x-api-key": "dp_test" },
+      }),
+    );
+    const data = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(data.items).toEqual(mockReports);
+    expect(mockPrismaMembershipFindFirst).not.toHaveBeenCalled();
+
+    const callArg = mockBuildPaginatedQuery.mock.calls[0][0] as Record<string, unknown>;
+    const wrapper = callArg.model as {
+      findMany: (args: Record<string, unknown>) => Promise<unknown[]>;
+    };
+    await wrapper.findMany({});
+    expect(mockPrismaReportFindMany).toHaveBeenCalledWith({
+      where: { orgId: "org_api" },
+    });
   });
 });

@@ -1,3 +1,4 @@
+// @vitest-environment node
 // ==========================================
 // V1 Me API Route Tests (Horizon 6)
 // ==========================================
@@ -6,6 +7,7 @@
 // - Returns 401 when not authenticated
 // - Returns 404 when user not found in DB
 // - Returns 200 with UserDTO when authenticated
+// - API key auth returns the owning organization
 // - Error handling
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -15,7 +17,10 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 // ---------------------------------------------------------------------------
 const mockAuth = vi.hoisted(() => vi.fn());
 const mockPrismaUserFindUnique = vi.hoisted(() => vi.fn());
+const mockPrismaOrgFindUnique = vi.hoisted(() => vi.fn());
 const mockToUserDTO = vi.hoisted(() => vi.fn());
+const mockToOrgDTO = vi.hoisted(() => vi.fn());
+const mockAuthenticateApiKey = vi.hoisted(() => vi.fn());
 const mockJson = vi.hoisted(() => vi.fn());
 
 vi.mock("next/server", () => ({
@@ -29,16 +34,24 @@ vi.mock("@/lib/auth", () => ({
   auth: mockAuth,
 }));
 
+vi.mock("@/lib/api-auth", () => ({
+  authenticateApiKey: mockAuthenticateApiKey,
+}));
+
 vi.mock("@/lib/prisma", () => ({
   prisma: {
     user: {
       findUnique: mockPrismaUserFindUnique,
+    },
+    organization: {
+      findUnique: mockPrismaOrgFindUnique,
     },
   },
 }));
 
 vi.mock("@/lib/dto", () => ({
   toUserDTO: mockToUserDTO,
+  toOrgDTO: mockToOrgDTO,
 }));
 
 import { GET } from "@/app/api/v1/me/route";
@@ -214,5 +227,77 @@ describe("V1 Me API route (/api/v1/me)", () => {
 
     expect(response.status).toBe(500);
     expect(data.error).toBe("Internal server error");
+  });
+
+  // ======================================================================
+  // API key auth
+  // ======================================================================
+
+  it("should return 401 when no session and no valid API key", async () => {
+    mockAuth.mockResolvedValue(null);
+    mockAuthenticateApiKey.mockResolvedValue(null);
+
+    const response = await GET(new Request("http://localhost:3000/api/v1/me"));
+    const data = await response.json();
+
+    expect(response.status).toBe(401);
+    expect(data.error).toBe("errors.auth.unauthorized");
+    expect(mockPrismaOrgFindUnique).not.toHaveBeenCalled();
+  });
+
+  it("should return organization DTO when authenticating with a valid API key", async () => {
+    const mockOrg = {
+      id: "org_123",
+      name: "Audit Org",
+      slug: "audit-org",
+      customDomain: null,
+      domainVerifiedAt: null,
+      logoUrl: null,
+      primaryColor: "#2563eb",
+      createdAt: new Date("2024-01-01"),
+      updatedAt: new Date("2024-06-01"),
+    };
+    const mockOrgDTO = {
+      id: "org_123",
+      name: "Audit Org",
+      slug: "audit-org",
+      customDomain: null,
+      logoUrl: null,
+      primaryColor: "#2563eb",
+      createdAt: "2024-01-01T00:00:00.000Z",
+      updatedAt: "2024-06-01T00:00:00.000Z",
+    };
+
+    mockAuth.mockResolvedValue(null);
+    mockAuthenticateApiKey.mockResolvedValue({ orgId: "org_123", keyId: "key_1" });
+    mockPrismaOrgFindUnique.mockResolvedValue(mockOrg);
+    mockToOrgDTO.mockReturnValue(mockOrgDTO);
+
+    const response = await GET(
+      new Request("http://localhost:3000/api/v1/me", {
+        headers: { authorization: "Bearer dp_test" },
+      }),
+    );
+    const data = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(data).toEqual({ organization: mockOrgDTO });
+    expect(mockPrismaOrgFindUnique).toHaveBeenCalledWith({
+      where: { id: "org_123" },
+    });
+    expect(mockToOrgDTO).toHaveBeenCalledWith(mockOrg);
+    expect(mockPrismaUserFindUnique).not.toHaveBeenCalled();
+  });
+
+  it("should return 404 when API key org does not exist", async () => {
+    mockAuth.mockResolvedValue(null);
+    mockAuthenticateApiKey.mockResolvedValue({ orgId: "org_missing", keyId: "key_1" });
+    mockPrismaOrgFindUnique.mockResolvedValue(null);
+
+    const response = await GET(new Request("http://localhost:3000/api/v1/me"));
+    const data = await response.json();
+
+    expect(response.status).toBe(404);
+    expect(data.error).toBe("errors.resource.notFound");
   });
 });
