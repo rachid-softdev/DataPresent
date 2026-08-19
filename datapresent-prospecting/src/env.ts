@@ -3,8 +3,10 @@ import { z } from "zod";
 const envSchema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
 
-  // Requis uniquement pour les étages analyze/generate (check au runtime)
-  ANTHROPIC_API_KEY: z.string().min(8).optional(),
+  // Requis uniquement pour les étages analyze/generate (check au runtime).
+  // "" (secret absent en CI) est traité comme non défini : le démarrage ne
+  // crashe plus, l'étage concerné échoue avec un message explicite.
+  GROQ_API_KEY: z.preprocess((v) => (v === "" ? undefined : v), z.string().min(8).optional()),
 
   // Email (prod): domaine vérifié Resend — ex: "DataPresent <prospect@datapresent.com>"
   RESEND_API_KEY: z.string().optional(),

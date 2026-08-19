@@ -3,7 +3,7 @@ import { loadStore, saveStore } from "../store.js";
 
 /**
  * Étage 4 — generate : rédaction d'un email personnalisé par prospect
- * qualifié (via Claude, dans la langue du prospect). Statut → "email_generated".
+ * qualifié (via Groq, dans la langue du prospect). Statut → "email_generated".
  * La génération ne fait aucun envoi (dry-run par nature).
  */
 export async function runGenerate(opts: { batch?: number }): Promise<number> {
@@ -38,7 +38,7 @@ export async function runGenerate(opts: { batch?: number }): Promise<number> {
       generated += 1;
       console.log(`  ✓ "${email.subject}"`);
     } catch (err) {
-      console.error(`[generate] Claude error for ${prospect.company}:`, err);
+      console.error(`[generate] Groq error for ${prospect.company}:`, err);
     }
   }
 

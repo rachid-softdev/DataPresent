@@ -23,7 +23,7 @@ Stages:
   discover   Recherche Google (ICP FR+EN) → nouveaux prospects
   enrich     Emails de contact + contenu site
   analyze    Qualification IA (score 0-100, langue, besoins)
-  generate   Rédaction emails personnalisés (Claude)
+  generate   Rédaction emails personnalisés (Groq)
   send       Envoi automatisé (Resend/SMTP/dev-log) — vérifie opt-out
   followup   Relances dues J+3 / J+6 (max 2)
   status     Résumé / forçage manuel d'un statut

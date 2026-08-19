@@ -15,7 +15,7 @@ réécrit en TypeScript dans le monorepo DataPresent.
 |-------|----------|------|
 | 1 | `discover` | Recherche Google par marché (FR/EN) → sociétés candidates (dédoublonnage par domaine) |
 | 2 | `enrich` | Emails de contact (Google Search → Website Search) + contenu du site |
-| 3 | `analyze` | Qualification IA Claude : score 0-100, adéquation ICP, langue, besoins, angle |
+| 3 | `analyze` | Qualification IA Groq (LLaMA) : score 0-100, adéquation ICP, langue, besoins, angle |
 | 4 | `generate` | Rédaction d'un email personnalisé par prospect (langue du prospect) |
 | 5 | `send` | Envoi automatisé (Resend) avec footer légal + opt-out RGPD |
 | 6 | `followup` | Relances dues J+3 puis J+6 (max 2), stoppées si réponse/rebond/plainte |
@@ -29,7 +29,7 @@ réécrit en TypeScript dans le monorepo DataPresent.
 pnpm --filter datapresent-prospecting start -- --stage discover --batch 10
 pnpm --filter datapresent-prospecting start -- --stage enrich --batch 10
 
-# Qualification + rédaction (nécessite ANTHROPIC_API_KEY)
+# Qualification + rédaction (nécessite GROQ_API_KEY)
 pnpm --filter datapresent-prospecting start -- --stage analyze --batch 10
 pnpm --filter datapresent-prospecting start -- --stage generate --batch 10
 
@@ -61,7 +61,7 @@ pnpm --filter datapresent-prospecting start -- --stage status --mark <id> --mark
   opérateur est flaggée par Google ("trafic exceptionnel"), activez
   `PROSPECTING_FORCE_IPV4=true` (proxy local en IPv4).
 - **Environnement** : copier `.env.example` → `.env.local` (chargé via
-  dotenv-cli ou export). Variables clés : `ANTHROPIC_API_KEY`,
+  dotenv-cli ou export). Variables clés : `GROQ_API_KEY`,
   `RESEND_API_KEY`, `PROSPECTING_SENDER` (domaine vérifié
   Resend), `PROSPECTING_OPTOUT_URL`, `CHROME_PATH` (dev Windows), `NODE_ENV`,
   `PROSPECTING_FORCE_IPV4` (IP IPv6 flaggée par Google).
@@ -77,7 +77,7 @@ rebonds, plaintes) : les prospects supprimés ne sont plus jamais contactés.
 
 `.github/workflows/prospecting.yml` — cron quotidien (8h UTC, jours ouvrés) :
 pipeline complet puis commit des données. Secrets requis :
-`ANTHROPIC_API_KEY`, `RESEND_API_KEY`, `PROSPECTING_SENDER`,
+`GROQ_API_KEY`, `RESEND_API_KEY`, `PROSPECTING_SENDER`,
 `PROSPECTING_OPTOUT_URL`.
 
 ## Webhook Resend (réponses / rebonds)

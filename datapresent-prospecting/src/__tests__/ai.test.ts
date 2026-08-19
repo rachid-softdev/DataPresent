@@ -1,5 +1,5 @@
-import { describe, expect, it, vi } from "vitest";
-import { AnalysisSchema, EmailSchema, fillTemplate, parseClaudeJson } from "../ai/analyze.js";
+import { describe, expect, it } from "vitest";
+import { AnalysisSchema, EmailSchema, fillTemplate, parseLlmJson } from "../ai/analyze.js";
 
 describe("fillTemplate", () => {
   it("remplace les placeholders", () => {
@@ -15,14 +15,18 @@ describe("fillTemplate", () => {
   });
 });
 
-describe("parseClaudeJson", () => {
+describe("parseLlmJson", () => {
   it("parse le JSON nu", () => {
-    expect(parseClaudeJson<{ a: number }>('{"a":1}')).toEqual({ a: 1 });
+    expect(parseLlmJson<{ a: number }>('{"a":1}')).toEqual({ a: 1 });
   });
 
   it("parse le JSON avec fences markdown", () => {
     const raw = 'Voici le résultat:\n```json\n{"a": 2}\n```\nFin.';
-    expect(parseClaudeJson<{ a: number }>(raw)).toEqual({ a: 2 });
+    expect(parseLlmJson<{ a: number }>(raw)).toEqual({ a: 2 });
+  });
+
+  it("supprime les virgules traînantes", () => {
+    expect(parseLlmJson<{ a: number }>('{"a": 2,}')).toEqual({ a: 2 });
   });
 });
 
@@ -82,16 +86,4 @@ describe("EmailSchema", () => {
   it("rejette un objet vide", () => {
     expect(() => EmailSchema.parse({ subject: "", body: "" })).toThrow();
   });
-});
-
-// Le mock du SDK Anthropic évite tout appel réseau dans les tests.
-vi.mock("@anthropic-ai/sdk", () => {
-  const create = vi.fn();
-  return {
-    default: class {
-      messages = {
-        create,
-      };
-    },
-  };
 });

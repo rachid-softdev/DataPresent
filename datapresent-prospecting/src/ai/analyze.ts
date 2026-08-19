@@ -1,21 +1,10 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
-import Anthropic from "@anthropic-ai/sdk";
 import { z } from "zod";
-import { env } from "../env.js";
+import { groqChat, parseLlmJson } from "./groq.js";
 import { packageRoot } from "../store.js";
 
-let anthropic: Anthropic | null = null;
-
-function client(): Anthropic {
-  if (!anthropic) {
-    if (!env.ANTHROPIC_API_KEY) {
-      throw new Error("ANTHROPIC_API_KEY is required for AI stages (analyze/generate)");
-    }
-    anthropic = new Anthropic({ apiKey: env.ANTHROPIC_API_KEY });
-  }
-  return anthropic;
-}
+export { parseLlmJson } from "./groq.js";
 
 export const AnalysisSchema = z.object({
   score: z.number().int().min(0).max(100),
@@ -45,30 +34,10 @@ async function loadPrompt(name: string): Promise<string> {
   return readFile(join(packageRoot(), "config", "prompts", name), "utf-8");
 }
 
-/**
- * Extrait le JSON d'une réponse Claude : gère les fences markdown ET la
- * prose autour (tronque au premier "{" / dernier "}").
- */
-export function parseClaudeJson<T>(raw: string): T {
-  const start = raw.indexOf("{");
-  const end = raw.lastIndexOf("}");
-  if (start < 0 || end <= start) {
-    throw new Error(`No JSON object found in Claude response: ${raw.slice(0, 200)}`);
-  }
-  return JSON.parse(raw.slice(start, end + 1)) as T;
-}
-
-export async function callClaude(prompt: string, maxTokens = 4096): Promise<string> {
-  const response = await client().messages.create({
-    model: "claude-sonnet-4-20250514",
-    max_tokens: maxTokens,
-    messages: [{ role: "user", content: prompt }],
-  });
-  const textContent = response.content[0];
-  if (!textContent || textContent.type !== "text") {
-    throw new Error("Invalid response from Claude");
-  }
-  return textContent.text;
+/** Appelle Groq (LLaMA) pour un prompt, retourne le texte. */
+export async function callGroq(prompt: string, maxTokens = 4096): Promise<string> {
+  const { text } = await groqChat("", prompt, { maxTokens });
+  return text;
 }
 
 /**
@@ -93,8 +62,8 @@ export async function analyzeProspect(params: {
     email: params.email ?? "",
     websiteContent: params.websiteContent,
   });
-  const raw = await callClaude(prompt);
-  return AnalysisSchema.parse(parseClaudeJson(raw));
+  const raw = await callGroq(prompt);
+  return AnalysisSchema.parse(parseLlmJson(raw));
 }
 
 /** Rédige un email personnalisé pour un prospect qualifié. */
@@ -122,6 +91,6 @@ export async function writeEmail(params: {
     needs: params.needs.join(", "),
     suggestedAngle: params.suggestedAngle,
   });
-  const raw = await callClaude(prompt, 2048);
-  return EmailSchema.parse(parseClaudeJson(raw));
+  const raw = await callGroq(prompt, 2048);
+  return EmailSchema.parse(parseLlmJson(raw));
 }

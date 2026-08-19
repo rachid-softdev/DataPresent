@@ -40,7 +40,7 @@ export async function runAnalyze(opts: { batch?: number }): Promise<number> {
         `  ${analysis.fitsIcp ? "✓ qualified" : "✗ rejected"} — score ${analysis.score}/100 (${analysis.reasoning})`,
       );
     } catch (err) {
-      console.error(`[analyze] Claude error for ${prospect.company}:`, err);
+      console.error(`[analyze] Groq error for ${prospect.company}:`, err);
     }
   }
 
