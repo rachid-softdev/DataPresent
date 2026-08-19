@@ -45,6 +45,10 @@ next-env.d.ts
 
 # Prisma
 prisma/migrations/
+# Keep the prepared plan-tier rename migration tracked (needed for prisma migrate deploy)
+!prisma/migrations/
+!prisma/migrations/20260716000000_rename_plan_tiers_to_free_starter_pro_ultra/
+!prisma/migrations/20260716000000_rename_plan_tiers_to_free_starter_pro_ultra/migration.sql
 
 # Playwright artifacts
 e2e/.auth/*.json
