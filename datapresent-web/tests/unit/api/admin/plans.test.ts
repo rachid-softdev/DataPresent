@@ -180,6 +180,34 @@ describe("Admin API — /api/admin/plans", () => {
     );
   });
 
+  it("POST forwards limitValue null to clear the limit (not swallowed by ?? undefined)", async () => {
+    await POST(
+      makeRequest("POST", {
+        planKey: "FREE",
+        featureKey: "reportsPerMonth",
+        enabled: true,
+        limitValue: null,
+      }),
+    );
+
+    expect(lastStatus).toBe(200);
+    const upsertArgs = mockPrismaPlanFeatureUpsert.mock.calls[0][0] as {
+      update: { limitValue: number | null | undefined };
+    };
+    expect(upsertArgs.update.limitValue).toBeNull();
+  });
+
+  it("POST omits limitValue from update when not provided", async () => {
+    await POST(
+      makeRequest("POST", { planKey: "FREE", featureKey: "reportsPerMonth", enabled: true }),
+    );
+
+    const upsertArgs = mockPrismaPlanFeatureUpsert.mock.calls[0][0] as {
+      update: { limitValue: number | null | undefined };
+    };
+    expect(upsertArgs.update.limitValue).toBeUndefined();
+  });
+
   it("POST returns 400 when planKey or featureKey are missing", async () => {
     await POST(makeRequest("POST", { planKey: "FREE" }));
 

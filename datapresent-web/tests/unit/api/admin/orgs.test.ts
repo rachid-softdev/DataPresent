@@ -15,6 +15,8 @@ const mockCheckRateLimit = vi.hoisted(() => vi.fn());
 const mockExtractClientIP = vi.hoisted(() => vi.fn());
 const mockPrismaUserFindUnique = vi.hoisted(() => vi.fn());
 const mockPrismaOrgFindUnique = vi.hoisted(() => vi.fn());
+const mockPrismaOrgFindMany = vi.hoisted(() => vi.fn());
+const mockPrismaOrgCount = vi.hoisted(() => vi.fn());
 const mockGetAllEntitlements = vi.hoisted(() => vi.fn());
 const mockGetDowngradeInfo = vi.hoisted(() => vi.fn());
 const mockInvalidateCache = vi.hoisted(() => vi.fn());
@@ -25,7 +27,11 @@ vi.mock("@/lib/client-ip", () => ({ extractClientIP: mockExtractClientIP }));
 vi.mock("@/lib/prisma", () => ({
   prisma: {
     user: { findUnique: mockPrismaUserFindUnique },
-    organization: { findUnique: mockPrismaOrgFindUnique },
+    organization: {
+      findUnique: mockPrismaOrgFindUnique,
+      findMany: mockPrismaOrgFindMany,
+      count: mockPrismaOrgCount,
+    },
   },
 }));
 vi.mock("@/lib/entitlements", () => ({
@@ -51,6 +57,7 @@ vi.mock("next/server", () => ({
 import { POST as CachePOST } from "@/app/api/admin/cache/invalidate/[orgId]/route";
 import { GET as DowngradeGET } from "@/app/api/admin/orgs/[orgId]/downgrade-preview/route";
 import { GET as EntitlementsGET } from "@/app/api/admin/orgs/[orgId]/entitlements/route";
+import { GET as OrgsListGET } from "@/app/api/admin/orgs/route";
 
 function makeRequest(method: "GET" | "POST", url: string): Request {
   return new Request(url, { method });
@@ -77,6 +84,17 @@ describe("Admin API — orgs", () => {
     mockExtractClientIP.mockReturnValue("1.2.3.4");
 
     mockPrismaOrgFindUnique.mockResolvedValue({ name: "Acme" });
+    mockPrismaOrgFindMany.mockResolvedValue([
+      {
+        id: "org-1",
+        name: "Acme",
+        slug: "acme",
+        createdAt: new Date("2026-01-01T00:00:00Z"),
+        subscription: { plan: "PRO", status: "ACTIVE" },
+        _count: { members: 3, reports: 12 },
+      },
+    ]);
+    mockPrismaOrgCount.mockResolvedValue(1);
     mockGetAllEntitlements.mockResolvedValue(entitlementsPayload);
     mockGetDowngradeInfo.mockResolvedValue({
       orgId: "org-1",
@@ -84,6 +102,37 @@ describe("Admin API — orgs", () => {
       affectedFeatures: [{ featureKey: "exportsPerMonth", change: { from: 30, to: 3 } }],
     });
     mockInvalidateCache.mockResolvedValue(undefined);
+  });
+
+  // -----------------------------------------------------------------------
+  // GET orgs list
+  // -----------------------------------------------------------------------
+  it("GET orgs list returns paginated orgs with plan and counts", async () => {
+    await OrgsListGET(makeRequest("GET", "http://localhost:3000/api/admin/orgs"));
+
+    expect(lastStatus).toBe(200);
+    const body = lastBody as {
+      data: Array<{ id: string; plan: string; memberCount: number }>;
+      pagination: { page: number; total: number };
+    };
+    expect(body.data[0]).toEqual(
+      expect.objectContaining({
+        id: "org-1",
+        name: "Acme",
+        plan: "PRO",
+        memberCount: 3,
+        reportCount: 12,
+      }),
+    );
+    expect(body.pagination).toEqual({ page: 1, limit: 20, total: 1, totalPages: 1 });
+  });
+
+  it("GET orgs list forwards the search query to the DB", async () => {
+    await OrgsListGET(makeRequest("GET", "http://localhost:3000/api/admin/orgs?search=acme"));
+
+    expect(mockPrismaOrgFindMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { OR: expect.any(Array) } }),
+    );
   });
 
   // -----------------------------------------------------------------------

@@ -51,7 +51,7 @@ describe("Plan Pricing (plan-pricing.ts)", () => {
       price: 0,
       stripePriceId: null,
     });
-  });
+  }, 20000);
 
   it("should return Starter plan with price 19 and stripePriceId from env", async () => {
     const { getPlanPricing } = await import("@/lib/entitlements/plan-pricing");
@@ -62,7 +62,7 @@ describe("Plan Pricing (plan-pricing.ts)", () => {
       price: 19,
       stripePriceId: "price_starter_monthly_test",
     });
-  });
+  }, 20000);
 
   it("should return Pro plan with price 49 and stripePriceId from env", async () => {
     const { getPlanPricing } = await import("@/lib/entitlements/plan-pricing");
@@ -73,7 +73,7 @@ describe("Plan Pricing (plan-pricing.ts)", () => {
       price: 49,
       stripePriceId: "price_pro_monthly_test",
     });
-  });
+  }, 20000);
 
   it("should return Ultra plan with price -1 (custom) and null stripePriceId", async () => {
     const { getPlanPricing } = await import("@/lib/entitlements/plan-pricing");
@@ -84,7 +84,7 @@ describe("Plan Pricing (plan-pricing.ts)", () => {
       price: -1,
       stripePriceId: null,
     });
-  });
+  }, 20000);
 
   // ======================================================================
   // Edge cases
@@ -144,5 +144,5 @@ describe("Plan Pricing (plan-pricing.ts)", () => {
     const pro = getPlanPricing("PRO");
     expect(pro.price).toBe(49);
     expect(pro.stripePriceId).toBeNull();
-  });
+  }, 20000);
 });

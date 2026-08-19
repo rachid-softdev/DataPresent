@@ -2,7 +2,7 @@
 
 > **Date :** 2026-08-19
 > **Périmètre :** `datapresent-web/` (Next.js app)
-> **Statut :** Lots 1–3 **terminés** (F1–F10, tests verts, tsc/biome/build clean). Restent : Lot 5 (F15–F18) puis Lot 4 (F11–F14, UI admin).
+> **Statut :** **Terminé** — Lots 1–5 (F1–F18) + Lot 4 (F11–F14, UI admin). Tests verts (1411 pass), tsc/biome/build clean. Seul point restant : exécution de la migration SQL F8 sur une vraie DB (`prisma migrate deploy`).
 > **Référence :** rename des plans `FREE/PRO/TEAM/AGENCY` → `FREE/STARTER/PRO/ULTRA` (déjà committé, migration SQL préparée — F8 — non exécutée)
 
 ---
@@ -308,7 +308,24 @@ Source : `scripts/seed-entitlements.ts` (l.34-49) + `prisma/schema.prisma` (enum
 
 **Gates après Lots 1–3** : vitest ciblé 243 pass ; `tsc --noEmit` clean ; `next build` OK (webpack, envs de test) ; `biome check` clean (557 fichiers).
 
-**Restant** : Lot 5 (F15–F18) puis Lot 4 (F11–F14).
+**Lot 5 (F15–F18) — ✅ terminé** :
+- **F15** : 49 tests unitaires admin — `tests/unit/lib/admin.test.ts` (11 : 401/403, session non fiable, rate-limit 429 `admin:{userId}:{ip}`, fallback IP, `return await handler(...)`) + `tests/unit/api/admin/{plans,features,overrides,orgs}.test.ts` (38 : contrats GET/POST/PUT/DELETE, pagination, validation 400/404/409, 401/403 via `withAdmin`).
+- **F16** : suites de régression chemins réels — `tests/unit/api/upload.test.ts` (8 : consume placement, 403 upgrade, maxSlides, rate-limit) + `tests/unit/api/organizations.test.ts` (16 : org-create maxOrganizations, invite + members collaboration, déjà-membre, 429) + cache org-scope déjà couvert par les suites `.bugs`.
+  - **Vrai bug découvert + corrigé** : `/api/upload` consommait `reportsPerMonth` **avant** la validation magic bytes — un fichier corrompu/contrefait brûlait le quota mensuel. Validation déplacée avant `consume()`.
+  - Anciens tests upload migrés de l'API legacy `canConsume` → `consume` (ConsumeResult).
+- **F17** : `requireAdmin` supprimé de `lib/admin.ts` (mort) ; `compat.ts` gardé (déjà deprecated, utilisé par des tests) ; `middleware.ts` documenté "NOT wired in production".
+- **F18 (G11)** : `feature-gate.ts` — cast booléen LIMIT corrigé dans `getAllEntitlements` (`!== false && !== 0` ; null/illimité = enabled) ; `middleware.ts` — `plan_required: "STARTER"` hardcodé supprimé des réponses d'erreur (+3 tests) ; `/api/me/entitlements` — param `?orgId=` optionnel vérifié contre les memberships du user.
+
+**Lot 4 (F11–F14) — ✅ terminé** (UI admin `/admin`) :
+- **F11** : pages — `/admin` (overview : 4 stat cards plans/features/overrides/orgs), `/admin/plans` (matrice plans×features : switch enabled + limit, save POST optimiste), `/admin/features` (CRUD paginé : création/édition dialog, toggle isActive — pas de suppression, pas de route DELETE), `/admin/overrides` (liste paginée + filtre scope + création dialog + suppression ConfirmDialog), `/admin/orgs` (liste paginée + recherche débouncée) + `/admin/orgs/[orgId]` (entitlements, downgrade-preview, invalidate cache).
+- **F12** : `app/[locale]/admin/layout.tsx` — server : `auth()` → `redirect("/login")`, `prisma.user.findUnique({ role })` ≠ `"ADMIN"` → `redirect("/")`, `NextIntlClientProvider`, `metadata.robots = { index: false, follow: false }`.
+- **F13** : `components/admin/AdminNav.tsx` (client, `usePathname`, lucide-react, retour app).
+- **F14** : section `admin.*` ajoutée dans `messages/{fr,en}.json` (nav, overview, plans, features, overrides, orgs, common) — aucun texte en dur.
+- **Bonus** : nouvelle route `GET /api/admin/orgs` (liste paginée + `search`, plan/memberCount/reportCount, 401/403, testée) ; fix `POST /api/admin/plans` — `limitValue: null` désormais écrit (efface la limite) au lieu d'être avalé par `?? undefined` (+2 tests).
+
+**Gates finaux** : vitest complet **1411 pass, 0 fail, 4 skip** (135 fichiers, `--maxWorkers=2` requis sur cette machine — OOM sinon) ; `tsc --noEmit` clean ; `next build --webpack` OK (envs `e2e/.env.test`, warning standalone connu) ; `biome check` clean (573 fichiers).
+
+**Restant** : aucun — toutes les features de l'audit sont implémentées et testées. Seul point bloqué : exécution de `prisma/migrations/20260716000000_rename_plan_tiers_to_free_starter_pro_ultra/migration.sql` (nécessite une DB, `prisma migrate deploy`).
 
 ---
 

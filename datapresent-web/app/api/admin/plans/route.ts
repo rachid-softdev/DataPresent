@@ -92,8 +92,8 @@ export const POST = withAdmin(
       },
       update: {
         enabled: enabled ?? undefined,
-        limitValue: limitValue ?? undefined,
-        configJson: configJson ?? undefined,
+        limitValue: limitValue === undefined ? undefined : limitValue,
+        configJson: configJson === undefined ? undefined : configJson,
         downgradeStrategy: (downgradeStrategy as DowngradeStrategy) ?? undefined,
       },
     });
