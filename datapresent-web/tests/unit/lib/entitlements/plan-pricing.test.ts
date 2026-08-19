@@ -28,6 +28,7 @@ describe("Plan Pricing (plan-pricing.ts)", () => {
     vi.stubEnv("JOB_SIGNING_SECRET", "test-job-signing-secret-for-testing-12345678");
 
     // Stripe price IDs under test
+    vi.stubEnv("STRIPE_PRICE_STARTER_MONTHLY", "price_starter_monthly_test");
     vi.stubEnv("STRIPE_PRICE_PRO_MONTHLY", "price_pro_monthly_test");
     vi.stubEnv("STRIPE_PRICE_TEAM_MONTHLY", "price_team_monthly_test");
   });
@@ -59,7 +60,7 @@ describe("Plan Pricing (plan-pricing.ts)", () => {
     expect(pricing).toEqual({
       name: "Starter",
       price: 19,
-      stripePriceId: "price_pro_monthly_test",
+      stripePriceId: "price_starter_monthly_test",
     });
   });
 
@@ -70,7 +71,7 @@ describe("Plan Pricing (plan-pricing.ts)", () => {
     expect(pricing).toEqual({
       name: "Pro",
       price: 49,
-      stripePriceId: "price_team_monthly_test",
+      stripePriceId: "price_pro_monthly_test",
     });
   });
 

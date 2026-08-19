@@ -25,9 +25,9 @@ test.describe("Checkout et abonnement", () => {
   test("les 4 options de plan sont affichées sur la page billing", async ({ page }) => {
     await page.goto("/settings/billing");
     await expect(page.getByText(/gratuit|free/i)).toBeVisible();
+    await expect(page.getByText("Starter")).toBeVisible();
     await expect(page.getByText("Pro")).toBeVisible();
-    await expect(page.getByText("Team")).toBeVisible();
-    await expect(page.getByText(/agency|agence/i)).toBeVisible();
+    await expect(page.getByText(/ultra/i)).toBeVisible();
   });
 
   test("chaque plan a un bouton CTA (Souscrire, Plan actuel, Contacter)", async ({ page }) => {
@@ -63,7 +63,7 @@ test.describe("Checkout et abonnement", () => {
     await expect(featureElements.first()).toBeVisible();
   });
 
-  test("les prix sont affichés pour chaque plan (hors Agency sur devis)", async ({ page }) => {
+  test("les prix sont affichés pour chaque plan (hors Ultra sur devis)", async ({ page }) => {
     await page.goto("/settings/billing");
     // Price elements should be visible
     await expect(page.getByText(/€/).first()).toBeVisible();

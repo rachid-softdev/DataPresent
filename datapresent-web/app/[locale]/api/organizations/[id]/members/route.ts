@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
+import { hasFeature } from "@/lib/entitlements/feature-gate";
 import { badRequest, ERROR_CODES, forbidden, notFound, unauthorized } from "@/lib/errors";
 import { prisma } from "@/lib/prisma";
 import { withCsrfProtection } from "@/lib/security";
@@ -65,6 +66,19 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
   if (!membership || membership.role === "MEMBER") {
     return forbidden();
+  }
+
+  // Enforce collaboration feature (PRO+ only)
+  const canCollaborate = await hasFeature(id, "collaboration");
+  if (!canCollaborate) {
+    return NextResponse.json(
+      {
+        error: ERROR_CODES.ERR_RESOURCE_FORBIDDEN,
+        upgrade: true,
+        feature: "collaboration",
+      },
+      { status: 403 },
+    );
   }
 
   const { email, role = "MEMBER" } = await req.json();

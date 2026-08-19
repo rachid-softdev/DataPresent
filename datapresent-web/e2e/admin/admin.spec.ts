@@ -8,7 +8,7 @@ import { encode } from "next-auth/jwt";
  * Prérequis :
  * - L'utilisateur E2E par défaut (e2e-test@datapresent.com) doit avoir le rôle ADMIN
  * - Les endpoints API admin doivent être accessibles
- * - Les plans (FREE, PRO, TEAM, AGENCY) doivent exister en base
+ * - Les plans (FREE, STARTER, PRO, ULTRA) doivent exister en base
  * - Les features de base doivent exister (watermark, export_pdf, etc.)
  *
  * Note : Certains tests créent un utilisateur non-admin pour vérifier
@@ -88,9 +88,9 @@ test.describe("Administration — API plans", () => {
 
       const planKeys = body.data.map((p: { plan: string }) => p.plan);
       expect(planKeys).toContain("FREE");
+      expect(planKeys).toContain("STARTER");
       expect(planKeys).toContain("PRO");
-      expect(planKeys).toContain("TEAM");
-      expect(planKeys).toContain("AGENCY");
+      expect(planKeys).toContain("ULTRA");
     });
 
     test("chaque plan contient une liste de features avec statut", async ({ page }) => {

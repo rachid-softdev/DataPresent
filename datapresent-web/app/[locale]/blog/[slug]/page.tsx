@@ -35,10 +35,7 @@ export async function generateStaticParams() {
   }
 }
 
-export async function generateMetadataWrapper(props: ArticlePageProps) {
-  const { locale, slug } = await props.params;
-  return generateMetadata({ params: Promise.resolve({ locale, slug }) });
-}
+export { generateMetadata };
 
 export default async function ArticlePage({ params }: ArticlePageProps) {
   const { locale, slug } = await params;

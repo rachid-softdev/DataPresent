@@ -5,7 +5,9 @@
 import type { Plan } from "@prisma/client";
 import Stripe from "stripe";
 import { env } from "@/env";
+import { applyDowngrade } from "./entitlements/downgrade";
 import { invalidateCache } from "./entitlements/feature-gate";
+import { getPlanFromStripePriceId } from "./entitlements/plan-pricing";
 import { entitlementRepository } from "./entitlements/repository";
 import { prisma } from "./prisma";
 import { captureException, captureMessage } from "./sentry";
@@ -13,6 +15,14 @@ import { getStripe } from "./stripe";
 
 const MAX_RETRIES = 3;
 const RETRY_DELAYS = [1000, 2000, 4000]; // 1s, 2s, 4s - exponential backoff
+
+// Plan rank for directional comparisons (FREE < STARTER < PRO < ULTRA)
+const PLAN_PRIORITY: Record<Plan, number> = {
+  FREE: 0,
+  STARTER: 1,
+  PRO: 2,
+  ULTRA: 3,
+};
 
 type EventHandler = (data: Stripe.Event["data"]["object"]) => Promise<void>;
 type EventHandlerWithOrg = (data: Stripe.Event["data"]["object"], orgId: string) => Promise<void>;
@@ -33,18 +43,13 @@ async function getOrgIdByCustomer(customerId: string): Promise<string | null> {
 }
 
 /**
- * Map Stripe price ID to plan key
+ * Map Stripe price ID to plan key.
+ * Delegates to plan-pricing.ts (single source of truth) so the webhook
+ * mapping can never drift from the checkout configuration.
+ * Unknown/empty price IDs resolve to FREE.
  */
 function getPlanFromPriceId(priceId: string | null): Plan {
-  if (!priceId) return "FREE";
-
-  const priceIdToPlan: Record<string, Plan> = {
-    [env.STRIPE_PRICE_PRO_MONTHLY ?? ""]: "STARTER",
-    [env.STRIPE_PRICE_TEAM_MONTHLY ?? ""]: "PRO",
-    [env.STRIPE_PRICE_STARTER_MONTHLY ?? ""]: "FREE",
-  };
-
-  return priceIdToPlan[priceId] ?? "FREE";
+  return getPlanFromStripePriceId(priceId);
 }
 
 /**
@@ -144,21 +149,26 @@ const eventHandlers: Record<string, EventHandler> = {
       ((subscription as unknown as Record<string, unknown>).current_period_end as number) * 1000,
     );
 
-    // Check for plan downgrade
+    // Check for plan downgrade (directional: only when the new plan ranks LOWER)
     const currentSub = await prisma.subscription.findUnique({
       where: { orgId },
       select: { plan: true },
     });
 
-    const isDowngrade = currentSub && currentSub.plan !== "FREE" && plan !== currentSub.plan;
+    const isDowngrade = Boolean(currentSub && PLAN_PRIORITY[plan] < PLAN_PRIORITY[currentSub.plan]);
 
     if (isDowngrade) {
       captureMessage(
-        `Plan downgrade detected for org ${orgId}: ${currentSub.plan} -> ${plan}`,
+        `Plan downgrade detected for org ${orgId}: ${currentSub!.plan} -> ${plan}`,
         "info",
       );
+      // Apply the downgrade through the downgrade service so the configured
+      // strategy (IMMEDIATE/GRACEFUL/FREEZE) actually runs.
+      await applyDowngrade(orgId, plan);
     }
 
+    // Persist the Stripe state regardless of strategy — Stripe is the source
+    // of truth for the subscription metadata (status, price, period).
     await entitlementRepository.updateSubscription(orgId, {
       plan,
       status,

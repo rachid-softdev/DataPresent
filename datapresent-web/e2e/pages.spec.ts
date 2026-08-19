@@ -41,13 +41,14 @@ test.describe("Pricing", () => {
   test("la page pricing affiche tous les plans", async ({ page }) => {
     await page.goto("/#pricing");
 
-    // Should see FREE, PRO, TEAM plans
+    // Should see FREE, STARTER, PRO, ULTRA plans
     await expect(page.locator("text=Free")).toBeVisible();
+    await expect(page.locator("text=Starter")).toBeVisible();
     await expect(page.locator("text=Pro")).toBeVisible();
-    await expect(page.locator("text=Team")).toBeVisible();
+    await expect(page.locator("text=Ultra")).toBeVisible();
   });
 
-  test("le plan PRO est populaire", async ({ page }) => {
+  test("le plan STARTER est populaire", async ({ page }) => {
     await page.goto("/#pricing");
 
     // Should have a popular badge

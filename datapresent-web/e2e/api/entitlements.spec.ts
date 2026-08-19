@@ -10,7 +10,7 @@ import { createTestOrganization } from "../helpers/db";
 //
 // Response shape:
 //   {
-//     plan: "FREE" | "PRO" | "TEAM" | "AGENCY",
+//     plan: "FREE" | "STARTER" | "PRO" | "ULTRA",
 //     features: { [featureName]: boolean },
 //     limits: { [limitName]: number },
 //     usage: { [usageName]: number },
@@ -42,11 +42,11 @@ test.describe("Entitlements API — GET /api/me/entitlements (authentifié)", ()
     expect(body).toHaveProperty("resetAt");
   });
 
-  test("plan a une valeur valide (FREE/PRO/TEAM/AGENCY)", async ({ request }) => {
+  test("plan a une valeur valide (FREE/STARTER/PRO/ULTRA)", async ({ request }) => {
     const res = await request.get("/api/me/entitlements");
     const body = await res.json();
 
-    const validPlans = ["FREE", "PRO", "TEAM", "AGENCY"];
+    const validPlans = ["FREE", "STARTER", "PRO", "ULTRA"];
     expect(validPlans).toContain(body.plan);
   });
 
@@ -103,13 +103,13 @@ test.describe("Entitlements API — GET /api/me/entitlements (authentifié)", ()
     }
   });
 
-  test("Cache-Control header est présent", async ({ request }) => {
+  test("Cache-Control header est présent et privé", async ({ request }) => {
     const res = await request.get("/api/me/entitlements");
     const headers = res.headers();
     const cacheControl = headers["cache-control"] || headers["Cache-Control"] || "";
     expect(cacheControl).toBeTruthy();
-    expect(cacheControl).toContain("public");
-    expect(cacheControl).toContain("s-maxage");
+    expect(cacheControl).toContain("private");
+    expect(cacheControl).toContain("max-age");
   });
 
   test("POST sur /api/me/entitlements retourne 405", async ({ request }) => {

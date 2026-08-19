@@ -3,6 +3,7 @@ import { env } from "@/env";
 import { auth } from "@/lib/auth";
 import { extractTokenPrefix, generateToken, hashToken } from "@/lib/crypto";
 import { normalizeEmail } from "@/lib/email-normalize";
+import { hasFeature } from "@/lib/entitlements/feature-gate";
 import { unauthorized } from "@/lib/errors";
 import { prisma } from "@/lib/prisma";
 import { checkRateLimit } from "@/lib/rate-limit";
@@ -46,6 +47,15 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       });
       return NextResponse.json(
         { error: "Only admins and owners can invite members" },
+        { status: 403 },
+      );
+    }
+
+    // Enforce collaboration feature (PRO+ only)
+    const canCollaborate = await hasFeature(orgId, "collaboration");
+    if (!canCollaborate) {
+      return NextResponse.json(
+        { error: "Collaboration is not available on your current plan", upgrade: true },
         { status: 403 },
       );
     }

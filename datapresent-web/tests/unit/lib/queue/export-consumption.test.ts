@@ -343,12 +343,18 @@ describe("Export worker consumption tracking", () => {
   });
 
   // -----------------------------------------------------------------------
-  // Should error export when quota is exhausted
+  // Should error export when quota is exhausted (consume returns failure)
   // -----------------------------------------------------------------------
   it("should set export to ERROR when quota is exhausted", async () => {
-    // Arrange — consume throws LimitReachedError
-    const limitError = new mockLimitReachedError("exportsPerMonth", 5, 5, new Date());
-    mockConsume.mockRejectedValue(limitError);
+    // Arrange — consume returns a failed ConsumeResult (it never throws)
+    mockConsume.mockResolvedValue({
+      success: false,
+      error: "LIMIT_REACHED",
+      featureKey: "exportsPerMonth",
+      limit: 5,
+      used: 5,
+      resetAt: new Date(),
+    });
 
     await getExportWorker();
 

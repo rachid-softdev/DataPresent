@@ -1,6 +1,11 @@
 // ==========================================
 // GET /api/me/entitlements
 // Returns current user's entitlements (cached 60s)
+//
+// Query params:
+//   ?orgId=<id>  — optional: resolve entitlements for a specific org the
+//                  user belongs to (multi-org users). Falls back to the
+//                  first membership when omitted.
 // ==========================================
 
 import { NextRequest, NextResponse } from "next/server";
@@ -18,17 +23,29 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Get user's organization
-    const membership = await prisma.membership.findFirst({
+    const requestedOrgId = request.nextUrl.searchParams.get("orgId");
+
+    // Get user's organizations (all memberships)
+    const memberships = await prisma.membership.findMany({
       where: { userId: session.user.id },
-      include: { org: { include: { subscription: true } } },
+      select: { orgId: true },
     });
 
-    if (!membership) {
+    if (memberships.length === 0) {
       return NextResponse.json({ error: "No organization found" }, { status: 404 });
     }
 
-    const orgId = membership.orgId;
+    // Resolve the org: explicit ?orgId= must be one of the user's orgs
+    // (never trust a client-supplied orgId outside the membership list),
+    // otherwise fall back to the first membership.
+    const orgId = requestedOrgId
+      ? memberships.find((m) => m.orgId === requestedOrgId)?.orgId
+      : memberships[0].orgId;
+
+    if (!orgId) {
+      return NextResponse.json({ error: "Organization not found" }, { status: 404 });
+    }
+
     const userId = session.user.id;
 
     // Get entitlements
@@ -45,9 +62,11 @@ export async function GET(request: NextRequest) {
       ),
     };
 
-    // Cache headers (60 seconds)
+    // Cache headers (60 seconds) — MUST be private: the payload is
+    // user-specific (user overrides are applied server-side). A public/shared
+    // cache could serve one user's override state to another user.
     const responseHeaders = new Headers();
-    responseHeaders.set("Cache-Control", "public, s-maxage=60, stale-while-revalidate=30");
+    responseHeaders.set("Cache-Control", "private, max-age=60, stale-while-revalidate=30");
 
     return NextResponse.json(response, {
       headers: responseHeaders,

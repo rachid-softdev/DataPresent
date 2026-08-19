@@ -23,8 +23,9 @@ test.describe("Internationalisation — i18n", () => {
     test("la page /fr/pricing affiche les noms de plan en français", async ({ page }) => {
       await page.goto("/fr/pricing");
       await expect(page.getByText("Gratuit")).toBeVisible();
+      await expect(page.getByText("Starter")).toBeVisible();
       await expect(page.getByText("Pro")).toBeVisible();
-      await expect(page.getByText("Team")).toBeVisible();
+      await expect(page.getByText("Ultra")).toBeVisible();
     });
 
     test("la balise html lang='fr' sur /fr", async ({ page }) => {
@@ -47,8 +48,9 @@ test.describe("Internationalisation — i18n", () => {
     test("la page /en/pricing affiche les noms de plan en anglais", async ({ page }) => {
       await page.goto("/en/pricing");
       await expect(page.getByText(/free/i)).toBeVisible();
+      await expect(page.getByText("Starter")).toBeVisible();
       await expect(page.getByText("Pro")).toBeVisible();
-      await expect(page.getByText("Team")).toBeVisible();
+      await expect(page.getByText("Ultra")).toBeVisible();
     });
 
     test("la balise html lang='en' sur /en", async ({ page }) => {

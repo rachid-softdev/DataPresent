@@ -143,7 +143,7 @@ describe("withFeature - real current plan (bug fix)", () => {
     const body = await parseBody(res);
     expect(body.error).toBe("FEATURE_NOT_AVAILABLE");
     expect(body.current_plan).toBe("PRO");
-    expect(body.plan_required).toBe("STARTER");
+    expect(body.plan_required).toBeUndefined();
     expect(handler).not.toHaveBeenCalled();
   });
 });
@@ -226,7 +226,7 @@ describe("withConsume - real current plan on error (bug fix)", () => {
     const body = await parseBody(res);
     expect(body.error).toBe("FEATURE_NOT_AVAILABLE");
     expect(body.current_plan).toBe("PRO");
-    expect(body.plan_required).toBe("STARTER");
+    expect(body.plan_required).toBeUndefined();
     expect(handler).not.toHaveBeenCalled();
   });
 });
@@ -258,7 +258,7 @@ describe("entitlements middleware - edge cases", () => {
     expect(res.status).toBe(403);
     const body = await parseBody(res);
     expect(body.current_plan).toBe("FREE");
-    expect(body.plan_required).toBe("STARTER");
+    expect(body.plan_required).toBeUndefined();
   });
 
   it("withConsume invokes the handler with the consumeResult on success", async () => {

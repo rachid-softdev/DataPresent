@@ -1,5 +1,5 @@
 import { type ConnectionOptions, Worker } from "bullmq";
-import { consume, hasFeature, LimitReachedError } from "@/lib/entitlements/feature-gate";
+import { consume, hasFeature } from "@/lib/entitlements/feature-gate";
 import { generateDocx, generatePdf, generatePptx } from "@/lib/exporters";
 import { logger } from "@/lib/logger";
 import { prisma } from "@/lib/prisma";
@@ -56,17 +56,16 @@ export async function getExportWorker(): Promise<Worker> {
 
       // CHECK: Export quota
       const orgId = exp.report.org.id;
-      try {
-        await consume(orgId, "exportsPerMonth");
-      } catch (quotaError) {
-        if (quotaError instanceof LimitReachedError) {
-          await prisma.export.update({
-            where: { id: exportId },
-            data: { status: "ERROR" },
-          });
-          throw new Error(`Export limit reached for organization ${orgId}: ${quotaError.message}`);
-        }
-        throw quotaError;
+      // consume() never throws — it returns a ConsumeResult. Check it explicitly.
+      const consumption = await consume(orgId, "exportsPerMonth");
+      if (!consumption.success) {
+        await prisma.export.update({
+          where: { id: exportId },
+          data: { status: "ERROR" },
+        });
+        throw new Error(
+          `Export limit reached for organization ${orgId}: ${JSON.stringify(consumption)}`,
+        );
       }
 
       try {

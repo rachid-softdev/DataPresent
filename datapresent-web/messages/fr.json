@@ -327,23 +327,23 @@
         "price": "0€",
         "cta": "Démarrer gratuitement"
       },
-      "pro": {
-        "name": "Pro",
+      "starter": {
+        "name": "Starter",
         "description": "Pour les professionnels",
-        "price": "29€",
-        "cta": "Essayer Pro",
+        "price": "19€",
+        "cta": "Essayer Starter",
         "badge": "Populaire"
       },
-      "team": {
-        "name": "Team",
-        "description": "Pour les équipes",
-        "price": "79€",
-        "cta": "Contacter l'équipe"
+      "pro": {
+        "name": "Pro",
+        "description": "Pour les équipes et la collaboration",
+        "price": "49€",
+        "cta": "Essayer Pro"
       },
-      "agency": {
-        "name": "Agency",
-        "description": "Pour les agences",
-        "price": "199€",
+      "ultra": {
+        "name": "Ultra",
+        "description": "Pour les agences et grandes organisations",
+        "price": "Sur devis",
         "cta": "Contacter les ventes"
       }
     },
@@ -393,7 +393,7 @@
         },
         {
           "q": "Quels modes de paiement acceptez-vous ?",
-          "a": "Nous acceptons les cartes bancaires (Visa, Mastercard), les virements SEPA, et le paiement par facture pour les plans Team et Agency."
+          "a": "Nous acceptons les cartes bancaires (Visa, Mastercard), les virements SEPA, et le paiement par facture pour les plans Pro et Ultra."
         },
         {
           "q": "Y a-t-il un engagement de durée ?",

@@ -151,12 +151,23 @@ export class FeatureGateService {
 
   /**
    * Get all entitlements for an organization (full map)
+   *
+   * Security note: only the org-scoped resolution (no userId) is cached.
+   * A user-scoped resolution includes USER overrides — caching it under the
+   * org key would leak one member's overrides to every other member
+   * (the cached map is keyed by orgId only). User overrides are rare
+   * (admin tooling), so the small perf cost of skipping the cache for them
+   * is the correct trade-off.
    */
   async getAllEntitlements(orgId: string, userId?: string): Promise<EntitlementMap> {
-    // Check cache first
-    const cached = await entitlementsCache.get(orgId);
-    if (cached) {
-      return cached;
+    const cacheable = userId === undefined;
+
+    // Check cache first (org-scoped only)
+    if (cacheable) {
+      const cached = await entitlementsCache.get(orgId);
+      if (cached) {
+        return cached;
+      }
     }
 
     // Get subscription
@@ -193,9 +204,17 @@ export class FeatureGateService {
         features,
       );
 
-      featuresMap[featureKey] = resolved.value as boolean;
+      // A LIMIT feature is "enabled" when its limit is not 0/absent:
+      // null = unlimited, n > 0 = limited, false/0 = no access.
+      const rawValue = resolved.value;
+      featuresMap[featureKey] =
+        resolved.featureType === "LIMIT" ? rawValue !== false && rawValue !== 0 : Boolean(rawValue);
       limitsMap[featureKey] =
-        resolved.featureType === "LIMIT" ? (resolved.value as number | null) : null;
+        resolved.featureType === "LIMIT"
+          ? rawValue === false
+            ? 0
+            : (rawValue as number | null)
+          : null;
 
       // Get usage for this feature
       const usage = usageRecords.find((u) => u.featureKey === featureKey);
@@ -212,8 +231,10 @@ export class FeatureGateService {
       resetAt: resetAtMap,
     };
 
-    // Cache the result
-    await entitlementsCache.set(orgId, entitlementMap);
+    // Cache the result (org-scoped resolutions only)
+    if (cacheable) {
+      await entitlementsCache.set(orgId, entitlementMap);
+    }
 
     return entitlementMap;
   }

@@ -9,14 +9,14 @@ test.describe("Page de tarification — /pricing", () => {
     await expect(page.locator("h1")).toContainText(/Tarifs|Tarification|Pricing/);
   });
 
-  test("affiche les 4 cartes de plan (Gratuit, Pro, Team, Agency)", async ({ page }) => {
+  test("affiche les 4 cartes de plan (Gratuit, Starter, Pro, Ultra)", async ({ page }) => {
     await expect(page.locator("text=Gratuit")).toBeVisible();
+    await expect(page.locator("text=Starter")).toBeVisible();
     await expect(page.locator("text=Pro")).toBeVisible();
-    await expect(page.locator("text=Team")).toBeVisible();
-    await expect(page.locator("text=Agency")).toBeVisible();
+    await expect(page.locator("text=Ultra")).toBeVisible();
   });
 
-  test("le plan Pro est mis en avant avec le badge 'Populaire'", async ({ page }) => {
+  test("le plan Starter est mis en avant avec le badge 'Populaire'", async ({ page }) => {
     const popularBadge = page.locator("text=Populaire");
     await expect(popularBadge).toBeVisible();
   });
@@ -53,14 +53,14 @@ test.describe("Page de tarification — /pricing", () => {
     await expect(proCta).toBeVisible();
   });
 
-  test("le bouton CTA du plan Team redirige vers /signup?plan=team", async ({ page }) => {
-    const teamCta = page.locator('a[href="/signup?plan=team"]');
-    await expect(teamCta).toBeVisible();
+  test("le bouton CTA du plan Starter redirige vers /signup?plan=starter", async ({ page }) => {
+    const starterCta = page.locator('a[href="/signup?plan=starter"]');
+    await expect(starterCta).toBeVisible();
   });
 
-  test("le plan Agency propose un lien vers /contact", async ({ page }) => {
-    const agencyLink = page.locator('a[href="/contact"]');
-    await expect(agencyLink).toBeVisible();
+  test("le plan Ultra propose un lien vers /contact", async ({ page }) => {
+    const ultraLink = page.locator('a[href="/contact"]');
+    await expect(ultraLink).toBeVisible();
   });
 
   test("les 4 FAQ se ferment et s'ouvrent individuellement", async ({ page }) => {

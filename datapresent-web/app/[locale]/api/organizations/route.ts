@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
+import { getLimit } from "@/lib/entitlements/feature-gate";
 import { badRequest, ERROR_CODES, unauthorized } from "@/lib/errors";
 import { prisma } from "@/lib/prisma";
 import { withCsrfProtection } from "@/lib/security";
@@ -61,6 +62,32 @@ export async function POST(req: NextRequest) {
 
   if (existingSlug) {
     return badRequest(ERROR_CODES.ERR_VALIDATION_SLUG_TAKEN);
+  }
+
+  // Enforce maxOrganizations limit (FREE/STARTER = 1 org)
+  const user = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    include: { membership: { select: { orgId: true } } },
+  });
+
+  const currentOrgCount = user?.membership.length ?? 0;
+  const primaryOrgId = user?.membership[0]?.orgId;
+
+  if (primaryOrgId) {
+    const maxOrgs = await getLimit(primaryOrgId, "maxOrganizations");
+    // null limit = unlimited (PRO/ULTRA)
+    if (maxOrgs !== null && currentOrgCount >= maxOrgs) {
+      return NextResponse.json(
+        {
+          error: ERROR_CODES.ERR_RESOURCE_FORBIDDEN,
+          upgrade: true,
+          feature: "maxOrganizations",
+          limit: maxOrgs,
+          used: currentOrgCount,
+        },
+        { status: 403 },
+      );
+    }
   }
 
   const org = await prisma.organization.create({

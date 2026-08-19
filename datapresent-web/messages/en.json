@@ -318,23 +318,23 @@
         "price": "$0",
         "cta": "Get started free"
       },
-      "pro": {
-        "name": "Pro",
+      "starter": {
+        "name": "Starter",
         "description": "For professionals",
-        "price": "$29",
-        "cta": "Try Pro",
+        "price": "$19",
+        "cta": "Try Starter",
         "badge": "Most popular"
       },
-      "team": {
-        "name": "Team",
-        "description": "For teams",
-        "price": "$79",
-        "cta": "Contact team"
+      "pro": {
+        "name": "Pro",
+        "description": "For teams and collaboration",
+        "price": "$49",
+        "cta": "Try Pro"
       },
-      "agency": {
-        "name": "Agency",
-        "description": "For agencies",
-        "price": "$199",
+      "ultra": {
+        "name": "Ultra",
+        "description": "For agencies and large organizations",
+        "price": "Custom",
         "cta": "Contact sales"
       }
     },
@@ -384,7 +384,7 @@
         },
         {
           "q": "What payment methods do you accept?",
-          "a": "We accept credit cards (Visa, Mastercard), SEPA transfers, and invoice payment for Team and Agency plans."
+          "a": "We accept credit cards (Visa, Mastercard), SEPA transfers, and invoice payment for Pro and Ultra plans."
         },
         {
           "q": "Is there a minimum commitment?",

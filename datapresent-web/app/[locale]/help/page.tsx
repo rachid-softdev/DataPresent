@@ -73,8 +73,8 @@ export default async function HelpPage({ params }: HelpPageProps) {
           : "What is the difference between plans?",
       answer:
         locale === "fr"
-          ? "Le plan Free permet 3 rapports/mois avec watermark. Pro offre 30 rapports sans watermark. Team permet des équipes illimitées. Agency inclut white-label et API."
-          : "Free plan allows 3 reports/month with watermark. Pro offers 30 reports without watermark. Team allows unlimited teams. Agency includes white-label and API.",
+          ? "Le plan Free permet 3 rapports/mois avec watermark. Starter offre 30 rapports sans watermark et tous les formats d'export. Pro débloque la collaboration illimitée. Ultra inclut white-label, API et support dédié."
+          : "Free plan allows 3 reports/month with watermark. Starter offers 30 reports without watermark and all export formats. Pro unlocks unlimited collaboration. Ultra includes white-label, API, and dedicated support.",
     },
     {
       question:

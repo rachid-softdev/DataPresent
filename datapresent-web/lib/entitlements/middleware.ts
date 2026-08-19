@@ -1,6 +1,13 @@
 // ==========================================
 // Middleware Factories - Framework-Agnostic
 // ==========================================
+//
+// NOTE: These factories are NOT wired into production routes today.
+// Enforcement happens directly in the API routes (feature-gate service).
+// This file is kept as a ready-to-use guard layer (covered by unit tests)
+// and can be branched into new routes instead of repeating the
+// hasFeature/canConsume/consume boilerplate.
+// ==========================================
 
 import type { NextRequest } from "next/server";
 import { auth } from "@/lib/auth";
@@ -48,7 +55,6 @@ function createFeatureErrorResponse(featureKey: string, currentPlan: string): Re
     {
       error: "FEATURE_NOT_AVAILABLE",
       feature: featureKey,
-      plan_required: "STARTER",
       current_plan: currentPlan,
       upgrade_url: "/billing/upgrade",
     },

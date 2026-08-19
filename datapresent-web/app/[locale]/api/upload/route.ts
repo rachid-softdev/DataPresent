@@ -1,7 +1,7 @@
 import { FileType } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
-import { canConsume, getLimit } from "@/lib/entitlements/feature-gate";
+import { consume, getLimit } from "@/lib/entitlements/feature-gate";
 import { badRequest, ERROR_CODES, unauthorized } from "@/lib/errors";
 import { prisma } from "@/lib/prisma";
 import { getGenerateQueue } from "@/lib/queue";
@@ -70,6 +70,18 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Fichier trop volumineux (max 50 MB)" }, { status: 400 });
     }
 
+    const buffer = Buffer.from(await file.arrayBuffer());
+    const ext = file.name.split(".").pop()?.toLowerCase();
+
+    // Validate file content matches extension (magic bytes).
+    // Must run BEFORE consume() so corrupt/forged files don't burn quota.
+    if (!validateMagicBytes(buffer, ext || "")) {
+      return NextResponse.json(
+        { error: "Le fichier ne correspond pas au format attendu" },
+        { status: 400 },
+      );
+    }
+
     const user = await prisma.user.findUnique({
       where: { id: session.user.id },
       include: { membership: { include: { org: true } } },
@@ -80,11 +92,19 @@ export async function POST(req: NextRequest) {
       return badRequest(ERROR_CODES.ERR_RESOURCE_NO_ORGANIZATION);
     }
 
-    // Check report quota
-    const canConsumeReport = await canConsume(org.id, "reportsPerMonth", 1);
-    if (!canConsumeReport) {
+    // Check report quota (atomic consume — decrements the monthly quota).
+    // Placed after all validations so invalid uploads don't burn quota.
+    const consumption = await consume(org.id, "reportsPerMonth", 1);
+    if (!consumption.success) {
       return NextResponse.json(
-        { error: ERROR_CODES.ERR_RESOURCE_NOT_FOUND, upgrade: true },
+        {
+          error: ERROR_CODES.ERR_RESOURCE_NOT_FOUND,
+          upgrade: true,
+          feature: "reportsPerMonth",
+          limit: consumption.limit,
+          used: consumption.used,
+          resetAt: consumption.resetAt,
+        },
         { status: 403 },
       );
     }
@@ -95,17 +115,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         { error: `Limite de ${maxSlides} slides atteinte pour ce rapport.` },
         { status: 403 },
-      );
-    }
-
-    const buffer = Buffer.from(await file.arrayBuffer());
-    const ext = file.name.split(".").pop()?.toLowerCase();
-
-    // Validate file content matches extension (magic bytes)
-    if (!validateMagicBytes(buffer, ext || "")) {
-      return NextResponse.json(
-        { error: "Le fichier ne correspond pas au format attendu" },
-        { status: 400 },
       );
     }
 

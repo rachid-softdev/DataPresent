@@ -27,8 +27,8 @@ const PLANS: Plan[] = [
     popular: false,
     features: {
       reports: "3",
-      exportPDF: true,
-      exportPPTX: false,
+      exportPDF: false,
+      exportPPTX: true,
       exportWord: false,
       noWatermark: false,
       aiBasic: true,
@@ -48,9 +48,9 @@ const PLANS: Plan[] = [
     },
   },
   {
-    key: "pro",
-    price: "29€",
-    href: "/signup?plan=pro",
+    key: "starter",
+    price: "19€",
+    href: "/signup?plan=starter",
     btnVariant: "primary",
     popular: true,
     features: {
@@ -69,6 +69,34 @@ const PLANS: Plan[] = [
       apiFull: false,
       whiteLabel: false,
       supportEmail: true,
+      supportPriority: false,
+      supportDedicated: false,
+      accountManager: false,
+      sla: false,
+    },
+  },
+  {
+    key: "pro",
+    price: "49€",
+    href: "/signup?plan=pro",
+    btnVariant: "outline",
+    popular: false,
+    features: {
+      reports: "unlimited",
+      exportPDF: true,
+      exportPPTX: true,
+      exportWord: true,
+      noWatermark: true,
+      aiBasic: true,
+      aiAdvanced: true,
+      premiumTemplates: true,
+      teamCollaboration: true,
+      sharedSpaces: true,
+      customRoles: true,
+      apiAccess: false,
+      apiFull: false,
+      whiteLabel: false,
+      supportEmail: true,
       supportPriority: true,
       supportDedicated: false,
       accountManager: false,
@@ -76,13 +104,13 @@ const PLANS: Plan[] = [
     },
   },
   {
-    key: "team",
-    price: "79€",
-    href: "/signup?plan=team",
+    key: "ultra",
+    price: "Sur devis",
+    href: "/contact",
     btnVariant: "outline",
     popular: false,
     features: {
-      reports: "100",
+      reports: "unlimited",
       exportPDF: true,
       exportPPTX: true,
       exportWord: true,
@@ -94,13 +122,13 @@ const PLANS: Plan[] = [
       sharedSpaces: true,
       customRoles: true,
       apiAccess: true,
-      apiFull: false,
-      whiteLabel: false,
+      apiFull: true,
+      whiteLabel: true,
       supportEmail: true,
       supportPriority: true,
       supportDedicated: true,
-      accountManager: false,
-      sla: false,
+      accountManager: true,
+      sla: true,
     },
   },
 ];
@@ -209,8 +237,8 @@ export async function generateMetadata({ params }: PricingPageProps): Promise<Me
   };
 
   const descriptions: Record<string, string> = {
-    fr: "Découvrez nos forfaits pour générer des présentations professionnelles avec l'IA. Gratuit, Pro, Team ou Agency — trouvez le plan adapté à vos besoins.",
-    en: "Explore our plans to generate AI-powered professional presentations. Free, Pro, Team, or Agency — find the right plan for your needs.",
+    fr: "Découvrez nos forfaits pour générer des présentations professionnelles avec l'IA. Gratuit, Starter, Pro ou Ultra — trouvez le plan adapté à vos besoins.",
+    en: "Explore our plans to generate AI-powered professional presentations. Free, Starter, Pro, or Ultra — find the right plan for your needs.",
   };
 
   return {
@@ -253,7 +281,7 @@ function getFaqItems(locale: string): FaqItem[] {
       },
       {
         q: "What payment methods do you accept?",
-        a: "We accept credit cards (Visa, Mastercard), SEPA transfers, and invoice payment for Team and Agency plans.",
+        a: "We accept credit cards (Visa, Mastercard), SEPA transfers, and invoice payment for Pro and Ultra plans.",
       },
       {
         q: "Is there a minimum commitment?",
@@ -273,7 +301,7 @@ function getFaqItems(locale: string): FaqItem[] {
     },
     {
       q: "Quels modes de paiement acceptez-vous ?",
-      a: "Nous acceptons les cartes bancaires (Visa, Mastercard), les virements SEPA, et le paiement par facture pour les plans Team et Agency.",
+      a: "Nous acceptons les cartes bancaires (Visa, Mastercard), les virements SEPA, et le paiement par facture pour les plans Pro et Ultra.",
     },
     {
       q: "Y a-t-il un engagement de durée ?",
@@ -313,7 +341,7 @@ export default async function PricingPage({ params }: PricingPageProps) {
       availability: "https://schema.org/InStock",
       url: `https://datapresent.com${plan.href}`,
     })),
-    // Agency plan available on request
+    // Ultra plan available on request
     brand: {
       "@type": "Brand",
       name: "DataPresent",
@@ -355,7 +383,7 @@ export default async function PricingPage({ params }: PricingPageProps) {
         {/* ── Plan cards ──────────────────────────────────────── */}
         <section className="px-6 pb-8">
           <div className="mx-auto max-w-5xl">
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
               {PLANS.map((plan) => {
                 const planName = t(`pricing.plans.${plan.key}.name`);
                 const planDesc = t(`pricing.plans.${plan.key}.description`);
@@ -462,18 +490,6 @@ export default async function PricingPage({ params }: PricingPageProps) {
                   </div>
                 );
               })}
-            </div>
-
-            {/* ── Agency upsell ─────────────────────────────────── */}
-            <div className="mt-8 text-center">
-              <p className="text-sm text-muted-foreground mb-2">
-                {locale === "en"
-                  ? "Need more for your agency or enterprise?"
-                  : "Besoin de plus pour votre agence ou entreprise ?"}
-              </p>
-              <Link href="/contact" className="app-btn app-btn-outline">
-                {locale === "en" ? "Contact our team" : "Contacter notre équipe"}
-              </Link>
             </div>
           </div>
         </section>

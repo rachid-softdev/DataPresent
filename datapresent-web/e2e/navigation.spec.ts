@@ -45,10 +45,10 @@ test.describe("Navigation cross-pages", () => {
     await expect(page.locator("h1")).toContainText(/Créer un compte/);
   });
 
-  test("navigation de la tarification vers contact (Agency CTA)", async ({ page }) => {
+  test("navigation de la tarification vers contact (Ultra CTA)", async ({ page }) => {
     await page.goto("/pricing");
 
-    // Find the Agency upsell link to /contact
+    // Find the Ultra plan CTA link to /contact
     const contactLink = page.locator('a[href="/contact"]');
     await expect(contactLink).toBeVisible();
     await contactLink.click();

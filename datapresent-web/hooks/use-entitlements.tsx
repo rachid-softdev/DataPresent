@@ -312,30 +312,3 @@ function LimitReachedPrompt({ feature }: { feature: string }) {
     </div>
   );
 }
-
-// ==========================================
-// PlanBadge Component
-// ==========================================
-
-export function PlanBadge() {
-  const { entitlements } = useEntitlements();
-
-  const planColors: Record<string, string> = {
-    FREE: "bg-gray-100 text-gray-700",
-    PRO: "bg-blue-100 text-blue-700",
-    TEAM: "bg-purple-100 text-purple-700",
-    AGENCY: "bg-amber-100 text-amber-700",
-  };
-
-  const plan = entitlements?.plan ?? "FREE";
-
-  return (
-    <span
-      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-        planColors[plan] ?? planColors.FREE
-      }`}
-    >
-      {plan}
-    </span>
-  );
-}

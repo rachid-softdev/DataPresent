@@ -14,29 +14,6 @@ export class AdminAuthError extends Error {
   }
 }
 
-/**
- * Require the current user to be an admin.
- * Returns the userId if authorized.
- * Throws AdminAuthError if not.
- */
-export async function requireAdmin(): Promise<string> {
-  const session = await auth();
-  if (!session?.user?.id) {
-    throw new AdminAuthError("Unauthorized", 401);
-  }
-
-  const user = await prisma.user.findUnique({
-    where: { id: session.user.id },
-    select: { role: true },
-  });
-
-  if (user?.role !== "ADMIN") {
-    throw new AdminAuthError("Forbidden", 403);
-  }
-
-  return session.user.id;
-}
-
 interface AdminOptions {
   rateLimit?: {
     limit?: number;
@@ -84,7 +61,7 @@ export function withAdmin(handler: Handler, options?: AdminOptions) {
         return NextResponse.json({ error: "Forbidden" }, { status: 403 });
       }
 
-      return handler(req, { ...context, session, user });
+      return await handler(req, { ...context, session, user });
     } catch (error) {
       console.error("[admin] Error:", error);
       return NextResponse.json({ error: "Internal server error" }, { status: 500 });

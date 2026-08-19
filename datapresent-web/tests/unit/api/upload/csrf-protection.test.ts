@@ -39,7 +39,7 @@ const mockGenerateQueue = vi.hoisted(() => ({
 }));
 const mockValidateMagicBytes = vi.hoisted(() => vi.fn());
 const mockLogApiError = vi.hoisted(() => vi.fn());
-const mockCanConsume = vi.hoisted(() => vi.fn());
+const mockConsume = vi.hoisted(() => vi.fn());
 const mockCanCreateReport = vi.hoisted(() => vi.fn());
 const mockGetUserPlan = vi.hoisted(() => vi.fn());
 const mockGetLimit = vi.hoisted(() => vi.fn());
@@ -88,7 +88,7 @@ vi.mock("@/lib/entitlements/compat", () => ({
 }));
 
 vi.mock("@/lib/entitlements/feature-gate", () => ({
-  canConsume: mockCanConsume,
+  consume: mockConsume,
   getLimit: mockGetLimit,
 }));
 
@@ -195,7 +195,12 @@ describe("Upload Route — CSRF Protection & Validation", () => {
     mockBadRequest.mockReturnValue(
       new Response(JSON.stringify({ error: "errors.validation.required" }), { status: 400 }),
     );
-    mockCanConsume.mockResolvedValue(true);
+    mockConsume.mockResolvedValue({
+      success: true,
+      limit: 3,
+      used: 1,
+      resetAt: new Date("2026-09-01T00:00:00Z"),
+    });
     mockPrisma.user.findUnique.mockResolvedValue({
       id: "user-123",
       membership: [{ org: { id: "org-123" } }],
@@ -343,7 +348,12 @@ describe("Upload Route — CSRF Protection & Validation", () => {
       });
       mockWithCsrfProtection.mockResolvedValue(null);
       mockCheckRateLimit.mockResolvedValue(true);
-      mockCanConsume.mockResolvedValue(false);
+      mockConsume.mockResolvedValue({
+        success: false,
+        limit: 3,
+        used: 3,
+        resetAt: new Date("2026-08-19T00:00:00Z"),
+      });
 
       const req = createUploadRequest({ file: makeValidFile() });
       const result = await POST(req);
@@ -632,7 +642,7 @@ describe("Upload Route — CSRF Protection & Validation", () => {
       });
       mockWithCsrfProtection.mockResolvedValue(null);
       mockCheckRateLimit.mockResolvedValue(true);
-      mockCanConsume.mockRejectedValue(new Error("DB connection failed"));
+      mockConsume.mockRejectedValue(new Error("DB connection failed"));
 
       const req = createUploadRequest({ file: makeValidFile() });
       const result = await POST(req);

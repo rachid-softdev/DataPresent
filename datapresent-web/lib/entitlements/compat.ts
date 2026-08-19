@@ -98,7 +98,7 @@ export const PLANS = {
     apiAccess: false,
     prioritySupport: false,
     customDomain: false,
-    stripePriceId: env.STRIPE_PRICE_PRO_MONTHLY ?? null,
+    stripePriceId: env.STRIPE_PRICE_STARTER_MONTHLY ?? null,
   },
   PRO: {
     name: "Pro",
@@ -116,7 +116,7 @@ export const PLANS = {
     apiAccess: false,
     prioritySupport: false,
     customDomain: false,
-    stripePriceId: env.STRIPE_PRICE_TEAM_MONTHLY ?? null,
+    stripePriceId: env.STRIPE_PRICE_PRO_MONTHLY ?? env.STRIPE_PRICE_TEAM_MONTHLY ?? null,
   },
   ULTRA: {
     name: "Ultra",

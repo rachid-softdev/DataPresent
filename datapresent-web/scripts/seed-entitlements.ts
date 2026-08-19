@@ -32,6 +32,7 @@ const FEATURES: Array<{
   description: string;
 }> = [
   { key: "reportsPerMonth", type: "LIMIT", description: "Rapports par mois" },
+  { key: "exportsPerMonth", type: "LIMIT", description: "Exports par mois" },
   { key: "maxSlides", type: "LIMIT", description: "Diapositives max par rapport" },
   { key: "maxOrganizations", type: "LIMIT", description: "Nombre d'organisations" },
   { key: "formatPPTX", type: "BOOLEAN", description: "Export PPTX" },
@@ -56,6 +57,7 @@ const FEATURES: Array<{
 const PLAN_DEFAULTS: Record<string, Record<string, boolean | number>> = {
   FREE: {
     reportsPerMonth: 3,
+    exportsPerMonth: 3,
     maxSlides: 8,
     maxOrganizations: 1,
     formatPPTX: true,
@@ -70,6 +72,7 @@ const PLAN_DEFAULTS: Record<string, Record<string, boolean | number>> = {
   },
   STARTER: {
     reportsPerMonth: 30,
+    exportsPerMonth: 30,
     maxSlides: 20,
     maxOrganizations: 1,
     formatPPTX: true,
@@ -84,6 +87,7 @@ const PLAN_DEFAULTS: Record<string, Record<string, boolean | number>> = {
   },
   PRO: {
     reportsPerMonth: -1,
+    exportsPerMonth: -1,
     maxSlides: 30,
     maxOrganizations: -1,
     formatPPTX: true,
@@ -98,6 +102,7 @@ const PLAN_DEFAULTS: Record<string, Record<string, boolean | number>> = {
   },
   ULTRA: {
     reportsPerMonth: -1,
+    exportsPerMonth: -1,
     maxSlides: -1,
     maxOrganizations: -1,
     formatPPTX: true,
@@ -112,7 +117,7 @@ const PLAN_DEFAULTS: Record<string, Record<string, boolean | number>> = {
   },
 };
 
-const LIMIT_KEYS = new Set(["reportsPerMonth", "maxSlides", "maxOrganizations"]);
+const LIMIT_KEYS = new Set(["reportsPerMonth", "exportsPerMonth", "maxSlides", "maxOrganizations"]);
 
 async function main() {
   const reset = process.argv.includes("--reset");

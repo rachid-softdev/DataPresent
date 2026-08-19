@@ -38,6 +38,15 @@ function getCacheKey(orgId: string): string {
   return `entitlements:${orgId}`;
 }
 
+/**
+ * Build the cache key for a user-scoped entitlements resolution.
+ * User-scoped keys are NOT used for storage (see FeatureGateService.getAllEntitlements)
+ * — this helper exists for explicit invalidation if ever needed in the future.
+ */
+function getCacheKeyForUser(orgId: string, userId: string): string {
+  return `entitlements:${orgId}:user:${userId}`;
+}
+
 function getInvalidationChannel(): string {
   return "entitlements-invalidate";
 }
