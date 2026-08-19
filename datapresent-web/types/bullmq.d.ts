@@ -13,6 +13,7 @@ declare module "bullmq" {
   // from the published `WorkerOptions` type. Declare it so worker
   // configuration can pass a custom retry backoff without a cast.
   interface WorkerOptions {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     retryStrategy?: (job?: any) => number | null;
   }
 }

@@ -66,5 +66,6 @@ export async function getSignedDownloadUrl(key: string) {
   // (^4.14.2) depend on two different @smithy/types versions, producing a
   // `GetObjectCommand`/`Command` type mismatch. `pnpm dedupe` would require a
   // reinstall (forbidden here). Cast limited to this single argument.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return getSignedUrl(getR2Client() as never, command as any, { expiresIn: 600 });
 }

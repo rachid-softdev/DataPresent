@@ -10,6 +10,13 @@ const scriptSrc = isDev
 
 const nextConfig: NextConfig = {
   output: "standalone",
+  // Reduce peak memory during builds on memory-constrained machines
+  // (see node_modules/next/dist/docs/01-app/02-guides/memory-usage.md).
+  // `cpus` caps the "Collecting page data" worker pool (default: all cores).
+  experimental: {
+    cpus: 2,
+    webpackMemoryOptimizations: true,
+  },
   typescript: {
     // All TS errors are pre-existing from Prisma 7 migration (types no longer generated).
     // Run `tsc --noEmit` separately to check for new errors in changed files.
