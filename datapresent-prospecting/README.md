@@ -95,17 +95,27 @@ npm i -g pnpm@9
 apt install -y chromium
 ```
 
-### Installation
+### Mise en place en 5 étapes
+
+**Étape 1 — Cloner le repo** (une seule fois) :
 
 ```bash
 git clone https://github.com/rachid-softdev/DataPresent /opt/DataPresent
+```
+
+**Étape 2 — Installer les dépendances** (à relancer après chaque `git pull`
+si le lockfile a changé) :
+
+```bash
 cd /opt/DataPresent && pnpm install --frozen-lockfile --ignore-scripts
+```
 
-# Répertoire de données (hors du repo)
-mkdir -p /var/lib/datapresent-prospecting/data
+**Étape 3 — Configurer l'environnement** : copier le modèle puis **remplir
+les secrets** (`GROQ_API_KEY`, `RESEND_API_KEY`, `PROSPECTING_SENDER`,
+`PROSPECTING_OPTOUT_URL`) avec `nano .env.local` :
 
-# Config : copier le modèle puis remplir les secrets
-cp datapresent-prospecting/.env.local.example datapresent-prospecting/.env.local
+```bash
+cp datapresent-prospecting/.env.local.example datapresent-prospecting/.env.local   # + secrets
 ```
 
 `.env.local` contient : `NODE_ENV=production`, `RUNNER_HOST=vps`,
@@ -114,6 +124,25 @@ cp datapresent-prospecting/.env.local.example datapresent-prospecting/.env.local
 `CHROME_PATH=/usr/bin/chromium` (optionnel : `PROSPECTING_FORCE_IPV4=true` si
 l'IP du VPS est flaggée par Google).
 
+**Étape 4 — Créer le répertoire de données** (hors du repo, pour ne jamais
+entrer en conflit avec les commits de GitHub Actions) :
+
+```bash
+mkdir -p /var/lib/datapresent-prospecting/data
+```
+
+**Étape 5 — Programmer la routine (cron)** : ouvrir le crontab et ajouter la
+ligne ci-dessous (décalée du cron GitHub à 8h UTC pour éviter le RunnerLock ;
+log dans `/var/log/prospecting.log`) :
+
+```bash
+crontab -e   # 30 1 * * 1-5 /opt/DataPresent/datapresent-prospecting/scripts/vps-prospecting.sh >> /var/log/prospecting.log 2>&1
+```
+
+Le script wrapper (`scripts/vps-prospecting.sh`) charge `.env.local`, fixe
+`PROSPECTING_DATA_DIR` et `RUNNER_HOST=vps`, puis lance le pipeline complet
+(`--stage all --batch 10`). Logs : `tail -f /var/log/prospecting.log`.
+
 ### Test à froid
 
 ```bash
@@ -121,18 +150,6 @@ pnpm --filter datapresent-prospecting start -- --stage status --list
 # Puis un premier run sans envoi réel :
 pnpm --filter datapresent-prospecting start -- --stage all --dry-run
 ```
-
-### Routine (cron)
-
-```bash
-crontab -e
-# Décalé du cron GitHub (8h UTC) pour éviter le RunnerLock :
-30 1 * * 1-5 /opt/DataPresent/datapresent-prospecting/scripts/vps-prospecting.sh >> /var/log/prospecting.log 2>&1
-```
-
-Le script wrapper (`scripts/vps-prospecting.sh`) charge `.env.local`, fixe
-`PROSPECTING_DATA_DIR` et `RUNNER_HOST=vps`, puis lance le pipeline complet
-(`--stage all --batch 10`). Logs : `tail -f /var/log/prospecting.log`.
 
 ### Mises à jour du code
 
