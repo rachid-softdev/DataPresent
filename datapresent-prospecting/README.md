@@ -80,6 +80,65 @@ pipeline complet puis commit des données. Secrets requis :
 `GROQ_API_KEY`, `RESEND_API_KEY`, `PROSPECTING_SENDER`,
 `PROSPECTING_OPTOUT_URL`.
 
+## Déploiement VPS (routine cron)
+
+Le pipeline peut aussi tourner sur un VPS en parallèle de GitHub Actions, avec
+un **store indépendant** (`PROSPECTING_DATA_DIR` hors du repo) : aucun conflit
+git possible entre les deux environnements. `RUNNER_HOST=vps` évite en outre
+que le RunnerLock de l'un bloque l'autre.
+
+### Prérequis (Ubuntu/Debian)
+
+```bash
+curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && apt install -y nodejs
+npm i -g pnpm@9
+apt install -y chromium
+```
+
+### Installation
+
+```bash
+git clone https://github.com/rachid-softdev/DataPresent /opt/DataPresent
+cd /opt/DataPresent && pnpm install --frozen-lockfile --ignore-scripts
+
+# Répertoire de données (hors du repo)
+mkdir -p /var/lib/datapresent-prospecting/data
+
+# Config : copier le modèle puis remplir les secrets
+cp datapresent-prospecting/.env.local.example datapresent-prospecting/.env.local
+```
+
+`.env.local` contient : `NODE_ENV=production`, `RUNNER_HOST=vps`,
+`PROSPECTING_DATA_DIR=/var/lib/datapresent-prospecting/data`, `GROQ_API_KEY`,
+`RESEND_API_KEY`, `PROSPECTING_SENDER`, `PROSPECTING_OPTOUT_URL`,
+`CHROME_PATH=/usr/bin/chromium` (optionnel : `PROSPECTING_FORCE_IPV4=true` si
+l'IP du VPS est flaggée par Google).
+
+### Test à froid
+
+```bash
+pnpm --filter datapresent-prospecting start -- --stage status --list
+# Puis un premier run sans envoi réel :
+pnpm --filter datapresent-prospecting start -- --stage all --dry-run
+```
+
+### Routine (cron)
+
+```bash
+crontab -e
+# Décalé du cron GitHub (8h UTC) pour éviter le RunnerLock :
+30 1 * * 1-5 /opt/DataPresent/datapresent-prospecting/scripts/vps-prospecting.sh >> /var/log/prospecting.log 2>&1
+```
+
+Le script wrapper (`scripts/vps-prospecting.sh`) charge `.env.local`, fixe
+`PROSPECTING_DATA_DIR` et `RUNNER_HOST=vps`, puis lance le pipeline complet
+(`--stage all --batch 10`). Logs : `tail -f /var/log/prospecting.log`.
+
+### Mises à jour du code
+
+Après un `git pull` dans `/opt/DataPresent`, relancer
+`pnpm install --frozen-lockfile --ignore-scripts` si les dépendances ont changé.
+
 ## Webhook Resend (réponses / rebonds)
 
 1. Activer le domaine entrant chez Resend (inbound).
