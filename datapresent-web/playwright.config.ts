@@ -12,8 +12,15 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   workers: 1,
   reporter: "html",
+  // `next dev` compiles routes on first request — give cold compilations
+  // (up to ~60s on CI runners) room so they don't fail as timeouts.
+  timeout: 90000,
+  expect: { timeout: 15000 },
   use: {
     baseURL: "http://localhost:3000",
+    // Force French locale so tests asserting French content behave the same
+    // on CI (headless browsers default to en-US) as they do locally.
+    locale: "fr-FR",
     trace: "on-first-retry",
     screenshot: "only-on-failure",
   },

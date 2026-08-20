@@ -16,8 +16,9 @@ test.describe("Blog — /blog", () => {
   });
 
   test("affiche la liste d'articles (ou le message 'Aucun article')", async ({ page }) => {
-    // Either articles exist or we see the empty state
-    const articles = page.locator("article, .blog-card, [data-testid='blog-card']");
+    // Either articles exist or we see the empty state.
+    // Blog cards render as <div> children of the posts <div class="grid">.
+    const articles = page.locator("main .grid > div");
     const emptyState = page.locator("text=Aucun article").or(page.locator("text=No articles"));
 
     const articlesCount = await articles.count();

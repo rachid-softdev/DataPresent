@@ -171,7 +171,7 @@ test.describe("Réinitialisation du mot de passe — /reset-password", () => {
       await page.getByLabel(/Confirmer le mot de passe/i).fill("SecurePass123!");
       await page.getByRole("button", { name: /réinitialiser/i }).click();
 
-      await expect(page.getByText("Erreur de connexion")).toBeVisible({ timeout: 10000 });
+      await expect(page.getByText("Erreur de connexion").first()).toBeVisible({ timeout: 10000 });
     });
 
     test("token expiré → message d'erreur avec toast", async ({ page }) => {
@@ -282,7 +282,7 @@ test.describe("Réinitialisation du mot de passe — /reset-password", () => {
       const specialToken = "token+with+special/chars%21";
       await page.goto(`/reset-password?token=${encodeURIComponent(specialToken)}`);
 
-      await expect(page.getByText(/Nouveau mot de passe/i)).toBeVisible({ timeout: 10000 });
+      await expect(page.getByText(/Nouveau mot de passe/i).first()).toBeVisible({ timeout: 10000 });
 
       await page.getByLabel(/Nouveau mot de passe/i).fill("SecurePass123!");
       await page.getByLabel(/Confirmer le mot de passe/i).fill("SecurePass123!");

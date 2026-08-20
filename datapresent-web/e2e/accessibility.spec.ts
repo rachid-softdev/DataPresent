@@ -106,7 +106,9 @@ test.describe("Accessibilité — Focus et navigation clavier", () => {
 test.describe("Accessibilité — Rôles ARIA", () => {
   test("la navigation principale a un rôle navigation ou banner", async ({ page }) => {
     await page.goto("/");
-    const nav = page.locator('nav, [role="navigation"], header[role="banner"]');
+    // The site header is a <header> (implicit banner landmark) — no explicit
+    // role="banner" attribute, so include plain `header` in the locator.
+    const nav = page.locator('nav, [role="navigation"], header, [role="banner"]');
     await expect(nav.first()).toBeVisible();
   });
 

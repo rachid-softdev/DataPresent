@@ -3,10 +3,12 @@ import { expect, test } from "@playwright/test";
 test.describe("Internationalisation — i18n", () => {
   test.describe("Redirection racine", () => {
     test("la racine / redirige vers /fr (302)", async ({ page }) => {
-      const response = await page.goto("/");
-      expect(response?.status()).toBe(302);
+      // Don't follow redirects so we can assert the 302 status + Location
+      const response = await page.request.get("/", { maxRedirects: 0 });
+      expect(response.status()).toBe(302);
+      expect(response.headers()["location"]).toContain("/fr");
       // Follow redirect
-      await page.waitForURL(/\/fr/);
+      await page.goto("/fr");
       expect(page.url()).toContain("/fr");
     });
   });
@@ -47,7 +49,7 @@ test.describe("Internationalisation — i18n", () => {
 
     test("la page /en/pricing affiche les noms de plan en anglais", async ({ page }) => {
       await page.goto("/en/pricing");
-      await expect(page.getByText(/free/i)).toBeVisible();
+      await expect(page.getByRole("heading", { name: "Free" })).toBeVisible();
       await expect(page.getByText("Starter")).toBeVisible();
       await expect(page.getByText("Pro")).toBeVisible();
       await expect(page.getByText("Ultra")).toBeVisible();

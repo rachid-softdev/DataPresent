@@ -241,7 +241,7 @@ test.describe("Accepter une invitation — /accept-invite", () => {
       await page.goto(`/accept-invite?token=${VALID_TOKEN}`);
 
       await expect(page.getByText("Invitation invalide")).toBeVisible({ timeout: 10000 });
-      await expect(page.getByText("Erreur de connexion")).toBeVisible();
+      await expect(page.getByText("Erreur de connexion").first()).toBeVisible();
     });
   });
 

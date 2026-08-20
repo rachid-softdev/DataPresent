@@ -71,8 +71,10 @@ test.describe("Responsive — Tarifs sur mobile (375px)", () => {
   test("les cartes de tarification s'empilent verticalement", async ({ page }) => {
     await page.goto("/pricing");
 
-    // The grid should be a single column on mobile (cards stack vertically)
-    const cards = page.locator(".app-card");
+    // The grid should be a single column on mobile (cards stack vertically).
+    // Only plan cards live directly inside .grid (FAQ <details> also use
+    // .app-card but sit outside the grid).
+    const cards = page.locator(".grid > .app-card");
     await expect(cards.first()).toBeVisible();
 
     // Cards count should be 4

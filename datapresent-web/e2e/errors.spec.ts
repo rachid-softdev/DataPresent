@@ -12,18 +12,19 @@ test.describe("Pages d'erreur", () => {
       }
 
       // The 404 page content should be visible
-      await expect(page.locator("text=Page non trouvée")).toBeVisible();
+      await expect(page.locator("text=Page non trouvée").first()).toBeVisible();
     });
 
     test("la page 404 affiche le nombre 404", async ({ page }) => {
       await page.goto("/nonexistent-page");
-      await expect(page.locator("text=404")).toBeVisible();
+      await expect(page.locator("text=404").first()).toBeVisible();
     });
 
     test("la page 404 a un lien 'Retour à l'accueil'", async ({ page }) => {
       await page.goto("/nonexistent-page");
 
-      const homeLink = page.locator('a[href="/"]');
+      // Multiple links point to "/" (logo in header/footer); target the CTA
+      const homeLink = page.getByRole("link", { name: /Retour à l'accueil/ });
       await expect(homeLink).toBeVisible();
       await expect(homeLink).toContainText(/Retour à l'accueil/);
     });
@@ -56,7 +57,7 @@ test.describe("Pages d'erreur", () => {
       if (url.includes("/blog/nonexistent")) {
         // Still on the 404 page
         await expect(
-          page.locator("text=404").or(page.locator("text=Page non trouvée")),
+          page.locator("text=404").or(page.locator("text=Page non trouvée")).first(),
         ).toBeVisible();
       }
       // If redirected, the test passes (no assertion needed for redirect)

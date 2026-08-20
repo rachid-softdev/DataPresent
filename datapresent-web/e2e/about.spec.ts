@@ -26,9 +26,13 @@ test.describe("Page À propos — /about", () => {
   });
 
   test("la section valeurs affiche Confiant, Naturel et Précis", async ({ page }) => {
-    await expect(page.locator("text=Confiant").or(page.locator("text=Confident"))).toBeVisible();
-    await expect(page.locator("text=Naturel").or(page.locator("text=Natural"))).toBeVisible();
-    await expect(page.locator("text=Précis").or(page.locator("text=Precise"))).toBeVisible();
+    // Use h3 headings (values cards) to avoid substring matches on the
+    // hero h1 ("naturally" contains "natural", "naturellement" contains "naturel")
+    const valueHeading = (fr: string, en: string) =>
+      page.locator("h3").filter({ hasText: new RegExp(`${fr}|${en}`) });
+    await expect(valueHeading("Confiant", "Confident")).toBeVisible();
+    await expect(valueHeading("Naturel", "Natural")).toBeVisible();
+    await expect(valueHeading("Précis", "Precise")).toBeVisible();
   });
 
   test("la section équipe affiche les 3 membres", async ({ page }) => {

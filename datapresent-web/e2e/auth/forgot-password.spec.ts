@@ -40,7 +40,7 @@ test.describe("Mot de passe oublié — /forgot-password", () => {
 
     // Vérifie l'état succès
     await expect(page.locator(".text-green-500")).toBeVisible(); // CheckCircle icon
-    await expect(page.getByText(/recevrez un lien de réinitialisation/)).toBeVisible({
+    await expect(page.getByText(/recevrez un lien de réinitialisation/).first()).toBeVisible({
       timeout: 10000,
     });
   });
@@ -57,7 +57,7 @@ test.describe("Mot de passe oublié — /forgot-password", () => {
     await page.getByPlaceholder(/vous@exemple/).fill("user@example.com");
     await page.getByRole("button", { name: /envoyer le lien/i }).click();
 
-    await expect(page.getByText(/recevrez un lien/)).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText(/recevrez un lien/).first()).toBeVisible({ timeout: 10000 });
 
     await page.getByRole("link", { name: /retour à la connexion/i }).click();
     await expect(page).toHaveURL(/\/login/);
@@ -92,7 +92,7 @@ test.describe("Mot de passe oublié — /forgot-password", () => {
     resolveRoute!(undefined);
 
     // Vérifie que le succès s'affiche après résolution
-    await expect(page.getByText(/recevrez un lien/)).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText(/recevrez un lien/).first()).toBeVisible({ timeout: 10000 });
   });
 
   test("soumission via la touche Entrée", async ({ page }) => {
@@ -107,7 +107,7 @@ test.describe("Mot de passe oublié — /forgot-password", () => {
     await page.getByPlaceholder(/vous@exemple/).fill("user@example.com");
     await page.getByPlaceholder(/vous@exemple/).press("Enter");
 
-    await expect(page.getByText(/recevrez un lien/)).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText(/recevrez un lien/).first()).toBeVisible({ timeout: 10000 });
   });
 
   test("le lien « Retour à la connexion » en bas du formulaire navigue vers /login", async ({
@@ -159,7 +159,7 @@ test.describe("Mot de passe oublié — /forgot-password", () => {
     await page.getByPlaceholder(/vous@exemple/).fill("user@example.com");
     await page.getByRole("button", { name: /envoyer le lien/i }).click();
 
-    await expect(page.getByText("Erreur de connexion")).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText("Erreur de connexion").first()).toBeVisible({ timeout: 10000 });
   });
 
   test("erreur réseau toast → sonner toast affiché", async ({ page }) => {
@@ -191,7 +191,7 @@ test.describe("Mot de passe oublié — /forgot-password", () => {
     await page.getByPlaceholder(/vous@exemple/).fill("  user@example.com  ");
     await page.getByRole("button", { name: /envoyer le lien/i }).click();
 
-    await expect(page.getByText(/recevrez un lien/)).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText(/recevrez un lien/).first()).toBeVisible({ timeout: 10000 });
   });
 
   test("email très long (>254 caractères) → gestion sans plantage", async ({ page }) => {
@@ -213,7 +213,7 @@ test.describe("Mot de passe oublié — /forgot-password", () => {
     await expect(submitBtn).not.toBeDisabled();
     await submitBtn.click();
 
-    await expect(page.getByText(/recevrez un lien/)).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText(/recevrez un lien/).first()).toBeVisible({ timeout: 10000 });
   });
 
   test("injection XSS dans le champ email → pas d'exécution", async ({ page }) => {
@@ -242,7 +242,7 @@ test.describe("Mot de passe oublié — /forgot-password", () => {
     await submitBtn.click();
 
     // Attendre que la requête aboutisse
-    await expect(page.getByText(/recevrez un lien/)).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText(/recevrez un lien/).first()).toBeVisible({ timeout: 10000 });
 
     // Enlever le listener après test
     page.off("dialog", dialogHandler);
@@ -270,7 +270,7 @@ test.describe("Mot de passe oublié — /forgot-password", () => {
     await submitBtn.click();
 
     // Attendre que la requête soit traitée
-    await expect(page.getByText(/recevrez un lien/)).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText(/recevrez un lien/).first()).toBeVisible({ timeout: 10000 });
 
     // Une seule requête doit avoir été envoyée (le bouton est disabled pendant le loading)
     expect(requestCount).toBe(1);
@@ -288,6 +288,6 @@ test.describe("Mot de passe oublié — /forgot-password", () => {
     await page.getByPlaceholder(/vous@exemple/).fill("user+tag@example.com");
     await page.getByRole("button", { name: /envoyer le lien/i }).click();
 
-    await expect(page.getByText(/recevrez un lien/)).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText(/recevrez un lien/).first()).toBeVisible({ timeout: 10000 });
   });
 });

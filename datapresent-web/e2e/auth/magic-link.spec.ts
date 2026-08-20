@@ -37,7 +37,9 @@ test.describe("Lien magique — Magic link", () => {
   });
 
   test("le formulaire de magic link affiche le séparateur « ou »", async ({ page }) => {
-    const separator = page.getByText("ou");
+    // Exact match: the separator is an isolated "ou" element (a bare string
+    // match also hits "Connectez-vous à votre compte..." substrings)
+    const separator = page.getByText("ou", { exact: true });
     await expect(separator).toBeVisible();
   });
 

@@ -29,7 +29,7 @@ test.describe("Page d'accueil — / (Landing)", () => {
   test("la section tarification #pricing est présente", async ({ page }) => {
     const pricingSection = page.locator("#pricing");
     await expect(pricingSection).toBeVisible();
-    await expect(pricingSection.locator("text=Gratuit")).toBeVisible();
+    await expect(pricingSection.getByText("Gratuit", { exact: true })).toBeVisible();
     await expect(pricingSection.locator("text=Pro")).toBeVisible();
   });
 
@@ -70,10 +70,10 @@ test.describe("Page d'accueil — / (Landing)", () => {
   test("la section formats affiche les types de fichiers supportés", async ({ page }) => {
     const formatsSection = page.locator("#formats");
     await expect(formatsSection).toBeVisible();
-    await expect(formatsSection.locator("text=Excel")).toBeVisible();
-    await expect(formatsSection.locator("text=CSV")).toBeVisible();
-    await expect(formatsSection.locator("text=PDF")).toBeVisible();
-    await expect(formatsSection.locator("text=Google Sheets")).toBeVisible();
+    await expect(formatsSection.locator("text=Excel").first()).toBeVisible();
+    await expect(formatsSection.locator("text=CSV").first()).toBeVisible();
+    await expect(formatsSection.locator("text=PDF").first()).toBeVisible();
+    await expect(formatsSection.locator("text=Google Sheets").first()).toBeVisible();
   });
 
   test("la section 'Comment ça marche' affiche les 3 étapes", async ({ page }) => {
