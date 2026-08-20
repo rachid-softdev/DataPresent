@@ -53,9 +53,9 @@ export const BlogCard = memo(function BlogCard({ post, locale }: BlogCardProps) 
           </div>
 
           {/* Title */}
-          <h3 className="text-xl font-semibold mb-3 line-clamp-2 group-hover:text-primary transition-colors">
+          <h2 className="text-xl font-semibold mb-3 line-clamp-2 group-hover:text-primary transition-colors">
             {post.title}
-          </h3>
+          </h2>
 
           {/* Description */}
           <p className="text-muted-foreground text-sm line-clamp-3">{post.description}</p>

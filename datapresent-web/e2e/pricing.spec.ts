@@ -10,10 +10,10 @@ test.describe("Page de tarification — /pricing", () => {
   });
 
   test("affiche les 4 cartes de plan (Gratuit, Starter, Pro, Ultra)", async ({ page }) => {
-    await expect(page.locator("text=Gratuit")).toBeVisible();
-    await expect(page.locator("text=Starter")).toBeVisible();
-    await expect(page.locator("text=Pro")).toBeVisible();
-    await expect(page.locator("text=Ultra")).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Gratuit" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Starter" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Pro" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Ultra" })).toBeVisible();
   });
 
   test("le plan Starter est mis en avant avec le badge 'Populaire'", async ({ page }) => {

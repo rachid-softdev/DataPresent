@@ -18,7 +18,7 @@ test.describe("Inscription — /signup", () => {
   });
 
   test("affiche le champ email pour l'inscription par email", async ({ page }) => {
-    await expect(page.getByLabel(/email/i)).toBeVisible();
+    await expect(page.locator('input[type="email"]')).toBeVisible();
   });
 
   test("le bouton d'inscription par email est présent", async ({ page }) => {
@@ -39,7 +39,7 @@ test.describe("Inscription — /signup", () => {
   });
 
   test("affiche une erreur pour email invalide côté navigateur", async ({ page }) => {
-    const emailInput = page.getByLabel(/email/i);
+    const emailInput = page.locator('input[type="email"]');
     await emailInput.fill("invalid");
     await page.getByRole("button", { name: /inscrire/i }).click();
 

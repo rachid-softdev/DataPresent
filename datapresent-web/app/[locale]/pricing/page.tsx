@@ -252,6 +252,14 @@ export async function generateMetadata({ params }: PricingPageProps): Promise<Me
       alternateLocale: locale === "fr" ? "en_US" : "fr_FR",
       url: `/${locale === "fr" ? "" : "en"}/pricing`,
       siteName: "DataPresent",
+      images: [
+        {
+          url: "/og-image.png",
+          width: 1200,
+          height: 630,
+          alt: "DataPresent - Générateur de présentations IA",
+        },
+      ],
     },
     twitter: {
       card: "summary_large_image",
@@ -356,7 +364,7 @@ export default async function PricingPage({ params }: PricingPageProps) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      <div className="min-h-screen bg-background">
+      <main id="main" className="min-h-screen bg-background">
         {/* ── Hero ────────────────────────────────────────────── */}
         <section
           className="relative overflow-hidden px-6 pt-20 pb-16 md:pt-28 md:pb-20"
@@ -408,7 +416,7 @@ export default async function PricingPage({ params }: PricingPageProps) {
 
                     <div className="app-card-header flex-1">
                       {/* Plan name */}
-                      <h3 className="app-heading app-heading-lg mb-1">{planName}</h3>
+                      <h2 className="app-heading app-heading-lg mb-1">{planName}</h2>
                       <p className="text-sm text-muted-foreground mb-4">{planDesc}</p>
 
                       {/* Price */}
@@ -653,7 +661,7 @@ export default async function PricingPage({ params }: PricingPageProps) {
             </div>
           </div>
         </section>
-      </div>
+      </main>
     </>
   );
 }

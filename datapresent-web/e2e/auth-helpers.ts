@@ -49,12 +49,15 @@ export async function createTestUser() {
       name: TEST_USER_NAME,
       isVerified: true,
       emailVerified: new Date(),
+      // Admin specs assume the E2E user has the ADMIN role
+      role: "ADMIN",
     },
     create: {
       email: TEST_USER_EMAIL,
       name: TEST_USER_NAME,
       isVerified: true,
       emailVerified: new Date(),
+      role: "ADMIN",
     },
   });
 

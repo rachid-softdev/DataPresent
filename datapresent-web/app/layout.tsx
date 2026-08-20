@@ -61,6 +61,12 @@ export const metadata: Metadata = {
   },
   alternates: {
     canonical: "https://datapresent.com",
+    // localePrefix "never" : les URLs sont identiques pour fr/en — Next émet
+    // quand même les balises link[rel=alternate][hreflang] attendues par le SEO.
+    languages: {
+      fr: "/",
+      en: "/",
+    },
   },
 };
 

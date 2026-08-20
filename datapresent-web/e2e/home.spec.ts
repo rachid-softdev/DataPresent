@@ -4,8 +4,8 @@ test.describe("Page d'accueil", () => {
   test("affiche la page d'accueil correctement", async ({ page }) => {
     await page.goto("/");
 
-    await expect(page.locator("h1")).toContainText(/Transformez vos données/);
-    await expect(page.getByRole("link", { name: /commencer/i })).toBeVisible();
+    await expect(page.locator("h1")).toContainText(/Vos données deviennent/);
+    await expect(page.getByRole("link", { name: /générez votre présentation/i })).toBeVisible();
   });
 
   test("la FAQ est fonctionnelle", async ({ page }) => {

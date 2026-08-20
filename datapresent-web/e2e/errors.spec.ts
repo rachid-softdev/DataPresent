@@ -68,7 +68,7 @@ test.describe("Pages d'erreur", () => {
 
       // Check that header is still visible if we're on the 404 page
       if (page.url().includes("/blog/nonexistent")) {
-        const header = page.locator("header");
+        const header = page.locator("header").first();
         await expect(header).toBeVisible();
       }
     });

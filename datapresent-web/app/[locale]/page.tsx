@@ -77,86 +77,88 @@ export default async function RootPage() {
       </header>
 
       {/* ─── Pain anchor ─── */}
-      <div className="landing-pain-band anim-up-1">
-        <p className="landing-pain-text">
-          <span className="landing-pain-icon">
-            <svg
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <circle cx="12" cy="12" r="10" />
-              <path d="M12 6v6l4 2" />
-            </svg>
-          </span>
-          {t("hero.painText")}
-        </p>
-      </div>
+      <main id="main">
+        <div className="landing-pain-band anim-up-1">
+          <p className="landing-pain-text">
+            <span className="landing-pain-icon">
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <circle cx="12" cy="12" r="10" />
+                <path d="M12 6v6l4 2" />
+              </svg>
+            </span>
+            {t("hero.painText")}
+          </p>
+        </div>
 
-      {/* ─── Hero ─── */}
-      <LandingHero
-        badge={t("hero.badge")}
-        title={
-          <>
-            {t("hero.titleLine1")}
-            <br />
-            {t("hero.titleLine2")}
-          </>
-        }
-        body={t("hero.body")}
-        cta="Générez votre présentation en 30s"
-        note="Gratuit · 3 rapports · Sans carte bancaire"
-      />
-
-      {/* ─── Formats ─── */}
-      <Reveal>
-        <LandingFormats title={t("formats.title")} id="formats" />
-      </Reveal>
-
-      {/* ─── How It Works ─── */}
-      <Reveal delay={0.05}>
-        <LandingHowItWorks title={t("howItWorks.title")} subtitle={t("howItWorks.subtitle")} />
-      </Reveal>
-
-      {/* ─── Features ─── */}
-      <Reveal delay={0.05}>
-        <LandingFeatures title={t("features.title")} />
-      </Reveal>
-
-      {/* ─── Pricing ─── */}
-      <Reveal delay={0.05}>
-        <LandingPricing title={t("pricing.title")} subtitle={t("pricing.subtitle")} />
-      </Reveal>
-
-      {/* ─── Testimonials ─── */}
-      <Reveal>
-        <LandingTestimonials title={t("testimonials.title")} />
-      </Reveal>
-
-      {/* ─── FAQ ─── */}
-      <Reveal>
-        <LandingFaq />
-      </Reveal>
-
-      {/* ─── CTA ─── */}
-      <Reveal>
-        <LandingCta
+        {/* ─── Hero ─── */}
+        <LandingHero
+          badge={t("hero.badge")}
           title={
             <>
-              {t("cta.title")}
+              {t("hero.titleLine1")}
               <br />
-              <em>{t("cta.titleEm")}</em>
+              {t("hero.titleLine2")}
             </>
           }
-          body={t("cta.body")}
-          button={t("cta.button")}
+          body={t("hero.body")}
+          cta="Générez votre présentation en 30s"
+          note="Gratuit · 3 rapports · Sans carte bancaire"
         />
-      </Reveal>
+
+        {/* ─── Formats ─── */}
+        <Reveal>
+          <LandingFormats title={t("formats.title")} id="formats" />
+        </Reveal>
+
+        {/* ─── How It Works ─── */}
+        <Reveal delay={0.05}>
+          <LandingHowItWorks title={t("howItWorks.title")} subtitle={t("howItWorks.subtitle")} />
+        </Reveal>
+
+        {/* ─── Features ─── */}
+        <Reveal delay={0.05}>
+          <LandingFeatures title={t("features.title")} />
+        </Reveal>
+
+        {/* ─── Pricing ─── */}
+        <Reveal delay={0.05}>
+          <LandingPricing title={t("pricing.title")} subtitle={t("pricing.subtitle")} />
+        </Reveal>
+
+        {/* ─── Testimonials ─── */}
+        <Reveal>
+          <LandingTestimonials title={t("testimonials.title")} />
+        </Reveal>
+
+        {/* ─── FAQ ─── */}
+        <Reveal>
+          <LandingFaq />
+        </Reveal>
+
+        {/* ─── CTA ─── */}
+        <Reveal>
+          <LandingCta
+            title={
+              <>
+                {t("cta.title")}
+                <br />
+                <em>{t("cta.titleEm")}</em>
+              </>
+            }
+            body={t("cta.body")}
+            button={t("cta.button")}
+          />
+        </Reveal>
+      </main>
 
       {/* ─── Footer ─── */}
       <LandingFooter description={t("footer.description")} copyright={t("footer.copyright")} />

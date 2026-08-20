@@ -18,7 +18,7 @@ test.describe("Connexion — /login", () => {
   });
 
   test("affiche le champ email pour le magic link", async ({ page }) => {
-    await expect(page.getByLabel(/email/i)).toBeVisible();
+    await expect(page.locator('input[type="email"]')).toBeVisible();
   });
 
   test("le bouton d'envoi du magic link est présent", async ({ page }) => {
@@ -37,7 +37,7 @@ test.describe("Connexion — /login", () => {
 
   test("affiche une erreur pour email invalide côté navigateur", async ({ page }) => {
     // The email input has `type="email"` so the browser catches invalid values
-    const emailInput = page.getByLabel(/email/i);
+    const emailInput = page.locator('input[type="email"]');
     await emailInput.fill("invalid");
     await page.getByRole("button", { name: /envoyer/i }).click();
 

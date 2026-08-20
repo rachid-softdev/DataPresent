@@ -34,6 +34,14 @@ export async function generateMetadata({ params }: BlogPageProps): Promise<Metad
       alternateLocale: locale === "fr" ? "en_US" : "fr_FR",
       url: `/${locale}/blog`,
       siteName: "DataPresent",
+      images: [
+        {
+          url: "/og-image.png",
+          width: 1200,
+          height: 630,
+          alt: "DataPresent - Générateur de présentations IA",
+        },
+      ],
     },
     twitter: {
       card: "summary",

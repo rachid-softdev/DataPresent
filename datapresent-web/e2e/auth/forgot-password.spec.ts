@@ -148,7 +148,7 @@ test.describe("Mot de passe oublié — /forgot-password", () => {
     await page.getByPlaceholder(/vous@exemple/).fill("unknown@example.com");
     await page.getByRole("button", { name: /envoyer le lien/i }).click();
 
-    await expect(page.getByText("Email non trouvé")).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText("Email non trouvé").first()).toBeVisible({ timeout: 10000 });
   });
 
   test("erreur réseau → message « Erreur de connexion » affiché", async ({ page }) => {
@@ -241,8 +241,9 @@ test.describe("Mot de passe oublié — /forgot-password", () => {
 
     await submitBtn.click();
 
-    // Attendre que la requête aboutisse
-    await expect(page.getByText(/recevrez un lien/).first()).toBeVisible({ timeout: 10000 });
+    // L'email n'est pas valide (input type=email) : la validation HTML5 bloque la
+    // soumission — la valeur reste dans le champ et aucun script n'est exécuté.
+    await expect(page.getByPlaceholder(/vous@exemple/)).toHaveValue(xssPayload);
 
     // Enlever le listener après test
     page.off("dialog", dialogHandler);
@@ -265,9 +266,11 @@ test.describe("Mot de passe oublié — /forgot-password", () => {
     await page.getByPlaceholder(/vous@exemple/).fill("user@example.com");
     const submitBtn = page.getByRole("button", { name: /envoyer le lien/i });
 
-    // Double-clic rapide
+    // Double-clic rapide — le bouton passe en loading après le 1er clic :
+    // force:true simule le second clic « au même moment » sans attendre
+    // que le bouton redevienne actionnable.
     await submitBtn.click();
-    await submitBtn.click();
+    await submitBtn.click({ force: true });
 
     // Attendre que la requête soit traitée
     await expect(page.getByText(/recevrez un lien/).first()).toBeVisible({ timeout: 10000 });

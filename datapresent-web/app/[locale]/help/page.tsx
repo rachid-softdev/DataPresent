@@ -89,7 +89,7 @@ export default async function HelpPage({ params }: HelpPageProps) {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <main id="main" className="min-h-screen bg-background">
       {/* Header */}
       <div className="border-b border-border">
         <div className="max-w-6xl mx-auto px-6 py-16">
@@ -191,6 +191,6 @@ export default async function HelpPage({ params }: HelpPageProps) {
           </div>
         </div>
       </div>
-    </div>
+    </main>
   );
 }

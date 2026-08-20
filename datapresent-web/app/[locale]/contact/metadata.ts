@@ -27,6 +27,14 @@ export async function generateMetadata({ params }: ContactMetadataProps): Promis
       locale: locale === "fr" ? "fr_FR" : "en_US",
       url: `/${locale}/contact`,
       siteName: "DataPresent",
+      images: [
+        {
+          url: "/og-image.png",
+          width: 1200,
+          height: 630,
+          alt: "DataPresent - Générateur de présentations IA",
+        },
+      ],
     },
     alternates: {
       languages: {

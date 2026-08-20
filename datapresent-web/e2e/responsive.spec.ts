@@ -114,9 +114,8 @@ test.describe("Responsive — Tablette (768px)", () => {
     // Content should be visibly laid out
     await expect(page.locator("h1")).toBeVisible();
 
-    // FAQ items should render correctly
-    const faqItems = page.locator("details");
-    await expect(faqItems.first()).toBeVisible();
+    // FAQ section renders (the /help FAQ is a searchable list, not <details>)
+    await expect(page.getByRole("heading", { name: /questions fréquentes/i })).toBeVisible();
 
     // No horizontal overflow
     const overflowX = await page.evaluate(() => document.body.scrollWidth <= window.innerWidth);
@@ -161,7 +160,7 @@ test.describe("Responsive — Desktop (1440px)", () => {
   test("les cartes de tarification sont en grille multi-colonnes sur desktop", async ({ page }) => {
     await page.goto("/pricing");
 
-    const cards = page.locator(".app-card");
+    const cards = page.locator(".grid > .app-card");
     await expect(cards).toHaveCount(4);
 
     // On desktop, cards should be in a row (grid layout)
@@ -180,7 +179,7 @@ test.describe("Responsive — Desktop (1440px)", () => {
   test("le tableau comparatif est entièrement visible sans scroll horizontal", async ({ page }) => {
     await page.goto("/pricing");
 
-    const table = page.locator("table.app-table");
+    const table = page.locator("table.app-table").first();
     await expect(table).toBeVisible();
 
     // On desktop the table should fit without horizontal scroll

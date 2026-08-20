@@ -32,6 +32,14 @@ export async function generateMetadata({ params }: AboutPageProps): Promise<Meta
       locale: locale === "fr" ? "fr_FR" : "en_US",
       url: `/${locale}/about`,
       siteName: "DataPresent",
+      images: [
+        {
+          url: "/og-image.png",
+          width: 1200,
+          height: 630,
+          alt: "DataPresent - Générateur de présentations IA",
+        },
+      ],
     },
     alternates: {
       languages: {
@@ -129,7 +137,7 @@ export default async function AboutPage({ params }: AboutPageProps) {
   const team = TEAM[locale as keyof typeof TEAM] || TEAM.en;
 
   return (
-    <div className="landing-hero" style={{ paddingTop: 0 }}>
+    <main id="main" className="landing-hero" style={{ paddingTop: 0 }}>
       {/* ═══ Hero ═══ */}
       <section className="landing-section" style={{ paddingBottom: 0 }}>
         <div className="landing-container landing-container-xs">
@@ -244,6 +252,6 @@ export default async function AboutPage({ params }: AboutPageProps) {
           </Link>
         </div>
       </div>
-    </div>
+    </main>
   );
 }

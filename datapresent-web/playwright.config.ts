@@ -35,6 +35,7 @@ export default defineConfig({
       name: "chromium",
       testIgnore: [
         /auth\.setup\.ts/,
+        /api\//,
         /auth\/signout/,
         /auth\/accept-invite/,
         /dashboard\//,
@@ -80,6 +81,7 @@ export default defineConfig({
       name: "firefox",
       testIgnore: [
         /auth\.setup\.ts/,
+        /api\//,
         /auth\/signout/,
         /auth\/accept-invite/,
         /dashboard\//,
@@ -100,6 +102,7 @@ export default defineConfig({
       name: "webkit",
       testIgnore: [
         /auth\.setup\.ts/,
+        /api\//,
         /auth\/signout/,
         /auth\/accept-invite/,
         /dashboard\//,

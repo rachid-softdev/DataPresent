@@ -30,7 +30,7 @@ test.describe("Page d'accueil — / (Landing)", () => {
     const pricingSection = page.locator("#pricing");
     await expect(pricingSection).toBeVisible();
     await expect(pricingSection.getByText("Gratuit", { exact: true })).toBeVisible();
-    await expect(pricingSection.locator("text=Pro")).toBeVisible();
+    await expect(pricingSection.getByText("Pro", { exact: true })).toBeVisible();
   });
 
   test("affiche le bouton de thème (ThemeToggle)", async ({ page }) => {

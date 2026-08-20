@@ -6,14 +6,14 @@ test.describe("Lien magique — Magic link", () => {
   });
 
   test("saisie d'un email valide → message de confirmation affiché", async ({ page }) => {
-    await page.getByLabel(/email/i).fill("e2e-magic@datapresent.com");
+    await page.locator('input[type="email"]').fill("e2e-magic@datapresent.com");
     await page.getByRole("button", { name: /envoyer le lien de connexion/i }).click();
 
     // On success, the API returns a success message
     // The page may show an alert-success div or the email input is cleared
     // Wait for either a success message or the input to be cleared
     const successMessage = page.locator(".app-alert-success");
-    const emailInput = page.getByLabel(/email/i);
+    const emailInput = page.locator('input[type="email"]');
 
     // The form should show some response — either success alert or input reset
     await expect(successMessage.or(emailInput)).toBeVisible({ timeout: 10000 });
@@ -21,12 +21,12 @@ test.describe("Lien magique — Magic link", () => {
 
   test("saisie d'un email invalide → message d'erreur", async ({ page }) => {
     // Enter an invalid email (missing domain)
-    await page.getByLabel(/email/i).fill("invalid-email");
+    await page.locator('input[type="email"]').fill("invalid-email");
     await page.getByRole("button", { name: /envoyer/i }).click();
 
     // Browser validation (type="email") prevents submission for truly invalid emails
     // The input should still be visible with the value
-    await expect(page.getByLabel(/email/i)).toHaveValue("invalid-email");
+    await expect(page.locator('input[type="email"]')).toHaveValue("invalid-email");
   });
 
   test("saisie d'un email vide → bouton désactivé", async ({ page }) => {
@@ -44,7 +44,7 @@ test.describe("Lien magique — Magic link", () => {
   });
 
   test("le champ email a le placeholder approprié", async ({ page }) => {
-    const emailInput = page.getByLabel(/email/i);
+    const emailInput = page.locator('input[type="email"]');
     await expect(emailInput).toHaveAttribute("placeholder", /vous@exemple/);
   });
 });

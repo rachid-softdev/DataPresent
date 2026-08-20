@@ -2,14 +2,17 @@ import { expect, test } from "@playwright/test";
 
 test.describe("Internationalisation — i18n", () => {
   test.describe("Redirection racine", () => {
-    test("la racine / redirige vers /fr (302)", async ({ page }) => {
-      // Don't follow redirects so we can assert the 302 status + Location
+    test("la racine / sert la locale détectée (fr par défaut)", async ({ page }) => {
+      // localePrefix "never" : pas de redirection vers /fr — la racine sert
+      // directement le contenu dans la locale détectée (fr par défaut).
       const response = await page.request.get("/", { maxRedirects: 0 });
-      expect(response.status()).toBe(302);
-      expect(response.headers()["location"]).toContain("/fr");
-      // Follow redirect
-      await page.goto("/fr");
-      expect(page.url()).toContain("/fr");
+      expect(response.status()).toBe(200);
+
+      await page.goto("/");
+      await expect(page.locator("h1")).toBeVisible();
+      // French content is served (context locale fr-FR)
+      const navText = await page.locator("body").innerText();
+      expect(navText.toLowerCase()).toContain("connexion");
     });
   });
 
@@ -24,10 +27,10 @@ test.describe("Internationalisation — i18n", () => {
 
     test("la page /fr/pricing affiche les noms de plan en français", async ({ page }) => {
       await page.goto("/fr/pricing");
-      await expect(page.getByText("Gratuit")).toBeVisible();
-      await expect(page.getByText("Starter")).toBeVisible();
-      await expect(page.getByText("Pro")).toBeVisible();
-      await expect(page.getByText("Ultra")).toBeVisible();
+      await expect(page.getByRole("heading", { name: "Gratuit" })).toBeVisible();
+      await expect(page.getByRole("heading", { name: "Starter" })).toBeVisible();
+      await expect(page.getByRole("heading", { name: "Pro" })).toBeVisible();
+      await expect(page.getByRole("heading", { name: "Ultra" })).toBeVisible();
     });
 
     test("la balise html lang='fr' sur /fr", async ({ page }) => {
@@ -41,18 +44,17 @@ test.describe("Internationalisation — i18n", () => {
     test("la page d'accueil anglaise affiche le titre en anglais", async ({ page }) => {
       await page.goto("/en");
       await expect(page.locator("h1")).toBeVisible();
-      // English nav should show "Login" and "Sign up"
+      // English nav should show "Log in" and "Sign up"
       const navText = await page.locator("body").innerText();
-      expect(navText.toLowerCase()).toContain("login") ||
-        expect(navText.toLowerCase()).toContain("sign in");
+      expect(navText.toLowerCase()).toMatch(/log in|sign in/);
     });
 
     test("la page /en/pricing affiche les noms de plan en anglais", async ({ page }) => {
       await page.goto("/en/pricing");
       await expect(page.getByRole("heading", { name: "Free" })).toBeVisible();
-      await expect(page.getByText("Starter")).toBeVisible();
-      await expect(page.getByText("Pro")).toBeVisible();
-      await expect(page.getByText("Ultra")).toBeVisible();
+      await expect(page.getByRole("heading", { name: "Starter" })).toBeVisible();
+      await expect(page.getByRole("heading", { name: "Pro" })).toBeVisible();
+      await expect(page.getByRole("heading", { name: "Ultra" })).toBeVisible();
     });
 
     test("la balise html lang='en' sur /en", async ({ page }) => {
@@ -115,8 +117,9 @@ test.describe("Internationalisation — i18n", () => {
         },
       ]);
       await page.goto("/");
-      await page.waitForURL(/\/en/);
-      expect(page.url()).toContain("/en");
+      // localePrefix "never" : l'URL reste / — c'est la balise <html lang>
+      // qui reflète la langue persistée par le cookie.
+      await expect(page.locator("html")).toHaveAttribute("lang", "en");
     });
   });
 
@@ -124,10 +127,11 @@ test.describe("Internationalisation — i18n", () => {
     test("navigation de /fr/help à /en/help change la langue", async ({ page }) => {
       await page.goto("/fr/help");
       await expect(page.locator("h1")).toBeVisible();
+      // localePrefix "never" : next-intl nettoie le préfixe → l'URL devient /help
+      // et la langue est pilotée par le cookie NEXT_LOCALE + <html lang>.
       await page.goto("/en/help");
       await expect(page.locator("h1")).toBeVisible();
-      // The URL should now be /en/help
-      expect(page.url()).toContain("/en/help");
+      await expect(page.locator("html")).toHaveAttribute("lang", "en");
     });
   });
 });
