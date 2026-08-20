@@ -99,10 +99,13 @@ jobs:
           path: datapresent-web/test-results-unit.xml
 
   test-e2e:
-    name: E2E Tests
+    name: E2E Tests (${{ matrix.shard }}/${{ matrix.total }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
+        total: [4]
     services:
       postgres:
         image: postgres:16
@@ -154,7 +157,7 @@ jobs:
         run: pnpm --filter datapresent-web exec playwright install --with-deps
 
       - name: Run E2E Tests
-        run: pnpm run test
+        run: pnpm run test -- --shard=${{ matrix.shard }}/${{ matrix.total }}
         env:
           CI: true
           DATABASE_URL: postgresql://datapresent:test@localhost:5432/datapresent_test
@@ -171,7 +174,7 @@ jobs:
         uses: actions/upload-artifact@v7
         if: always()
         with:
-          name: playwright-report
+          name: playwright-report-${{ matrix.shard }}
           path: datapresent-web/playwright-report/
           retention-days: 7
 
@@ -349,11 +352,13 @@ jobs:
           echo "| Coverage | ${{ needs.coverage.result }} |" >> "$GITHUB_STEP_SUMMARY"
           echo "| Build | ${{ needs.build.result }} |" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
+          # test-e2e is a matrix job — its results come back as a joined list
+          e2e_results="${{ join(needs.test-e2e.results, ' ') }}"
           for result in "${{ needs.lint.result }}" "${{ needs.typecheck.result }}" \
-                        "${{ needs.test-unit.result }}" "${{ needs.test-e2e.result }}" \
+                        "${{ needs.test-unit.result }}" "$e2e_results" \
                         "${{ needs.test-integration.result }}" "${{ needs.coverage.result }}" \
                         "${{ needs.build.result }}"; do
-            if [ "$result" = "failure" ] || [ "$result" = "cancelled" ]; then
+            if echo "$result" | grep -q "failure\|cancelled"; then
               echo "**Overall: failure**" >> "$GITHUB_STEP_SUMMARY"
               exit 1
             fi
