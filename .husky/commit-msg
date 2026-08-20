@@ -1,1 +1,5 @@
-npx --no -- commitlint --edit "$1"
+#!/usr/bin/env sh
+# Run commitlint on the commit message.
+# `npx` is a .cmd shim on Windows and is not executable inside Git Bash,
+# so invoke the pnpm-provided shell shim directly (same approach as pre-commit).
+./node_modules/.bin/commitlint --edit "$1"

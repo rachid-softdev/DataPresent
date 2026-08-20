@@ -8,18 +8,20 @@ const scriptSrc = isDev
   ? "'self' 'unsafe-eval' 'unsafe-inline' https://js.stripe.com"
   : "'self' 'unsafe-inline' https://js.stripe.com";
 
+// Cap the "Collecting page data" worker pool on memory-constrained dev
+// machines (default: one worker per core). CI runners have enough RAM, so
+// let them use the default. See node_modules/next/dist/docs/01-app/02-guides/memory-usage.md
+const isMemoryConstrained = !process.env.CI;
+
 const nextConfig: NextConfig = {
   output: "standalone",
-  // Reduce peak memory during builds on memory-constrained machines
-  // (see node_modules/next/dist/docs/01-app/02-guides/memory-usage.md).
-  // `cpus` caps the "Collecting page data" worker pool (default: all cores).
   experimental: {
-    cpus: 2,
+    ...(isMemoryConstrained ? { cpus: 2 } : {}),
     webpackMemoryOptimizations: true,
   },
   typescript: {
-    // All TS errors are pre-existing from Prisma 7 migration (types no longer generated).
-    // Run `tsc --noEmit` separately to check for new errors in changed files.
+    // `tsc --noEmit` is the source of truth (see `web:typecheck`); keep the
+    // production build from failing on unrelated TS noise.
     ignoreBuildErrors: true,
   },
   images: {
