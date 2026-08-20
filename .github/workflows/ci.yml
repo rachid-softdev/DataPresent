@@ -142,6 +142,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Generate Prisma Client
+        run: pnpm run db:generate
+
       - name: Install Playwright Browsers
         run: pnpm --filter datapresent-web exec playwright install --with-deps
 
@@ -213,6 +216,11 @@ jobs:
 
       - name: Generate Prisma Client
         run: pnpm run db:generate
+
+      - name: Push database schema
+        run: pnpm run db:push
+        env:
+          DATABASE_URL: postgresql://datapresent:test@localhost:5432/datapresent_test
 
       - name: Run Integration Tests
         run: pnpm run test:integration
@@ -299,19 +307,22 @@ jobs:
       - name: Build Next.js Application
         run: pnpm run build
         env:
-          NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY }}
+          NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: pk_test_placeholder
           NEXT_PUBLIC_BASE_URL: https://datapresent.com
-          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
+          NEXT_PUBLIC_APP_URL: https://datapresent.com
+          STRIPE_SECRET_KEY: sk_test_placeholder
+          ANTHROPIC_API_KEY: sk-ant-e2e-placeholder-min-8-chars
+          DATABASE_URL: postgresql://datapresent:test@localhost:5432/datapresent_test
+          NEXTAUTH_SECRET: nextauth-e2e-secret-minimum-length-32-chars!!
           NEXTAUTH_URL: https://datapresent.com
-          REDIS_URL: ${{ secrets.REDIS_URL }}
-          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
-          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
-          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
-          R2_BUCKET_NAME: ${{ secrets.R2_BUCKET_NAME }}
-          R2_PUBLIC_URL: ${{ secrets.R2_PUBLIC_URL }}
+          REDIS_URL: redis://localhost:6379
+          CSRF_SECRET: csrf-e2e-secret-minimum-length-32-chars!!!
+          JOB_SIGNING_SECRET: job-signing-e2e-secret-minimum-32-chars
+          R2_ACCOUNT_ID: test
+          R2_ACCESS_KEY_ID: test
+          R2_SECRET_ACCESS_KEY: test
+          R2_BUCKET_NAME: test
+          R2_PUBLIC_URL: https://test.r2.cloudflarestorage.com
 
   ci-status:
     name: CI Status

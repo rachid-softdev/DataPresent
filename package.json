@@ -3,6 +3,24 @@
   "version": "0.1.0",
   "private": true,
   "packageManager": "pnpm@9.15.9",
+  "pnpm": {
+    "overrides": {
+      "fast-uri": "3.1.5",
+      "ws": "8.21.3",
+      "undici": "7.29.0",
+      "esbuild": "0.28.2",
+      "postcss": "8.5.26",
+      "tmp": "0.2.7",
+      "ip-address": "10.5.0",
+      "@babel/core": "7.29.7",
+      "nanoid@5": "5.1.16",
+      "js-yaml@4": "4.3.1",
+      "brace-expansion@5": "5.0.9",
+      "dompurify": "3.4.14",
+      "next-auth": "5.0.0-beta.32",
+      "@auth/core": "0.41.3"
+    }
+  },
   "scripts": {
     "dev": "pnpm --filter datapresent-web dev",
     "start-dev-complete": "pnpm --filter datapresent-web dev:complete",
