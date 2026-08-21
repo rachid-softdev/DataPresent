@@ -3,6 +3,7 @@
 import { MessageSquare, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { memo, useCallback, useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import { CommentInput } from "@/components/comments/CommentInput";
 import { Button } from "@/components/ui/button";
 import { CommentItem } from "./CommentItem";
@@ -38,6 +39,13 @@ export const CommentThread = memo(function CommentThread({
   const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentUserId, setCurrentUserId] = useState<string | undefined>();
+  // Portal target — the fixed panel must mount on document.body: ancestor
+  // transforms (framer-motion) create stacking contexts that would trap the
+  // panel BELOW the sticky header (z-100), making it partially unclickable.
+  const [portalTarget, setPortalTarget] = useState<HTMLElement | null>(null);
+  useEffect(() => {
+    setPortalTarget(document.body);
+  }, []);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -138,7 +146,7 @@ export const CommentThread = memo(function CommentThread({
     [currentUserId, handleEdit, handleDelete],
   );
 
-  return (
+  const panel = (
     <div
       className={
         embedded
@@ -213,4 +221,10 @@ export const CommentThread = memo(function CommentThread({
       </div>
     </div>
   );
+
+  // Embedded panels render inline; the fixed slide-over mounts through a
+  // portal on document.body to escape ancestor stacking contexts.
+  if (embedded) return panel;
+  if (!portalTarget) return null;
+  return createPortal(panel, portalTarget);
 });

@@ -269,22 +269,18 @@ test.describe("Config step — Slide Count", () => {
     await expect(page.getByText(max!).first()).toBeVisible();
   });
 
-  test("la valeur du slider change — le compteur actuel est visible en gras", async ({ page }) => {
+  test("la valeur du slider change - le compteur actuel est visible en gras", async ({ page }) => {
     const slider = page.locator('input[type="range"]');
     // Default value is 10
     const boldValue = page.locator("span.text-2xl.font-bold");
     await expect(boldValue).toHaveText("10");
 
-    // Change slider value by evaluating (since Playwright can't drag range easily)
-    await slider.evaluate((el) => {
-      const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
-        window.HTMLInputElement.prototype,
-        "value",
-      )!.set!;
-      nativeInputValueSetter.call(el, 20);
-      el.dispatchEvent(new Event("input", { bubbles: true }));
-      el.dispatchEvent(new Event("change", { bubbles: true }));
-    });
+    // Native range inputs respond to arrow keys with real input events,
+    // which React handles reliably (unlike synthetic value setters).
+    await slider.focus();
+    for (let i = 0; i < 10; i++) {
+      await page.keyboard.press("ArrowRight");
+    }
 
     await expect(boldValue).toHaveText("20");
   });
@@ -293,16 +289,18 @@ test.describe("Config step — Slide Count", () => {
     page,
   }) => {
     const slider = page.locator('input[type="range"]');
+    const boldValue = page.locator("span.text-2xl.font-bold");
 
-    // Helper to change slider value
+    // Move the native slider with arrow keys until it reaches val — arrow
+    // keys fire real input events that React handles reliably.
     const setSlider = async (val: number) => {
-      await slider.evaluate((el, v) => {
-        const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value")!
-          .set!;
-        setter.call(el, v);
-        el.dispatchEvent(new Event("input", { bubbles: true }));
-        el.dispatchEvent(new Event("change", { bubbles: true }));
-      }, val);
+      await slider.focus();
+      for (;;) {
+        const current = Number(await slider.inputValue());
+        if (current === val) break;
+        await page.keyboard.press(current < val ? "ArrowRight" : "ArrowLeft");
+      }
+      await expect(boldValue).toHaveText(String(val));
     };
 
     // Test preset labels
@@ -315,7 +313,7 @@ test.describe("Config step — Slide Count", () => {
     await setSlider(12);
     await expect(page.getByText("Complet")).toBeVisible();
 
-    await setSlider(20);
+    await setSlider(16);
     await expect(page.getByText("Détaillé")).toBeVisible();
   });
 
@@ -334,6 +332,9 @@ test.describe("Config step — Slide Count", () => {
 
 test.describe("Generation step", () => {
   test.beforeEach(async ({ page }) => {
+    // Hold the upload POST so it never completes: on CI the real API would
+    // error quickly and unmount the generation UI these tests assert on.
+    await page.route("**/api/reports", () => {});
     await page.goto("/new");
     const fileInput = page.locator('input[type="file"]');
     const buffer = Buffer.from("col1,col2\nval1,val2", "utf-8");
@@ -343,7 +344,7 @@ test.describe("Generation step", () => {
       buffer,
     });
     await page.getByRole("button", { name: /suivant/i }).click();
-    await expect(page.getByText(/secteur/i)).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText(/secteur/i).first()).toBeVisible({ timeout: 5000 });
   });
 
   test("la barre de progression est visible à 0% au début", async ({ page }) => {

@@ -44,13 +44,9 @@ export default function SharePage({ params }: { params: Promise<{ id: string }> 
 
   useEffect(() => {
     async function fetchSettings() {
+      let reportMissing = false;
       try {
         const res = await fetch(`/api/reports/${reportId}/share`);
-        if (res.status === 404) {
-          // Report doesn't exist (or belongs to someone else) — render the
-          // dashboard not-found page instead of an empty share form.
-          notFound();
-        }
         if (res.ok) {
           const data = await res.json();
           setSettings(data);
@@ -59,12 +55,18 @@ export default function SharePage({ params }: { params: Promise<{ id: string }> 
           setAllowComments(data.allowComments ?? true);
           setAllowEmbed(data.allowEmbed ?? false);
           setExpiresIn(data.expiresAt ? "custom" : "never");
+        } else if (res.status === 404) {
+          // Report doesn't exist (or belongs to someone else)
+          reportMissing = true;
         }
       } catch (error) {
         console.error("Failed to fetch share settings:", error);
       } finally {
         setLoading(false);
       }
+      // Called OUTSIDE the try/catch: notFound() works by throwing a
+      // control-flow error, which the catch above would otherwise swallow.
+      if (reportMissing) notFound();
     }
 
     fetchSettings();

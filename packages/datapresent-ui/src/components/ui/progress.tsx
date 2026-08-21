@@ -13,6 +13,10 @@ export const Progress = React.forwardRef<HTMLDivElement, ProgressProps>(
     return (
       <div
         ref={ref}
+        role="progressbar"
+        aria-valuemin={0}
+        aria-valuemax={max}
+        aria-valuenow={Math.round(percentage)}
         className={cn("h-2 w-full bg-muted rounded-full overflow-hidden", className)}
         {...props}
       >

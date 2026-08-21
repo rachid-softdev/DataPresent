@@ -69,15 +69,20 @@ test.describe("Paramètres — Organisation (/settings/organization)", () => {
       page.getByRole("heading", { name: /organisation|organization/i }).first(),
     ).toBeVisible();
 
-    // Organization name field
-    const orgNameField = page.getByLabel(/nom.*organisation|organization.*name|org/i);
-    await expect(orgNameField).toBeVisible();
+    // The page shows org CARDS when the user has one, or a create form
+    // otherwise. Accept either the "Nom" field or an org card (@slug).
+    const nameField = page.getByLabel("Nom", { exact: true });
+    const orgCard = page.locator('[class*="cursor-pointer"]').filter({ hasText: "@" });
+    await expect(nameField.or(orgCard.first())).toBeVisible();
   });
 
-  test("le bouton de sauvegarde est visible", async ({ page }) => {
+  test("un bouton d'action est visible (sauvegarde ou création)", async ({ page }) => {
     await page.goto("/settings/organization");
-    const saveBtn = page.getByRole("button", { name: /sauvegarder|save|enregistrer/i });
-    await expect(saveBtn.first()).toBeVisible();
+    // The create-org form has "Créer"; an edit form would have "Sauvegarder".
+    const actionBtn = page.getByRole("button", {
+      name: /sauvegarder|save|enregistrer|créer|create/i,
+    });
+    await expect(actionBtn.first()).toBeVisible();
   });
 });
 

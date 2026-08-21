@@ -61,7 +61,7 @@ test.describe("Plan Gratuit — limites et comportement", () => {
     await page.goto("/settings/billing");
     // The PlanSelector renders feature comparison for the current plan
     // Check that key Free limits appear in the feature list
-    await expect(page.getByText(/3.*rapport|3.*report/i)).toBeVisible();
+    await expect(page.getByText(/3.*rapport|3.*report/i).first()).toBeVisible();
   });
 
   test("l'entête du tableau de bord ne redirige pas vers la connexion", async ({ page }) => {

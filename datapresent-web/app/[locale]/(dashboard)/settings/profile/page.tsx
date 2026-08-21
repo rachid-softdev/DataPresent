@@ -85,8 +85,11 @@ export default function ProfilePage() {
           </div>
 
           <div>
-            <label className="text-sm font-medium mb-2 block">{t("profile.name")}</label>
+            <label htmlFor="profile-name" className="text-sm font-medium mb-2 block">
+              {t("profile.name")}
+            </label>
             <Input
+              id="profile-name"
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder={t("profile.name")}
@@ -94,8 +97,10 @@ export default function ProfilePage() {
           </div>
 
           <div>
-            <label className="text-sm font-medium mb-2 block">{t("profile.email")}</label>
-            <Input value={user?.email || ""} disabled className="bg-gray-50" />
+            <label htmlFor="profile-email" className="text-sm font-medium mb-2 block">
+              {t("profile.email")}
+            </label>
+            <Input id="profile-email" value={user?.email || ""} disabled className="bg-gray-50" />
             <p className="text-xs text-muted-foreground mt-1">{t("profile.email")}</p>
           </div>
 
