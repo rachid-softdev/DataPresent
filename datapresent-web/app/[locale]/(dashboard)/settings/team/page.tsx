@@ -188,8 +188,11 @@ export default function TeamPage() {
           <CardContent>
             <div className="space-y-4">
               <div>
-                <label className="text-sm font-medium mb-2 block">Adresse email</label>
+                <label htmlFor="invite-email" className="text-sm font-medium mb-2 block">
+                  Adresse email
+                </label>
                 <Input
+                  id="invite-email"
                   type="email"
                   placeholder="collegue@entreprise.com"
                   value={inviteEmail}

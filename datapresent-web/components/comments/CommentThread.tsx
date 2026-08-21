@@ -143,7 +143,9 @@ export const CommentThread = memo(function CommentThread({
       className={
         embedded
           ? "h-full flex flex-col"
-          : "fixed right-0 top-0 h-full w-96 bg-background border-l shadow-lg flex flex-col z-50"
+          : // z-[101]: above the sticky dashboard header (.app-nav, z-index 100)
+            // which otherwise covers the panel's close button.
+            "fixed right-0 top-0 h-full w-96 bg-background border-l shadow-lg flex flex-col z-[101]"
       }
     >
       <div className="flex items-center justify-between p-4 border-b">

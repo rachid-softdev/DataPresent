@@ -18,8 +18,29 @@ import { expect, test } from "@playwright/test";
 
 async function expectNoHorizontalOverflow(page: import("@playwright/test").Page) {
   // Small tolerance for cross-platform subpixel/font-rendering differences
-  const overflow = await page.evaluate(() => document.body.scrollWidth > window.innerWidth + 4);
-  expect(overflow).toBe(false);
+  const result = await page.evaluate(() => {
+    const tolerance = 4;
+    const overflow = document.body.scrollWidth > window.innerWidth + tolerance;
+    if (!overflow) return { overflow };
+    const wide = Array.from(document.querySelectorAll("body *"))
+      .map((el) => ({
+        tag: el.tagName,
+        cls: String(el.className).slice(0, 70),
+        right: Math.round(el.getBoundingClientRect().right),
+      }))
+      .filter((x) => x.right > window.innerWidth + tolerance)
+      .slice(0, 6);
+    return {
+      overflow,
+      scrollW: document.body.scrollWidth,
+      innerW: window.innerWidth,
+      wide,
+    };
+  });
+  if (result.overflow) {
+    console.log("OVERFLOW DETAIL:", JSON.stringify(result));
+  }
+  expect(result.overflow).toBe(false);
 }
 
 async function getCardCount(page: import("@playwright/test").Page) {

@@ -10,8 +10,11 @@ test.describe("Plan Gratuit — limites et comportement", () => {
 
   test("le tableau de bord affiche la carte d'utilisation/limites", async ({ page }) => {
     await page.goto("/dashboard");
-    // The UsageCard component shows quotas and limits
-    await expect(page.getByText(/rapport|utilisation|limite|report|usage|limit/i)).toBeVisible();
+    // The UsageCard component shows quotas and limits. The word "rapport"
+    // appears in nav, headings and empty state — use .first().
+    await expect(
+      page.getByText(/rapport|utilisation|limite|report|usage|limit/i).first(),
+    ).toBeVisible();
   });
 
   test("la page des rapports (/reports) est accessible", async ({ page }) => {
@@ -31,13 +34,17 @@ test.describe("Plan Gratuit — limites et comportement", () => {
   test("la page /settings/billing affiche les informations du plan actuel", async ({ page }) => {
     await page.goto("/settings/billing");
     await expect(page).not.toHaveURL(/login/);
-    await expect(page.getByRole("heading", { name: /abonnement|billing/i })).toBeVisible();
+    // The page h1 is "Facturation" (fr) — accept it or the English variant.
+    await expect(
+      page.getByRole("heading", { name: /abonnement|billing|facturation/i }),
+    ).toBeVisible();
   });
 
   test("le plan FREE est indiqué comme plan actuel sur la page billing", async ({ page }) => {
     await page.goto("/settings/billing");
-    // The PlanSelector should show FREE as current plan
-    await expect(page.getByText(/gratuit|free/i)).toBeVisible();
+    // The PlanSelector shows "Free" as the plan name — may appear multiple
+    // times (name + CTA). Use .first().
+    await expect(page.getByText(/gratuit|free/i).first()).toBeVisible();
   });
 
   test("la section 'Plan actuel' ou les informations d'abonnement sont visibles", async ({

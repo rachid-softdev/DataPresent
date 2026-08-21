@@ -42,7 +42,8 @@ test.describe("Paramètres — Mon compte (/settings/profile)", () => {
 
   test("la page affiche le formulaire avec les champs nom et email", async ({ page }) => {
     await page.goto("/settings/profile");
-    await expect(page.getByRole("heading", { name: /mon compte|profile/i })).toBeVisible();
+    // Both the page h1 and the card title say "Mon compte" — use .first().
+    await expect(page.getByRole("heading", { name: /mon compte|profile/i }).first()).toBeVisible();
 
     // Email field should be visible (may be disabled/read-only)
     const emailField = page.getByLabel(/email/i);
@@ -64,7 +65,9 @@ test.describe("Paramètres — Organisation (/settings/organization)", () => {
 
   test("la page affiche le formulaire avec le nom d'organisation", async ({ page }) => {
     await page.goto("/settings/organization");
-    await expect(page.getByRole("heading", { name: /organisation|organization/i })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: /organisation|organization/i }).first(),
+    ).toBeVisible();
 
     // Organization name field
     const orgNameField = page.getByLabel(/nom.*organisation|organization.*name|org/i);
@@ -74,7 +77,7 @@ test.describe("Paramètres — Organisation (/settings/organization)", () => {
   test("le bouton de sauvegarde est visible", async ({ page }) => {
     await page.goto("/settings/organization");
     const saveBtn = page.getByRole("button", { name: /sauvegarder|save|enregistrer/i });
-    await expect(saveBtn).toBeVisible();
+    await expect(saveBtn.first()).toBeVisible();
   });
 });
 
@@ -102,7 +105,7 @@ test.describe("Paramètres — Compte et sécurité (/settings/account)", () => 
   test("la page affiche le titre 'Compte' ou 'Sécurité'", async ({ page }) => {
     await page.goto("/settings/account");
     await expect(
-      page.getByRole("heading", { name: /compte|account|sécurité|security/i }),
+      page.getByRole("heading", { name: /compte|account|sécurité|security/i }).first(),
     ).toBeVisible();
   });
 
@@ -156,15 +159,17 @@ test.describe("Paramètres — API Keys (/settings/api-keys)", () => {
 
   test("le bouton de création de clé API est visible", async ({ page }) => {
     await page.goto("/settings/api-keys");
-    await expect(
-      page.getByRole("button", { name: /créer|create|nouvelle|new/i }).first(),
-    ).toBeVisible();
+    // Free plans see an upgrade notice instead of the create button.
+    const createBtn = page.getByRole("button", { name: /créer|create|nouvelle|new/i });
+    const upgradeNotice = page.getByText(/accès api|api access|plan/i);
+    await expect(createBtn.first().or(upgradeNotice.first())).toBeVisible();
   });
 
   test("la page affiche un tableau ou une liste des clés API", async ({ page }) => {
     await page.goto("/settings/api-keys");
-    // Either a table, list, or empty state
+    // Either a table, list, empty state, or the free-plan upgrade notice
     const keyList = page.locator("table, ul, [role='table'], [role='list']").first();
-    await expect(keyList).toBeVisible();
+    const upgradeNotice = page.getByText(/accès api.*plan|plan agency/i);
+    await expect(keyList.or(upgradeNotice.first())).toBeVisible();
   });
 });

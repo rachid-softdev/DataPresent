@@ -13,7 +13,11 @@ test.describe("Déconnexion — Sign out", () => {
     // Cliquer sur le bouton de déconnexion
     const signOutButton = page.getByRole("button", { name: /Déconnexion/i });
     await expect(signOutButton).toBeVisible();
-    await signOutButton.click();
+    await Promise.all([
+      // signOut({ callbackUrl: "/" }) navigates home once the session is destroyed
+      page.waitForURL((u) => !u.pathname.includes("/settings"), { timeout: 15000 }),
+      signOutButton.click(),
+    ]);
 
     // Après déconnexion, la session est détruite — navigation vers page protégée
     // redirige vers /login
@@ -22,10 +26,16 @@ test.describe("Déconnexion — Sign out", () => {
   });
 
   test("après déconnexion, le cookie de session est supprimé", async ({ page }) => {
-    // Naviguer d'abord vers une page publique
-    await page.goto("/");
+    // Each test gets a FRESH context restored from the storageState (which
+    // contains the session cookie) — so this test must sign out itself.
+    await page.goto("/settings/account");
+    const signOutButton = page.getByRole("button", { name: /Déconnexion/i });
+    await expect(signOutButton).toBeVisible();
+    await Promise.all([
+      page.waitForURL((u) => !u.pathname.includes("/settings"), { timeout: 15000 }),
+      signOutButton.click(),
+    ]);
 
-    // Vérifier que le cookie de session n'existe plus
     const cookies = await page.context().cookies();
     const sessionCookie = cookies.find((c) => c.name.includes("authjs.session-token"));
     expect(sessionCookie).toBeUndefined();

@@ -27,7 +27,8 @@ test.describe("Création de rapport — /new", () => {
 
   test("les formats de fichier supportés sont listés (Excel, CSV, PDF)", async ({ page }) => {
     const formatsText = page.getByText(/Excel|\.xlsx|\.csv|PDF/i);
-    await expect(formatsText).toBeVisible();
+    // Multiple elements mention formats (dropzone + helper text) — use .first().
+    await expect(formatsText.first()).toBeVisible();
   });
 
   test("l'input file existe et accepte les bons formats", async ({ page }) => {
@@ -148,7 +149,7 @@ test.describe("Création de rapport — /new", () => {
   test("le stepper affiche les étapes du flux de création", async ({ page }) => {
     // The stepper should show: Upload, Configuration, Generation, Result
     const stepper = page.getByText(/Fichier|Configuration|Génération|Résultat/i);
-    await expect(stepper).toBeVisible();
+    await expect(stepper.first()).toBeVisible();
   });
 });
 
@@ -200,21 +201,25 @@ test.describe("Config step — Sector Selector", () => {
     });
     // Go to config
     await page.getByRole("button", { name: /suivant/i }).click();
-    await expect(page.getByText(/secteur/i)).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText(/secteur/i).first()).toBeVisible({ timeout: 5000 });
 
-    // Finance should be selected (has primary border)
-    const financeBtn = page.getByText("Finance").locator("..");
+    // Finance should be selected (has primary border) — target the button,
+    // not the inner label wrapper.
+    const financeBtn = page
+      .locator('[data-onboarding="sector-selector"] button')
+      .filter({ hasText: "Finance" });
     await expect(financeBtn).toHaveClass(/border-primary/);
   });
 
   test("cliquer sur un secteur différent change l'état sélectionné", async ({ page }) => {
+    const sectorButtons = page.locator('[data-onboarding="sector-selector"] button');
     // Générique should be selected by default
-    const genericBtn = page.getByText("Générique").locator("..");
+    const genericBtn = sectorButtons.filter({ hasText: "Générique" });
     await expect(genericBtn).toHaveClass(/border-primary/);
 
     // Click Marketing
-    await page.getByText("Marketing").click();
-    const marketingBtn = page.getByText("Marketing").locator("..");
+    const marketingBtn = sectorButtons.filter({ hasText: "Marketing" });
+    await marketingBtn.click();
     await expect(marketingBtn).toHaveClass(/border-primary/);
 
     // Générique should no longer be selected
@@ -222,8 +227,10 @@ test.describe("Config step — Sector Selector", () => {
   });
 
   test("chaque secteur affiche une icône, un label et une description", async ({ page }) => {
-    // Finance secteur
-    const financeSection = page.getByText("Finance").locator("..");
+    // Finance secteur — target the whole sector button
+    const financeSection = page
+      .locator('[data-onboarding="sector-selector"] button')
+      .filter({ hasText: "Finance" });
     await expect(financeSection.locator("svg")).toBeVisible();
     await expect(financeSection.locator("span.font-semibold")).toHaveText("Finance");
     await expect(financeSection.locator("span.text-xs")).toHaveText(
@@ -257,9 +264,9 @@ test.describe("Config step — Slide Count", () => {
     expect(min).toBe("5");
     expect(Number(max)).toBeGreaterThanOrEqual(5);
 
-    // Min and max labels should be displayed
-    await expect(page.getByText("5")).toBeVisible();
-    await expect(page.getByText(max!)).toBeVisible();
+    // Min and max labels should be displayed ("5" also appears elsewhere — use .first())
+    await expect(page.getByText("5").first()).toBeVisible();
+    await expect(page.getByText(max!).first()).toBeVisible();
   });
 
   test("la valeur du slider change — le compteur actuel est visible en gras", async ({ page }) => {
@@ -341,7 +348,7 @@ test.describe("Generation step", () => {
 
   test("la barre de progression est visible à 0% au début", async ({ page }) => {
     // Click "Générer" to start generation
-    await page.getByRole("button", { name: /générer/i }).click();
+    await page.locator('[data-onboarding="generate-button"]').click();
 
     // Progress bar should be visible with 0%
     const progressText = page.getByText("0%");
@@ -353,7 +360,7 @@ test.describe("Generation step", () => {
   });
 
   test("4 sous-étapes sont affichées (Analyse, Charts, Layout, Finalize)", async ({ page }) => {
-    await page.getByRole("button", { name: /générer/i }).click();
+    await page.locator('[data-onboarding="generate-button"]').click();
 
     // Wait for generation step
     await expect(page.getByText("Analyse des données")).toBeVisible({ timeout: 5000 });
@@ -363,7 +370,7 @@ test.describe("Generation step", () => {
   });
 
   test("le bouton Annuler est visible et cliquable", async ({ page }) => {
-    await page.getByRole("button", { name: /générer/i }).click();
+    await page.locator('[data-onboarding="generate-button"]').click();
 
     // Cancel button should be visible
     const cancelBtn = page.getByRole("button", { name: /annuler/i });
@@ -374,7 +381,7 @@ test.describe("Generation step", () => {
     // This test validates that the stall warning component exists
     // The actual 30s wait is not feasible in E2E, so we verify the UI elements
     // that would appear: amber-colored alert banner
-    await page.getByRole("button", { name: /générer/i }).click();
+    await page.locator('[data-onboarding="generate-button"]').click();
 
     // The stall warning container should exist in the DOM (even if hidden initially)
     await expect(page.getByText(/génération du rapport/i)).toBeVisible({ timeout: 5000 });

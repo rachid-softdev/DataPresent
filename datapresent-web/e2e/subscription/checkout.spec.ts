@@ -18,16 +18,17 @@ test.describe("Checkout et abonnement", () => {
   test("la page /settings/billing charge avec le titre", async ({ page }) => {
     await page.goto("/settings/billing");
     await expect(
-      page.getByRole("heading", { name: /abonnement|billing|subscription/i }),
+      page.getByRole("heading", { name: /abonnement|billing|subscription|facturation/i }),
     ).toBeVisible();
   });
 
   test("les 4 options de plan sont affichées sur la page billing", async ({ page }) => {
     await page.goto("/settings/billing");
-    await expect(page.getByText(/gratuit|free/i)).toBeVisible();
-    await expect(page.getByText("Starter")).toBeVisible();
-    await expect(page.getByText("Pro")).toBeVisible();
-    await expect(page.getByText(/ultra/i)).toBeVisible();
+    // Plan names can appear multiple times (name + CTA) — use .first().
+    await expect(page.getByText(/gratuit|free/i).first()).toBeVisible();
+    await expect(page.getByText("Starter").first()).toBeVisible();
+    await expect(page.getByText("Pro").first()).toBeVisible();
+    await expect(page.getByText(/ultra/i).first()).toBeVisible();
   });
 
   test("chaque plan a un bouton CTA (Souscrire, Plan actuel, Contacter)", async ({ page }) => {

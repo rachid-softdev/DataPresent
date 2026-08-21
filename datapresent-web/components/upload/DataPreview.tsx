@@ -132,6 +132,7 @@ export function DataPreview({ file }: DataPreviewProps) {
     <div className="space-y-2">
       <div className="flex items-center gap-2 text-sm text-muted-foreground">
         <FileSpreadsheet className="w-4 h-4" />
+        <span className="font-medium text-foreground">{file.name}</span>
         <span>
           {data.sheetName && `${data.sheetName} — `}
           {t("rows", { count: data.totalRows })}, {t("columns", { count: data.headers.length })}

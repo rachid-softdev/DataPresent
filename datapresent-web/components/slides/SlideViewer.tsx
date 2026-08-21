@@ -193,6 +193,10 @@ export function SlideViewer({ slides: initialSlides, reportId }: SlideViewerProp
               size="sm"
               onClick={() => setShowComments(!showComments)}
               className="gap-2"
+              // Stable accessible name: the label switches to the comment
+              // count once comments exist, which would otherwise break
+              // assistive tech and tests targeting "Commenter".
+              aria-label="Commenter"
             >
               <MessageSquare className="w-4 h-4" />
               {totalComments > 0 ? totalComments : "Commenter"}

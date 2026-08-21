@@ -12,7 +12,8 @@ test.describe("Liste des rapports — /reports", () => {
   });
 
   test("le bouton 'Nouveau rapport' est visible et redirige vers /new", async ({ page }) => {
-    const btn = page.getByRole("link", { name: /nouveau rapport|créer/i });
+    // Both the page header and the empty state render this link — use .first().
+    const btn = page.getByRole("link", { name: /nouveau rapport|créer/i }).first();
     await expect(btn).toBeVisible();
     await expect(btn).toHaveAttribute("href", "/new");
   });

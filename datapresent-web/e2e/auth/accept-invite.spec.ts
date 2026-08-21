@@ -199,7 +199,11 @@ test.describe("Accepter une invitation — /accept-invite", () => {
 
       await page.goto(`/accept-invite?token=expired-token`);
 
-      await expect(page.getByText("Invitation invalide")).toBeVisible({ timeout: 10000 });
+      // The error card title ("Invitation invalide") is a prefix of the
+      // description ("Invitation invalide ou expirée") — target the heading.
+      await expect(page.getByRole("heading", { name: "Invitation invalide" })).toBeVisible({
+        timeout: 10000,
+      });
       await expect(page.getByText("Invitation invalide ou expirée")).toBeVisible();
     });
 

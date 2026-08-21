@@ -5,7 +5,10 @@ test.use({ storageState: "e2e/.auth/user.json" });
 test.describe("Partage de rapport — /reports/[id]/share", () => {
   test("un ID de rapport inexistant affiche une page 404", async ({ page }) => {
     await page.goto("/reports/id-inexistant-000000/share");
-    await expect(page.getByText(/non trouvé|404|introuvable/i)).toBeVisible({ timeout: 10000 });
+    // The 404 page shows both a big "404" and a heading — use .first().
+    await expect(page.getByText(/non trouvé|404|introuvable/i).first()).toBeVisible({
+      timeout: 10000,
+    });
   });
 
   test("la page de partage affiche le titre 'Paramètres de partage'", async ({ page }) => {
@@ -146,6 +149,8 @@ test.describe("Partage de rapport — /reports/[id]/share", () => {
 
   test("un token de partage invalide affiche 404 sur la page publique", async ({ page }) => {
     await page.goto("/share/invalid-token-12345");
-    await expect(page.getByText(/non trouvé|404|introuvable/i)).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText(/non trouvé|404|introuvable/i).first()).toBeVisible({
+      timeout: 10000,
+    });
   });
 });

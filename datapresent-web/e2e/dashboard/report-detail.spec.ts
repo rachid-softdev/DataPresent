@@ -5,7 +5,10 @@ test.use({ storageState: "e2e/.auth/user.json" });
 test.describe("Détail d'un rapport — /reports/[id]", () => {
   test("un ID de rapport inexistant affiche une page 404", async ({ page }) => {
     await page.goto("/reports/id-inexistant-000000");
-    await expect(page.getByText(/non trouvé|404|introuvable/i)).toBeVisible({ timeout: 10000 });
+    // The 404 page shows both a big "404" and the "Page non trouvée" heading.
+    await expect(page.getByText(/non trouvé|404|introuvable/i).first()).toBeVisible({
+      timeout: 10000,
+    });
   });
 
   test("le titre et les métadonnées du rapport sont affichés", async ({ page }) => {

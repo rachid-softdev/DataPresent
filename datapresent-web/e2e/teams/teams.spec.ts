@@ -73,8 +73,11 @@ test.describe("Équipe — /settings/team", () => {
 
   test("les avatars ou initiales des membres sont affichés", async ({ page }) => {
     await page.goto("/settings/team");
-    // Member avatars are rendered - either as img or div with initials
-    const avatars = page.locator('[class*="avatar"], img[alt*="avatar"], img[alt*="photo"]');
+    // Member avatars are rendered - either as img or div with initials.
+    // The Avatar component renders a rounded-full 10x10 container.
+    const avatars = page.locator(
+      '[class*="avatar"], img[alt*="avatar"], img[alt*="photo"], .rounded-full.h-10.w-10',
+    );
     // There could also be a div with initials
     const initials = page.locator("text=/^[A-Z]{1,2}$/");
     const hasAvatars = (await avatars.count()) > 0;

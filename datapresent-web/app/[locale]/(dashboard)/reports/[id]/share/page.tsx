@@ -1,6 +1,7 @@
 "use client";
 
 import { Calendar, Check, Copy, Globe, Link2, Loader2, Lock, MessageSquare } from "lucide-react";
+import { notFound } from "next/navigation";
 import { useTranslations } from "next-intl";
 import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -45,6 +46,11 @@ export default function SharePage({ params }: { params: Promise<{ id: string }> 
     async function fetchSettings() {
       try {
         const res = await fetch(`/api/reports/${reportId}/share`);
+        if (res.status === 404) {
+          // Report doesn't exist (or belongs to someone else) — render the
+          // dashboard not-found page instead of an empty share form.
+          notFound();
+        }
         if (res.ok) {
           const data = await res.json();
           setSettings(data);

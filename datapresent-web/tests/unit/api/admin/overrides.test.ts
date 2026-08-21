@@ -55,8 +55,8 @@ vi.mock("next/server", () => ({
   NextRequest: vi.fn(),
 }));
 
-import { GET, POST } from "@/app/api/admin/overrides/route";
 import { DELETE } from "@/app/api/admin/overrides/[id]/route";
+import { GET, POST } from "@/app/api/admin/overrides/route";
 
 function makeRequest(
   method: "GET" | "POST" | "DELETE",
