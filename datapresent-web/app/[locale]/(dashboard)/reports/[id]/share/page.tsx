@@ -31,6 +31,10 @@ export default function SharePage({ params }: { params: Promise<{ id: string }> 
   const [settings, setSettings] = useState<ShareSettings | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  // Set when the report doesn't exist — notFound() is then called during
+  // RENDER (calling it inside an async effect callback would only produce
+  // an unhandled promise rejection React can't route to the not-found UI).
+  const [reportMissing, setReportMissing] = useState(false);
 
   const [shareUrl, setShareUrl] = useState<string | null>(null);
   const [embedUrl, setEmbedUrl] = useState<string | null>(null);
@@ -44,7 +48,6 @@ export default function SharePage({ params }: { params: Promise<{ id: string }> 
 
   useEffect(() => {
     async function fetchSettings() {
-      let reportMissing = false;
       try {
         const res = await fetch(`/api/reports/${reportId}/share`);
         if (res.ok) {
@@ -57,20 +60,22 @@ export default function SharePage({ params }: { params: Promise<{ id: string }> 
           setExpiresIn(data.expiresAt ? "custom" : "never");
         } else if (res.status === 404) {
           // Report doesn't exist (or belongs to someone else)
-          reportMissing = true;
+          setReportMissing(true);
         }
       } catch (error) {
         console.error("Failed to fetch share settings:", error);
       } finally {
         setLoading(false);
       }
-      // Called OUTSIDE the try/catch: notFound() works by throwing a
-      // control-flow error, which the catch above would otherwise swallow.
-      if (reportMissing) notFound();
     }
 
     fetchSettings();
   }, [reportId]);
+
+  // Must run during render for Next.js to route to the not-found UI.
+  if (reportMissing) {
+    notFound();
+  }
 
   const copyLink = () => {
     if (shareUrl) {

@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+
 /**
  * Live variant mode server (self-contained, zero dependencies).
  *
@@ -13,40 +14,40 @@
  *   node <scripts_path>/live-server.mjs --help
  */
 
-import http from "node:http";
+import { execFileSync, spawn } from "node:child_process";
 import { randomUUID } from "node:crypto";
-import { spawn, execFileSync } from "node:child_process";
 import fs from "node:fs";
-import path from "node:path";
+import http from "node:http";
 import net from "node:net";
+import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { parseDesignMd } from "./lib/design-parser.mjs";
 import { resolveContextDir } from "./context.mjs";
+import { parseDesignMd } from "./lib/design-parser.mjs";
+import {
+  getDesignSidecarPath,
+  getLiveAnnotationsDir,
+  getLiveDir,
+  readLiveServerInfo,
+  removeLiveServerInfo,
+  resolveDesignSidecarPath,
+  writeLiveServerInfo,
+} from "./lib/impeccable-paths.mjs";
 import {
   assembleLiveBrowserScript,
   assertLiveBrowserScriptParts,
   readLiveBrowserScriptParts,
   resolveLiveBrowserScriptParts,
 } from "./live/browser-script-parts.mjs";
-import { createLiveSessionStore } from "./live/session-store.mjs";
 import { validateEvent } from "./live/event-validation.mjs";
-import { createManualEditRoutes } from "./live/manual-edit-routes.mjs";
-import { LIVE_COMMANDS } from "./live/vocabulary.mjs";
-import {
-  getDesignSidecarPath,
-  getLiveDir,
-  getLiveAnnotationsDir,
-  readLiveServerInfo,
-  removeLiveServerInfo,
-  resolveDesignSidecarPath,
-  writeLiveServerInfo,
-} from "./lib/impeccable-paths.mjs";
-import { countByPage as countPendingByPage } from "./live/manual-edits-buffer.mjs";
 import { createManualApplyController, summarizeManualApplyFailures } from "./live/manual-apply.mjs";
+import { createManualEditRoutes } from "./live/manual-edit-routes.mjs";
+import { countByPage as countPendingByPage } from "./live/manual-edits-buffer.mjs";
+import { createLiveSessionStore } from "./live/session-store.mjs";
 import {
   applyDeferredSvelteComponentAccepts,
   removeAllSvelteComponentSessions,
 } from "./live/svelte-component.mjs";
+import { LIVE_COMMANDS } from "./live/vocabulary.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 // PRODUCT.md / DESIGN.md live wherever context.mjs resolves. The generated

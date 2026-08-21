@@ -2,7 +2,7 @@
 // DataPresent Extension — Popup Script
 // ──────────────────────────────────────────────
 
-import type { ExtensionMessage, ConnectionStatusResultMessage } from "../types/messages.js";
+import type { ConnectionStatusResultMessage, ExtensionMessage } from "../types/messages.js";
 
 // ─── DOM refs ───
 

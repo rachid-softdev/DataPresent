@@ -194,4 +194,4 @@ async function captureVisualContrastCandidate(page, candidate, viewport) {
   };
 }
 
-export { sanitizeScreenshotClip, compareScreenshotContrast, captureVisualContrastCandidate };
+export { captureVisualContrastCandidate, compareScreenshotContrast, sanitizeScreenshotClip };

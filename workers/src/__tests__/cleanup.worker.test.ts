@@ -13,7 +13,7 @@
 // These are schema-level changes (tested via migrations/integration).
 // We test the query logic that leverages them.
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // ---------------------------------------------------------------------------
 // Hoisted mock variables

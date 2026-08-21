@@ -61,4 +61,4 @@ const SelectValue = ({
 };
 SelectValue.displayName = "SelectValue";
 
-export { Select, SelectTrigger, SelectContent, SelectItem, SelectValue };
+export { Select, SelectContent, SelectItem, SelectTrigger, SelectValue };

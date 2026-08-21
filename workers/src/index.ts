@@ -1,7 +1,7 @@
 import { createServer } from "node:http";
 import { initSentry } from "./sentry.js";
-import { getGenerateWorker } from "./workers/generate.worker.js";
 import { getExportWorker } from "./workers/export.worker.js";
+import { getGenerateWorker } from "./workers/generate.worker.js";
 import { getPdfWorker } from "./workers/pdf.worker.js";
 
 const PORT = parseInt(process.env.PORT || "8080", 10);

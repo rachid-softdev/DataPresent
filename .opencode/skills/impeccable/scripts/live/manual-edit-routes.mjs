@@ -1,4 +1,11 @@
+import { commitManualEdits } from "../live-commit-manual-edits.mjs";
+import { buildManualEditEvidence } from "../live-manual-edit-evidence.mjs";
 import { validateEvent } from "./event-validation.mjs";
+import {
+  summarizeManualApplyFailures,
+  summarizeManualDiagnostics,
+  summarizeManualLogFile,
+} from "./manual-apply.mjs";
 import {
   countByPage as countPendingByPage,
   readBuffer as readManualEditsBuffer,
@@ -6,13 +13,6 @@ import {
   stageEntry as stageManualEditEntry,
   truncateBuffer as truncateManualEditsBuffer,
 } from "./manual-edits-buffer.mjs";
-import {
-  summarizeManualApplyFailures,
-  summarizeManualDiagnostics,
-  summarizeManualLogFile,
-} from "./manual-apply.mjs";
-import { buildManualEditEvidence } from "../live-manual-edit-evidence.mjs";
-import { commitManualEdits } from "../live-commit-manual-edits.mjs";
 
 export function createManualEditRoutes({
   getToken,

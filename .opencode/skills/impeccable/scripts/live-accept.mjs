@@ -890,13 +890,13 @@ if (_running?.endsWith("live-accept.mjs") || _running?.endsWith("live-accept.mjs
 }
 
 export {
-  findMarkerBlock,
-  extractOriginal,
-  extractVariant,
-  extractCss,
+  applyDeferredSvelteComponentAccepts,
   deindentContent,
   detectCommentSyntax,
+  extractCss,
+  extractOriginal,
+  extractVariant,
+  findMarkerBlock,
   scrubManualEditsAgainstFile,
   scrubManualEditsAgainstOriginalBlock,
-  applyDeferredSvelteComponentAccepts,
 };

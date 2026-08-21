@@ -1,8 +1,8 @@
 "use client";
 
+import { ChevronDown } from "lucide-react";
 import * as React from "react";
 import { cn } from "../../utils";
-import { ChevronDown } from "lucide-react";
 
 interface AccordionItem {
   id: string;

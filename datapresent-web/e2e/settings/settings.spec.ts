@@ -139,9 +139,10 @@ test.describe("Paramètres — Compte et sécurité (/settings/account)", () => 
     const deleteBtn = page.getByRole("button", { name: /supprimer|delete/i });
     if ((await deleteBtn.count()) === 0) return;
     await deleteBtn.click();
-    // Confirmation dialog should appear
+    // Confirmation dialog should appear (.first(): the Next.js dev overlay
+    // can add its own [role=dialog] when an API error is logged).
     const dialog = page.getByRole("alertdialog").or(page.locator('[role="dialog"]'));
-    await expect(dialog).toBeVisible({ timeout: 3000 });
+    await expect(dialog.first()).toBeVisible({ timeout: 3000 });
   });
 
   test("la carte de déconnexion a une description textuelle", async ({ page }) => {

@@ -66,9 +66,9 @@ Object.defineProperty(MemoizedCardFooter, "displayName", { value: "CardFooter" }
 
 export {
   MemoizedCard as Card,
-  MemoizedCardHeader as CardHeader,
-  MemoizedCardTitle as CardTitle,
   MemoizedCardContent as CardContent,
   MemoizedCardDescription as CardDescription,
   MemoizedCardFooter as CardFooter,
+  MemoizedCardHeader as CardHeader,
+  MemoizedCardTitle as CardTitle,
 };

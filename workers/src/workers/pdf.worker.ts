@@ -17,8 +17,8 @@
 // This file serves as the placeholder for the dedicated PDF service worker.
 
 import { Worker } from "bullmq";
-import { getRedisConnectionAsync } from "../redis.js";
 import { logger } from "../logger.js";
+import { getRedisConnectionAsync } from "../redis.js";
 
 let workerInstance: Worker | null = null;
 

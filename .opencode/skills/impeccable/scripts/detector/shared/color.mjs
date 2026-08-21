@@ -129,12 +129,12 @@ function colorToHex(c) {
 }
 
 export {
+  colorToHex,
+  contrastRatio,
+  getHue,
+  hasChroma,
   isNeutralColor,
+  parseGradientColors,
   parseRgb,
   relativeLuminance,
-  contrastRatio,
-  parseGradientColors,
-  hasChroma,
-  getHue,
-  colorToHex,
 };

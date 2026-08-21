@@ -237,8 +237,11 @@ export function SlideViewer({ slides: initialSlides, reportId }: SlideViewerProp
         <AnimatePresence>
           {showComments && (
             <>
+              {/* z-indexes above the sticky dashboard header (.app-nav, z-100):
+                  the header otherwise overlaps the panel's top-right corner
+                  and intercepts clicks on the close button. */}
               <div
-                className="fixed inset-0 bg-black/20 z-40"
+                className="fixed inset-0 bg-black/20 z-[100]"
                 onClick={() => setShowComments(false)}
               />
               <motion.div
@@ -246,7 +249,7 @@ export function SlideViewer({ slides: initialSlides, reportId }: SlideViewerProp
                 animate={{ x: 0 }}
                 exit={{ x: "100%" }}
                 transition={{ type: "spring", damping: 25, stiffness: 200 }}
-                className="fixed right-0 top-0 h-full w-96 bg-background border-l shadow-lg z-50"
+                className="fixed right-0 top-0 h-full w-96 bg-background border-l shadow-lg z-[101]"
               >
                 <CommentThread
                   reportId={reportId}

@@ -1,5 +1,5 @@
-import PptxGenJS from "pptxgenjs";
 import { SlideLayout } from "@prisma/client";
+import PptxGenJS from "pptxgenjs";
 
 interface SlideData {
   title: string;

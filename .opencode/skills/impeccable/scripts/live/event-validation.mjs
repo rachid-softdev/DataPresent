@@ -9,6 +9,7 @@ import { canCreateInsert } from "./insert-ui.mjs";
 // validator, the picker UI, and the marketing demo never drift. Imported (not
 // just re-exported) so it is also in scope for the validators below.
 import { VISUAL_ACTIONS } from "./vocabulary.mjs";
+
 export { VISUAL_ACTIONS };
 
 const ID_PATTERN = /^[0-9a-f]{8}$/;

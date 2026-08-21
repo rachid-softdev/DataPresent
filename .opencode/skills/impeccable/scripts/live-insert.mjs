@@ -11,21 +11,21 @@ import fs from "node:fs";
 import path from "node:path";
 import { isGeneratedFile } from "./lib/is-generated.mjs";
 import {
-  buildSearchQueries,
-  findElement,
-  findAllElements,
-  filterByText,
-  findFileWithQuery,
-  detectCommentSyntax,
-  detectStyleMode,
-  buildCssAuthoring,
-  buildCssSelectorPrefixExamples,
-} from "./live-wrap.mjs";
-import {
   buildSvelteComponentCssAuthoring,
   scaffoldSvelteComponentInsertSession,
   shouldUseSvelteComponentInjection,
 } from "./live/svelte-component.mjs";
+import {
+  buildCssAuthoring,
+  buildCssSelectorPrefixExamples,
+  buildSearchQueries,
+  detectCommentSyntax,
+  detectStyleMode,
+  filterByText,
+  findAllElements,
+  findElement,
+  findFileWithQuery,
+} from "./live-wrap.mjs";
 
 const INSERT_POSITIONS = new Set(["before", "after"]);
 

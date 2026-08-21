@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { execFileSync } from "node:child_process";
 /**
  * Context-signals gatherer for the bare `{{command_prefix}}impeccable`
  * (no-argument) path. Collects cheap, deterministic signals about the current
@@ -20,8 +21,7 @@ import fs from "node:fs";
 import net from "node:net";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { execFileSync } from "node:child_process";
-import { loadContext, extractRegister } from "./context.mjs";
+import { extractRegister, loadContext } from "./context.mjs";
 import { getCritiqueDir } from "./lib/impeccable-paths.mjs";
 
 /** Is there code here at all, or just context files / an empty repo? */

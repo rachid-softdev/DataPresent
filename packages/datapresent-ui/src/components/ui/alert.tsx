@@ -1,6 +1,6 @@
+import { AlertCircle, CheckCircle, Info, XCircle } from "lucide-react";
 import * as React from "react";
 import { cn } from "../../utils";
-import { AlertCircle, CheckCircle, Info, XCircle } from "lucide-react";
 
 type AlertVariant = "default" | "success" | "warning" | "error" | "info";
 

@@ -153,14 +153,14 @@ function summarizeDetectorProfile(profile) {
 }
 
 export {
-  profileNow,
   createDetectorProfile,
-  recordProfileEvent,
   extractFindingIds,
-  profileFindings,
-  profileStep,
-  profileFindingsAsync,
-  profileStepAsync,
   percentile,
+  profileFindings,
+  profileFindingsAsync,
+  profileNow,
+  profileStep,
+  profileStepAsync,
+  recordProfileEvent,
   summarizeDetectorProfile,
 };

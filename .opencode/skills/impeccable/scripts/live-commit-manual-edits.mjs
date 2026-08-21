@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+
 /**
  * CLI helper: apply pending live copy edits as one AI-owned batch.
  *
@@ -15,17 +16,17 @@
  *   { applied, failed, files, cleared, count, pageUrl }
  */
 
-import { buildManualEditEvidence } from "./live-manual-edit-evidence.mjs";
+import fs from "node:fs";
+import path from "node:path";
+import { isGeneratedFile } from "./lib/is-generated.mjs";
 import {
+  countByPage,
   readBuffer,
   readBufferStrict,
   writeBuffer,
-  countByPage,
 } from "./live/manual-edits-buffer.mjs";
-import { isGeneratedFile } from "./lib/is-generated.mjs";
 import { runCopyEditBatchAgent, runCopyEditPostApplyChecks } from "./live-copy-edit-agent.mjs";
-import fs from "node:fs";
-import path from "node:path";
+import { buildManualEditEvidence } from "./live-manual-edit-evidence.mjs";
 
 const ROLLBACK_EXTENSIONS = new Set([
   ".astro",

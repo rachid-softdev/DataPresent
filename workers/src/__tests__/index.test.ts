@@ -10,7 +10,7 @@
 // - Health HTTP endpoint returns proper JSON
 // - Graceful shutdown closes workers and server
 
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 // ===========================================================================
 // Top-level mocks — all vi.mock calls must use hoisted variables

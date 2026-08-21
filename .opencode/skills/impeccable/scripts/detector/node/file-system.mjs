@@ -250,13 +250,13 @@ async function isPortListening(port, fingerprint = null) {
 }
 
 export {
-  SKIP_DIRS,
-  SCANNABLE_EXTENSIONS,
-  HTML_EXTENSIONS,
-  walkDir,
-  resolveImport,
   buildImportGraph,
-  FRAMEWORK_CONFIGS,
   detectFrameworkConfig,
+  FRAMEWORK_CONFIGS,
+  HTML_EXTENSIONS,
   isPortListening,
+  resolveImport,
+  SCANNABLE_EXTENSIONS,
+  SKIP_DIRS,
+  walkDir,
 };

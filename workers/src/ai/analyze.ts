@@ -1,6 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { buildAnalysisPrompt } from "./prompts";
-import { AnalysisResponseSchema, AnalysisResponse } from "./schemas";
+import { AnalysisResponse, AnalysisResponseSchema } from "./schemas";
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY!,

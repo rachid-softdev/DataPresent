@@ -17,4 +17,4 @@ function finding(id, filePath, snippet, line = 0) {
   };
 }
 
-export { getAP, finding };
+export { finding, getAP };

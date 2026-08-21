@@ -1,7 +1,7 @@
 "use client";
 
-import * as React from "react";
 import { X } from "lucide-react";
+import * as React from "react";
 import { cn } from "../../utils";
 
 interface DialogContextType {
@@ -109,10 +109,10 @@ DialogFooter.displayName = "DialogFooter";
 
 export {
   Dialog,
-  DialogTrigger,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
   DialogDescription,
   DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
 };

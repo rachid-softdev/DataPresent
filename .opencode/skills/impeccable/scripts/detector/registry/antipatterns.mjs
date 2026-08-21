@@ -408,10 +408,10 @@ function filterByProviders(findings, providers = []) {
 
 export {
   ANTIPATTERNS,
-  RULE_ENGINE_SUPPORT,
+  filterByProviders,
   GATED_PROVIDERS,
   getAntipattern,
-  getRulesForCategory,
   getRuleEngineSupport,
-  filterByProviders,
+  getRulesForCategory,
+  RULE_ENGINE_SUPPORT,
 };

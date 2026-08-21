@@ -1,8 +1,8 @@
-import { parseXlsx } from "./xlsx";
-import { parseCsv } from "./csv";
-import { parsePdf } from "./pdf";
-import { parseGoogleSheet } from "./gsheets";
 import { FileType } from "@prisma/client";
+import { parseCsv } from "./csv";
+import { parseGoogleSheet } from "./gsheets";
+import { parsePdf } from "./pdf";
+import { parseXlsx } from "./xlsx";
 
 export type ParsedData = {
   sheets: Record<string, Record<string, unknown>[]>;

@@ -63,11 +63,15 @@ test.describe("Création de rapport — /new", () => {
 
     // Use a data URL approach — create a temp file via playwright
     const buffer = Buffer.from("col1,col2\nval1,val2\nval3,val4", "utf-8");
-    await fileInput.setInputFiles({
-      name: "test-data.csv",
-      mimeType: "text/csv",
-      buffer,
-    });
+    // Retry until React is hydrated: an early change event is lost silently.
+    await expect(async () => {
+      await fileInput.setInputFiles({
+        name: "test-data.csv",
+        mimeType: "text/csv",
+        buffer,
+      });
+      await expect(page.getByText("test-data.csv")).toBeVisible();
+    }).toPass({ timeout: 15000 });
 
     // Wait for the file info to appear
     await expect(page.getByText("test-data.csv")).toBeVisible();
@@ -78,11 +82,15 @@ test.describe("Création de rapport — /new", () => {
 
     // Upload a file
     const buffer = Buffer.from("col1,col2\nval1,val2", "utf-8");
-    await fileInput.setInputFiles({
-      name: "test-delete.csv",
-      mimeType: "text/csv",
-      buffer,
-    });
+    // Retry until React is hydrated: an early change event is lost silently.
+    await expect(async () => {
+      await fileInput.setInputFiles({
+        name: "test-delete.csv",
+        mimeType: "text/csv",
+        buffer,
+      });
+      await expect(page.getByText("test-delete.csv")).toBeVisible();
+    }).toPass({ timeout: 15000 });
 
     // File name should appear
     await expect(page.getByText("test-delete.csv")).toBeVisible();
@@ -112,11 +120,15 @@ test.describe("Création de rapport — /new", () => {
     const fileInput = page.locator('input[type="file"]');
 
     const buffer = Buffer.from("not a valid file", "utf-8");
-    await fileInput.setInputFiles({
-      name: "test-image.png",
-      mimeType: "image/png",
-      buffer,
-    });
+    // Retry until React is hydrated: an early change event is lost silently.
+    await expect(async () => {
+      await fileInput.setInputFiles({
+        name: "test-image.png",
+        mimeType: "text/csv",
+        buffer,
+      });
+      await expect(page.getByText("test-image.png")).toBeVisible();
+    }).toPass({ timeout: 15000 });
 
     // Error message should be visible
     const errorText = page.getByText(/format non supporté/i);
@@ -128,11 +140,15 @@ test.describe("Création de rapport — /new", () => {
 
     // Create a buffer larger than 10MB (the max)
     const largeBuffer = Buffer.alloc(11 * 1024 * 1024, "x");
-    await fileInput.setInputFiles({
-      name: "large-file.xlsx",
-      mimeType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-      buffer: largeBuffer,
-    });
+    // Retry until React is hydrated: an early change event is lost silently.
+    await expect(async () => {
+      await fileInput.setInputFiles({
+        name: "large-file.xlsx",
+        mimeType: "text/csv",
+        buffer,
+      });
+      await expect(page.getByText("large-file.xlsx")).toBeVisible();
+    }).toPass({ timeout: 15000 });
 
     // Error message should be visible
     const errorText = page.getByText(/trop volumineux|maximum|taille/i);
@@ -161,11 +177,15 @@ test.describe("Config step — Sector Selector", () => {
     // Upload a file first to enable the "Suivant" button, then navigate to config
     const fileInput = page.locator('input[type="file"]');
     const buffer = Buffer.from("col1,col2\nval1,val2", "utf-8");
-    await fileInput.setInputFiles({
-      name: "test-sector.csv",
-      mimeType: "text/csv",
-      buffer,
-    });
+    // Retry until React is hydrated: an early change event is lost silently.
+    await expect(async () => {
+      await fileInput.setInputFiles({
+        name: "test-sector.csv",
+        mimeType: "text/csv",
+        buffer,
+      });
+      await expect(page.getByText("test-sector.csv")).toBeVisible();
+    }).toPass({ timeout: 15000 });
     await expect(page.getByText("test-sector.csv")).toBeVisible();
     // Click "Suivant" to go to config step
     await page.getByRole("button", { name: /suivant/i }).click();
@@ -194,11 +214,15 @@ test.describe("Config step — Sector Selector", () => {
     // Upload a file
     const fileInput = page.locator('input[type="file"]');
     const buffer = Buffer.from("col1,col2\nval1,val2", "utf-8");
-    await fileInput.setInputFiles({
-      name: "test-url-sector.csv",
-      mimeType: "text/csv",
-      buffer,
-    });
+    // Retry until React is hydrated: an early change event is lost silently.
+    await expect(async () => {
+      await fileInput.setInputFiles({
+        name: "test-url-sector.csv",
+        mimeType: "text/csv",
+        buffer,
+      });
+      await expect(page.getByText("test-url-sector.csv")).toBeVisible();
+    }).toPass({ timeout: 15000 });
     // Go to config
     await page.getByRole("button", { name: /suivant/i }).click();
     await expect(page.getByText(/secteur/i).first()).toBeVisible({ timeout: 5000 });
@@ -246,11 +270,15 @@ test.describe("Config step — Slide Count", () => {
     await page.goto("/new");
     const fileInput = page.locator('input[type="file"]');
     const buffer = Buffer.from("col1,col2\nval1,val2", "utf-8");
-    await fileInput.setInputFiles({
-      name: "test-slidecount.csv",
-      mimeType: "text/csv",
-      buffer,
-    });
+    // Retry until React is hydrated: an early change event is lost silently.
+    await expect(async () => {
+      await fileInput.setInputFiles({
+        name: "test-slidecount.csv",
+        mimeType: "text/csv",
+        buffer,
+      });
+      await expect(page.getByText("test-slidecount.csv")).toBeVisible();
+    }).toPass({ timeout: 15000 });
     await page.getByRole("button", { name: /suivant/i }).click();
     await expect(page.getByText(/secteur/i)).toBeVisible({ timeout: 5000 });
   });
@@ -338,11 +366,15 @@ test.describe("Generation step", () => {
     await page.goto("/new");
     const fileInput = page.locator('input[type="file"]');
     const buffer = Buffer.from("col1,col2\nval1,val2", "utf-8");
-    await fileInput.setInputFiles({
-      name: "test-generate.csv",
-      mimeType: "text/csv",
-      buffer,
-    });
+    // Retry until React is hydrated: an early change event is lost silently.
+    await expect(async () => {
+      await fileInput.setInputFiles({
+        name: "test-generate.csv",
+        mimeType: "text/csv",
+        buffer,
+      });
+      await expect(page.getByText("test-generate.csv")).toBeVisible();
+    }).toPass({ timeout: 15000 });
     await page.getByRole("button", { name: /suivant/i }).click();
     await expect(page.getByText(/secteur/i).first()).toBeVisible({ timeout: 5000 });
   });
@@ -443,11 +475,15 @@ test.describe("Résultat — Succès", () => {
     await page.goto("/new");
     const fileInput = page.locator('input[type="file"]');
     const buffer = Buffer.from("col1,col2\nval1,val2", "utf-8");
-    await fileInput.setInputFiles({
-      name: "test-all-reports.csv",
-      mimeType: "text/csv",
-      buffer,
-    });
+    // Retry until React is hydrated: an early change event is lost silently.
+    await expect(async () => {
+      await fileInput.setInputFiles({
+        name: "test-all-reports.csv",
+        mimeType: "text/csv",
+        buffer,
+      });
+      await expect(page.getByText("test-all-reports.csv")).toBeVisible();
+    }).toPass({ timeout: 15000 });
     await page.getByRole("button", { name: /suivant/i }).click();
 
     // The "Tous les rapports" link is in the ReportResult component which requires

@@ -1,3 +1,3 @@
-export { generatePptx } from "./pptx";
-export { generatePdf } from "./pdf";
 export { generateDocx } from "./docx";
+export { generatePdf } from "./pdf";
+export { generatePptx } from "./pptx";
