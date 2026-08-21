@@ -42,13 +42,15 @@ export function DashboardNav() {
                 <path d="M7 16l4-8 4 4 4-6" />
               </svg>
             </div>
-            <span className="app-logo-text">DataPresent</span>
+            {/* Text hidden on tiny screens: logo + switcher + controls
+                otherwise overflow a 375px viewport. */}
+            <span className="app-logo-text hidden sm:inline">DataPresent</span>
           </Link>
           <OrgSwitcher />
         </div>
         <div className="flex items-center gap-2">
           {/* Desktop nav links */}
-          <nav className="hidden md:flex items-center gap-2">
+          <nav className="hidden lg:flex items-center gap-2">
             {links.map((link) => {
               const isActive = pathname === link.href || pathname.startsWith(link.href + "/");
               return (
@@ -63,13 +65,13 @@ export function DashboardNav() {
               );
             })}
           </nav>
-          <div className="hidden md:block app-nav-divider" />
+          <div className="hidden lg:block app-nav-divider" />
           <LocaleSwitcher />
           <ThemeToggle />
           {/* Hamburger button — visible below md */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden p-2.5 rounded-lg hover:bg-muted transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+            className="lg:hidden p-2.5 rounded-lg hover:bg-muted transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
             aria-label={mobileMenuOpen ? "Fermer le menu" : "Ouvrir le menu"}
             aria-expanded={mobileMenuOpen}
           >

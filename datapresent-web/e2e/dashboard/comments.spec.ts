@@ -259,8 +259,10 @@ test.describe("Commentaires — panneau de commentaires sur la page détail rapp
     await closeBtn.click();
     await page.waitForTimeout(500);
 
-    // The comment panel should be gone
-    await expect(page.getByText("Commentaires")).not.toBeVisible();
+    // The comment panel should be gone. Assert on the close button (unique to
+    // the panel): a bare "Commentaires" text also matches the slide-viewer
+    // badge ("N commentaires sur cette slide") which stays visible.
+    await expect(page.getByRole("button", { name: /fermer les commentaires/i })).toHaveCount(0);
   });
 
   test("modifier un commentaire → le texte est mis à jour", async ({ page }) => {
@@ -461,10 +463,14 @@ test.describe("Commentaires — cas limites", () => {
     await page.getByRole("button", { name: /envoyer/i }).click();
     await page.waitForTimeout(1500);
 
-    // Hover and click edit
-    const commentText = page.getByText("Texte à ne pas changer");
-    await commentText.locator("..").hover();
-    const editBtn = page.getByRole("button", { name: /modifier le commentaire/i });
+    // Hover and click edit — scope to THIS comment's container (earlier
+    // tests leave other comments in the shared seeded report).
+    const commentGroup = page
+      .locator("div.group")
+      .filter({ hasText: "Texte à ne pas changer" })
+      .first();
+    await commentGroup.hover();
+    const editBtn = commentGroup.getByRole("button", { name: /modifier le commentaire/i });
     await editBtn.click();
     await page.waitForTimeout(500);
 
@@ -507,7 +513,12 @@ test.describe("Commentaires — cas limites", () => {
     await page.getByRole("button", { name: /sauvegarder/i }).click();
     await page.waitForTimeout(1500);
 
-    // The "(modifié)" label should appear
-    await expect(page.getByText(/modifié/i)).toBeVisible({ timeout: 3000 });
+    // The "(modifié)" label should appear on THIS comment. /modifié/i alone
+    // also matches the comment text itself and earlier tests' labels.
+    const editedGroup = page
+      .locator("div.group")
+      .filter({ hasText: "Commentaire modifié" })
+      .first();
+    await expect(editedGroup.getByText(/\(modifié\)/)).toBeVisible({ timeout: 3000 });
   });
 });

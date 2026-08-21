@@ -1,6 +1,8 @@
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
+import { Suspense } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
 import { auth } from "@/lib/auth";
 import { getLimit } from "@/lib/entitlements/feature-gate";
 import { prisma } from "@/lib/prisma";
@@ -40,7 +42,12 @@ export default async function NewReportPage() {
         <p className="app-page-desc mt-1">{t("upload.title")}</p>
       </div>
 
-      <NewReportForm maxSlides={maxSlides} />
+      {/* Suspense: NewReportForm reads useSearchParams(); without a boundary
+          a direct hit on /new?sector=… suspends past the shell and never
+          hydrates. */}
+      <Suspense fallback={<Skeleton className="h-96 w-full rounded-lg" />}>
+        <NewReportForm maxSlides={maxSlides} />
+      </Suspense>
     </div>
   );
 }
