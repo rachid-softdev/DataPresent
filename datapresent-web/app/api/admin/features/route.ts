@@ -1,4 +1,4 @@
-// ==========================================
+﻿// ==========================================
 // GET /api/admin/features
 // PUT /api/admin/features/:key
 // POST /api/admin/features
@@ -39,7 +39,7 @@ export const GET = withAdmin(
       },
     });
   },
-  { rateLimit: { limit: 30, windowMs: 60 * 1000 } },
+  { rateLimit: { limit: 120, windowMs: 60 * 1000 } },
 );
 
 // PUT - Update a feature
@@ -52,19 +52,32 @@ export const PUT = withAdmin(
       return NextResponse.json({ error: "Missing required field: key" }, { status: 400 });
     }
 
-    const feature = await prisma.feature.update({
-      where: { key },
-      data: {
-        ...(description !== undefined && { description }),
-        ...(type !== undefined && { type: type as FeatureType }),
-        ...(defaultConfig !== undefined && { defaultConfig }),
-        ...(isActive !== undefined && { isActive }),
-      },
-    });
+    try {
+      const feature = await prisma.feature.update({
+        where: { key },
+        data: {
+          ...(description !== undefined && { description }),
+          ...(type !== undefined && { type: type as FeatureType }),
+          ...(defaultConfig !== undefined && { defaultConfig }),
+          ...(isActive !== undefined && { isActive }),
+        },
+      });
 
-    return NextResponse.json(feature);
+      return NextResponse.json(feature);
+    } catch (error) {
+      // Prisma P2025: update target does not exist
+      if (
+        typeof error === "object" &&
+        error !== null &&
+        "code" in error &&
+        (error as { code?: string }).code === "P2025"
+      ) {
+        return NextResponse.json({ error: "Feature not found" }, { status: 404 });
+      }
+      throw error;
+    }
   },
-  { rateLimit: { limit: 30, windowMs: 60 * 1000 } },
+  { rateLimit: { limit: 120, windowMs: 60 * 1000 } },
 );
 
 // POST - Create a new feature
@@ -95,5 +108,5 @@ export const POST = withAdmin(
 
     return NextResponse.json(feature, { status: 201 });
   },
-  { rateLimit: { limit: 30, windowMs: 60 * 1000 } },
+  { rateLimit: { limit: 120, windowMs: 60 * 1000 } },
 );

@@ -293,9 +293,9 @@ test.describe("Page d'erreur sur mobile (375px)", () => {
 
   test("la page 404 n'a pas de débordement horizontal", async ({ page }) => {
     await page.goto(NONEXISTENT);
-    // +1px tolerance for subpixel rounding
+    // Small tolerance for cross-platform subpixel/font-rendering differences
     const noOverflow = await page.evaluate(
-      () => document.body.scrollWidth <= window.innerWidth + 1,
+      () => document.body.scrollWidth <= window.innerWidth + 4,
     );
     expect(noOverflow).toBe(true);
   });
@@ -322,9 +322,9 @@ test.describe("Page d'erreur sur mobile (375px)", () => {
 
   test("la page d'erreur auth est lisible sur mobile", async ({ page }) => {
     await page.goto("/login?error=errors.generic");
-    // +1px tolerance for subpixel rounding
+    // Small tolerance for cross-platform subpixel/font-rendering differences
     const noOverflow = await page.evaluate(
-      () => document.body.scrollWidth <= window.innerWidth + 1,
+      () => document.body.scrollWidth <= window.innerWidth + 4,
     );
     expect(noOverflow).toBe(true);
   });

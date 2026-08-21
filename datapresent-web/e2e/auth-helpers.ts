@@ -75,6 +75,32 @@ export async function createTestUser() {
     create: { userId: user.id, hash: hashedPassword },
   });
 
+  // Ensure the test user has an organization + membership. APIs like
+  // /api/me/entitlements return 404 without one, and the dashboard relies on
+  // lazy org creation that only happens when visiting the dashboard page.
+  const existingMembership = await db.membership.findFirst({
+    where: { userId: user.id },
+  });
+  if (!existingMembership) {
+    // Upsert by unique slug so re-runs against an existing DB don't violate
+    // the unique constraint.
+    const org = await db.organization.upsert({
+      where: { slug: "e2e-test-org" },
+      update: {},
+      create: {
+        name: "E2E Test Org",
+        slug: "e2e-test-org",
+      },
+    });
+    await db.membership.create({
+      data: {
+        userId: user.id,
+        orgId: org.id,
+        role: "OWNER",
+      },
+    });
+  }
+
   return user;
 }
 

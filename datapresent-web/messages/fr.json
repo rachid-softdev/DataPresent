@@ -203,7 +203,10 @@
       "thisMonth": "Ce mois",
       "unlimited": "Illimité",
       "warning": "Vous avez utilisé {percent}% de votre quota de rapports"
-    }
+    },
+    "title": "Facturation",
+    "plan": "Plan",
+    "perMonth": "/mois"
   },
   "reports": {
     "title": "Rapports",
@@ -238,11 +241,11 @@
   "dashboard": {
     "newReport": "Nouveau rapport",
     "seeAllReports": "Voir tous les rapports",
-
     "statsTotal": "Rapports au total",
     "statsMonth": "Ce mois-ci",
     "statsSuccessRate": "Taux de réussite",
-    "statsTimeSaved": "Temps économisé"
+    "statsTimeSaved": "Temps économisé",
+    "recentReports": "Rapports récents"
   },
   "share": {
     "linkExpired": "Ce lien a expiré",
@@ -419,7 +422,18 @@
     "select": "Sélectionnez un modèle pour démarrer votre présentation"
   },
   "upload": {
-    "title": "Téléchargez vos données pour générer la présentation"
+    "title": "Téléchargez vos données pour générer la présentation",
+    "dragDrop": "Glissez-déposez votre fichier CSV ou Excel ici",
+    "sector": {
+      "title": "Secteur d'activité",
+      "description": "Sélectionnez le secteur pour adapter l'analyse"
+    },
+    "slideCount": {
+      "title": "Nombre de diapositives",
+      "description": "Choisissez la longueur de votre présentation"
+    },
+    "stallWarning": "Le traitement semble lent, veuillez patienter...",
+    "uploadError": "Échec du téléversement. Veuillez réessayer."
   },
   "about": {
     "badge": "Notre histoire",
@@ -490,7 +504,8 @@
       "isActive": "Active",
       "created": "Fonctionnalité créée",
       "updated": "Fonctionnalité mise à jour",
-      "empty": "Aucune fonctionnalité"
+      "empty": "Aucune fonctionnalité",
+      "keyExists": "Cette clé de fonctionnalité existe déjà"
     },
     "overrides": {
       "title": "Dérogations",
@@ -569,6 +584,57 @@
       "next": "Suivant",
       "yes": "Oui",
       "no": "Non"
+    }
+  },
+  "settings": {
+    "title": "Paramètres",
+    "profile": {
+      "title": "Mon compte",
+      "update": "Profil mis à jour",
+      "name": "Nom",
+      "email": "Email"
+    },
+    "organization": {
+      "title": "Organisation"
+    },
+    "team": {
+      "title": "Équipe",
+      "members": "Membres"
+    },
+    "billing": {
+      "title": "Facturation",
+      "plan": "Plan",
+      "features": {
+        "reports": "Rapports inclus"
+      },
+      "usage": {
+        "reports": "Rapports utilisés"
+      }
+    },
+    "account": {
+      "title": "Compte et sécurité",
+      "delete": "Supprimer le compte",
+      "deleteDesc": "Cette action est irréversible. Toutes vos données seront supprimées.",
+      "confirmDelete": "Êtes-vous sûr de vouloir supprimer votre compte ?"
+    },
+    "common": {
+      "loading": "Chargement...",
+      "save": "Enregistrer",
+      "cancel": "Annuler"
+    },
+    "errors": {
+      "generic": "Une erreur est survenue. Veuillez réessayer."
+    },
+    "nav": {
+      "logout": "Déconnexion"
+    },
+    "usage": {
+      "title": "Utilisation",
+      "plan": "Plan",
+      "reports": "Rapports",
+      "slides": "Diapositives",
+      "unlimited": "Illimité",
+      "warning": "Vous avez utilisé {percent}% de votre quota de rapports"
     }
   }
 }

@@ -1,4 +1,4 @@
-// ==========================================
+﻿// ==========================================
 // GET /api/admin/overrides
 // POST /api/admin/overrides
 // DELETE /api/admin/overrides/:id
@@ -64,7 +64,7 @@ export const GET = withAdmin(
       },
     });
   },
-  { rateLimit: { limit: 30, windowMs: 60 * 1000 } },
+  { rateLimit: { limit: 120, windowMs: 60 * 1000 } },
 );
 
 // POST - Create an override
@@ -110,7 +110,7 @@ export const POST = withAdmin(
 
     return NextResponse.json(override, { status: 201 });
   },
-  { rateLimit: { limit: 30, windowMs: 60 * 1000 } },
+  { rateLimit: { limit: 120, windowMs: 60 * 1000 } },
 );
 
 // DELETE - Delete an override
@@ -139,5 +139,5 @@ export const DELETE = withAdmin(
 
     return NextResponse.json({ success: true });
   },
-  { rateLimit: { limit: 30, windowMs: 60 * 1000 } },
+  { rateLimit: { limit: 120, windowMs: 60 * 1000 } },
 );

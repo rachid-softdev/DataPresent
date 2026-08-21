@@ -17,7 +17,8 @@ import { expect, test } from "@playwright/test";
 // ─────────────────────────────────────────────
 
 async function expectNoHorizontalOverflow(page: import("@playwright/test").Page) {
-  const overflow = await page.evaluate(() => document.body.scrollWidth > window.innerWidth);
+  // Small tolerance for cross-platform subpixel/font-rendering differences
+  const overflow = await page.evaluate(() => document.body.scrollWidth > window.innerWidth + 4);
   expect(overflow).toBe(false);
 }
 

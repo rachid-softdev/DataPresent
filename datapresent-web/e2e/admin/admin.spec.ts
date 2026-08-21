@@ -75,7 +75,10 @@ async function setupNonAdminSession(page: import("@playwright/test").Page) {
  * il ne peut donc pas servir à tester les refus 401.
  */
 async function createAnonRequest(playwright: import("@playwright/test").Playwright) {
-  return playwright.request.newContext();
+  // Explicitly clear storageState: the authenticated project sets a project-level
+  // storageState which newContext() would otherwise inherit — the "anonymous"
+  // request would silently carry the admin session cookie.
+  return playwright.request.newContext({ storageState: { cookies: [], origins: [] } });
 }
 
 // ===========================================================================

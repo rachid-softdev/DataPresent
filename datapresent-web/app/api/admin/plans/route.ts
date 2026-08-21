@@ -1,4 +1,4 @@
-// ==========================================
+﻿// ==========================================
 // GET /api/admin/plans
 // POST /api/admin/plans/:planKey/features
 // Admin only
@@ -44,7 +44,7 @@ export const GET = withAdmin(
 
     return NextResponse.json({ data: result });
   },
-  { rateLimit: { limit: 30, windowMs: 60 * 1000 } },
+  { rateLimit: { limit: 120, windowMs: 60 * 1000 } },
 );
 
 // POST - Add/update feature for a plan
@@ -100,5 +100,5 @@ export const POST = withAdmin(
 
     return NextResponse.json(planFeature);
   },
-  { rateLimit: { limit: 30, windowMs: 60 * 1000 } },
+  { rateLimit: { limit: 120, windowMs: 60 * 1000 } },
 );

@@ -30,5 +30,5 @@ export const GET = withAdmin(
       ...entitlements,
     });
   },
-  { rateLimit: { limit: 30, windowMs: 60 * 1000 } },
+  { rateLimit: { limit: 120, windowMs: 60 * 1000 } },
 );

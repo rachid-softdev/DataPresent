@@ -195,7 +195,10 @@
       "thisMonth": "This month",
       "unlimited": "Unlimited",
       "warning": "You have used {percent}% of your report quota"
-    }
+    },
+    "title": "Billing",
+    "plan": "Plan",
+    "perMonth": "/month"
   },
   "reports": {
     "title": "Reports",
@@ -233,7 +236,8 @@
     "statsTotal": "Total reports",
     "statsMonth": "This month",
     "statsSuccessRate": "Success rate",
-    "statsTimeSaved": "Time saved"
+    "statsTimeSaved": "Time saved",
+    "recentReports": "Recent reports"
   },
   "share": {
     "linkExpired": "This link has expired",
@@ -410,7 +414,18 @@
     "select": "Select a template to start your presentation"
   },
   "upload": {
-    "title": "Upload your data to generate the presentation"
+    "title": "Upload your data to generate the presentation",
+    "dragDrop": "Drag and drop your CSV or Excel file here",
+    "sector": {
+      "title": "Business sector",
+      "description": "Select the sector to tailor the analysis"
+    },
+    "slideCount": {
+      "title": "Number of slides",
+      "description": "Choose the length of your presentation"
+    },
+    "stallWarning": "Processing seems slow, please wait...",
+    "uploadError": "Upload failed. Please try again."
   },
   "about": {
     "badge": "Our story",
@@ -481,7 +496,8 @@
       "isActive": "Active",
       "created": "Feature created",
       "updated": "Feature updated",
-      "empty": "No features"
+      "empty": "No features",
+      "keyExists": "This feature key already exists"
     },
     "overrides": {
       "title": "Overrides",
@@ -560,6 +576,57 @@
       "next": "Next",
       "yes": "Yes",
       "no": "No"
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "profile": {
+      "title": "My profile",
+      "update": "Profile updated",
+      "name": "Name",
+      "email": "Email"
+    },
+    "organization": {
+      "title": "Organization"
+    },
+    "team": {
+      "title": "Team",
+      "members": "Members"
+    },
+    "billing": {
+      "title": "Billing",
+      "plan": "Plan",
+      "features": {
+        "reports": "Included reports"
+      },
+      "usage": {
+        "reports": "Reports used"
+      }
+    },
+    "account": {
+      "title": "Account & security",
+      "delete": "Delete account",
+      "deleteDesc": "This action is irreversible. All your data will be deleted.",
+      "confirmDelete": "Are you sure you want to delete your account?"
+    },
+    "common": {
+      "loading": "Loading...",
+      "save": "Save",
+      "cancel": "Cancel"
+    },
+    "errors": {
+      "generic": "An error occurred. Please try again."
+    },
+    "nav": {
+      "logout": "Sign out"
+    },
+    "usage": {
+      "title": "Usage",
+      "plan": "Plan",
+      "reports": "Reports",
+      "slides": "Slides",
+      "unlimited": "Unlimited",
+      "warning": "You have used {percent}% of your report quota"
     }
   }
 }

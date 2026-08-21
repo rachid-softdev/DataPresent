@@ -134,11 +134,9 @@ const nextConfig: NextConfig = {
         destination: "/signup",
         permanent: true,
       },
-      {
-        source: "/dashboard",
-        destination: "/",
-        permanent: true,
-      },
+      // NOTE: the legacy "/dashboard" -> "/" redirect was removed when the
+      // dashboard moved from "/" to its own /dashboard route — it would
+      // otherwise intercept every navigation to the real dashboard.
     ];
   },
 };
