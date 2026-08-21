@@ -33,6 +33,7 @@
     "test:integration": "pnpm --filter datapresent-web test:integration",
     "db:generate": "pnpm --filter datapresent-web db:generate",
     "db:push": "pnpm --filter datapresent-web db:push",
+    "db:seed": "pnpm --filter datapresent-web db:seed",
     "format": "biome format --write .",
     "format:check": "biome format .",
     "check": "pnpm run format:check \u0026\u0026 pnpm run lint",

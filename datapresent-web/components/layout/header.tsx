@@ -12,7 +12,7 @@ export function Header({ hideAuth = false }: HeaderProps) {
   const t = useTranslations("nav");
 
   return (
-    <header className="app-nav">
+    <header className="app-nav" role="banner">
       <div className="max-w-7xl mx-auto px-6 app-nav-inner">
         <Link href="/" className="app-logo">
           <div className="app-logo-mark">
@@ -36,7 +36,10 @@ export function Header({ hideAuth = false }: HeaderProps) {
             <Link href="/login" className="app-btn app-btn-ghost app-btn-sm">
               {t("login")}
             </Link>
-            <Link href="/signup" className="app-btn app-btn-primary app-btn-sm">
+            <Link
+              href="/signup"
+              className="app-btn app-btn-primary app-btn-sm hidden! sm:inline-flex!"
+            >
               {t("signup")}
             </Link>
           </div>

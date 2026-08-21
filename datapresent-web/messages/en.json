@@ -405,6 +405,13 @@
       "priceCurrency": "EUR"
     }
   },
+  "templates": {
+    "title": "Report templates",
+    "select": "Select a template to start your presentation"
+  },
+  "upload": {
+    "title": "Upload your data to generate the presentation"
+  },
   "about": {
     "badge": "Our story",
     "title": "Bring your data to life, naturally",

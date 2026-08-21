@@ -153,3 +153,32 @@ export async function authenticatePage(page: Page) {
   await setSessionCookie(page.context(), sessionToken);
   return { user, sessionToken };
 }
+
+/**
+ * Wait until React has hydrated the first form input on the page.
+ *
+ * On slow environments (dev mode, CI), `page.goto()` resolves at `load`,
+ * potentially BEFORE the client bundles finish loading and React hydrates
+ * the page. If a test `fill()`s a controlled input before hydration, the
+ * value is silently discarded (input resets to "") and submit buttons that
+ * are `disabled={!value}` stay disabled forever — consistently reproduced
+ * on webkit. Waiting for React's internal `_valueTracker` on the first
+ * `form input` guarantees the input is hydrated and interactive.
+ *
+ * Call it after `page.goto()` on any page that will be `fill()`ed.
+ */
+export async function waitForAuthHydration(page: Page): Promise<void> {
+  await page.waitForFunction(() => {
+    const input = document.querySelector("form input");
+    return !!input && "_valueTracker" in input;
+  });
+}
+
+/**
+ * `page.goto()` followed by `waitForAuthHydration()` — use on auth pages
+ * that are `fill()`ed right after navigation.
+ */
+export async function gotoAndHydrate(page: Page, url: string): Promise<void> {
+  await page.goto(url);
+  await waitForAuthHydration(page);
+}

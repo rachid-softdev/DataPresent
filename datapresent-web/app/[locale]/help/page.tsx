@@ -2,6 +2,7 @@ import { ChevronRight, HelpCircle, Mail, MessageSquare } from "lucide-react";
 import { Metadata } from "next";
 import Link from "next/link";
 import { HelpSearch } from "@/components/help/HelpSearch";
+import { Header } from "@/components/layout/header";
 import { Button } from "@/components/ui/button";
 
 interface HelpPageProps {
@@ -90,6 +91,8 @@ export default async function HelpPage({ params }: HelpPageProps) {
 
   return (
     <main id="main" className="min-h-screen bg-background">
+      <Header />
+
       {/* Header */}
       <div className="border-b border-border">
         <div className="max-w-6xl mx-auto px-6 py-16">

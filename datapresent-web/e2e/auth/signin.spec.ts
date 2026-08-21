@@ -1,8 +1,9 @@
 import { expect, test } from "@playwright/test";
+import { gotoAndHydrate } from "../auth-helpers";
 
 test.describe("Connexion — /login", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto("/login");
+    await gotoAndHydrate(page, "/login");
   });
 
   test("la page de connexion charge avec le titre « Connexion »", async ({ page }) => {

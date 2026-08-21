@@ -1,6 +1,10 @@
 import { expect, test } from "@playwright/test";
 
 test.describe("Navigation du tableau de bord", () => {
+  // These tests assert unauthenticated behavior (redirects to /login), but the
+  // file runs in the `authenticated` project — drop the shared session here.
+  test.use({ storageState: { cookies: [], origins: [] } });
+
   test("la page d'accueil (/) est publique et ne redirige pas", async ({ page }) => {
     await page.goto("/");
     // Landing page should show, no redirect

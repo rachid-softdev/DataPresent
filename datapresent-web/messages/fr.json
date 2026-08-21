@@ -414,6 +414,13 @@
       "priceCurrency": "EUR"
     }
   },
+  "templates": {
+    "title": "Modèles de rapports",
+    "select": "Sélectionnez un modèle pour démarrer votre présentation"
+  },
+  "upload": {
+    "title": "Téléchargez vos données pour générer la présentation"
+  },
   "about": {
     "badge": "Notre histoire",
     "title": "Donnez vie à vos données, naturellement",

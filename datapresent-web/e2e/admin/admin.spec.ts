@@ -69,6 +69,15 @@ async function setupNonAdminSession(page: import("@playwright/test").Page) {
   }
 }
 
+/**
+ * Crée un contexte de requête API SANS authentification (aucun storageState).
+ * Le fixture `request` du projet "authenticated" est lié au storageState admin,
+ * il ne peut donc pas servir à tester les refus 401.
+ */
+async function createAnonRequest(playwright: import("@playwright/test").Playwright) {
+  return playwright.request.newContext();
+}
+
 // ===========================================================================
 // PLANS API
 // ===========================================================================
@@ -168,9 +177,14 @@ test.describe("Administration — API plans", () => {
   });
 
   test.describe("Authorization", () => {
-    test("GET /api/admin/plans sans auth retourne 401", async ({ request }) => {
-      const response = await request.get("/api/admin/plans");
-      expect(response.status()).toBe(401);
+    test("GET /api/admin/plans sans auth retourne 401", async ({ playwright }) => {
+      const anon = await createAnonRequest(playwright);
+      try {
+        const response = await anon.get("/api/admin/plans");
+        expect(response.status()).toBe(401);
+      } finally {
+        await anon.dispose();
+      }
     });
 
     test("GET /api/admin/plans non-admin retourne 403", async ({ page }) => {
@@ -179,11 +193,16 @@ test.describe("Administration — API plans", () => {
       expect(response.status()).toBe(403);
     });
 
-    test("POST /api/admin/plans sans auth retourne 401", async ({ request }) => {
-      const response = await request.post("/api/admin/plans", {
-        data: { planKey: "FREE", featureKey: "watermark" },
-      });
-      expect(response.status()).toBe(401);
+    test("POST /api/admin/plans sans auth retourne 401", async ({ playwright }) => {
+      const anon = await createAnonRequest(playwright);
+      try {
+        const response = await anon.post("/api/admin/plans", {
+          data: { planKey: "FREE", featureKey: "watermark" },
+        });
+        expect(response.status()).toBe(401);
+      } finally {
+        await anon.dispose();
+      }
     });
 
     test("POST /api/admin/plans non-admin retourne 403", async ({ page }) => {
@@ -286,9 +305,14 @@ test.describe("Administration — API features", () => {
   });
 
   test.describe("Authorization", () => {
-    test("GET /api/admin/features sans auth retourne 401", async ({ request }) => {
-      const response = await request.get("/api/admin/features");
-      expect(response.status()).toBe(401);
+    test("GET /api/admin/features sans auth retourne 401", async ({ playwright }) => {
+      const anon = await createAnonRequest(playwright);
+      try {
+        const response = await anon.get("/api/admin/features");
+        expect(response.status()).toBe(401);
+      } finally {
+        await anon.dispose();
+      }
     });
 
     test("GET /api/admin/features non-admin retourne 403", async ({ page }) => {
@@ -297,11 +321,16 @@ test.describe("Administration — API features", () => {
       expect(response.status()).toBe(403);
     });
 
-    test("POST /api/admin/features sans auth retourne 401", async ({ request }) => {
-      const response = await request.post("/api/admin/features", {
-        data: { key: `e2e-unauth-${Date.now()}` },
-      });
-      expect(response.status()).toBe(401);
+    test("POST /api/admin/features sans auth retourne 401", async ({ playwright }) => {
+      const anon = await createAnonRequest(playwright);
+      try {
+        const response = await anon.post("/api/admin/features", {
+          data: { key: `e2e-unauth-${Date.now()}` },
+        });
+        expect(response.status()).toBe(401);
+      } finally {
+        await anon.dispose();
+      }
     });
 
     test("POST /api/admin/features non-admin retourne 403", async ({ page }) => {
@@ -447,9 +476,14 @@ test.describe("Administration — API overrides", () => {
   });
 
   test.describe("Authorization", () => {
-    test("GET /api/admin/overrides sans auth retourne 401", async ({ request }) => {
-      const response = await request.get("/api/admin/overrides");
-      expect(response.status()).toBe(401);
+    test("GET /api/admin/overrides sans auth retourne 401", async ({ playwright }) => {
+      const anon = await createAnonRequest(playwright);
+      try {
+        const response = await anon.get("/api/admin/overrides");
+        expect(response.status()).toBe(401);
+      } finally {
+        await anon.dispose();
+      }
     });
 
     test("GET /api/admin/overrides non-admin retourne 403", async ({ page }) => {
@@ -458,11 +492,16 @@ test.describe("Administration — API overrides", () => {
       expect(response.status()).toBe(403);
     });
 
-    test("POST /api/admin/overrides sans auth retourne 401", async ({ request }) => {
-      const response = await request.post("/api/admin/overrides", {
-        data: { scope: "ORG", scopeId: "test", featureKey: "test", reason: "test" },
-      });
-      expect(response.status()).toBe(401);
+    test("POST /api/admin/overrides sans auth retourne 401", async ({ playwright }) => {
+      const anon = await createAnonRequest(playwright);
+      try {
+        const response = await anon.post("/api/admin/overrides", {
+          data: { scope: "ORG", scopeId: "test", featureKey: "test", reason: "test" },
+        });
+        expect(response.status()).toBe(401);
+      } finally {
+        await anon.dispose();
+      }
     });
 
     test("POST /api/admin/overrides non-admin retourne 403", async ({ page }) => {
@@ -473,14 +512,46 @@ test.describe("Administration — API overrides", () => {
       expect(response.status()).toBe(403);
     });
 
-    test("DELETE /api/admin/overrides/:id sans auth retourne 401", async ({ request }) => {
-      const response = await request.delete("/api/admin/overrides/some-id");
-      expect(response.status()).toBe(401);
+    test("DELETE /api/admin/overrides/:id sans auth retourne 401", async ({ playwright }) => {
+      const anon = await createAnonRequest(playwright);
+      try {
+        const response = await anon.delete("/api/admin/overrides/some-id");
+        expect(response.status()).toBe(401);
+      } finally {
+        await anon.dispose();
+      }
     });
 
     test("DELETE /api/admin/overrides/:id non-admin retourne 403", async ({ page }) => {
+      // L'API vérifie l'existence de l'override avant le rôle → créer un vrai
+      // override en base (via Prisma) pour que la requête atteigne le contrôle 403.
+      const prisma = new PrismaClient();
+      let overrideId: string;
+      try {
+        const adminUser = await prisma.user.findUnique({
+          where: { email: "e2e-test@datapresent.com" },
+          select: { id: true },
+        });
+        if (!adminUser) {
+          test.skip(true, "Utilisateur admin E2E introuvable");
+          return;
+        }
+        const override = await prisma.entitlementOverride.create({
+          data: {
+            scope: "USER",
+            scopeId: adminUser.id,
+            featureKey: "watermark",
+            reason: "e2e non-admin delete test",
+            createdById: adminUser.id,
+          },
+        });
+        overrideId = override.id;
+      } finally {
+        await prisma.$disconnect();
+      }
+
       await setupNonAdminSession(page);
-      const response = await page.request.delete("/api/admin/overrides/some-id");
+      const response = await page.request.delete(`/api/admin/overrides/${overrideId}`);
       expect(response.status()).toBe(403);
     });
   });
@@ -549,9 +620,16 @@ test.describe("Administration — Org entitlements", () => {
   });
 
   test.describe("Authorization", () => {
-    test("GET /api/admin/orgs/:orgId/entitlements sans auth retourne 401", async ({ request }) => {
-      const response = await request.get("/api/admin/orgs/some-org/entitlements");
-      expect(response.status()).toBe(401);
+    test("GET /api/admin/orgs/:orgId/entitlements sans auth retourne 401", async ({
+      playwright,
+    }) => {
+      const anon = await createAnonRequest(playwright);
+      try {
+        const response = await anon.get("/api/admin/orgs/some-org/entitlements");
+        expect(response.status()).toBe(401);
+      } finally {
+        await anon.dispose();
+      }
     });
 
     test("GET /api/admin/orgs/:orgId/entitlements non-admin retourne 403", async ({ page }) => {
@@ -662,12 +740,17 @@ test.describe("Administration — Downgrade preview", () => {
 
   test.describe("Authorization", () => {
     test("GET /api/admin/orgs/:orgId/downgrade-preview sans auth retourne 401", async ({
-      request,
+      playwright,
     }) => {
-      const response = await request.get(
-        "/api/admin/orgs/some-org/downgrade-preview?targetPlan=FREE",
-      );
-      expect(response.status()).toBe(401);
+      const anon = await createAnonRequest(playwright);
+      try {
+        const response = await anon.get(
+          "/api/admin/orgs/some-org/downgrade-preview?targetPlan=FREE",
+        );
+        expect(response.status()).toBe(401);
+      } finally {
+        await anon.dispose();
+      }
     });
 
     test("GET /api/admin/orgs/:orgId/downgrade-preview non-admin retourne 403", async ({
@@ -739,9 +822,16 @@ test.describe("Administration — Cache invalidation", () => {
   });
 
   test.describe("Authorization", () => {
-    test("POST /api/admin/cache/invalidate/:orgId sans auth retourne 401", async ({ request }) => {
-      const response = await request.post("/api/admin/cache/invalidate/some-org");
-      expect(response.status()).toBe(401);
+    test("POST /api/admin/cache/invalidate/:orgId sans auth retourne 401", async ({
+      playwright,
+    }) => {
+      const anon = await createAnonRequest(playwright);
+      try {
+        const response = await anon.post("/api/admin/cache/invalidate/some-org");
+        expect(response.status()).toBe(401);
+      } finally {
+        await anon.dispose();
+      }
     });
 
     test("POST /api/admin/cache/invalidate/:orgId non-admin retourne 403", async ({ page }) => {
@@ -842,9 +932,14 @@ test.describe("Administration — Debug entitlements", () => {
   });
 
   test.describe("Authorization", () => {
-    test("GET /api/debug/entitlements sans auth retourne 401", async ({ request }) => {
-      const response = await request.get("/api/debug/entitlements?orgId=test&feature=test");
-      expect(response.status()).toBe(401);
+    test("GET /api/debug/entitlements sans auth retourne 401", async ({ playwright }) => {
+      const anon = await createAnonRequest(playwright);
+      try {
+        const response = await anon.get("/api/debug/entitlements?orgId=test&feature=test");
+        expect(response.status()).toBe(401);
+      } finally {
+        await anon.dispose();
+      }
     });
 
     test("GET /api/debug/entitlements non-admin retourne 403", async ({ page }) => {
@@ -860,7 +955,8 @@ test.describe("Administration — Debug entitlements", () => {
 // ===========================================================================
 
 test.describe("Administration — Cohérence des erreurs d'authentification", () => {
-  test("tous les endpoints admin retournent 401 quand non authentifié", async ({ request }) => {
+  test("tous les endpoints admin retournent 401 quand non authentifié", async ({ playwright }) => {
+    const anon = await createAnonRequest(playwright);
     const endpoints = [
       { method: "GET" as const, url: "/api/admin/plans" },
       {
@@ -883,11 +979,11 @@ test.describe("Administration — Cohérence des erreurs d'authentification", ()
     ];
 
     for (const ep of endpoints) {
-      let response: Awaited<ReturnType<typeof request.get>>;
+      let response: Awaited<ReturnType<typeof anon.get>>;
       if (ep.method === "GET") {
-        response = await request.get(ep.url);
+        response = await anon.get(ep.url);
       } else {
-        response = await request.post(ep.url, { data: (ep as any).data });
+        response = await anon.post(ep.url, { data: (ep as any).data });
       }
       expect(response.status(), `${ep.method} ${ep.url} devrait retourner 401`).toBe(401);
 
@@ -899,6 +995,7 @@ test.describe("Administration — Cohérence des erreurs d'authentification", ()
       expect(body).toHaveProperty("error");
       expect(typeof body.error).toBe("string");
     }
+    await anon.dispose();
   });
 
   test("tous les endpoints admin retournent 403 pour un non-admin", async ({ page }) => {

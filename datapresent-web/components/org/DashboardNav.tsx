@@ -25,10 +25,10 @@ export function DashboardNav() {
   const closeMenu = () => setMobileMenuOpen(false);
 
   return (
-    <header className="app-nav">
+    <header className="app-nav" role="banner">
       <div className="max-w-7xl mx-auto px-4 app-nav-inner">
         <div className="flex items-center gap-4">
-          <Link href="/" className="app-logo">
+          <Link href="/dashboard" className="app-logo">
             <div className="app-logo-mark">
               <svg
                 width="18"

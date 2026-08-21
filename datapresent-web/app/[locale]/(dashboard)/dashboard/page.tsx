@@ -1,5 +1,4 @@
 import { ChevronRight } from "lucide-react";
-import dynamic from "next/dynamic";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
@@ -7,18 +6,10 @@ import { IntelligentEmptyState } from "@/components/onboarding/IntelligentEmptyS
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
+import { UsageCardWrapper } from "@/components/usage/UsageCardWrapper";
 import { auth } from "@/lib/auth";
 import { ensureUserHasOrganization } from "@/lib/org";
 import { prisma } from "@/lib/prisma";
-
-const UsageCard = dynamic(
-  () => import("@/components/usage/UsageCard").then((m) => ({ default: m.UsageCard })),
-  {
-    ssr: false,
-    loading: () => <Skeleton className="h-64 w-full rounded-lg" />,
-  },
-);
 
 export default async function DashboardPage() {
   const t = await getTranslations();
@@ -161,7 +152,7 @@ export default async function DashboardPage() {
 
           {/* Usage — below the fold, not competing with primary content */}
           <div className="max-w-md">
-            <UsageCard />
+            <UsageCardWrapper />
           </div>
         </>
       )}

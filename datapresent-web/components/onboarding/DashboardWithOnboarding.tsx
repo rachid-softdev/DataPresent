@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { KeyboardShortcuts } from "@/components/layout/keyboard-shortcuts";
 import {
   DEFAULT_ONBOARDING_STEPS,
@@ -11,18 +11,21 @@ import { WelcomeScreen } from "@/components/onboarding/WelcomeScreen";
 import { DashboardNav } from "@/components/org/DashboardNav";
 
 export function DashboardWithOnboarding({ children }: { children: React.ReactNode }) {
-  const [showWelcome, setShowWelcome] = useState<boolean | null>(() => {
-    if (typeof window === "undefined") return null;
+  // Default to NOT showing the welcome screen so the server render matches the
+  // client render (reading localStorage during render caused hydration
+  // mismatches). The welcome screen is shown after hydration only for users
+  // who have never completed it.
+  const [showWelcome, setShowWelcome] = useState(false);
+
+  useEffect(() => {
     const seen = localStorage.getItem("datapresent-welcome-seen");
-    return !seen;
-  });
+    if (!seen) setShowWelcome(true);
+  }, []);
 
   const handleWelcomeComplete = () => {
     localStorage.setItem("datapresent-welcome-seen", "true");
     setShowWelcome(false);
   };
-
-  if (showWelcome === null) return null;
 
   if (showWelcome) {
     return <WelcomeScreen onComplete={handleWelcomeComplete} />;

@@ -4,6 +4,7 @@ import { ArrowRight } from "lucide-react";
 import { Metadata } from "next";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
+import { Header } from "@/components/layout/header";
 
 interface AboutPageProps {
   params: Promise<{ locale: string }>;
@@ -138,6 +139,7 @@ export default async function AboutPage({ params }: AboutPageProps) {
 
   return (
     <main id="main" className="landing-hero" style={{ paddingTop: 0 }}>
+      <Header />
       {/* ═══ Hero ═══ */}
       <section className="landing-section" style={{ paddingBottom: 0 }}>
         <div className="landing-container landing-container-xs">

@@ -153,6 +153,11 @@ jobs:
         env:
           DATABASE_URL: postgresql://datapresent:test@localhost:5432/datapresent_test
 
+      - name: Seed Entitlements
+        run: pnpm run db:seed
+        env:
+          DATABASE_URL: postgresql://datapresent:test@localhost:5432/datapresent_test
+
       - name: Install Playwright Browsers
         run: pnpm --filter datapresent-web exec playwright install --with-deps
 

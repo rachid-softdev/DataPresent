@@ -1,8 +1,9 @@
 import { expect, test } from "@playwright/test";
+import { gotoAndHydrate } from "../auth-helpers";
 
 test.describe("Mot de passe oublié — /forgot-password", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto("/forgot-password");
+    await gotoAndHydrate(page, "/forgot-password");
   });
 
   // ─── Success cases ─────────────────────────────────────────────────
@@ -264,11 +265,10 @@ test.describe("Mot de passe oublié — /forgot-password", () => {
     });
 
     await page.getByPlaceholder(/vous@exemple/).fill("user@example.com");
-    const submitBtn = page.getByRole("button", { name: /envoyer le lien/i });
+    const submitBtn = page.locator('form button[type="submit"]');
 
-    // Double-clic rapide — le bouton passe en loading après le 1er clic :
-    // force:true simule le second clic « au même moment » sans attendre
-    // que le bouton redevienne actionnable.
+    // Double-clic rapide — le bouton passe en loading après le 1er clic (son
+    // libellé change) : force:true simule le second clic sur le même élément.
     await submitBtn.click();
     await submitBtn.click({ force: true });
 

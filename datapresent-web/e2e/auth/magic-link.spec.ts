@@ -1,8 +1,9 @@
 import { expect, test } from "@playwright/test";
+import { gotoAndHydrate } from "../auth-helpers";
 
 test.describe("Lien magique — Magic link", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto("/login");
+    await gotoAndHydrate(page, "/login");
   });
 
   test("saisie d'un email valide → message de confirmation affiché", async ({ page }) => {

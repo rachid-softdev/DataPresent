@@ -1,8 +1,9 @@
 import { expect, test } from "@playwright/test";
+import { gotoAndHydrate } from "../auth-helpers";
 
 test.describe("Inscription — /signup", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto("/signup");
+    await gotoAndHydrate(page, "/signup");
   });
 
   test("la page d'inscription charge avec le titre « Créer un compte »", async ({ page }) => {
@@ -41,7 +42,7 @@ test.describe("Inscription — /signup", () => {
   test("affiche une erreur pour email invalide côté navigateur", async ({ page }) => {
     const emailInput = page.locator('input[type="email"]');
     await emailInput.fill("invalid");
-    await page.getByRole("button", { name: /inscrire/i }).click();
+    await page.getByRole("button", { name: /s'inscrire par email/i }).click();
 
     // Browser validation should prevent submission
     await expect(emailInput).toBeVisible();

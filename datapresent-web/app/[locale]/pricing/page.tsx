@@ -2,6 +2,7 @@ import { Check, HelpCircle, Minus } from "lucide-react";
 import { Metadata } from "next";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
+import { Header } from "@/components/layout/header";
 
 interface PricingPageProps {
   params: Promise<{ locale: string }>;
@@ -365,6 +366,8 @@ export default async function PricingPage({ params }: PricingPageProps) {
       />
 
       <main id="main" className="min-h-screen bg-background">
+        <Header />
+
         {/* ── Hero ────────────────────────────────────────────── */}
         <section
           className="relative overflow-hidden px-6 pt-20 pb-16 md:pt-28 md:pb-20"

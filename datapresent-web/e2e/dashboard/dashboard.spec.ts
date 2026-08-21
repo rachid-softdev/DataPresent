@@ -4,7 +4,7 @@ test.use({ storageState: "e2e/.auth/user.json" });
 
 test.describe("Tableau de bord — page d'accueil", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/dashboard");
   });
 
   test("affiche le titre 'Rapports récents'", async ({ page }) => {

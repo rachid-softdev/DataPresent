@@ -165,11 +165,11 @@ export default function LoginPage() {
               Mot de passe oublié ?
             </Link>
           </p>
-        </div>
 
-        <p className="text-center text-xs mt-6 text-muted-foreground/60">
-          Le lien de connexion expire dans 10 minutes · Usage unique
-        </p>
+          <p className="text-center text-xs mt-6 text-muted-foreground/60">
+            Le lien de connexion expire dans 10 minutes · Usage unique
+          </p>
+        </div>
       </main>
     </>
   );

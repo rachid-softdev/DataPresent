@@ -2,8 +2,11 @@
 
 import { ArrowLeft, Home, Search } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function NotFound() {
+  const router = useRouter();
+
   return (
     <div className="flex min-h-screen flex-col items-center justify-center px-4 py-12 bg-background">
       <div className="text-center max-w-lg">
@@ -37,10 +40,10 @@ export default function NotFound() {
             <Home className="w-4 h-4" />
             Retour à l&apos;accueil
           </Link>
-          <Link href="javascript:history.back()" className="app-btn app-btn-outline">
+          <button onClick={() => router.back()} className="app-btn app-btn-outline">
             <ArrowLeft className="w-4 h-4" />
             Page précédente
-          </Link>
+          </button>
         </div>
       </div>
 

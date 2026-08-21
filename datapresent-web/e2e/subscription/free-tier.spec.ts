@@ -9,7 +9,7 @@ test.describe("Plan Gratuit — limites et comportement", () => {
   test.use({ storageState: "e2e/.auth/user.json" });
 
   test("le tableau de bord affiche la carte d'utilisation/limites", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/dashboard");
     // The UsageCard component shows quotas and limits
     await expect(page.getByText(/rapport|utilisation|limite|report|usage|limit/i)).toBeVisible();
   });
@@ -21,7 +21,7 @@ test.describe("Plan Gratuit — limites et comportement", () => {
   });
 
   test("le menu de navigation latérale est visible", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/dashboard");
     // Dashboard navigation should be present
     await expect(page.getByRole("link", { name: /nouveau|new/i }).first()).toBeVisible();
     await expect(page.getByRole("link", { name: /rapports|reports/i }).first()).toBeVisible();
@@ -58,7 +58,7 @@ test.describe("Plan Gratuit — limites et comportement", () => {
   });
 
   test("l'entête du tableau de bord ne redirige pas vers la connexion", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/dashboard");
     await expect(page).not.toHaveURL(/login/);
     await expect(page.locator("header, nav").first()).toBeVisible();
   });

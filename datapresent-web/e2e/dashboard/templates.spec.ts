@@ -13,7 +13,7 @@ test.describe("Modèles de rapports — /templates", () => {
 
   test("la description de la page est visible", async ({ page }) => {
     const desc = page.getByText(/sélectionnez|choisissez|template/i);
-    await expect(desc).toBeVisible();
+    await expect(desc.first()).toBeVisible();
   });
 
   test("les filtres par secteur sont affichés", async ({ page }) => {

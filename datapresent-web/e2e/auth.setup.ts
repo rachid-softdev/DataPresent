@@ -26,10 +26,18 @@ setup("authenticate as E2E test user", async ({ page }) => {
   await page.goto("/reports");
   await expect(page).not.toHaveURL(/\/login/);
 
-  // 5. Persist storage state (cookies, localStorage) so dependent test projects
+  // 5. Mark the welcome screen + onboarding tour as seen so dependent
+  //    authenticated tests land directly on the dashboard (fresh browser
+  //    contexts have no localStorage, and the tour overlay intercepts clicks).
+  await page.evaluate(() => {
+    localStorage.setItem("datapresent-welcome-seen", "true");
+    localStorage.setItem("datapresent_onboarding", JSON.stringify({ complete: true, step: 0 }));
+  });
+
+  // 6. Persist storage state (cookies, localStorage) so dependent test projects
   //    can reuse the authenticated session without re-running the setup.
   await page.context().storageState({ path: AUTH_STATE_FILE });
 
-  // 6. Clean up the Prisma connection
+  // 7. Clean up the Prisma connection
   await disconnectPrisma();
 });

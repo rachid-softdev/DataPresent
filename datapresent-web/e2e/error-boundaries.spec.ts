@@ -169,10 +169,10 @@ test.describe("404 — Bouton retour", () => {
     await expect(page).toHaveURL(/\/$/);
   });
 
-  test("'Page précédente' — vérifier que le lien history.back existe", async ({ page }) => {
+  test("'Page précédente' — vérifier que le bouton history.back existe", async ({ page }) => {
     await page.goto(NONEXISTENT);
-    const backLink = page.locator('a[href*="history.back"]');
-    await expect(backLink).toBeVisible();
+    const backBtn = page.getByRole("button", { name: /page précédente/i });
+    await expect(backBtn).toBeVisible();
   });
 });
 
@@ -293,7 +293,10 @@ test.describe("Page d'erreur sur mobile (375px)", () => {
 
   test("la page 404 n'a pas de débordement horizontal", async ({ page }) => {
     await page.goto(NONEXISTENT);
-    const noOverflow = await page.evaluate(() => document.body.scrollWidth <= window.innerWidth);
+    // +1px tolerance for subpixel rounding
+    const noOverflow = await page.evaluate(
+      () => document.body.scrollWidth <= window.innerWidth + 1,
+    );
     expect(noOverflow).toBe(true);
   });
 
@@ -319,7 +322,10 @@ test.describe("Page d'erreur sur mobile (375px)", () => {
 
   test("la page d'erreur auth est lisible sur mobile", async ({ page }) => {
     await page.goto("/login?error=errors.generic");
-    const noOverflow = await page.evaluate(() => document.body.scrollWidth <= window.innerWidth);
+    // +1px tolerance for subpixel rounding
+    const noOverflow = await page.evaluate(
+      () => document.body.scrollWidth <= window.innerWidth + 1,
+    );
     expect(noOverflow).toBe(true);
   });
 });

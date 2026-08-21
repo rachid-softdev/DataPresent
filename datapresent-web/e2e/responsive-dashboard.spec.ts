@@ -36,12 +36,12 @@ test.describe("Dashboard responsive — Mobile (375px)", () => {
   test.use({ storageState: "e2e/.auth/user.json", viewport: { width: 375, height: 812 } });
 
   test("pas de débordement horizontal sur le dashboard", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/dashboard");
     await expectNoHorizontalOverflow(page);
   });
 
   test("le menu de navigation se réduit (hamburger ou nav cachée)", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/dashboard");
     // Check for hamburger-like button
     const hamburger = page.locator(
       'button[class*="menu"], button[aria-label*="menu"], button[class*="hamburger"], ' +
@@ -63,7 +63,7 @@ test.describe("Dashboard responsive — Mobile (375px)", () => {
   });
 
   test("les cartes de rapport s'empilent en colonne unique", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/dashboard");
     // The grid on the dashboard should be single column at mobile
     const reportLinks = page.locator('a[href^="/reports/"]');
     const count = await reportLinks.count();
@@ -80,7 +80,7 @@ test.describe("Dashboard responsive — Mobile (375px)", () => {
   });
 
   test("le bouton 'Nouveau rapport' est adapté à la largeur mobile", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/dashboard");
     const newReportBtn = page.locator('a[href="/new"] button, a[href="/new"]');
     if ((await newReportBtn.count()) > 0) {
       const btn = newReportBtn.first();
@@ -147,12 +147,12 @@ test.describe("Dashboard responsive — Tablette (768px)", () => {
   test.use({ storageState: "e2e/.auth/user.json", viewport: { width: 768, height: 1024 } });
 
   test("pas de débordement horizontal sur le dashboard", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/dashboard");
     await expectNoHorizontalOverflow(page);
   });
 
   test("les cartes de rapport s'affichent en grille (2 colonnes minimum)", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/dashboard");
     const reportLinks = page.locator('a[href^="/reports/"]');
     const count = await reportLinks.count();
     if (count >= 2) {
@@ -170,7 +170,7 @@ test.describe("Dashboard responsive — Tablette (768px)", () => {
   });
 
   test("la navigation est lisible sans débordement", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/dashboard");
     const nav = page.locator("nav").first();
     await expect(nav).toBeVisible();
     const navBox = await nav.boundingBox();
@@ -195,7 +195,7 @@ test.describe("Dashboard responsive — Tablette (768px)", () => {
   });
 
   test("le dashboard affiche les statistiques sans cassure", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/dashboard");
     // Stats bar (text-muted-foreground spans)
     const stats = page.locator("text=/\\d+ rapports/");
     if ((await stats.count()) > 0) {
@@ -218,7 +218,7 @@ test.describe("Dashboard responsive — Desktop (1440px)", () => {
   test.use({ storageState: "e2e/.auth/user.json", viewport: { width: 1440, height: 900 } });
 
   test("layout complet du dashboard visible", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/dashboard");
     await expectNoHorizontalOverflow(page);
     // Full layout: header, main content, cards
     const h1 = page.locator("h1");
@@ -229,7 +229,7 @@ test.describe("Dashboard responsive — Desktop (1440px)", () => {
   });
 
   test("les cartes de rapport en grille 3 colonnes sur desktop", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/dashboard");
     const reportLinks = page.locator('a[href^="/reports/"]');
     const count = await reportLinks.count();
     if (count >= 3) {
@@ -290,7 +290,7 @@ test.describe("Dashboard responsive — Desktop (1440px)", () => {
   });
 
   test("la barre de statistiques du dashboard est lisible", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/dashboard");
     const statsBar = page.locator(".flex-wrap.gap-x-6, .text-muted-foreground strong");
     if ((await statsBar.count()) > 0) {
       await expect(statsBar.first()).toBeVisible();

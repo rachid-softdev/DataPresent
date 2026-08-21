@@ -61,7 +61,7 @@ async function seedReportWithComments() {
           reportId,
           position: i - 1,
           title: `Slide ${i}`,
-          layout: "HEADING_BULLETS",
+          layout: "TITLE_SLIDE",
           contentJson: { heading: `Slide ${i}`, bullets: ["Point 1", "Point 2"] },
         },
       });

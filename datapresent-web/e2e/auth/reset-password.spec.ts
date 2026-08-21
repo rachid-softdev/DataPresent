@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { gotoAndHydrate } from "../auth-helpers";
 
 test.describe("Réinitialisation du mot de passe — /reset-password", () => {
   const VALID_TOKEN = "valid-reset-token-abc123";
@@ -7,7 +8,7 @@ test.describe("Réinitialisation du mot de passe — /reset-password", () => {
 
   test.describe("avec un token valide dans l'URL", () => {
     test.beforeEach(async ({ page }) => {
-      await page.goto(`/reset-password?token=${VALID_TOKEN}`);
+      await gotoAndHydrate(page, `/reset-password?token=${VALID_TOKEN}`);
     });
 
     test("la page affiche le titre « Nouveau mot de passe » avec les champs", async ({ page }) => {
@@ -119,7 +120,7 @@ test.describe("Réinitialisation du mot de passe — /reset-password", () => {
     });
 
     test("mot de passe trop court (< 8 caractères) → message d'erreur", async ({ page }) => {
-      await page.goto(`/reset-password?token=${VALID_TOKEN}`);
+      await gotoAndHydrate(page, `/reset-password?token=${VALID_TOKEN}`);
 
       await page.getByLabel(/Nouveau mot de passe/i).fill("Abc12");
       await page.getByLabel(/Confirmer le mot de passe/i).fill("Abc12");
@@ -131,7 +132,7 @@ test.describe("Réinitialisation du mot de passe — /reset-password", () => {
     test("mots de passe non concordants → message « Les mots de passe ne correspondent pas »", async ({
       page,
     }) => {
-      await page.goto(`/reset-password?token=${VALID_TOKEN}`);
+      await gotoAndHydrate(page, `/reset-password?token=${VALID_TOKEN}`);
 
       await page.getByLabel(/Nouveau mot de passe/i).fill("SecurePass123!");
       await page.getByLabel(/Confirmer le mot de passe/i).fill("DifferentPass456!");
@@ -149,7 +150,7 @@ test.describe("Réinitialisation du mot de passe — /reset-password", () => {
         });
       });
 
-      await page.goto(`/reset-password?token=expired-token`);
+      await gotoAndHydrate(page, `/reset-password?token=expired-token`);
 
       await page.getByLabel(/Nouveau mot de passe/i).fill("SecurePass123!");
       await page.getByLabel(/Confirmer le mot de passe/i).fill("SecurePass123!");
@@ -165,7 +166,7 @@ test.describe("Réinitialisation du mot de passe — /reset-password", () => {
         await route.abort("connectionrefused");
       });
 
-      await page.goto(`/reset-password?token=${VALID_TOKEN}`);
+      await gotoAndHydrate(page, `/reset-password?token=${VALID_TOKEN}`);
 
       await page.getByLabel(/Nouveau mot de passe/i).fill("SecurePass123!");
       await page.getByLabel(/Confirmer le mot de passe/i).fill("SecurePass123!");
@@ -183,7 +184,7 @@ test.describe("Réinitialisation du mot de passe — /reset-password", () => {
         });
       });
 
-      await page.goto(`/reset-password?token=expired-token`);
+      await gotoAndHydrate(page, `/reset-password?token=expired-token`);
 
       await page.getByLabel(/Nouveau mot de passe/i).fill("SecurePass123!");
       await page.getByLabel(/Confirmer le mot de passe/i).fill("SecurePass123!");
@@ -199,7 +200,7 @@ test.describe("Réinitialisation du mot de passe — /reset-password", () => {
     test("mot de passe avec uniquement des espaces → rejeté (< 8 caractères significatifs)", async ({
       page,
     }) => {
-      await page.goto(`/reset-password?token=${VALID_TOKEN}`);
+      await gotoAndHydrate(page, `/reset-password?token=${VALID_TOKEN}`);
 
       // 8 espaces — la validation length les compte
       await page.getByLabel(/Nouveau mot de passe/i).fill("        ");
@@ -220,7 +221,7 @@ test.describe("Réinitialisation du mot de passe — /reset-password", () => {
         });
       });
 
-      await page.goto(`/reset-password?token=${VALID_TOKEN}`);
+      await gotoAndHydrate(page, `/reset-password?token=${VALID_TOKEN}`);
 
       const longPassword = "A" + "b".repeat(127);
       await page.getByLabel(/Nouveau mot de passe/i).fill(longPassword);
@@ -239,7 +240,7 @@ test.describe("Réinitialisation du mot de passe — /reset-password", () => {
         });
       });
 
-      await page.goto(`/reset-password?token=${VALID_TOKEN}`);
+      await gotoAndHydrate(page, `/reset-password?token=${VALID_TOKEN}`);
 
       const specialPassword = "P@$$w0rd!♣日本語😀";
       await page.getByLabel(/Nouveau mot de passe/i).fill(specialPassword);
@@ -256,7 +257,7 @@ test.describe("Réinitialisation du mot de passe — /reset-password", () => {
         await route.continue();
       });
 
-      await page.goto(`/reset-password?token=${VALID_TOKEN}`);
+      await gotoAndHydrate(page, `/reset-password?token=${VALID_TOKEN}`);
 
       // Le formulaire finit par s'afficher malgré le rendu ralenti
       await expect(page.getByRole("heading", { name: /Nouveau mot de passe/i })).toBeVisible({
@@ -282,7 +283,7 @@ test.describe("Réinitialisation du mot de passe — /reset-password", () => {
       });
 
       const specialToken = "token+with+special/chars%21";
-      await page.goto(`/reset-password?token=${encodeURIComponent(specialToken)}`);
+      await gotoAndHydrate(page, `/reset-password?token=${encodeURIComponent(specialToken)}`);
 
       await expect(page.getByText(/Nouveau mot de passe/i).first()).toBeVisible({ timeout: 10000 });
 

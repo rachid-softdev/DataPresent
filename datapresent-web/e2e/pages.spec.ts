@@ -4,6 +4,10 @@ import { expect, test } from "@playwright/test";
 // In a real scenario, you would use authenticated session storage or test tokens
 
 test.describe("Dashboard", () => {
+  // These tests assert unauthenticated behavior (redirects to /login), but the
+  // file runs in the `authenticated` project — drop the shared session here.
+  test.use({ storageState: { cookies: [], origins: [] } });
+
   test.beforeEach(async ({ page }) => {
     // Skip auth for now - in real tests would use authenticated context
   });
@@ -28,28 +32,28 @@ test.describe("Dashboard", () => {
 test.describe("Share Page", () => {
   test("une page de partage invalide montre 404", async ({ page }) => {
     await page.goto("/share/invalid-token-12345");
-    await expect(page.locator("text=404")).toBeVisible();
+    await expect(page.getByText("Rapport introuvable")).toBeVisible();
   });
 
   test("une page embed invalide montre 404", async ({ page }) => {
     await page.goto("/embed/invalid-token-12345");
-    await expect(page.locator("text=404")).toBeVisible();
+    await expect(page.getByText("Rapport introuvable")).toBeVisible();
   });
 });
 
 test.describe("Pricing", () => {
   test("la page pricing affiche tous les plans", async ({ page }) => {
-    await page.goto("/#pricing");
+    await page.goto("/pricing");
 
-    // Should see FREE, STARTER, PRO, ULTRA plans
-    await expect(page.locator("text=Free")).toBeVisible();
-    await expect(page.locator("text=Starter")).toBeVisible();
-    await expect(page.locator("text=Pro")).toBeVisible();
-    await expect(page.locator("text=Ultra")).toBeVisible();
+    // Should see GRATUIT, STARTER, PRO, ULTRA plans
+    await expect(page.getByRole("heading", { name: "Gratuit" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Starter" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Pro" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Ultra" })).toBeVisible();
   });
 
   test("le plan STARTER est populaire", async ({ page }) => {
-    await page.goto("/#pricing");
+    await page.goto("/pricing");
 
     // Should have a popular badge
     await expect(page.locator("text=Populaire")).toBeVisible();

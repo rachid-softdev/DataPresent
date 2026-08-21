@@ -2,10 +2,13 @@
 
 import { ArrowLeft, Home, Search } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Footer } from "@/components/layout/footer";
 import { Header } from "@/components/layout/header";
 
 export default function NotFound() {
+  const router = useRouter();
+
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <Header />
@@ -42,10 +45,10 @@ export default function NotFound() {
               <Home className="w-4 h-4" />
               Retour à l&apos;accueil
             </Link>
-            <Link href="javascript:history.back()" className="app-btn app-btn-outline app-btn-lg">
+            <button onClick={() => router.back()} className="app-btn app-btn-outline app-btn-lg">
               <ArrowLeft className="w-4 h-4" />
               Page précédente
-            </Link>
+            </button>
           </div>
         </div>
 

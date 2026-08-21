@@ -44,7 +44,7 @@ export default async function RootPage() {
       />
 
       {/* ─── Nav ─── */}
-      <header className="landing-nav">
+      <header className="landing-nav" role="banner">
         <div className="landing-container">
           <div className="landing-nav-inner">
             <Link href="/" className="landing-logo">
