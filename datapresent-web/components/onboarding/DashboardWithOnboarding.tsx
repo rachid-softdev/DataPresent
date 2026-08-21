@@ -19,6 +19,7 @@ export function DashboardWithOnboarding({ children }: { children: React.ReactNod
 
   useEffect(() => {
     const seen = localStorage.getItem("datapresent-welcome-seen");
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Required: read localStorage on mount, set state for client-only render
     if (!seen) setShowWelcome(true);
   }, []);
 
