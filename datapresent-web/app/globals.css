@@ -523,8 +523,13 @@ a:hover .app-logo-mark {
 
 /* Sidebar nav */
 .app-sidebar {
-  width: 240px;
+  width: auto;
   flex-shrink: 0;
+}
+@media (min-width: 768px) {
+  .app-sidebar {
+    width: 240px;
+  }
 }
 .app-sidebar-link {
   display: flex;

@@ -422,9 +422,10 @@ test.describe("Commentaires — cas limites", () => {
     await page.getByRole("button", { name: /envoyer/i }).click();
     await page.waitForTimeout(1500);
 
-    // The server-side sanitizer strips HTML tags: the stored body is the
-    // plain text "alert('XSS')" — visible as text, never executed.
-    await expect(page.getByText(/alert\('XSS'\)/).first()).toBeVisible({
+    // The server-side sanitizer strips HTML tags and entity-encodes quotes:
+    // the payload ends up as inert text ("alert('XSS')" or with encoded
+    // quotes) — visible as text, never executed.
+    await expect(page.getByText(/alert\(.{0,12}XSS.{0,12}\)/).first()).toBeVisible({
       timeout: 3000,
     });
   });

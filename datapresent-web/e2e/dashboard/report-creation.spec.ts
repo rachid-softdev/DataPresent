@@ -184,7 +184,7 @@ test.describe("Config step — Sector Selector", () => {
     // Click "Suivant" to go to config step
     await page.getByRole("button", { name: /suivant/i }).click();
     // Wait for sector selector to appear
-    await expect(page.getByText(/secteur/i)).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText(/secteur/i).first()).toBeVisible({ timeout: 5000 });
   });
 
   test("le sélecteur de secteur affiche 5 boutons (Finance, Marketing, RH, SaaS, Générique)", async ({
@@ -286,7 +286,7 @@ test.describe("Config step — Slide Count", () => {
       await expect(page.getByText("test-slidecount.csv").first()).toBeVisible();
     }).toPass({ timeout: 15000 });
     await page.getByRole("button", { name: /suivant/i }).click();
-    await expect(page.getByText(/secteur/i)).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText(/secteur/i).first()).toBeVisible({ timeout: 5000 });
   });
 
   test("le slider est rendu avec les valeurs min (5) et max affichées", async ({ page }) => {

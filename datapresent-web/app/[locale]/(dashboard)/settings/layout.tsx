@@ -43,9 +43,11 @@ export default function SettingsLayout({ children }: { children: React.ReactNode
   const pathname = usePathname();
 
   return (
-    <div className="flex gap-8">
-      <aside className="app-sidebar">
-        <nav className="space-y-1">
+    // Stacks vertically below md: the fixed 240px sidebar + content cannot
+    // fit a phone viewport without forcing horizontal scrolling.
+    <div className="flex flex-col md:flex-row gap-6 md:gap-8">
+      <aside className="app-sidebar md:w-60 w-full shrink-0">
+        <nav className="space-y-1 flex flex-row md:flex-col flex-wrap gap-y-1">
           {settingsNav.map((item) => {
             const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
             return (
