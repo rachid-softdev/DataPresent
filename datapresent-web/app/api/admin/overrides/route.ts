@@ -113,31 +113,6 @@ export const POST = withAdmin(
   { rateLimit: { limit: 120, windowMs: 60 * 1000 } },
 );
 
-// DELETE - Delete an override
-export const DELETE = withAdmin(
-  async (req) => {
-    // Extract override ID from URL (robust to trailing slashes)
-    const url = new URL(req.url);
-    const parts = url.pathname.split("/").filter(Boolean);
-    const id = parts[parts.length - 1];
-
-    const override = await prisma.entitlementOverride.findUnique({
-      where: { id },
-      select: { scope: true, scopeId: true },
-    });
-
-    if (!override) {
-      return NextResponse.json({ error: "Override not found" }, { status: 404 });
-    }
-
-    await entitlementRepository.deleteOverride(id);
-
-    // Invalidate cache
-    if (override.scope === "ORG") {
-      await invalidateCache(override.scopeId);
-    }
-
-    return NextResponse.json({ success: true });
-  },
-  { rateLimit: { limit: 120, windowMs: 60 * 1000 } },
-);
+// DELETE /api/admin/overrides/:id lives in overrides/[id]/route.ts
+// (Next.js App Router requires a dynamic segment route for subpaths —
+// a bare route.ts never receives requests with an ID segment).

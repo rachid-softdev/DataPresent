@@ -70,9 +70,13 @@ test.describe("Entitlements API — GET /api/me/entitlements (authentifié)", ()
     expect(typeof body.limits).toBe("object");
     expect(body.limits).not.toBeNull();
 
-    // The FREE plan may have 0 limits; if there are any, all must be numbers
+    // Limits may be numbers or null (null = not a numeric limit / unlimited).
+    // BOOLEAN features carry a null limit by design.
     for (const [key, value] of Object.entries(body.limits)) {
-      expect(typeof value, `Limit "${key}" should be a number`).toBe("number");
+      expect(
+        value === null || typeof value === "number",
+        `Limit "${key}" should be a number or null`,
+      ).toBe(true);
     }
   });
 

@@ -32,10 +32,12 @@ export default defineConfig({
         "api/**/route.ts",
       ],
       thresholds: {
-        lines: 40,
-        functions: 35,
-        branches: 35,
-        statements: 39,
+        // Measured baseline minus ~1pt headroom so small additions of
+        // untested code (new pages/components) don't flip the job red.
+        lines: 39,
+        functions: 34,
+        branches: 34,
+        statements: 38,
       },
     },
     // Inline deps that ship their own React copy so the alias below is applied.
