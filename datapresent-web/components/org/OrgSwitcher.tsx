@@ -68,8 +68,11 @@ export function OrgSwitcher() {
       <DropdownMenuTrigger>
         <Button variant="ghost" size="sm" className="flex items-center gap-2">
           <Building2 className="w-4 h-4" />
-          <span className="max-w-[120px] truncate">{currentOrg?.name || "Organisation"}</span>
-          <ChevronDown className="w-4 h-4 text-muted-foreground" />
+          {/* Hidden on tiny screens: logo + switcher + controls overflow 375px */}
+          <span className="max-w-[120px] truncate hidden sm:inline">
+            {currentOrg?.name || "Organisation"}
+          </span>
+          <ChevronDown className="w-4 h-4 text-muted-foreground hidden sm:block" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-64">

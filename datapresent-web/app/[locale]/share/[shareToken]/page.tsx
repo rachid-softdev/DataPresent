@@ -48,6 +48,10 @@ function SharePageContent() {
   const [passwordRequired, setPasswordRequired] = useState(false);
   const [password, setPassword] = useState("");
   const [verifying, setVerifying] = useState(false);
+  // Set when the share token doesn't resolve — notFound() is then called
+  // during RENDER (calling it inside async callbacks only produces an
+  // unhandled rejection React can't route to the not-found UI).
+  const [tokenNotFound, setTokenNotFound] = useState(false);
 
   const checkReportAccess = async (token: string, pwd: string) => {
     setLoading(true);
@@ -78,7 +82,7 @@ function SharePageContent() {
         setReport(data.report);
         setPasswordRequired(false);
       } else {
-        notFound();
+        setTokenNotFound(true);
       }
     } catch (err) {
       setError(t("loadingError"));
@@ -94,7 +98,7 @@ function SharePageContent() {
         .then((res) => {
           if (!res.ok) {
             if (res.status === 404) {
-              notFound();
+              setTokenNotFound(true);
             }
             if (res.status === 410) {
               setError(t("linkExpired"));
@@ -114,11 +118,16 @@ function SharePageContent() {
           }
         })
         .catch(() => {
-          notFound();
+          setLoading(false);
         });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shareToken]);
+
+  // Must run during render for Next.js to route to the not-found UI.
+  if (tokenNotFound) {
+    notFound();
+  }
 
   const handlePasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -73,6 +73,10 @@ test.describe("Équipe — /settings/team", () => {
 
   test("les avatars ou initiales des membres sont affichés", async ({ page }) => {
     await page.goto("/settings/team");
+    // Members load through two chained API calls — wait for the list first.
+    await expect(page.getByText(/e2e-test|E2E test/i).first()).toBeVisible({
+      timeout: 10000,
+    });
     // Member avatars are rendered - either as img or div with initials.
     // The Avatar component renders a rounded-full 10x10 container.
     const avatars = page.locator(

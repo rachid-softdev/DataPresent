@@ -425,7 +425,13 @@
       "description": "Choose the length of your presentation"
     },
     "stallWarning": "Processing seems slow, please wait...",
-    "uploadError": "Upload failed. Please try again."
+    "uploadError": "Upload failed. Please try again.",
+    "stages": {
+      "analyse": "Data analysis",
+      "charts": "Chart creation",
+      "layout": "Page layout",
+      "finalize": "Report finalization"
+    }
   },
   "about": {
     "badge": "Our story",

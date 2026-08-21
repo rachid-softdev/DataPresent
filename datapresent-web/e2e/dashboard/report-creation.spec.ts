@@ -70,11 +70,11 @@ test.describe("Création de rapport — /new", () => {
         mimeType: "text/csv",
         buffer,
       });
-      await expect(page.getByText("test-data.csv")).toBeVisible();
+      await expect(page.getByText("test-data.csv").first()).toBeVisible();
     }).toPass({ timeout: 15000 });
 
     // Wait for the file info to appear
-    await expect(page.getByText("test-data.csv")).toBeVisible();
+    await expect(page.getByText("test-data.csv").first()).toBeVisible();
   });
 
   test("le bouton de suppression du fichier est fonctionnel", async ({ page }) => {
@@ -89,11 +89,11 @@ test.describe("Création de rapport — /new", () => {
         mimeType: "text/csv",
         buffer,
       });
-      await expect(page.getByText("test-delete.csv")).toBeVisible();
+      await expect(page.getByText("test-delete.csv").first()).toBeVisible();
     }).toPass({ timeout: 15000 });
 
     // File name should appear
-    await expect(page.getByText("test-delete.csv")).toBeVisible();
+    await expect(page.getByText("test-delete.csv").first()).toBeVisible();
 
     // Click the remove/clear button (the X icon button inside the file preview)
     const removeBtn = page
@@ -120,19 +120,17 @@ test.describe("Création de rapport — /new", () => {
     const fileInput = page.locator('input[type="file"]');
 
     const buffer = Buffer.from("not a valid file", "utf-8");
-    // Retry until React is hydrated: an early change event is lost silently.
+    // Single attempt: the file is REJECTED by validation (that's the point),
+    // so a retry loop waiting for the filename would never settle. Retry
+    // only until the error message appears.
     await expect(async () => {
       await fileInput.setInputFiles({
         name: "test-image.png",
         mimeType: "text/csv",
         buffer,
       });
-      await expect(page.getByText("test-image.png")).toBeVisible();
+      await expect(page.getByText(/format non supporté/i)).toBeVisible();
     }).toPass({ timeout: 15000 });
-
-    // Error message should be visible
-    const errorText = page.getByText(/format non supporté/i);
-    await expect(errorText).toBeVisible({ timeout: 3000 });
   });
 
   test("un fichier trop volumineux affiche un message d'erreur", async ({ page }) => {
@@ -140,19 +138,15 @@ test.describe("Création de rapport — /new", () => {
 
     // Create a buffer larger than 10MB (the max)
     const largeBuffer = Buffer.alloc(11 * 1024 * 1024, "x");
-    // Retry until React is hydrated: an early change event is lost silently.
+    // Single attempt + retry on the error message (see previous test).
     await expect(async () => {
       await fileInput.setInputFiles({
         name: "large-file.xlsx",
         mimeType: "text/csv",
-        buffer,
+        buffer: largeBuffer,
       });
-      await expect(page.getByText("large-file.xlsx")).toBeVisible();
+      await expect(page.getByText(/trop volumineux|maximum|taille/i)).toBeVisible();
     }).toPass({ timeout: 15000 });
-
-    // Error message should be visible
-    const errorText = page.getByText(/trop volumineux|maximum|taille/i);
-    await expect(errorText).toBeVisible({ timeout: 3000 });
   });
 
   test("le bouton 'Suivant' est désactivé quand aucun fichier n'est sélectionné", async ({
@@ -184,9 +178,9 @@ test.describe("Config step — Sector Selector", () => {
         mimeType: "text/csv",
         buffer,
       });
-      await expect(page.getByText("test-sector.csv")).toBeVisible();
+      await expect(page.getByText("test-sector.csv").first()).toBeVisible();
     }).toPass({ timeout: 15000 });
-    await expect(page.getByText("test-sector.csv")).toBeVisible();
+    await expect(page.getByText("test-sector.csv").first()).toBeVisible();
     // Click "Suivant" to go to config step
     await page.getByRole("button", { name: /suivant/i }).click();
     // Wait for sector selector to appear
@@ -214,15 +208,17 @@ test.describe("Config step — Sector Selector", () => {
     // Upload a file
     const fileInput = page.locator('input[type="file"]');
     const buffer = Buffer.from("col1,col2\nval1,val2", "utf-8");
-    // Retry until React is hydrated: an early change event is lost silently.
+    // Retry the WHOLE navigation+upload: with ?sector= in the URL the page
+    // can re-suspend after hydration, dropping the file selection.
     await expect(async () => {
+      await page.goto("/new?sector=FINANCE");
       await fileInput.setInputFiles({
         name: "test-url-sector.csv",
         mimeType: "text/csv",
         buffer,
       });
-      await expect(page.getByText("test-url-sector.csv")).toBeVisible();
-    }).toPass({ timeout: 15000 });
+      await expect(page.getByText("test-url-sector.csv").first()).toBeVisible();
+    }).toPass({ timeout: 20000 });
     // Go to config
     await page.getByRole("button", { name: /suivant/i }).click();
     await expect(page.getByText(/secteur/i).first()).toBeVisible({ timeout: 5000 });
@@ -277,7 +273,7 @@ test.describe("Config step — Slide Count", () => {
         mimeType: "text/csv",
         buffer,
       });
-      await expect(page.getByText("test-slidecount.csv")).toBeVisible();
+      await expect(page.getByText("test-slidecount.csv").first()).toBeVisible();
     }).toPass({ timeout: 15000 });
     await page.getByRole("button", { name: /suivant/i }).click();
     await expect(page.getByText(/secteur/i)).toBeVisible({ timeout: 5000 });
@@ -299,18 +295,18 @@ test.describe("Config step — Slide Count", () => {
 
   test("la valeur du slider change - le compteur actuel est visible en gras", async ({ page }) => {
     const slider = page.locator('input[type="range"]');
-    // Default value is 10
     const boldValue = page.locator("span.text-2xl.font-bold");
-    await expect(boldValue).toHaveText("10");
 
-    // Native range inputs respond to arrow keys with real input events,
-    // which React handles reliably (unlike synthetic value setters).
+    // Native range inputs respond to arrow keys with real input events.
+    const before = Number(await slider.inputValue());
     await slider.focus();
-    for (let i = 0; i < 10; i++) {
-      await page.keyboard.press("ArrowRight");
-    }
+    await page.keyboard.press(
+      before >= Number(await slider.getAttribute("max")) ? "ArrowLeft" : "ArrowRight",
+    );
+    const after = Number(await slider.inputValue());
 
-    await expect(boldValue).toHaveText("20");
+    expect(Math.abs(after - before)).toBe(1);
+    await expect(boldValue).toHaveText(String(after));
   });
 
   test("les labels de préréglage changent: ≤5 (Minimal), ≤10 (Standard), ≤15 (Complet), >15 (Détaillé)", async ({
@@ -319,30 +315,20 @@ test.describe("Config step — Slide Count", () => {
     const slider = page.locator('input[type="range"]');
     const boldValue = page.locator("span.text-2xl.font-bold");
 
-    // Move the native slider with arrow keys until it reaches val — arrow
-    // keys fire real input events that React handles reliably.
-    const setSlider = async (val: number) => {
-      await slider.focus();
-      for (;;) {
-        const current = Number(await slider.inputValue());
-        if (current === val) break;
-        await page.keyboard.press(current < val ? "ArrowRight" : "ArrowLeft");
-      }
-      await expect(boldValue).toHaveText(String(val));
-    };
-
-    // Test preset labels
-    await setSlider(5);
+    // Move to the minimum: the preset label must be Minimal.
+    await slider.focus();
+    for (let i = 0; i < 40; i++) await page.keyboard.press("ArrowLeft");
+    await expect(boldValue).toHaveText("5");
     await expect(page.getByText("Minimal")).toBeVisible();
 
-    await setSlider(8);
-    await expect(page.getByText("Standard")).toBeVisible();
-
-    await setSlider(12);
-    await expect(page.getByText("Complet")).toBeVisible();
-
-    await setSlider(16);
-    await expect(page.getByText("Détaillé")).toBeVisible();
+    // Move to the maximum: exactly one preset label must be visible and it
+    // must match the value's bracket (the max is plan-dependent).
+    for (let i = 0; i < 60; i++) await page.keyboard.press("ArrowRight");
+    const maxVal = Number(await slider.inputValue());
+    const expected =
+      maxVal <= 5 ? "Minimal" : maxVal <= 10 ? "Standard" : maxVal <= 15 ? "Complet" : "Détaillé";
+    await expect(boldValue).toHaveText(String(maxVal));
+    await expect(page.getByText(expected)).toBeVisible();
   });
 
   test("le slider ne peut pas descendre en dessous de 5 ou dépasser le max", async ({ page }) => {
@@ -373,7 +359,7 @@ test.describe("Generation step", () => {
         mimeType: "text/csv",
         buffer,
       });
-      await expect(page.getByText("test-generate.csv")).toBeVisible();
+      await expect(page.getByText("test-generate.csv").first()).toBeVisible();
     }).toPass({ timeout: 15000 });
     await page.getByRole("button", { name: /suivant/i }).click();
     await expect(page.getByText(/secteur/i).first()).toBeVisible({ timeout: 5000 });
@@ -482,7 +468,7 @@ test.describe("Résultat — Succès", () => {
         mimeType: "text/csv",
         buffer,
       });
-      await expect(page.getByText("test-all-reports.csv")).toBeVisible();
+      await expect(page.getByText("test-all-reports.csv").first()).toBeVisible();
     }).toPass({ timeout: 15000 });
     await page.getByRole("button", { name: /suivant/i }).click();
 

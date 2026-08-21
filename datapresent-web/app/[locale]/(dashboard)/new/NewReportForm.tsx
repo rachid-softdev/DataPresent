@@ -32,7 +32,9 @@ export default function NewReportForm({ maxSlides }: NewReportFormProps) {
   // Form state
   const [file, setFile] = useState<File | null>(null);
   const [sector, setSector] = useState(() => searchParams?.get("sector") || "GENERIC");
-  const [slideCount, setSlideCount] = useState(10);
+  // Default 10, clamped to the plan's maxSlides (FREE = 8) so the initial
+  // value never exceeds the slider range.
+  const [slideCount, setSlideCount] = useState(() => Math.min(10, maxSlides));
 
   // Stepper state
   const [currentStep, setCurrentStep] = useState<StepId>("upload");

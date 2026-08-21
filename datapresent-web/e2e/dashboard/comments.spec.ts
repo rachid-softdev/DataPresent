@@ -173,9 +173,13 @@ test.describe("Commentaires — panneau de commentaires sur la page détail rapp
     await page.waitForTimeout(1500);
 
     // The comment panel shows "Commentaires sur cette slide" when viewing a slide
-    const slideCommentsSection = page.getByText(/commentaires sur cette slide/i);
+    // (the button badge "N commentaires sur cette slide" also matches — use
+    // the section heading role).
+    const slideCommentsSection = page.getByRole("heading", {
+      name: /commentaires sur cette slide/i,
+    });
     // This might only appear when there are slide-specific comments
-    if (await slideCommentsSection.isVisible()) {
+    if ((await slideCommentsSection.count()) > 0) {
       await expect(slideCommentsSection).toBeVisible();
     }
   });
@@ -235,8 +239,10 @@ test.describe("Commentaires — panneau de commentaires sur la page détail rapp
     await page.getByRole("button", { name: /envoyer/i }).click();
     await page.waitForTimeout(1500);
 
-    // The header should show "Commentaires (1)" or more
-    const header = page.getByText(/commentaires \(\d+\)/i);
+    // The header should show "Commentaires" with a "(N)" count. In the DOM
+    // the heading and the count are adjacent siblings with no whitespace
+    // ("Commentaires(1)") — allow an optional space.
+    const header = page.getByText(/commentaires\s*\(\d+\)/i);
     await expect(header).toBeVisible();
   });
 
@@ -305,13 +311,16 @@ test.describe("Commentaires — panneau de commentaires sur la page détail rapp
     await page.waitForTimeout(1500);
     await expect(page.getByText("Commentaire à supprimer")).toBeVisible();
 
-    // Hover to reveal delete button
-    const commentText = page.getByText("Commentaire à supprimer");
-    const commentCard = commentText.locator("..");
-    await commentCard.hover();
+    // Hover to reveal delete button — scope to THIS comment's container:
+    // earlier tests leave other comments in the shared seeded report.
+    const commentGroup = page
+      .locator("div.group")
+      .filter({ hasText: "Commentaire à supprimer" })
+      .first();
+    await commentGroup.hover();
 
     // Click delete (trash) button
-    const deleteBtn = page.getByRole("button", { name: /supprimer le commentaire/i });
+    const deleteBtn = commentGroup.getByRole("button", { name: /supprimer le commentaire/i });
     await expect(deleteBtn).toBeVisible();
     await deleteBtn.click();
     await page.waitForTimeout(1500);
@@ -411,10 +420,11 @@ test.describe("Commentaires — cas limites", () => {
     await page.getByRole("button", { name: /envoyer/i }).click();
     await page.waitForTimeout(1500);
 
-    // The script tag should not be interpreted — content should be visible as text
-    const body = page.locator("body");
-    // The page should NOT show an alert dialog; instead the text should appear escaped
-    await expect(page.getByText(/<script>alert/i)).toBeVisible({ timeout: 3000 });
+    // The server-side sanitizer strips HTML tags: the stored body is the
+    // plain text "alert('XSS')" — visible as text, never executed.
+    await expect(page.getByText(/alert\('XSS'\)/).first()).toBeVisible({
+      timeout: 3000,
+    });
   });
 
   test("double clic rapide n'envoie pas deux commentaires identiques", async ({ page }) => {
@@ -427,10 +437,10 @@ test.describe("Commentaires — cas limites", () => {
     const textarea = page.locator("textarea").first();
     await textarea.fill("Éviter les doublons");
 
-    // Rapid double click
+    // Rapid double click in one gesture (the button disables itself after
+    // the first successful post, so two sequential clicks would hang).
     const submitBtn = page.getByRole("button", { name: /envoyer/i });
-    await submitBtn.click();
-    await submitBtn.click();
+    await submitBtn.dblclick();
     await page.waitForTimeout(1500);
 
     // There should be exactly one occurrence of the text
@@ -481,10 +491,15 @@ test.describe("Commentaires — cas limites", () => {
     await page.getByRole("button", { name: /envoyer/i }).click();
     await page.waitForTimeout(1500);
 
-    // Edit it
-    const commentText = page.getByText("Commentaire qui sera modifié");
-    await commentText.locator("..").hover();
-    await page.getByRole("button", { name: /modifier le commentaire/i }).click();
+    // Edit it — scope to THIS comment's container: earlier tests leave
+    // other comments in the shared seeded report, each with its own
+    // "Modifier le commentaire" button.
+    const commentGroup = page
+      .locator("div.group")
+      .filter({ hasText: "Commentaire qui sera modifié" })
+      .first();
+    await commentGroup.hover();
+    await commentGroup.getByRole("button", { name: /modifier le commentaire/i }).click();
     await page.waitForTimeout(500);
 
     const editTextarea = page.locator("textarea").last();

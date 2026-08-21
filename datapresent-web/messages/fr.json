@@ -433,7 +433,13 @@
       "description": "Choisissez la longueur de votre présentation"
     },
     "stallWarning": "Le traitement semble lent, veuillez patienter...",
-    "uploadError": "Échec du téléversement. Veuillez réessayer."
+    "uploadError": "Échec du téléversement. Veuillez réessayer.",
+    "stages": {
+      "analyse": "Analyse des données",
+      "charts": "Création des graphiques",
+      "layout": "Mise en page",
+      "finalize": "Finalisation du rapport"
+    }
   },
   "about": {
     "badge": "Notre histoire",
