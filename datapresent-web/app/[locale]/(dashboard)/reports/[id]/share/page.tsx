@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { apiFetch } from "@/lib/api-client";
 
 interface ShareSettings {
   isPublic: boolean;
@@ -91,7 +92,7 @@ export default function SharePage({ params }: { params: Promise<{ id: string }> 
 
     setSaving(true);
     try {
-      const res = await fetch(`/api/reports/${reportId}/share`, {
+      const res = await apiFetch(`/api/reports/${reportId}/share`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ isPublic: !settings.isPublic }),
@@ -113,7 +114,7 @@ export default function SharePage({ params }: { params: Promise<{ id: string }> 
   const saveSettings = async () => {
     setSaving(true);
     try {
-      const res = await fetch(`/api/reports/${reportId}/share`, {
+      const res = await apiFetch(`/api/reports/${reportId}/share`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -141,7 +142,7 @@ export default function SharePage({ params }: { params: Promise<{ id: string }> 
 
     setSaving(true);
     try {
-      const res = await fetch(`/api/reports/${reportId}/share`, {
+      const res = await apiFetch(`/api/reports/${reportId}/share`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ isPublic: false }),

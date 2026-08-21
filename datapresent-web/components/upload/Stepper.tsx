@@ -101,9 +101,11 @@ export function Stepper({ steps, currentStep, className }: StepperProps) {
 /** Pre-built default steps for report generation. */
 export function useReportSteps(t: (key: string) => string): Step[] {
   return [
-    { id: "upload", label: t("upload.title"), icon: Upload },
-    { id: "config", label: t("upload.sector.title"), icon: Settings2 },
-    { id: "generation", label: t("upload.generation.title"), icon: Sparkles },
-    { id: "result", label: t("upload.result.title"), icon: FileText },
+    // Short step labels — long page descriptions here would force the
+    // stepper (and the whole page) wider than narrow viewports.
+    { id: "upload", label: t("upload.steps.file"), icon: Upload },
+    { id: "config", label: t("upload.steps.config"), icon: Settings2 },
+    { id: "generation", label: t("upload.steps.generate"), icon: Sparkles },
+    { id: "result", label: t("upload.steps.result"), icon: FileText },
   ];
 }

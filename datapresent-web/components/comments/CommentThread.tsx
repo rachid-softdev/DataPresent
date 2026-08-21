@@ -6,6 +6,7 @@ import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { CommentInput } from "@/components/comments/CommentInput";
 import { Button } from "@/components/ui/button";
+import { apiFetch } from "@/lib/api-client";
 import { CommentItem } from "./CommentItem";
 
 interface Comment {
@@ -82,7 +83,7 @@ export const CommentThread = memo(function CommentThread({
   }, [reportId]);
 
   const handleSubmit = async (body: string) => {
-    const res = await fetch(`/api/reports/${reportId}/comments`, {
+    const res = await apiFetch(`/api/reports/${reportId}/comments`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ body, slideId: currentSlideId }),
@@ -95,7 +96,7 @@ export const CommentThread = memo(function CommentThread({
   };
 
   const handleEdit = async (commentId: string, body: string) => {
-    const res = await fetch(`/api/comments/${commentId}`, {
+    const res = await apiFetch(`/api/comments/${commentId}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ body }),
@@ -108,7 +109,7 @@ export const CommentThread = memo(function CommentThread({
   };
 
   const handleDelete = async (commentId: string) => {
-    const res = await fetch(`/api/comments/${commentId}`, {
+    const res = await apiFetch(`/api/comments/${commentId}`, {
       method: "DELETE",
     });
 

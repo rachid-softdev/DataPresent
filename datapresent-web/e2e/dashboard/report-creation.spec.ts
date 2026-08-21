@@ -199,26 +199,36 @@ test.describe("Config step — Sector Selector", () => {
     await expect(page.getByText("SaaS")).toBeVisible();
     await expect(page.getByText("Générique")).toBeVisible();
   });
-
   test("le secteur pré-sélectionné depuis l'URL — navigate with ?sector=FINANCE", async ({
     page,
   }) => {
-    // Go directly to /new?sector=FINANCE
-    await page.goto("/new?sector=FINANCE");
+    // Reach /new?sector=FINANCE through SPA navigation (the templates page
+    // uses router.push). A direct goto with the query param can leave the
+    // form stuck on its Suspense fallback in dev.
+    await page.goto("/templates");
+    await page
+      .locator('.app-filter-pill[data-sector="FINANCE"], .app-filter-pill')
+      .filter({ hasText: "Finance" })
+      .first()
+      .click();
+    const useBtn = page.getByRole("button", { name: /utiliser|sélectionner/i }).first();
+    await expect(useBtn).toBeVisible();
+    await useBtn.click();
+    await expect(page).toHaveURL(/\/new\?sector=FINANCE/);
+
     // Upload a file
     const fileInput = page.locator('input[type="file"]');
     const buffer = Buffer.from("col1,col2\nval1,val2", "utf-8");
-    // Retry the WHOLE navigation+upload: with ?sector= in the URL the page
-    // can re-suspend after hydration, dropping the file selection.
+    // Retry until React is hydrated: an early change event is lost silently.
     await expect(async () => {
-      await page.goto("/new?sector=FINANCE");
       await fileInput.setInputFiles({
         name: "test-url-sector.csv",
         mimeType: "text/csv",
         buffer,
       });
       await expect(page.getByText("test-url-sector.csv").first()).toBeVisible();
-    }).toPass({ timeout: 20000 });
+    }).toPass({ timeout: 15000 });
+
     // Go to config
     await page.getByRole("button", { name: /suivant/i }).click();
     await expect(page.getByText(/secteur/i).first()).toBeVisible({ timeout: 5000 });
