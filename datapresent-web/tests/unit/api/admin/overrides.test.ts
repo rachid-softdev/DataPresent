@@ -55,7 +55,8 @@ vi.mock("next/server", () => ({
   NextRequest: vi.fn(),
 }));
 
-import { DELETE, GET, POST } from "@/app/api/admin/overrides/route";
+import { GET, POST } from "@/app/api/admin/overrides/route";
+import { DELETE } from "@/app/api/admin/overrides/[id]/route";
 
 function makeRequest(
   method: "GET" | "POST" | "DELETE",
@@ -200,7 +201,7 @@ describe("Admin API — /api/admin/overrides", () => {
   // DELETE
   // -----------------------------------------------------------------------
   it("DELETE removes an override and invalidates the org cache", async () => {
-    await DELETE(makeRequest("DELETE", "http://localhost:3000/api/admin/overrides/ov-1"));
+    await DELETE(makeRequest("DELETE"), { params: Promise.resolve({ id: "ov-1" }) });
 
     expect(lastStatus).toBe(200);
     expect(mockDeleteOverride).toHaveBeenCalledWith("ov-1");
@@ -210,7 +211,7 @@ describe("Admin API — /api/admin/overrides", () => {
   it("DELETE returns 404 when the override does not exist", async () => {
     mockPrismaOverrideFindUnique.mockResolvedValue(null);
 
-    await DELETE(makeRequest("DELETE", "http://localhost:3000/api/admin/overrides/missing"));
+    await DELETE(makeRequest("DELETE"), { params: Promise.resolve({ id: "missing" }) });
 
     expect(lastStatus).toBe(404);
     expect(mockDeleteOverride).not.toHaveBeenCalled();
