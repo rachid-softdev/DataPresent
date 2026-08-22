@@ -432,6 +432,12 @@
       "charts": "Chart creation",
       "layout": "Page layout",
       "finalize": "Report finalization"
+    },
+    "steps": {
+      "file": "File",
+      "config": "Configuration",
+      "generate": "Generation",
+      "result": "Result"
     }
   },
   "about": {

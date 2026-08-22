@@ -440,6 +440,12 @@
       "charts": "Création des graphiques",
       "layout": "Mise en page",
       "finalize": "Finalisation du rapport"
+    },
+    "steps": {
+      "file": "Fichier",
+      "config": "Configuration",
+      "generate": "Génération",
+      "result": "Résultat"
     }
   },
   "about": {

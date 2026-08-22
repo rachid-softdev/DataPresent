@@ -152,17 +152,14 @@ test.describe("Dashboard responsive — Mobile (375px)", () => {
       timeout: 10000,
     });
     await expectNoHorizontalOverflow(page);
-    // Plan cards should be visible
-    const planCards = page.locator('[class*="card"], [class*="Card"]');
-    const count = await planCards.count();
-    if (count > 0) {
-      const firstBox = await planCards.first().boundingBox();
-      expect(firstBox).not.toBeNull();
-      if (firstBox) {
-        // On mobile, cards should span most of the viewport width
-        expect(firstBox.width).toBeGreaterThan(280);
-      }
-    }
+    // At least one card-like element must span most of the viewport width
+    // (the first [class*="card"] match can be a tiny decorative element).
+    await expect(async () => {
+      const widths = await page
+        .locator('[class*="card"], [class*="Card"]')
+        .evaluateAll((els) => els.map((el) => el.getBoundingClientRect().width));
+      expect(widths.some((w) => w > 280)).toBe(true);
+    }).toPass({ timeout: 10000 });
   });
 
   test("la page /settings/team est lisible sur mobile", async ({ page }) => {
