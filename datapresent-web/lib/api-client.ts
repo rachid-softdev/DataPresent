@@ -16,6 +16,15 @@ async function fetchCsrfToken(): Promise<string> {
   return csrfTokenPromise;
 }
 
+/**
+ * Resolve (and cache) the current CSRF token. For callers that issue
+ * mutations outside apiFetch — e.g. XMLHttpRequest uploads that need
+ * progress events — so they can attach the x-csrf-token header themselves.
+ */
+export function getCsrfToken(): Promise<string> {
+  return fetchCsrfToken();
+}
+
 export function invalidateCsrfToken(): void {
   csrfTokenPromise = null;
 }

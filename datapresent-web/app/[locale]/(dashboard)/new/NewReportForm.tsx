@@ -17,6 +17,7 @@ import { SectorSelector } from "@/components/upload/SectorSelector";
 import { SlideCountSlider } from "@/components/upload/SlideCountSlider";
 import type { StepId } from "@/components/upload/Stepper";
 import { Stepper, useReportSteps } from "@/components/upload/Stepper";
+import { getCsrfToken } from "@/lib/api-client";
 
 const STALL_TIMEOUT_MS = 30_000;
 const POLL_INTERVAL_MS = 3_000;
@@ -281,7 +282,17 @@ export default function NewReportForm({ maxSlides }: NewReportFormProps) {
     };
 
     xhr.open("POST", "/api/upload");
-    xhr.send(formData);
+    // /api/upload enforces CSRF — attach the token before sending. Fire-and-
+    // forget: if the token fetch fails the server rejects with 403 and the
+    // normal error path handles it.
+    void getCsrfToken()
+      .then((token) => {
+        xhr.setRequestHeader("x-csrf-token", token);
+        xhr.send(formData);
+      })
+      .catch(() => {
+        xhr.send(formData);
+      });
 
     resetStallTimer();
   }, [file, sector, slideCount, t, clearStallTimer, resetStallTimer, startPolling, stopPolling]);

@@ -354,7 +354,7 @@ test.describe("Generation step", () => {
   test.beforeEach(async ({ page }) => {
     // Hold the upload POST so it never completes: on CI the real API would
     // error quickly and unmount the generation UI these tests assert on.
-    await page.route("**/api/reports", () => {});
+    await page.route("**/api/upload", () => {});
     await page.goto("/new");
     const fileInput = page.locator('input[type="file"]');
     const buffer = Buffer.from("col1,col2\nval1,val2", "utf-8");
