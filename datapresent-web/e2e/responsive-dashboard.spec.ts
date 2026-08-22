@@ -152,13 +152,16 @@ test.describe("Dashboard responsive — Mobile (375px)", () => {
       timeout: 10000,
     });
     await expectNoHorizontalOverflow(page);
-    // At least one card-like element must span most of the viewport width
-    // (the first [class*="card"] match can be a tiny decorative element).
+    // The PlanSelector grid is single-column below md. The UI Card component
+    // carries no "card" class, so measure the grid itself: it must span
+    // most of the viewport.
+    const grid = page.locator(".grid.md\\:grid-cols-4");
     await expect(async () => {
-      const widths = await page
-        .locator('[class*="card"], [class*="Card"]')
-        .evaluateAll((els) => els.map((el) => el.getBoundingClientRect().width));
-      expect(widths.some((w) => w > 280)).toBe(true);
+      const box = await grid.boundingBox();
+      expect(box).not.toBeNull();
+      if (box) {
+        expect(box.width).toBeGreaterThan(280);
+      }
     }).toPass({ timeout: 10000 });
   });
 
