@@ -427,12 +427,11 @@ test.describe("Commentaires — cas limites", () => {
     await page.getByRole("button", { name: /envoyer/i }).click();
     await page.waitForTimeout(1500);
 
-    // The server-side sanitizer strips HTML tags and entity-encodes quotes:
-    // the payload ends up as inert text ("alert('XSS')" or with encoded
-    // quotes) — visible as text, never executed.
-    await expect(page.getByText(/alert\(.{0,12}XSS.{0,12}\)/).first()).toBeVisible({
-      timeout: 3000,
-    });
+    // The sanitizer strips <script> tags entirely (JSDOM textContent drops
+    // script content), so the payload is stored/rendered inert. Assert the
+    // raw markup never reached the DOM unescaped.
+    const html = await page.locator("body").innerHTML();
+    expect(html).not.toContain("<script>alert");
   });
 
   test("double clic rapide n'envoie pas deux commentaires identiques", async ({ page }) => {

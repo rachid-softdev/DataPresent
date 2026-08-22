@@ -17,6 +17,9 @@ import { expect, test } from "@playwright/test";
 // ─────────────────────────────────────────────
 
 async function expectNoHorizontalOverflow(page: import("@playwright/test").Page) {
+  // Let framer-motion entrance transitions settle: step content slides in
+  // from x+60, which momentarily extends scrollWidth.
+  await page.waitForTimeout(450);
   // Small tolerance for cross-platform subpixel/font-rendering differences
   const result = await page.evaluate(() => {
     const tolerance = 4;
@@ -125,19 +128,21 @@ test.describe("Dashboard responsive — Mobile (375px)", () => {
 
   test("la page /settings/profile est utilisable à 375px", async ({ page }) => {
     await page.goto("/settings/profile");
+    // The form loads via a client fetch - wait for it before measuring.
+    await expect(page.getByLabel(/nom|name/i).first()).toBeVisible({ timeout: 10000 });
     await expectNoHorizontalOverflow(page);
-    // Form fields should be visible
-    const inputs = page.locator("input");
-    const count = await inputs.count();
-    expect(count).toBeGreaterThan(0);
-    // Inputs should have reasonable width (allow narrower on tiny screens)
-    if (count > 0) {
-      const box = await inputs.first().boundingBox();
+    // Form fields should be visible with reasonable width (allow narrower
+    // on tiny screens). Retry: dev-mode hydration reloads can briefly
+    // empty the DOM.
+    await expect(async () => {
+      const input = page.locator("input").first();
+      await expect(input).toBeVisible();
+      const box = await input.boundingBox();
       expect(box).not.toBeNull();
       if (box) {
         expect(box.width).toBeGreaterThan(200);
       }
-    }
+    }).toPass({ timeout: 10000 });
   });
 
   test("la page /settings/billing affiche les cartes empilées", async ({ page }) => {
