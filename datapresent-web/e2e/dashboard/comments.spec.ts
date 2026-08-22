@@ -278,19 +278,24 @@ test.describe("Commentaires — panneau de commentaires sur la page détail rapp
     await page.getByRole("button", { name: /envoyer/i }).click();
     await page.waitForTimeout(1500);
 
-    // Hover over the comment to reveal edit/delete buttons
-    const commentText = page.getByText("Texte original du commentaire");
-    const commentCard = commentText.locator("..");
-    await commentCard.hover();
+    // Hover over the comment to reveal edit/delete buttons — scope to THIS
+    // comment's container (other tests leave comments in the shared report).
+    const commentGroup = page
+      .locator("div.group")
+      .filter({ hasText: "Texte original du commentaire" })
+      .first();
+    await commentGroup.hover();
 
     // Click the edit (pencil) button
-    const editBtn = page.getByRole("button", { name: /modifier le commentaire/i });
+    const editBtn = commentGroup.getByRole("button", { name: /modifier le commentaire/i });
     await expect(editBtn).toBeVisible();
     await editBtn.click();
     await page.waitForTimeout(500);
 
-    // Change the text and save
-    const editTextarea = page.locator("textarea").last();
+    // Change the text and save. Scope to the group: the panel's own input
+    // textarea sits LATER in the DOM than the inline edit textarea, so a
+    // page-wide .last() would target the wrong one.
+    const editTextarea = commentGroup.locator("textarea");
     await editTextarea.fill("Texte modifié du commentaire");
     await page.getByRole("button", { name: /sauvegarder/i }).click();
     await page.waitForTimeout(1500);
@@ -475,8 +480,9 @@ test.describe("Commentaires — cas limites", () => {
     await editBtn.click();
     await page.waitForTimeout(500);
 
-    // Change text then cancel
-    const editTextarea = page.locator("textarea").last();
+    // Change text then cancel — scope the textarea to the group (the
+    // panel's input sits later in the DOM than the inline edit textarea).
+    const editTextarea = commentGroup.locator("textarea");
     await editTextarea.fill("Texte modifié non sauvegardé");
     await page.getByRole("button", { name: /annuler/i }).click();
     await page.waitForTimeout(500);
@@ -509,7 +515,9 @@ test.describe("Commentaires — cas limites", () => {
     await commentGroup.getByRole("button", { name: /modifier le commentaire/i }).click();
     await page.waitForTimeout(500);
 
-    const editTextarea = page.locator("textarea").last();
+    // Scope the edit textarea to the group (the panel's input sits later
+    // in the DOM than the inline edit textarea).
+    const editTextarea = commentGroup.locator("textarea");
     await editTextarea.fill("Commentaire modifié");
     await page.getByRole("button", { name: /sauvegarder/i }).click();
     await page.waitForTimeout(1500);

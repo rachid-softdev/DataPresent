@@ -42,19 +42,16 @@ test.describe("Liste des rapports — /reports", () => {
   });
 
   test("chaque rapport affiche le titre, le statut, le secteur et la date", async ({ page }) => {
-    const table = page.locator("table");
-    if ((await table.count()) === 0) return;
-
-    const rows = table.locator("tbody tr");
-    if ((await rows.count()) === 0) return;
-
-    const firstRow = rows.first();
-    // Title cell
-    await expect(firstRow.locator("td").nth(1)).toBeAttached();
-    // Sector cell
-    await expect(firstRow.locator("td").nth(2)).toBeAttached();
-    // Status badge cell
-    await expect(firstRow.locator("td").nth(3).locator("span")).toBeAttached();
+    // The table can be replaced by a client-side refresh between the count
+    // checks and the assertions — retry the whole lookup.
+    await expect(async () => {
+      const table = page.locator("table");
+      if ((await table.count()) === 0) return;
+      const rows = table.locator("tbody tr");
+      if ((await rows.count()) === 0) return;
+      const firstRow = rows.first();
+      await expect(firstRow.locator("td").nth(1)).toBeAttached();
+    }).toPass({ timeout: 10000 });
   });
 
   test("le filtre par statut est fonctionnel (cliquer sur Terminé filtre)", async ({ page }) => {

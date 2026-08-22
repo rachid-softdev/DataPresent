@@ -34,8 +34,8 @@ export function Stepper({ steps, currentStep, className }: StepperProps) {
           const Icon = step.icon;
 
           return (
-            <li key={step.id} className="flex items-center flex-1 last:flex-none">
-              <div className="flex items-center gap-3">
+            <li key={step.id} className="flex items-center flex-1 last:flex-none min-w-0">
+              <div className="flex items-center gap-3 min-w-0">
                 {/* Step indicator */}
                 <div
                   className={cn(
@@ -64,11 +64,11 @@ export function Stepper({ steps, currentStep, className }: StepperProps) {
                   )}
                 </div>
 
-                {/* Label — hidden on narrow screens */}
-                <div className="hidden sm:block">
+                {/* Label — hidden on narrow screens, truncated when tight */}
+                <div className="hidden lg:block min-w-0">
                   <p
                     className={cn(
-                      "text-sm font-medium leading-tight transition-colors duration-300",
+                      "text-sm font-medium leading-tight transition-colors duration-300 truncate",
                       isCompleted && "text-primary",
                       isCurrent && "text-foreground",
                       isPending && "text-muted-foreground/50",

@@ -142,6 +142,10 @@ test.describe("Dashboard responsive — Mobile (375px)", () => {
 
   test("la page /settings/billing affiche les cartes empilées", async ({ page }) => {
     await page.goto("/settings/billing");
+    // Wait for the plan cards (server component, but be safe on cold loads).
+    await expect(page.getByRole("heading", { name: /facturation|billing/i })).toBeVisible({
+      timeout: 10000,
+    });
     await expectNoHorizontalOverflow(page);
     // Plan cards should be visible
     const planCards = page.locator('[class*="card"], [class*="Card"]');
@@ -291,6 +295,8 @@ test.describe("Dashboard responsive — Desktop (1440px)", () => {
 
   test("les champs du formulaire de profil ne débordent pas", async ({ page }) => {
     await page.goto("/settings/profile");
+    // Wait for the client-loaded form before measuring.
+    await expect(page.getByLabel(/nom|name/i).first()).toBeVisible({ timeout: 10000 });
     await expectNoHorizontalOverflow(page);
     const inputs = page.locator("input");
     const count = await inputs.count();
