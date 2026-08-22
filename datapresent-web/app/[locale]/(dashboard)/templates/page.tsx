@@ -88,7 +88,7 @@ export default function TemplatesPage() {
                     {template.slideCount.min}-{template.slideCount.max} slides
                   </span>
                   <Button size="sm" onClick={() => handleUseTemplate(template)}>
-                    {t("select")}
+                    {t("use")}
                   </Button>
                 </div>
               </div>

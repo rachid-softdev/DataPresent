@@ -411,7 +411,8 @@
   },
   "templates": {
     "title": "Report templates",
-    "select": "Select a template to start your presentation"
+    "select": "Select a template to start your presentation",
+    "use": "Select"
   },
   "upload": {
     "title": "Upload your data to generate the presentation",

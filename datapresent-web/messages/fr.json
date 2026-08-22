@@ -419,7 +419,8 @@
   },
   "templates": {
     "title": "Modèles de rapports",
-    "select": "Sélectionnez un modèle pour démarrer votre présentation"
+    "select": "Sélectionnez un modèle pour démarrer votre présentation",
+    "use": "Sélectionner"
   },
   "upload": {
     "title": "Téléchargez vos données pour générer la présentation",

@@ -204,15 +204,11 @@ test.describe("Config step — Sector Selector", () => {
   }) => {
     // Reach /new?sector=FINANCE through SPA navigation (the templates page
     // uses router.push). A direct goto with the query param can leave the
-    // form stuck on its Suspense fallback in dev.
+    // form stuck on its Suspense fallback in dev. The FIRST template is
+    // FINANCE, so no filter needed.
     await page.goto("/templates");
-    await page
-      .locator('.app-filter-pill[data-sector="FINANCE"], .app-filter-pill')
-      .filter({ hasText: "Finance" })
-      .first()
-      .click();
-    const useBtn = page.getByRole("button", { name: /utiliser|sélectionner/i }).first();
-    await expect(useBtn).toBeVisible();
+    const useBtn = page.getByRole("button", { name: /sélectionner|utiliser/i }).first();
+    await expect(useBtn).toBeVisible({ timeout: 10000 });
     await useBtn.click();
     await expect(page).toHaveURL(/\/new\?sector=FINANCE/);
 
@@ -409,11 +405,17 @@ test.describe("Generation step", () => {
   test("le téléversement bloqué affiche un avertissement après 30s", async ({ page }) => {
     // This test validates that the stall warning component exists
     // The actual 30s wait is not feasible in E2E, so we verify the UI elements
-    // that would appear: amber-colored alert banner
-    await page.locator('[data-onboarding="generate-button"]').click();
-
-    // The stall warning container should exist in the DOM (even if hidden initially)
-    await expect(page.getByText(/génération du rapport/i)).toBeVisible({ timeout: 5000 });
+    // that would appear: amber-colored alert banner.
+    // Retry: the generate button vanishes once the step switches, and the
+    // slide-in animation can swallow a mis-timed click.
+    const genBtn = page.locator('[data-onboarding="generate-button"]');
+    await expect(genBtn).toBeVisible();
+    await expect(async () => {
+      if ((await genBtn.count()) > 0) {
+        await genBtn.click();
+      }
+      await expect(page.getByText(/génération du rapport/i).first()).toBeVisible();
+    }).toPass({ timeout: 15000 });
   });
 });
 

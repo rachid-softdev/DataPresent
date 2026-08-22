@@ -8,7 +8,8 @@ test.describe("Déconnexion — Sign out", () => {
   }) => {
     // Naviguer vers la page des paramètres du compte (nécessite auth)
     await page.goto("/settings/account");
-    await expect(page.locator("h1")).toBeVisible();
+    // .first(): the page renders a duplicated (hidden) title variant
+    await expect(page.locator("h1").first()).toBeVisible();
 
     // Cliquer sur le bouton de déconnexion
     const signOutButton = page.getByRole("button", { name: /Déconnexion/i });
