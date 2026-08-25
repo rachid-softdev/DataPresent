@@ -8,6 +8,8 @@ interface HeaderProps {
   hideAuth?: boolean;
 }
 
+const IS_DEV = process.env.NODE_ENV === "development";
+
 export function Header({ hideAuth = false }: HeaderProps) {
   const t = useTranslations("nav");
 
@@ -30,21 +32,31 @@ export function Header({ hideAuth = false }: HeaderProps) {
           </div>
           <span className="app-logo-text">DataPresent</span>
         </Link>
-        {!hideAuth && (
-          <div className="flex items-center gap-3">
-            <ThemeToggle />
-            <Link href="/login" className="app-btn app-btn-ghost app-btn-sm">
-              {t("login")}
-            </Link>
+        <div className="flex items-center gap-3">
+          {IS_DEV && (
             <Link
-              href="/signup"
-              className="app-btn app-btn-primary app-btn-sm hidden! sm:inline-flex!"
+              href="/dev/pages"
+              className="app-btn app-btn-ghost app-btn-sm text-red-500 hover:text-red-600"
             >
-              {t("signup")}
+              Dev
             </Link>
-          </div>
-        )}
-        {hideAuth && <ThemeToggle />}
+          )}
+          {!hideAuth && (
+            <>
+              <ThemeToggle />
+              <Link href="/login" className="app-btn app-btn-ghost app-btn-sm">
+                {t("login")}
+              </Link>
+              <Link
+                href="/signup"
+                className="app-btn app-btn-primary app-btn-sm hidden! sm:inline-flex!"
+              >
+                {t("signup")}
+              </Link>
+            </>
+          )}
+          {hideAuth && <ThemeToggle />}
+        </div>
       </div>
     </header>
   );

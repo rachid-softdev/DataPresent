@@ -70,6 +70,11 @@ export function proxy(request: NextRequest) {
   // Set x-request-id on request headers for downstream usage
   request.headers.set("x-request-id", requestId);
 
+  // === Dev-only routes: block in production ===
+  if (process.env.NODE_ENV !== "development" && pathname.startsWith("/dev/")) {
+    return NextResponse.rewrite(new URL("/404", request.url));
+  }
+
   // === API Routes: CORS handling ===
   if (pathname.startsWith("/api/")) {
     // Handle CORS preflight
