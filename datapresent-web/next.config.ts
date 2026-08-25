@@ -100,6 +100,15 @@ const nextConfig: NextConfig = {
         ],
       },
       {
+        source: "/dev/(.*)",
+        headers: [
+          {
+            key: "Content-Security-Policy",
+            value: "frame-ancestors 'self'",
+          },
+        ],
+      },
+      {
         source: "/api/(.*)",
         headers: [
           {

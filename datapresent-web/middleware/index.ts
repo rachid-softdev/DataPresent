@@ -70,6 +70,11 @@ export function middleware(request: NextRequest): NextResponse {
     return response;
   }
 
+  // Dev-only routes: block in production (defense in depth alongside notFound() guard)
+  if (process.env.NODE_ENV !== "development" && pathname.startsWith("/dev/")) {
+    return NextResponse.rewrite(new URL("/404", request.url));
+  }
+
   if (pathname.startsWith("/api")) {
     if (request.method === "OPTIONS") {
       const response = new NextResponse(null, { status: 204 });

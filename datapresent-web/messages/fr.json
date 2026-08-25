@@ -649,5 +649,24 @@
       "unlimited": "Illimité",
       "warning": "Vous avez utilisé {percent}% de votre quota de rapports"
     }
+  },
+  "devPages": {
+    "title": "Dev Pages",
+    "intro": "Toutes les pages de développement : templates email et pages d'état de l'application.",
+    "emailTemplates": "Templates Email",
+    "emailIntro": "Templates rendus dans des iframes sandboxées.",
+    "statePages": "Pages d'état",
+    "stateIntro": "Les pages d'état de l'application (erreurs, 404, chargement), rendues en iframe ou directement.",
+    "page404": "404 — Page introuvable",
+    "pageError": "Erreur applicative (_error)",
+    "pageGlobalError": "Erreur globale (global-error)",
+    "pageLoading": "Chargement (loading)",
+    "technical": "Détails techniques",
+    "layoutLabel": "Layout :",
+    "layoutDesc": "Header + Footer. Aucune authentification requise.",
+    "emailLabel": "Templates email :",
+    "emailDesc": "2 templates (magic-link, welcome) chargés côté serveur via lib/email-templates/, previewés via srcDoc iframes.",
+    "securityLabel": "Sécurité :",
+    "securityDesc": "Bloqué en production par proxy rewrite, guard notFound(), et robots.txt disallow."
   }
 }

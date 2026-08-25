@@ -641,5 +641,24 @@
       "unlimited": "Unlimited",
       "warning": "You have used {percent}% of your report quota"
     }
+  },
+  "devPages": {
+    "title": "Dev Pages",
+    "intro": "All dev-only pages: email template previews, application state pages, and loading states.",
+    "emailTemplates": "Email Templates",
+    "emailIntro": "Templates rendered in sandboxed iframes.",
+    "statePages": "State Pages",
+    "stateIntro": "Application state pages (errors, 404, loading), rendered in iframes or directly.",
+    "page404": "404 — Page not found",
+    "pageError": "Application error (_error)",
+    "pageGlobalError": "Global error (global-error)",
+    "pageLoading": "Loading (loading)",
+    "technical": "Technical Details",
+    "layoutLabel": "Layout:",
+    "layoutDesc": "Header + Footer. No authentication required.",
+    "emailLabel": "Email templates:",
+    "emailDesc": "2 templates (magic-link, welcome) loaded server-side via lib/email-templates/, previewed via srcDoc iframes.",
+    "securityLabel": "Security:",
+    "securityDesc": "Blocked in production by proxy rewrite, notFound() guard, and robots.txt disallow."
   }
 }
