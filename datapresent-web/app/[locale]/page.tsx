@@ -11,7 +11,7 @@ import {
   LandingHero,
   LandingHowItWorks,
   LandingPricing,
-  LandingTestimonials,
+  LandingUseCases,
 } from "@/components/landing";
 import { LandingFaq } from "@/components/landing/landing-faq";
 import { Reveal } from "@/components/landing/Reveal";
@@ -134,9 +134,9 @@ export default async function RootPage() {
           <LandingPricing title={t("pricing.title")} subtitle={t("pricing.subtitle")} />
         </Reveal>
 
-        {/* ─── Testimonials ─── */}
+        {/* ─── Use cases ─── */}
         <Reveal>
-          <LandingTestimonials title={t("testimonials.title")} />
+          <LandingUseCases title={t("useCases.title")} />
         </Reveal>
 
         {/* ─── FAQ ─── */}

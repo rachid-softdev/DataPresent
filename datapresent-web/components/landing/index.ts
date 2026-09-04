@@ -6,4 +6,4 @@ export { LandingFormats } from "./landing-formats";
 export { LandingHero } from "./landing-hero";
 export { LandingHowItWorks } from "./landing-how-it-works";
 export { LandingPricing } from "./landing-pricing";
-export { LandingTestimonials } from "./landing-testimonials";
+export { LandingUseCases } from "./landing-use-cases";
