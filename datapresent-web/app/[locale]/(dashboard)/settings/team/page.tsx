@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
+import { apiFetch } from "@/lib/api-client";
 
 interface TeamMember {
   id: string;
@@ -111,7 +112,7 @@ export default function TeamPage() {
     setInviteError("");
 
     try {
-      const res = await fetch(`/api/organizations/${orgId}/members`, {
+      const res = await apiFetch(`/api/organizations/${orgId}/members`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: inviteEmail, role: inviteRole }),
@@ -140,7 +141,7 @@ export default function TeamPage() {
     if (!orgId || !confirm("Êtes-vous sûr de vouloir supprimer ce membre ?")) return;
 
     try {
-      const res = await fetch(`/api/organizations/${orgId}/members`, {
+      const res = await apiFetch(`/api/organizations/${orgId}/members`, {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId: memberId }),

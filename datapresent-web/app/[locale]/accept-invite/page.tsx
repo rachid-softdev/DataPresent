@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { apiFetch } from "@/lib/api-client";
 
 function AcceptInviteContent() {
   const t = useTranslations();
@@ -40,7 +41,7 @@ function AcceptInviteContent() {
       const sessionData = await sessionRes.json();
 
       // Now accept the invite
-      const res = await fetch("/api/auth/accept-invite", {
+      const res = await apiFetch("/api/auth/accept-invite", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ token }),

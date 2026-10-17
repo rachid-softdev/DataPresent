@@ -4,6 +4,7 @@ import { badRequest, ERROR_CODES, forbidden, notFound, unauthorized } from "@/li
 import { prisma } from "@/lib/prisma";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { sanitizeComment } from "@/lib/sanitize";
+import { withCsrfProtection } from "@/lib/security";
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
@@ -50,6 +51,9 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   if (!session?.user?.id) {
     return unauthorized();
   }
+
+  const csrfResponse = await withCsrfProtection(req, session.user.id);
+  if (csrfResponse) return csrfResponse;
 
   // Rate limiting: 50 comments per hour per user
   const allowed = await checkRateLimit(`comments:${session.user.id}`, {

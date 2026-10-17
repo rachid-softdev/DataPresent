@@ -20,6 +20,7 @@ export const ERROR_CODES = {
   ERR_VALIDATION_FORMAT_NOT_ALLOWED: "errors.validation.formatNotAllowed",
 
   ERR_RESOURCE_NOT_FOUND: "errors.resource.notFound",
+  ERR_RESOURCE_LIMIT_REACHED: "errors.resource.limitReached",
   ERR_RESOURCE_FORBIDDEN: "errors.resource.forbidden",
   ERR_RESOURCE_MEMBER_NOT_FOUND: "errors.resource.memberNotFound",
   ERR_RESOURCE_ALREADY_MEMBER: "errors.resource.alreadyMember",

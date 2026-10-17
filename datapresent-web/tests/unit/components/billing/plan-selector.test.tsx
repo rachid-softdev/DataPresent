@@ -39,9 +39,14 @@ describe("PlanSelector", () => {
   });
 
   it("calls fetch when a paid plan is selected", async () => {
-    const mockFetch = vi.fn().mockResolvedValue({
-      ok: true,
-      json: async () => ({ url: "https://checkout.stripe.com/test" }),
+    const mockFetch = vi.fn().mockImplementation((url: string) => {
+      if (url === "/api/csrf-token") {
+        return Promise.resolve({ ok: true, json: async () => ({ token: "csrf-token-test" }) });
+      }
+      return Promise.resolve({
+        ok: true,
+        json: async () => ({ url: "https://checkout.stripe.com/test" }),
+      });
     });
     vi.stubGlobal("fetch", mockFetch);
 
@@ -54,11 +59,13 @@ describe("PlanSelector", () => {
     fireEvent.click(subscribeButton);
 
     await waitFor(() => {
-      expect(mockFetch).toHaveBeenCalledWith("/api/stripe/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ plan: "PRO" }),
-      });
+      expect(mockFetch).toHaveBeenCalledWith(
+        "/api/stripe/checkout",
+        expect.objectContaining({
+          method: "POST",
+          body: JSON.stringify({ plan: "PRO" }),
+        }),
+      );
     });
 
     Object.defineProperty(window, "location", { value: originalLocation, writable: true });

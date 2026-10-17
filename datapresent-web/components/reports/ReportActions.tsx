@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { ShareModal } from "@/components/share/ShareModal";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { apiFetch } from "@/lib/api-client";
 
 interface ReportActionsProps {
   reportId: string;
@@ -21,7 +22,7 @@ export function ReportActions({ reportId, status }: ReportActionsProps) {
     if (exportingFormat) return;
     setExportingFormat(format);
     try {
-      const res = await fetch(`/api/reports/${reportId}/export`, {
+      const res = await apiFetch(`/api/reports/${reportId}/export`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ format }),
@@ -44,7 +45,7 @@ export function ReportActions({ reportId, status }: ReportActionsProps) {
   const handleRegenerate = async () => {
     setRegenerating(true);
     try {
-      const res = await fetch(`/api/reports/${reportId}/regenerate`, {
+      const res = await apiFetch(`/api/reports/${reportId}/regenerate`, {
         method: "POST",
       });
 

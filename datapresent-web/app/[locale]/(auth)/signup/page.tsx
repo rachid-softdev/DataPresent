@@ -8,6 +8,7 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { GoogleIcon } from "@/components/ui/icons";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { apiFetch } from "@/lib/api-client";
 
 export default function SignupPage() {
   const searchParams = useSearchParams();
@@ -24,7 +25,7 @@ export default function SignupPage() {
     setMessage(null);
 
     try {
-      const res = await fetch("/api/auth/signup", {
+      const res = await apiFetch("/api/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),

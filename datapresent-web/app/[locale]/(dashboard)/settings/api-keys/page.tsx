@@ -18,6 +18,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { apiFetch } from "@/lib/api-client";
 
 interface ApiKey {
   id: string;
@@ -73,7 +74,7 @@ export default function ApiKeysPage() {
     setError("");
 
     try {
-      const res = await fetch("/api/api-keys", {
+      const res = await apiFetch("/api/api-keys", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: newKeyName.trim() }),
@@ -102,7 +103,7 @@ export default function ApiKeysPage() {
 
     setRevokingKeyId(keyId);
     try {
-      const res = await fetch(`/api/api-keys?id=${keyId}`, {
+      const res = await apiFetch(`/api/api-keys?id=${keyId}`, {
         method: "DELETE",
       });
 

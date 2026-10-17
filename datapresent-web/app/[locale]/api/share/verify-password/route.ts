@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { extractClientIP } from "@/lib/client-ip";
+import { hasFeature } from "@/lib/entitlements/feature-gate";
 import { notFound, unauthorized } from "@/lib/errors";
 import { verifyPassword } from "@/lib/password";
 import { prisma } from "@/lib/prisma";
@@ -44,9 +45,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "errors.resource.expired" }, { status: 410 });
     }
 
+    // Watermark state follows the entitlement system (same source as the export
+    // worker) rather than the raw subscription plan value.
+    const showWatermark = await hasFeature(report.org.id, "watermark");
+
     // If no password is set, allow access
     if (!report.sharePassword) {
-      const plan = report.org.subscription?.plan || "FREE";
       return NextResponse.json({
         report: {
           id: report.id,
@@ -60,7 +64,7 @@ export async function POST(req: NextRequest) {
             contentJson: slide.contentJson,
             speakerNotes: slide.speakerNotes,
           })),
-          isWatermarked: plan === "FREE",
+          isWatermarked: showWatermark,
         },
       });
     }
@@ -73,8 +77,6 @@ export async function POST(req: NextRequest) {
     }
 
     // Password is correct, return the report
-    const plan = report.org.subscription?.plan || "FREE";
-
     return NextResponse.json({
       report: {
         id: report.id,
@@ -88,7 +90,7 @@ export async function POST(req: NextRequest) {
           contentJson: slide.contentJson,
           speakerNotes: slide.speakerNotes,
         })),
-        isWatermarked: plan === "FREE",
+        isWatermarked: showWatermark,
       },
     });
   } catch (error) {

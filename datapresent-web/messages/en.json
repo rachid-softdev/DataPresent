@@ -81,6 +81,7 @@
     },
     "resource": {
       "notFound": "Not found",
+      "limitReached": "Monthly limit reached. Upgrade your plan to continue.",
       "forbidden": "Access forbidden",
       "memberNotFound": "User not found",
       "alreadyMember": "User is already a member",
@@ -169,9 +170,13 @@
         "name": "Free",
         "description": "For individuals getting started"
       },
+      "starter": {
+        "name": "Starter",
+        "description": "For professionals"
+      },
       "pro": {
         "name": "Pro",
-        "description": "For professionals and small teams"
+        "description": "For teams and collaboration"
       },
       "enterprise": {
         "name": "Enterprise",

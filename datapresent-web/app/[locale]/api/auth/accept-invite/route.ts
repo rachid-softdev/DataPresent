@@ -3,7 +3,7 @@ import { auth } from "@/lib/auth";
 import { extractTokenPrefix, verifyToken } from "@/lib/crypto";
 import { prisma } from "@/lib/prisma";
 import { checkRateLimit } from "@/lib/rate-limit";
-import { logApiError } from "@/lib/security";
+import { logApiError, withCsrfProtection } from "@/lib/security";
 
 export async function POST(req: NextRequest) {
   try {
@@ -11,6 +11,9 @@ export async function POST(req: NextRequest) {
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+
+    const csrfResponse = await withCsrfProtection(req, session.user.id);
+    if (csrfResponse) return csrfResponse;
 
     const { token } = await req.json();
 

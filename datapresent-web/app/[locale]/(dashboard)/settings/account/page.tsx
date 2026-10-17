@@ -9,6 +9,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { apiFetch } from "@/lib/api-client";
 
 export default function AccountPage() {
   const router = useRouter();
@@ -20,7 +21,7 @@ export default function AccountPage() {
   };
 
   const handleDeleteAccount = async () => {
-    const res = await fetch("/api/user", { method: "DELETE" });
+    const res = await apiFetch("/api/user", { method: "DELETE" });
 
     if (res.ok) {
       toast.success(t("account.delete"));

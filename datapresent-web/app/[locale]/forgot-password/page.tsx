@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { toast } from "sonner";
+import { apiFetch } from "@/lib/api-client";
 
 export default function ForgotPasswordPage() {
   const t = useTranslations();
@@ -22,7 +23,7 @@ export default function ForgotPasswordPage() {
     setSuccess(false);
 
     try {
-      const res = await fetch("/api/auth/forgot-password", {
+      const res = await apiFetch("/api/auth/forgot-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),

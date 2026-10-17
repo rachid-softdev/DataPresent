@@ -75,7 +75,9 @@ test.describe("Checkout et abonnement", () => {
   }) => {
     await page.goto("/settings/billing");
     // The settings sidebar nav link for billing should be active
-    const billingLink = page.locator("aside nav a").filter({ hasText: /abonnement|billing/i });
+    const billingLink = page
+      .locator("aside.app-sidebar nav")
+      .getByRole("link", { name: /abonnement|billing/i });
     await expect(billingLink).toHaveClass(/active/);
   });
 

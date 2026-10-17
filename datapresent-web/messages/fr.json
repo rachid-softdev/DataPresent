@@ -81,6 +81,7 @@
     },
     "resource": {
       "notFound": "Non trouvé",
+      "limitReached": "Limite mensuelle atteinte. Passez à un plan supérieur pour continuer.",
       "forbidden": "Accès interdit",
       "memberNotFound": "Utilisateur non trouvé",
       "alreadyMember": "L'utilisateur est déjà membre",
@@ -177,9 +178,13 @@
         "name": "Gratuit",
         "description": "Pour les particuliers qui débutent"
       },
+      "starter": {
+        "name": "Starter",
+        "description": "Pour les professionnels"
+      },
       "pro": {
         "name": "Pro",
-        "description": "Pour les professionnels et petites équipes"
+        "description": "Pour les équipes et la collaboration"
       },
       "enterprise": {
         "name": "Entreprise",

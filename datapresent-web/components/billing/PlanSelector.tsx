@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { type PricingPlan, PricingTable } from "@/components/billing/PricingTable";
+import { apiFetch } from "@/lib/api-client";
 
 interface PlanSelectorProps {
   plans: PricingPlan[];
@@ -11,7 +12,7 @@ export function PlanSelector({ plans }: PlanSelectorProps) {
   const handleSelectPlan = async (planId: string) => {
     if (planId === "FREE") return;
     try {
-      const res = await fetch("/api/stripe/checkout", {
+      const res = await apiFetch("/api/stripe/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ plan: planId }),

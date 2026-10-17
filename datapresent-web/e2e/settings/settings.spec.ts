@@ -15,7 +15,10 @@ test.describe("Paramètres — Navigation latérale", () => {
     await page.goto("/settings/profile");
 
     const sidebar = page.locator("aside.app-sidebar nav");
-    const links = sidebar.locator("a");
+    // getByRole walks the accessibility tree, which ignores nodes a stalled
+    // dev-server stream may leave hidden (`div hidden id="S:0"`); raw CSS
+    // locators would count that orphaned duplicate shell twice.
+    const links = sidebar.getByRole("link");
     await expect(links).toHaveCount(6);
 
     await expect(sidebar.getByRole("link", { name: /mon compte|profile/i })).toBeVisible();
@@ -27,12 +30,16 @@ test.describe("Paramètres — Navigation latérale", () => {
   });
 
   test("le lien actif dans la sidebar a la classe 'active'", async ({ page }) => {
+    // getByRole matches the accessibility tree only — a stalled dev-server
+    // stream can orphan a hidden duplicate of the shell in the DOM, which
+    // raw CSS locators would count twice.
+    const sidebar = page.locator("aside.app-sidebar nav");
     await page.goto("/settings/profile");
-    const monCompteLink = page.locator("aside nav a").filter({ hasText: /mon compte/i });
+    const monCompteLink = sidebar.getByRole("link", { name: /mon compte|profile/i });
     await expect(monCompteLink).toHaveClass(/active/);
 
     await page.goto("/settings/organization");
-    const orgLink = page.locator("aside nav a").filter({ hasText: /organisation/i });
+    const orgLink = sidebar.getByRole("link", { name: /organisation/i });
     await expect(orgLink).toHaveClass(/active/);
   });
 });

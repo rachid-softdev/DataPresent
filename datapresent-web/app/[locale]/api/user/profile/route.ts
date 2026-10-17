@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { unauthorized } from "@/lib/errors";
 import { prisma } from "@/lib/prisma";
+import { withCsrfProtection } from "@/lib/security";
 
 export async function GET(req: NextRequest) {
   const session = await auth();
@@ -22,6 +23,9 @@ export async function PATCH(req: NextRequest) {
   if (!session?.user?.id) {
     return unauthorized();
   }
+
+  const csrfResponse = await withCsrfProtection(req, session.user.id);
+  if (csrfResponse) return csrfResponse;
 
   const { name } = await req.json();
 
