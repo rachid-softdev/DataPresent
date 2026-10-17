@@ -198,8 +198,29 @@ describe("POST /api/upload — F1 quota consumption regression", () => {
     );
 
     expect(lastStatus).toBe(403);
+    // Regression: the maxSlides rejection must run BEFORE consume so a rejected
+    // upload does not burn the monthly quota.
+    expect(mockConsume).not.toHaveBeenCalled();
     expect(mockPrismaReportCreate).not.toHaveBeenCalled();
     expect(mockQueueAdd).not.toHaveBeenCalled();
+  });
+
+  it("clamps negative slideCount to the default instead of passing it through", async () => {
+    const form = new FormData();
+    form.append("file", new File([new Uint8Array(8)], "sales.csv", { type: "text/csv" }));
+    form.append("sector", "retail");
+    form.append("slideCount", "-5");
+
+    await POST(
+      new Request("http://localhost:3000/api/upload", { method: "POST", body: form }) as never,
+    );
+
+    expect(lastStatus).toBe(200);
+    expect(mockPrismaReportCreate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ slideCount: 10 }),
+      }),
+    );
   });
 
   it("returns 429 when rate limit is hit (before consume)", async () => {

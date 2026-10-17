@@ -40,6 +40,7 @@ const mockGenerateQueue = vi.hoisted(() => ({
   add: vi.fn(),
 }));
 const mockLogApiError = vi.hoisted(() => vi.fn());
+const mockGetLimit = vi.hoisted(() => vi.fn());
 
 const mockUnauthorized = vi.hoisted(() => vi.fn());
 const mockForbidden = vi.hoisted(() => vi.fn());
@@ -55,6 +56,10 @@ const MOCK_ERROR_CODES = vi.hoisted(() => ({
 
 vi.mock("@/lib/security", () => ({
   withCsrfProtection: mockWithCsrfProtection,
+}));
+
+vi.mock("@/lib/entitlements/feature-gate", () => ({
+  getLimit: mockGetLimit,
 }));
 
 vi.mock("@/lib/auth", () => ({
@@ -142,6 +147,7 @@ function makeValidReport(overrides: Record<string, unknown> = {}): Record<string
     sector: "retail",
     slideCount: 10,
     org: {
+      id: "org-1",
       members: [{ userId: "user-123" }],
     },
     sourceFile: {
@@ -170,6 +176,7 @@ describe("Regenerate Route — CSRF Protection & Validation", () => {
     mockBadRequest.mockReturnValue(
       new Response(JSON.stringify({ error: "errors.validation.required" }), { status: 400 }),
     );
+    mockGetLimit.mockResolvedValue(null);
   });
 
   // -----------------------------------------------------------------------
@@ -380,10 +387,10 @@ describe("Regenerate Route — CSRF Protection & Validation", () => {
       const updateCall = mockPrisma.report.update.mock.calls[0][0];
       expect(updateCall.data.sector).toBeUndefined();
 
-      // Verify slides deleted
-      expect(mockPrisma.slide.deleteMany).toHaveBeenCalledWith({
-        where: { reportId: "report-123" },
-      });
+      // Slides must NOT be deleted by the route — the worker snapshots the
+      // current slides and swaps them atomically (regression: the pre-delete
+      // used to destroy the deck before generation).
+      expect(mockPrisma.slide.deleteMany).not.toHaveBeenCalled();
 
       // Verify job enqueued
       expect(mockSignJobData).toHaveBeenCalledWith({
@@ -421,6 +428,46 @@ describe("Regenerate Route — CSRF Protection & Validation", () => {
         reportId: "report-123",
         userId: "user-123",
         slideCount: 15,
+      });
+    });
+
+    it("should reject with 403 when slideCount exceeds the plan maxSlides", async () => {
+      mockAuth.mockResolvedValue({
+        user: { id: "user-123", email: "test@example.com" },
+        expires: new Date(Date.now() + 86400).toISOString(),
+      });
+      mockWithCsrfProtection.mockResolvedValue(null);
+      mockPrisma.report.findUnique.mockResolvedValue(makeValidReport());
+      mockGetLimit.mockResolvedValue(10);
+
+      const req = createRequest({ body: { slideCount: 25 } });
+      const result = await POST(req, { params: Promise.resolve({ id: "report-123" }) });
+
+      expect(result.status).toBe(403);
+      expect(mockPrisma.report.update).not.toHaveBeenCalled();
+      expect(mockPrisma.slide.deleteMany).not.toHaveBeenCalled();
+      expect(mockGenerateQueue.add).not.toHaveBeenCalled();
+    });
+
+    it("should ignore non-positive slideCount instead of passing it to the job", async () => {
+      mockAuth.mockResolvedValue({
+        user: { id: "user-123", email: "test@example.com" },
+        expires: new Date(Date.now() + 86400).toISOString(),
+      });
+      mockWithCsrfProtection.mockResolvedValue(null);
+      mockPrisma.report.findUnique.mockResolvedValue(makeValidReport());
+      mockPrisma.report.update.mockResolvedValue({ id: "report-123" });
+      mockSignJobData.mockReturnValue({ signed: "secure-job" });
+      mockGenerateQueue.add.mockResolvedValue(undefined);
+
+      const req = createRequest({ body: { slideCount: -5 } });
+      const result = await POST(req, { params: Promise.resolve({ id: "report-123" }) });
+
+      expect(result.status).toBe(200);
+      // No slideCount key must be added to the signed job data
+      expect(mockSignJobData).toHaveBeenCalledWith({
+        reportId: "report-123",
+        userId: "user-123",
       });
     });
   });

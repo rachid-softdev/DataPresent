@@ -35,7 +35,9 @@ export async function POST(req: NextRequest) {
     const formData = await req.formData();
     const file = formData.get("file") as File;
     const sector = formData.get("sector") as string;
-    const slideCount = parseInt(formData.get("slideCount") as string) || 10;
+    const parsedSlideCount = Number.parseInt(formData.get("slideCount") as string, 10);
+    const slideCount =
+      Number.isInteger(parsedSlideCount) && parsedSlideCount >= 1 ? parsedSlideCount : 10;
     const language = (formData.get("language") as string) || "fr";
 
     if (!file || !sector) {
@@ -92,28 +94,29 @@ export async function POST(req: NextRequest) {
       return badRequest(ERROR_CODES.ERR_RESOURCE_NO_ORGANIZATION);
     }
 
+    // Validate slide count against plan (must run before consume so rejected
+    // uploads don't burn the monthly quota).
+    const maxSlides = await getLimit(org.id, "maxSlides");
+    if (maxSlides !== null && slideCount > maxSlides) {
+      return NextResponse.json(
+        { error: `Limite de ${maxSlides} slides atteinte pour ce rapport.` },
+        { status: 403 },
+      );
+    }
+
     // Check report quota (atomic consume — decrements the monthly quota).
     // Placed after all validations so invalid uploads don't burn quota.
     const consumption = await consume(org.id, "reportsPerMonth", 1);
     if (!consumption.success) {
       return NextResponse.json(
         {
-          error: ERROR_CODES.ERR_RESOURCE_NOT_FOUND,
+          error: ERROR_CODES.ERR_RESOURCE_LIMIT_REACHED,
           upgrade: true,
           feature: "reportsPerMonth",
           limit: consumption.limit,
           used: consumption.used,
           resetAt: consumption.resetAt,
         },
-        { status: 403 },
-      );
-    }
-
-    // Validate slide count against plan
-    const maxSlides = await getLimit(org.id, "maxSlides");
-    if (maxSlides !== null && slideCount > maxSlides) {
-      return NextResponse.json(
-        { error: `Limite de ${maxSlides} slides atteinte pour ce rapport.` },
         { status: 403 },
       );
     }

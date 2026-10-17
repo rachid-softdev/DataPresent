@@ -60,6 +60,9 @@ jobs:
 
       - name: Run TypeScript Check
         run: pnpm run web:typecheck
+        env:
+          # tsc can exceed Node's default heap on this codebase; give it headroom
+          NODE_OPTIONS: --max-old-space-size=4096
 
   test-unit:
     name: Unit Tests

@@ -81,6 +81,7 @@
     },
     "resource": {
       "notFound": "Not found",
+      "limitReached": "Monthly limit reached. Upgrade your plan to continue.",
       "forbidden": "Access forbidden",
       "memberNotFound": "User not found",
       "alreadyMember": "User is already a member",

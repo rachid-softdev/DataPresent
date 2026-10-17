@@ -7,6 +7,7 @@ import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { CommentThread } from "@/components/comments/CommentThread";
 import { Button } from "@/components/ui/button";
+import { apiFetch } from "@/lib/api-client";
 import { SlideCard } from "./SlideCard";
 import { SortableSlideList } from "./SortableSlideList";
 
@@ -64,7 +65,7 @@ export function SlideViewer({ slides: initialSlides, reportId }: SlideViewerProp
       setSlides(reorderedSlides);
       // Persist the new order
       try {
-        const res = await fetch(`/api/reports/${reportId}/reorder`, {
+        const res = await apiFetch(`/api/reports/${reportId}/reorder`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({

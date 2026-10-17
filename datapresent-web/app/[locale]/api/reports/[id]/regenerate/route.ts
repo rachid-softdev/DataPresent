@@ -1,6 +1,7 @@
 import type { Prisma } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
+import { getLimit } from "@/lib/entitlements/feature-gate";
 import { badRequest, ERROR_CODES, forbidden, notFound, unauthorized } from "@/lib/errors";
 import { prisma } from "@/lib/prisma";
 import { getGenerateQueue } from "@/lib/queue";
@@ -45,7 +46,26 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       return badRequest(ERROR_CODES.ERR_RESOURCE_ALREADY_GENERATING);
     }
 
-    const { sector, slideCount } = await req.json().catch(() => ({}));
+    const { sector, slideCount: rawSlideCount } = await req.json().catch(() => ({}));
+
+    // Coerce the optional slideCount override; invalid values fall back to the
+    // worker default instead of reaching the AI layer as negative counts.
+    const parsedSlideCount = Number(rawSlideCount);
+    const slideCount =
+      rawSlideCount !== undefined && Number.isInteger(parsedSlideCount) && parsedSlideCount >= 1
+        ? parsedSlideCount
+        : undefined;
+
+    // Validate the effective slide count against the plan before enqueueing
+    // (mirrors the worker backstop; avoids flipping the report to ERROR).
+    const maxSlides = await getLimit(report.org.id, "maxSlides");
+    const requestedCount = slideCount ?? 10;
+    if (maxSlides !== null && requestedCount > maxSlides) {
+      return NextResponse.json(
+        { error: `Limite de ${maxSlides} slides atteinte pour ce rapport.` },
+        { status: 403 },
+      );
+    }
 
     const updateData: Prisma.ReportUpdateInput = {
       status: "PENDING",
@@ -64,9 +84,9 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       data: updateData,
     });
 
-    await prisma.slide.deleteMany({
-      where: { reportId },
-    });
+    // NOTE: slides are intentionally NOT deleted here — the worker snapshots the
+    // current slides into a ReportVersion and swaps them atomically, so a failed
+    // regeneration no longer destroys the existing deck.
 
     // SECURITY: Sign job data with userId
     const signedJob = signJobData({

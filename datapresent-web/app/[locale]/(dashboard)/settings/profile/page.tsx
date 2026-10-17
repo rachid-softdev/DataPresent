@@ -10,6 +10,7 @@ import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { apiFetch } from "@/lib/api-client";
 
 interface User {
   id: string;
@@ -46,7 +47,7 @@ export default function ProfilePage() {
 
   const handleSave = async () => {
     setSaving(true);
-    const res = await fetch("/api/user/profile", {
+    const res = await apiFetch("/api/user/profile", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name }),

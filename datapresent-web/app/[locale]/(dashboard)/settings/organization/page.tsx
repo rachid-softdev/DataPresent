@@ -12,6 +12,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { apiFetch } from "@/lib/api-client";
 
 interface Organization {
   id: string;
@@ -71,7 +72,7 @@ export default function OrganizationSettingsPage() {
     }
 
     setSaving(true);
-    const res = await fetch("/api/organizations", {
+    const res = await apiFetch("/api/organizations", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name: newOrgName, slug: newOrgSlug }),
@@ -96,7 +97,7 @@ export default function OrganizationSettingsPage() {
     if (!inviteEmail || !selectedOrg) return;
 
     setSaving(true);
-    const res = await fetch(`/api/organizations/${selectedOrg}/members`, {
+    const res = await apiFetch(`/api/organizations/${selectedOrg}/members`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email: inviteEmail }),
@@ -120,7 +121,7 @@ export default function OrganizationSettingsPage() {
     if (!selectedOrg || removingMemberId) return;
 
     setRemovingMemberId(userId);
-    const res = await fetch(`/api/organizations/${selectedOrg}/members`, {
+    const res = await apiFetch(`/api/organizations/${selectedOrg}/members`, {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ userId }),

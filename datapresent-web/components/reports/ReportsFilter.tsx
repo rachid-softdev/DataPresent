@@ -27,6 +27,7 @@ import {
 import { EmptyState } from "@/components/ui/empty-state";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import { apiFetch } from "@/lib/api-client";
 
 interface Report {
   id: string;
@@ -130,7 +131,7 @@ export function ReportsFilter({
 
     setBatchDeleting(true);
     try {
-      const res = await fetch("/api/reports/batch/delete", {
+      const res = await apiFetch("/api/reports/batch/delete", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ids }),
@@ -164,7 +165,7 @@ export function ReportsFilter({
 
       for (const id of ids) {
         try {
-          const res = await fetch(`/api/reports/${id}/export`, {
+          const res = await apiFetch(`/api/reports/${id}/export`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ format }),

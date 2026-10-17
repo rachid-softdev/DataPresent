@@ -14,6 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { apiFetch } from "@/lib/api-client";
 
 interface ShareModalProps {
   reportId: string;
@@ -73,7 +74,7 @@ export function ShareModal({ reportId }: ShareModalProps) {
 
   const togglePublic = async () => {
     setLoading(true);
-    const res = await fetch(`/api/reports/${reportId}/share`, {
+    const res = await apiFetch(`/api/reports/${reportId}/share`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ isPublic: !settings.isPublic }),
@@ -97,7 +98,7 @@ export function ShareModal({ reportId }: ShareModalProps) {
   const updateSettings = async (updates: Partial<ShareSettings>) => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/reports/${reportId}/share`, {
+      const res = await apiFetch(`/api/reports/${reportId}/share`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(updates),

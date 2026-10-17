@@ -10,6 +10,7 @@
     "start": "next start",
     "lint": "eslint . --no-warn-ignored",
     "lint:staged": "eslint --no-warn-ignored",
+    "typecheck": "tsc --noEmit",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
     "db:studio": "prisma studio",

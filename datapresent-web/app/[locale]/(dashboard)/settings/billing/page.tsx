@@ -2,28 +2,26 @@ import { getTranslations } from "next-intl/server";
 import { PlanSelector } from "@/components/billing/PlanSelector";
 import { PricingPlanFeature } from "@/components/billing/PricingTable";
 import { auth } from "@/lib/auth";
-import { getAllEntitlements } from "@/lib/entitlements/feature-gate";
+import { entitlementRepository, type PlanFeatureWithFeature } from "@/lib/entitlements/repository";
 import { getPlanPricing, PLAN_PRICING } from "@/lib/entitlements/plan-pricing";
 import { prisma } from "@/lib/prisma";
 
-async function buildFeatures(planKey: string, orgId?: string): Promise<PricingPlanFeature[]> {
+function buildFeatures(rows: PlanFeatureWithFeature[]): PricingPlanFeature[] {
   const features: PricingPlanFeature[] = [];
 
-  // If we have an orgId, fetch entitlement data from DB; otherwise use defaults
-  let entitlements = null;
-  if (orgId) {
-    entitlements = await getAllEntitlements(orgId);
-  }
+  // Plan cards must show the catalog value for *this* plan (what a customer
+  // gets after subscribing), not the current org's entitlement resolution.
+  const byKey = new Map(rows.map((row) => [row.feature.key, row]));
 
-  // Helper to get a feature value
+  // Helper to get a feature value for this plan from the plan/feature catalog
   const getValue = (key: string, defaultValue: number | boolean): number | boolean => {
-    if (entitlements) {
-      if (key in entitlements.limits && entitlements.limits[key] !== null) {
-        return entitlements.limits[key]!;
+    const row = byKey.get(key);
+    if (row) {
+      if (row.feature.type === "LIMIT") {
+        if (!row.enabled) return 0;
+        return row.limitValue === null ? -1 : row.limitValue;
       }
-      if (key in entitlements.features) {
-        return entitlements.features[key];
-      }
+      return row.enabled;
     }
     return defaultValue;
   };
@@ -104,10 +102,10 @@ export default async function BillingPage() {
 
   const org = user?.membership[0]?.org;
   const subscription = org?.subscription;
-  const orgId = org?.id;
 
   const plans = (["FREE", "STARTER", "PRO", "ULTRA"] as const).map(async (plan) => {
     const pricing = getPlanPricing(plan);
+    const planFeatureRows = await entitlementRepository.getPlanFeatures(plan);
     return {
       id: plan,
       name: pricing.name,
@@ -117,7 +115,7 @@ export default async function BillingPage() {
         plan === "ULTRA"
           ? "Pour les agences et grandes organisations nécessitant des solutions personnalisées"
           : t(`plans.${plan.toLowerCase()}.description`),
-      features: await buildFeatures(plan, orgId),
+      features: buildFeatures(planFeatureRows),
       popular: plan === "STARTER",
       cta:
         plan === "FREE" ? "Plan actuel" : plan === "ULTRA" ? "Contacter les ventes" : "Souscrire",
