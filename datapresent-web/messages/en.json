@@ -170,9 +170,13 @@
         "name": "Free",
         "description": "For individuals getting started"
       },
+      "starter": {
+        "name": "Starter",
+        "description": "For professionals"
+      },
       "pro": {
         "name": "Pro",
-        "description": "For professionals and small teams"
+        "description": "For teams and collaboration"
       },
       "enterprise": {
         "name": "Enterprise",

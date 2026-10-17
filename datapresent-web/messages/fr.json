@@ -178,9 +178,13 @@
         "name": "Gratuit",
         "description": "Pour les particuliers qui débutent"
       },
+      "starter": {
+        "name": "Starter",
+        "description": "Pour les professionnels"
+      },
       "pro": {
         "name": "Pro",
-        "description": "Pour les professionnels et petites équipes"
+        "description": "Pour les équipes et la collaboration"
       },
       "enterprise": {
         "name": "Entreprise",
