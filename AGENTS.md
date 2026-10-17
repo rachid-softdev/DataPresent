@@ -13,7 +13,9 @@
 
 ## Progress
 ### Done
-- **CI green-up (in progress — E2E pending):** lint / typecheck / unit / coverage / integration / build jobs all green on `main`
+- **CI green-up (DONE `14631de`):** ALL jobs green on `main` for run 38984321730 — lint / typecheck / unit / integration / coverage / build **and all 4 E2E shards** (chromium / authenticated / firefox / webkit). E2E was the last blocker.
+- **E2E fixes (`14631de`):** `landing.spec.ts` asserted the removed "testimonials" names (Sophie Martin…) — the section was replaced by use-case cards in `ea7e8ad` without updating the spec → rewrote to assert `.landing-testimonials-grid` cards. `components/layout/header.tsx` dev-only "Dev" link overflowed the 375px header (body 401 vs viewport 375) → added `hidden! sm:inline-flex!` (fixes `error-boundaries.spec.ts` 404-overflow test). Hardened 4 flaky strict-mode selectors with `.first()` (a11y `main`, blog `footer`, pricing Pro CTA, responsive `.grid`).
+- **E2E local-run caveat:** only **chromium** runs locally — `firefox-1532`/`webkit-2311` are installed but the pinned Playwright expects `firefox-1522` (and the matching webkit), so local firefox/webkit fail with "Executable doesn't exist". CI installs the correct versions via `playwright install --with-deps`. No local DB (no docker/psql) → `authenticated` project + auth specs can't run locally.
 - **Dependabot merge (`cd6739a`):** merged 11 branches (next 16.3.1, @types/node 26, vitest 4.1.11, eslint-config-next 16.3.1, lucide-react 1.25, etc.). Reverted prisma 7→`^5.22.0` (2-major jump needs DB) and eslint 10→`^9` (eslint-plugin-react 7.37.5 max peer `eslint ^9.7`). Closed 11 PRs, 0 branches left.
 - **Post-merge gate fixes (`86e2b48`):** eslint-disable for 2 pre-existing `as any` (r2.ts, bullmq.d.ts) to green the lint job; `next.config.ts` added `experimental.cpus` + `webpackMemoryOptimizations` to fix local build OOM with next 16.3.1.
 - **CI workflow fixes (`3eeab7a`):** lint double-`--` bug (`pnpm run lint -- --quiet` → eslint treats `--quiet` as a file pattern) fixed in ci.yml + security.yml; root package.json gained missing `test:coverage` + `test:integration` scripts; Node 20→22 (EOL Apr 2026); husky `commit-msg` hook now calls `./node_modules/.bin/commitlint` directly (npx is a .cmd, not executable in Git Bash).
@@ -22,10 +24,14 @@
 - (Prior work, still done:) plan-tier rename, 15 entitlements bugs + 5 regression suites (94 tests), unit suite 1411 green, `tsc` clean, `next build --webpack` passes, `biome check` clean (573 files), admin entitlements UI + 49 admin tests, upload magic-bytes-before-consume bug fix, migration rewritten as single-step final state (`0291574`).
 
 ### In Progress
-- E2E suite on CI (runs after `db:generate` fix) — duration and failure analysis pending
+- (none — pipeline green)
 
 ### Blocked
 - (none) — no DB locally; `prisma migrate deploy` runs only on CI postgres service / when a DB is reachable
+
+### Backlog (post-CI-green)
+- 11 open dependabot PRs to triage: prisma 7.9.1, bullmq 6.2.0, ioredis 6.0.0, react group, stripe 22.5.0, googleapis 176, puppeteer-core 25.8.0, @hookform/resolvers 5.9.1, sonner 2.0.8, @testing-library/jest-dom 7.0.1, actions/setup-node 7 — all red on CI
+- Scheduled workflows failing: `Prospecting Agent` (recurring failure, ~2 min) and `Blog Generation` (fails in ~14s)
 
 ## Key Decisions
 - `withLimit` overload: `(featureKey, handler)` and `(featureKey, amount, handler)`
@@ -55,10 +61,13 @@
 - `datapresent-web/app/[locale]/about/page.tsx` — `TeamMember` type fix
 - `datapresent-web/components/reports/ReportsFilter.tsx` — custom `@datapresent-ui` props
 - `datapresent-web/lib/exporters/pdf.ts`, `datapresent-web/lib/r2.ts`, `datapresent-web/lib/queue/client.ts`, `datapresent-web/lib/queue/workers/*.ts` — tsc fixes
+- `datapresent-web/components/layout/header.tsx` — dev "Dev" link hidden below `sm` (mobile 375px overflow fix)
+- `datapresent-web/e2e/landing.spec.ts` — use-case cards assertion (replaced stale testimonials)
+- `datapresent-web/e2e/{accessibility-axe,blog,pricing,responsive}.spec.ts` — `.first()` on flaky strict-mode selectors
 
 ## Next Steps
 - **Prisma migration (BLOCKED — no DB):** do NOT run `prisma migrate`. Prepared SQL renames enum values `PRO`→`STARTER`, `TEAM`→`PRO`, `AGENCY`→`ULTRA` in `prisma/migrations/20260716000000_rename_plan_tiers_to_free_starter_pro_ultra/migration.sql`. Apply via `prisma migrate deploy` once a DB is reachable.
-- (Pipeline status: lint / typecheck / unit / coverage / integration / build green; E2E running after `db:generate` fix — all pushed to `origin/main`)
+- (Pipeline status: **lint / typecheck / unit / integration / coverage / build + all 4 E2E shards GREEN** on `origin/main` @ `14631de`, run 38984321730)
 
 ---
 
