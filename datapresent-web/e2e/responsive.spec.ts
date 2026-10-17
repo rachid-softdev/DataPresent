@@ -126,7 +126,7 @@ test.describe("Responsive — Tablette (768px)", () => {
     await page.goto("/pricing");
 
     // On tablet (768px) the grid may be 2 columns
-    const grid = page.locator(".grid");
+    const grid = page.locator(".grid").first();
     await expect(grid).toBeVisible();
   });
 

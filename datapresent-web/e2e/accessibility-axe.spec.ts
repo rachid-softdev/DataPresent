@@ -77,7 +77,7 @@ async function expectAllButtonsHaveName(page: import("@playwright/test").Page) {
 }
 
 async function expectLandmarksPresent(page: import("@playwright/test").Page) {
-  await expect(page.locator("main")).toBeVisible();
+  await expect(page.locator("main").first()).toBeVisible();
   // nav, footer are expected but not all pages have both (e.g., blog has its own footer)
   const nav = page.locator('nav, [role="navigation"], header[role="banner"]');
   await expect(nav.first()).toBeVisible();

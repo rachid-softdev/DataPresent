@@ -49,7 +49,7 @@ test.describe("Page de tarification — /pricing", () => {
   });
 
   test("le bouton CTA du plan Pro redirige vers /signup?plan=pro", async ({ page }) => {
-    const proCta = page.locator('a[href="/signup?plan=pro"]');
+    const proCta = page.locator('a[href="/signup?plan=pro"]').first();
     await expect(proCta).toBeVisible();
   });
 

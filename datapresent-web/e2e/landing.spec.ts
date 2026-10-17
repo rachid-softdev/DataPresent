@@ -44,10 +44,12 @@ test.describe("Page d'accueil — / (Landing)", () => {
     await expect(signupLink).toBeVisible();
   });
 
-  test("la section témoignages est présente", async ({ page }) => {
-    await expect(page.locator("text=Sophie Martin")).toBeVisible();
-    await expect(page.locator("text=Thomas Dubois")).toBeVisible();
-    await expect(page.locator("text=Camille Bernard")).toBeVisible();
+  test("la section cas d'usage est présente", async ({ page }) => {
+    const useCases = page.locator(".landing-testimonials-grid");
+    await expect(useCases).toBeVisible();
+    await expect(useCases.locator("text=Weekly & monthly reporting")).toBeVisible();
+    await expect(useCases.locator("text=Team meetings & sprint reviews")).toBeVisible();
+    await expect(useCases.locator("text=Client & board presentations")).toBeVisible();
   });
 
   test("la FAQ est fonctionnelle — cliquer révèle la réponse", async ({ page }) => {

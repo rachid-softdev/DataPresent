@@ -36,7 +36,7 @@ export function Header({ hideAuth = false }: HeaderProps) {
           {IS_DEV && (
             <Link
               href="/dev/pages"
-              className="app-btn app-btn-ghost app-btn-sm text-red-500 hover:text-red-600"
+              className="app-btn app-btn-ghost app-btn-sm text-red-500 hover:text-red-600 hidden! sm:inline-flex!"
             >
               Dev
             </Link>

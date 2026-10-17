@@ -41,7 +41,7 @@ test.describe("Blog — /blog", () => {
   });
 
   test("les liens du footer sont présents", async ({ page }) => {
-    const footer = page.locator("footer");
+    const footer = page.locator("footer").first();
     await expect(footer).toBeVisible();
   });
 });
