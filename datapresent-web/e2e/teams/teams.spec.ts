@@ -50,12 +50,14 @@ test.describe("Équipe — /settings/team", () => {
 
   test("le sidebar de navigation paramètres est présent", async ({ page }) => {
     await page.goto("/settings/team");
-    await expect(page.locator("aside.app-sidebar")).toBeVisible();
+    await expect(page.locator("aside.app-sidebar").first()).toBeVisible();
   });
 
   test("le lien Équipe est actif dans la sidebar", async ({ page }) => {
     await page.goto("/settings/team");
-    const teamLink = page.locator("aside nav a").filter({ hasText: /équipe|team/i });
+    const teamLink = page
+      .locator("aside.app-sidebar nav")
+      .getByRole("link", { name: /équipe|team/i });
     await expect(teamLink).toHaveClass(/active/);
   });
 
